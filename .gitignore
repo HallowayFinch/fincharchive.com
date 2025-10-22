@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+.AppleDouble
+.Spotlight-V100
+.Trashes
+
+# Editors
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Build/output
+_site/
+dist/
+*.log
