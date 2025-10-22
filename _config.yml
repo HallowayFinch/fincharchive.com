@@ -1,0 +1,27 @@
+title: Finch Archive
+description: Recovered notes from incomplete transmissions.
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "https://fincharchive.com"
+markdown: kramdown
+theme: null
+collections:
+  logs:
+    output: true
+    permalink: /logs/:name/
+  field-notes:
+    output: true
+    permalink: /field-notes/:name/
+defaults:
+  - scope:
+      path: ""
+      type: "logs"
+    values:
+      layout: log
+  - scope:
+      path: ""
+      type: "field-notes"
+    values:
+      layout: fieldnote
+plugins: []
+sass:
+  style: compressed

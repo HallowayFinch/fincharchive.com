@@ -1,0 +1,9 @@
+<ul class="plain">
+{% assign items = site.logs | sort: 'date' | reverse %}
+{% for item in items %}
+  <li class="list-item">
+    <a href="{{ item.url | relative_url }}"><strong>{{ item.title }}</strong></a>
+    <div class="meta">{{ item.date | date: "%Y-%m-%d" }}</div>
+  </li>
+{% endfor %}
+</ul>
