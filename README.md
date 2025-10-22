@@ -1,36 +1,30 @@
 # Finch Archive
 
-Minimal Jekyll site for **fincharchive.com** — the in‑character home for Halloway Finch.
+**Recovered notes from incomplete transmissions.**
 
-## Aesthetic
-Black background, off‑white text, muted red accent. Serif for titles; monospace body. Tagline:
-> Recovered notes from incomplete transmissions.
+Each entry in this archive is presented as received. Completeness is not guaranteed.
 
-## Content model
-Two Jekyll collections:
-- `_logs/` → documentary logs
-- `_field-notes/` → field notes
+---
 
-Each item is a Markdown file with YAML front matter.
+## Overview
 
-## Automation (Substack → GitHub)
-Have your automation create Markdown files into `_logs/` with front matter like:
+This repository serves as the public mirror of the [Finch Archive](https://fincharchive.com) — a static reconstruction of data fragments attributed to **Halloway Finch**.
+
+- **Logs**: Timestamped procedural or observational entries  
+- **Field Notes**: Supporting documents, reflections, and contextual fragments  
+
+All materials are synchronized automatically from the canonical broadcast at [hallowayfinch.com](https://hallowayfinch.com) via RSS ingestion.
+
+---
+
+## Provenance
+
+Each file is timestamped and committed at ingestion.  
+Entries are never altered after their initial appearance.  
+Front matter fields include:
 
 ```yaml
----
-title: Log 1022B — <Title>
-date: 2025-10-29 22:22:00 -0500
+title: Log 1022A — The Voice in the Static
+date: 2025-10-22 22:22:00 -0500
 source: Substack
-canonical_url: https://hallowayfinch.substack.com/p/<slug>
----
-```
-
-Commit message suggestion:
-```
-Add {{title}} (via Substack RSS)
-```
-
-## GitHub Pages
-- This repo is GitHub Pages–ready. No external theme.
-- Custom domain is provided via `CNAME` (fincharchive.com).
-- Enable Pages in **Settings → Pages** with build from `main` branch (`/root`).
+canonical_url: https://hallowayfinch.substack.com/p/log-1022a
