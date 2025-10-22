@@ -1,0 +1,22 @@
+---
+layout: null
+permalink: /logs/feed.xml
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+  <title>{{ site.title }} — Logs</title>
+  <link>{{ site.url }}/logs/</link>
+  <description>{{ site.description }}</description>
+  {% assign items = site.logs | sort: 'date' | reverse %}
+  {% for item in items %}
+    <item>
+      <title>{{ item.title | xml_escape }}</title>
+      <link>{{ item.url | absolute_url }}</link>
+      <pubDate>{{ item.date | date_to_rfc822 }}</pubDate>
+      <guid>{{ item.url | absolute_url }}</guid>
+      <description><![CDATA[{{ item.content }}]]></description>
+    </item>
+  {% endfor %}
+</channel>
+</rss>
