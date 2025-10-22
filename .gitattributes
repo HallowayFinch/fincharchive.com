@@ -1,0 +1,6 @@
+# Ensure text normalization
+* text=auto eol=lf
+
+# Treat audio as binary
+*.mp3 binary
+*.wav binary
