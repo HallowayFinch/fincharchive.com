@@ -28,6 +28,7 @@ title: Log 1022A — The Voice in the Static
 date: 2025-10-22 22:22:00 -0500
 source: Substack
 canonical_url: https://hallowayfinch.substack.com/p/log-1022a
+```
 
 ---
 
