@@ -1,0 +1,20 @@
+name: Field Observation
+description: Report an observed anomaly for correlation.
+labels: ["observation"]
+body:
+  - type: input
+    id: timestamp
+    attributes:
+      label: Timestamp (local or UTC)
+      placeholder: "e.g., 2025-10-22 22:22:14 UTC"
+  - type: textarea
+    id: details
+    attributes:
+      label: Description
+      description: What was perceived. Keep to sensory facts.
+      placeholder: "Amplitude change, tone onset/decay, repetition interval…"
+  - type: input
+    id: location
+    attributes:
+      label: Context (optional)
+      placeholder: "room, device, medium"
