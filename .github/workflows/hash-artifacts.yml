@@ -4,9 +4,6 @@ on:
   push:
     paths:
       - "artifacts/**"
-    paths-ignore:
-      - "artifacts/**/metadata.json"
-      - "artifacts/**/SHA256SUMS.txt"
 
 permissions:
   contents: write
@@ -23,20 +20,23 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq ffmpeg
 
-      - name: List changed artifact files
+      - name: List changed artifact files (ignore metadata & sums)
         id: files
         shell: bash
         run: |
           set -euo pipefail
           BEFORE="${{ github.event.before }}"
           AFTER="${{ github.sha }}"
-          git diff --name-only "$BEFORE" "$AFTER" -- 'artifacts/**' \
-            | grep -vE '/(metadata\.json|SHA256SUMS\.txt)$' || true > changed.txt
-          echo "count=$(wc -l < changed.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
-          echo "Changed files (if any):"
+          # List changed files under artifacts/**
+          git diff --name-only "$BEFORE" "$AFTER" -- 'artifacts/**' > all.txt || true
+          # Ignore these two
+          grep -vE '/(metadata\.json|SHA256SUMS\.txt)$' all.txt || true > changed.txt
+          COUNT=$(wc -l < changed.txt | tr -d ' ')
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          echo "Changed files:"
           cat changed.txt || true
 
-      - name: Compute hashes & update metadata (jq-only, no heredocs)
+      - name: Compute hashes & update metadata
         if: steps.files.outputs.count != '0'
         shell: bash
         run: |
@@ -61,12 +61,12 @@ jobs:
             (grep -v "  $f\$" "$SUMS" 2>/dev/null || true; printf "%s  %s\n" "$HASH" "$f") | sort -u > "$SUMS.tmp"
             mv "$SUMS.tmp" "$SUMS"
 
-            # Metadata path and LOG_ID (e.g., log-1022a -> 1022A)
+            # Build LOG_ID from folder name: log-1022a -> 1022A
             LOGDIR=$(basename "$DIR"); RAW="${LOGDIR#log-}"; LOGID=$(echo "$RAW" | tr '[:lower:]' '[:upper:]')
             META="$DIR/metadata.json"
 
             if [ ! -f "$META" ]; then
-              # Create minimal metadata from scratch via jq -n
+              # Create minimal metadata (jq-only, no heredocs)
               jq -n \
                 --arg logid "$LOGID" \
                 --arg mime "$MIME" \
@@ -91,7 +91,7 @@ jobs:
                   canonical_url: ("https://fincharchive.com/" + $dir + "/metadata.json")
                 }' > "$META"
             else
-              # Update existing file / type / duration / checksum; preserve your other fields
+              # Update core fields; preserve your custom ones (e.g., HiddenPhrase)
               jq \
                 --arg file "$BASE" \
                 --arg algo "SHA256" \
