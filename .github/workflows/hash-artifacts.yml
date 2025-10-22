@@ -32,11 +32,11 @@ jobs:
           AFTER="${{ github.sha }}"
           git diff --name-only "$BEFORE" "$AFTER" -- 'artifacts/**' \
             | grep -vE '/(metadata\.json|SHA256SUMS\.txt)$' || true > changed.txt
-          echo "Changed files:"
+          echo "count=$(wc -l < changed.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
+          echo "Changed files (if any):"
           cat changed.txt || true
-          echo "count=$(wc -l < changed.txt 2>/dev/null | tr -d ' ')" >> "$GITHUB_OUTPUT"
 
-      - name: Compute hashes & update metadata
+      - name: Compute hashes & update metadata (jq-only, no heredocs)
         if: steps.files.outputs.count != '0'
         shell: bash
         run: |
@@ -61,37 +61,49 @@ jobs:
             (grep -v "  $f\$" "$SUMS" 2>/dev/null || true; printf "%s  %s\n" "$HASH" "$f") | sort -u > "$SUMS.tmp"
             mv "$SUMS.tmp" "$SUMS"
 
-            # Derive LOG_ID like 1022A from folder name log-1022a
-            LOGDIR=$(basename "$DIR")
-            RAW="${LOGDIR#log-}"
-            LOGID=$(echo "$RAW" | tr '[:lower:]' '[:upper:]')
+            # Metadata path and LOG_ID (e.g., log-1022a -> 1022A)
+            LOGDIR=$(basename "$DIR"); RAW="${LOGDIR#log-}"; LOGID=$(echo "$RAW" | tr '[:lower:]' '[:upper:]')
             META="$DIR/metadata.json"
 
             if [ ! -f "$META" ]; then
-              # Write minimal JSON via quoted heredoc (no YAML parsing issues)
-              cat > "$META" <<'JSON'
-{
-  "log_id": "__LOGID__",
-  "title": "",
-  "date_published": "",
-  "artifact_type": "__MIME__",
-  "file": "__FILE__",
-  "duration_seconds": __DUR__,
-  "reverse_playback": false,
-  "notable_timestamp": "",
-  "description": "",
-  "checksum": { "algorithm": "SHA256", "value": "__HASH__" },
-  "provenance": {},
-  "license": "See repository LICENSE",
-  "canonical_url": "https://fincharchive.com/__DIR__/metadata.json"
-}
-JSON
-              sed -i "s|__LOGID__|$LOGID|g; s|__MIME__|$MIME|g; s|__FILE__|$BASE|g; s|__DUR__|$DUR|g; s|__HASH__|$HASH|g; s|__DIR__|$DIR|g" "$META"
+              # Create minimal metadata from scratch via jq -n
+              jq -n \
+                --arg logid "$LOGID" \
+                --arg mime "$MIME" \
+                --arg file "$BASE" \
+                --arg algo "SHA256" \
+                --arg hash "$HASH" \
+                --arg dir "$DIR" \
+                --argjson dur "$DUR" \
+                '{
+                  log_id: $logid,
+                  title: "",
+                  date_published: "",
+                  artifact_type: $mime,
+                  file: $file,
+                  duration_seconds: $dur,
+                  reverse_playback: false,
+                  notable_timestamp: "",
+                  description: "",
+                  checksum: { algorithm: $algo, value: $hash },
+                  provenance: {},
+                  license: "See repository LICENSE",
+                  canonical_url: ("https://fincharchive.com/" + $dir + "/metadata.json")
+                }' > "$META"
             else
-              # Update existing metadata while preserving your custom fields
-              jq --arg file "$BASE" --arg algo "SHA256" --arg hash "$HASH" --arg type "$MIME" --argjson dur "$DUR" \
-                 '.file=$file | .artifact_type=$type | .duration_seconds=$dur | .checksum=({algorithm:$algo, value:$hash})' \
-                 "$META" > "$META.tmp" && mv "$META.tmp" "$META"
+              # Update existing file / type / duration / checksum; preserve your other fields
+              jq \
+                --arg file "$BASE" \
+                --arg algo "SHA256" \
+                --arg hash "$HASH" \
+                --arg type "$MIME" \
+                --argjson dur "$DUR" \
+                '
+                  .file = $file
+                  | .artifact_type = $type
+                  | .duration_seconds = $dur
+                  | .checksum = ({algorithm: $algo, value: $hash})
+                ' "$META" > "$META.tmp" && mv "$META.tmp" "$META"
             fi
 
             git add "$SUMS" "$META"
