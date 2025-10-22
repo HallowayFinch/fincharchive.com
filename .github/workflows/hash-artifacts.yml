@@ -4,125 +4,106 @@ on:
   push:
     paths:
       - "artifacts/**"
-      - "!artifacts/**/metadata.json"
-      - "!artifacts/**/SHA256SUMS.txt"
+    paths-ignore:
+      - "artifacts/**/metadata.json"
+      - "artifacts/**/SHA256SUMS.txt"
 
 permissions:
   contents: write
 
 jobs:
   hash:
-    # Prevent infinite loops if the bot commits
-    if: ${{ github.actor != 'github-actions[bot]' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install tools (jq + ffmpeg for durations)
+      - name: Install jq and ffmpeg
         run: |
           sudo apt-get update
           sudo apt-get install -y jq ffmpeg
 
-      - name: Compute hashes and update metadata
+      - name: List changed artifact files
+        id: files
         shell: bash
         run: |
           set -euo pipefail
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.sha }}"
+          git diff --name-only "$BEFORE" "$AFTER" -- 'artifacts/**' \
+            | grep -vE '/(metadata\.json|SHA256SUMS\.txt)$' || true > changed.txt
+          echo "Changed files:"
+          cat changed.txt || true
+          echo "count=$(wc -l < changed.txt 2>/dev/null | tr -d ' ')" >> "$GITHUB_OUTPUT"
 
-          # Which artifact files changed in this push?
-          CHANGED="$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" -- 'artifacts/**' ':!**/metadata.json' ':!**/SHA256SUMS.txt' || true)"
-          if [ -z "$CHANGED" ]; then
-            echo "No artifact files changed."
-            exit 0
-          fi
-
-          updated_files=0
-
+      - name: Compute hashes & update metadata
+        if: steps.files.outputs.count != '0'
+        shell: bash
+        run: |
+          set -euo pipefail
           while IFS= read -r f; do
-            [ -z "$f" ] && continue
-            [ -f "$f" ] || continue
+            [ -n "${f:-}" ] && [ -f "$f" ] || continue
+            echo "Processing $f"
 
-            echo "Processing: $f"
-            HASH="$(sha256sum "$f" | awk '{print $1}')"
-            DIR="$(dirname "$f")"
-            BASENAME="$(basename "$f")"
+            HASH=$(sha256sum "$f" | awk '{print $1}')
+            DIR=$(dirname "$f")
+            BASE=$(basename "$f")
+            MIME=$(file --mime-type -b "$f" || echo application/octet-stream)
 
-            # MIME type (best-effort)
-            MIMETYPE="$(file --mime-type -b "$f" || echo application/octet-stream)"
-
-            # Duration (audio/video) with 3 decimals; else 0.000
-            DURATION="0.000"
-            if [[ "$MIMETYPE" == audio/* || "$MIMETYPE" == video/* ]]; then
-              DURATION="$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$f" | awk '{printf "%.3f",$1}')"
-              DURATION="${DURATION:-0.000}"
+            DUR="0.000"
+            if [[ "$MIME" == audio/* || "$MIME" == video/* ]]; then
+              DUR=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$f" | awk '{printf "%.3f",$1}')
+              DUR=${DUR:-0.000}
             fi
 
             # Update SHA256SUMS.txt (idempotent)
             SUMS="$DIR/SHA256SUMS.txt"
-            touch "$SUMS"
-            if grep -qE "  $f$" "$SUMS"; then
-              awk -v path="$f" -v hash="$HASH" 'BEGIN{OFS="  "} $2==path{$1=hash} $2!=path{print} END{print hash, path > "/dev/stderr"}' "$SUMS" \
-                2> >(tail -1 >/dev/null) | sort -u > "$SUMS.tmp"
-              mv "$SUMS.tmp" "$SUMS"
-            else
-              printf "%s  %s\n" "$HASH" "$f" >> "$SUMS"
-            fi
+            (grep -v "  $f\$" "$SUMS" 2>/dev/null || true; printf "%s  %s\n" "$HASH" "$f") | sort -u > "$SUMS.tmp"
+            mv "$SUMS.tmp" "$SUMS"
 
-            # Derive log id from folder name e.g., artifacts/log-1022a
-            LOGDIR="$(basename "$DIR")"         # log-1022a
-            RAW_ID="${LOGDIR#log-}"             # 1022a
-            LOG_ID="$(echo "$RAW_ID" | tr '[:lower:]' '[:upper:]')"  # 1022A
-
+            # Derive LOG_ID like 1022A from folder name log-1022a
+            LOGDIR=$(basename "$DIR")
+            RAW="${LOGDIR#log-}"
+            LOGID=$(echo "$RAW" | tr '[:lower:]' '[:upper:]')
             META="$DIR/metadata.json"
+
             if [ ! -f "$META" ]; then
-              # Create a minimal metadata if missing (you can edit title/notes later)
-              cat > "$META" <<JSON
+              # Write minimal JSON via quoted heredoc (no YAML parsing issues)
+              cat > "$META" <<'JSON'
 {
-  "log_id": "$LOG_ID",
+  "log_id": "__LOGID__",
   "title": "",
   "date_published": "",
-  "artifact_type": "$MIMETYPE",
-  "file": "$BASENAME",
-  "duration_seconds": $DURATION,
+  "artifact_type": "__MIME__",
+  "file": "__FILE__",
+  "duration_seconds": __DUR__,
   "reverse_playback": false,
   "notable_timestamp": "",
   "description": "",
-  "checksum": { "algorithm": "SHA256", "value": "$HASH" },
+  "checksum": { "algorithm": "SHA256", "value": "__HASH__" },
   "provenance": {},
   "license": "See repository LICENSE",
-  "canonical_url": "https://fincharchive.com/$DIR/metadata.json"
+  "canonical_url": "https://fincharchive.com/__DIR__/metadata.json"
 }
 JSON
+              sed -i "s|__LOGID__|$LOGID|g; s|__MIME__|$MIME|g; s|__FILE__|$BASE|g; s|__DUR__|$DUR|g; s|__HASH__|$HASH|g; s|__DIR__|$DIR|g" "$META"
             else
-              # Update existing metadata while preserving other fields
-              tmp="$META.tmp"
-              jq \
-                --arg file "$BASENAME" \
-                --arg algo "SHA256" \
-                --arg hash "$HASH" \
-                --arg type "$MIMETYPE" \
-                --argjson dur "$DURATION" \
-                '
-                  .file = $file
-                | .artifact_type = $type
-                | .duration_seconds = $dur
-                | .checksum = (.checksum // {})
-                | .checksum.algorithm = $algo
-                | .checksum.value = $hash
-                ' "$META" > "$tmp"
-              mv "$tmp" "$META"
+              # Update existing metadata while preserving your custom fields
+              jq --arg file "$BASE" --arg algo "SHA256" --arg hash "$HASH" --arg type "$MIME" --argjson dur "$DUR" \
+                 '.file=$file | .artifact_type=$type | .duration_seconds=$dur | .checksum=({algorithm:$algo, value:$hash})' \
+                 "$META" > "$META.tmp" && mv "$META.tmp" "$META"
             fi
 
             git add "$SUMS" "$META"
-            updated_files=$((updated_files+1))
-          done <<< "$CHANGED"
+          done < changed.txt
 
-          if [ "$updated_files" -eq 0 ]; then
-            echo "Nothing to commit."
+      - name: Commit and push
+        if: steps.files.outputs.count != '0'
+        run: |
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
             exit 0
           fi
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "ci(artifact): update SHA256 and metadata for changed artifacts [skip ci]" || true
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -m "ci(artifact): update checksums and metadata"
           git push
