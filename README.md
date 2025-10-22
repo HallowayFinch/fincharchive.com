@@ -1,39 +1,59 @@
 # Finch Archive
 
-**Recovered notes from incomplete transmissions.**
+Recovered notes from incomplete transmissions.
 
-Each entry in this archive is presented as received. Completeness is not guaranteed.
-
----
-
-## Overview
-
-This repository serves as the public mirror of the [Finch Archive](https://fincharchive.com) — a static reconstruction of data fragments attributed to **Halloway Finch**.
-
-- **Logs**: Timestamped procedural or observational entries  
-- **Field Notes**: Supporting documents, reflections, and contextual fragments  
-
-All materials are synchronized automatically from the canonical broadcast at [hallowayfinch.com](https://hallowayfinch.com) via RSS ingestion.
+This repository is the canonical archive for **Halloway Finch**.  
+It hosts public logs, recovered media artifacts, and integrity data that together form the public record at **fincharchive.com**.
 
 ---
 
-## Provenance
-
-Each file is timestamped and committed at ingestion.  
-Entries are never altered after their initial appearance.  
-Front matter fields include:
-
-```yaml
-title: Log 1022A — The Voice in the Static
-date: 2025-10-22 22:22:00 -0500
-source: Substack
-canonical_url: https://hallowayfinch.substack.com/p/log-1022a
+## Structure
+```
+/logs/         → individual recovered logs (one file per log)
+/artifacts/    → supporting media & metadata (audio, images, hashes)
+index.md       → site home
+.nojekyll      → disable Jekyll so raw files serve unchanged
 ```
 
 ---
 
-[![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-red.svg)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
-[![Built with Jekyll](https://img.shields.io/badge/Built%20with-Jekyll-black.svg)](https://jekyllrb.com/)
-[![Archive Status](https://img.shields.io/badge/Status-Active-darkred.svg)](https://fincharchive.com)
+## How to Browse
+- **Logs:** see `/logs/` (e.g., `log-1022a.md`)  
+- **Artifacts:** see `/artifacts/` with per-log folders (e.g., `/artifacts/log-1022a/`)  
+- **Integrity:** each artifact folder includes a `SHA256SUMS.txt` for verification  
 
-Recovered notes · Halloway Finch
+---
+
+## Conventions
+- **Log file names:** `log-<id>.md` (e.g., `log-1022a.md`)  
+- **Timestamps:** 24-hour format `HH:MM:SS.mmm` when relevant  
+- **Artifact naming:** concise kebab-case (e.g., `you-heard-it_rev_10m22s.mp3`)  
+- **Checksum algorithm:** SHA-256 recorded in `SHA256SUMS.txt`  
+- **Metadata:** Each artifact folder includes a `metadata.json` for machine-readable context  
+
+---
+
+## Integrity and Verification
+To verify an artifact’s integrity:
+
+```bash
+cd artifacts/log-1022a
+shasum -a 256 -c SHA256SUMS.txt
+```
+
+A “✓ OK” result confirms the file matches the official archive hash.
+
+---
+
+## License
+All written and audio materials © Halloway Finch.  
+Distributed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License (CC BY-NC-ND 4.0).  
+See [`LICENSE`](LICENSE) for details.
+
+---
+
+## Contact
+**Halloway Finch**  
+📧 h@hallowayfinch.com
+
+Recovered notes from incomplete transmissions.
