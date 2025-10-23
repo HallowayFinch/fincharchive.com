@@ -1,0 +1,18 @@
+{
+  "log_id": "1022A",
+  "title": "",
+  "date_published": "",
+  "artifact_type": "audio/x-wav",
+  "file": "fragment-01-audio1022a.wav",
+  "duration_seconds": 60.000,
+  "reverse_playback": false,
+  "notable_timestamp": "",
+  "description": "",
+  "checksum": {
+    "algorithm": "SHA256",
+    "value": "eed6793bbde4b2c8afb0dad46bdd92e9978ab67ff612f5a7e3c5f75c4099af04"
+  },
+  "provenance": {},
+  "license": "See repository LICENSE",
+  "canonical_url": "https://fincharchive.com/artifacts/log-1022a/metadata.json"
+}
