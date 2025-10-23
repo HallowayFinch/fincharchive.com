@@ -1,16 +1,26 @@
-# macOS
+# OS cruft
 .DS_Store
-.AppleDouble
-.Spotlight-V100
-.Trashes
+Thumbs.db
 
-# Editors
-*.swp
-*.swo
+# Jekyll build caches
+_site/
+.jekyll-cache/
+.sass-cache/
+.jekyll-metadata
+
+# Python local env & caches (for scripts/)
+__pycache__/
+*.pyc
+.venv/
+.env
+.python-version
+.pytest_cache/
+
+# Editor & tooling
 .vscode/
 .idea/
+*.swp
 
-# Build/output
-_site/
-dist/
+# Logs & temp
 *.log
+*.tmp
