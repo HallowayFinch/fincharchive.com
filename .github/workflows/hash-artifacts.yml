@@ -19,65 +19,54 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg
 
-      - name: Hash & index
+      - name: Hash & index artifacts
         run: |
-          python - << 'PY'
-import os, json, hashlib, subprocess, pathlib, re
+          python - <<'PY'
+          import os, json, hashlib, subprocess, pathlib, re
 
-ARTIFACTS_DIR = "artifacts"
-LOG_DIR = "logs"
+          ARTIFACTS_DIR = "artifacts"
+          LOG_DIR = "logs"
+          INDEX_FILE = os.path.join(LOG_DIR, "index.json")
 
-def sha256(path):
-    h = hashlib.sha256()
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            h.update(chunk)
-    return h.hexdigest()
+          def file_hash(path):
+              h = hashlib.sha256()
+              with open(path, "rb") as f:
+                  for chunk in iter(lambda: f.read(8192), b""):
+                      h.update(chunk)
+              return h.hexdigest()[:12]
 
-def audio_meta(path):
-    try:
-        cmd = ["ffprobe", "-v", "error", "-show_entries", "format=duration,bit_rate", "-of", "json", path]
-        out = subprocess.check_output(cmd).decode("utf-8", "ignore")
-        data = json.loads(out).get("format", {})
-        return {
-            "duration_seconds": float(data.get("duration")) if "duration" in data else None,
-            "bit_rate": int(data.get("bit_rate")) if "bit_rate" in data else None
-        }
-    except Exception:
-        return {}
+          data = []
+          os.makedirs(LOG_DIR, exist_ok=True)
 
-ROOT = os.getcwd()
+          for root, _, files in os.walk(ARTIFACTS_DIR):
+              for f in files:
+                  path = os.path.join(root, f)
+                  rel = os.path.relpath(path, ARTIFACTS_DIR)
+                  if f.startswith("."):
+                      continue
+                  try:
+                      sha = file_hash(path)
+                      data.append({
+                          "file": rel,
+                          "sha": sha,
+                          "size": os.path.getsize(path),
+                      })
+                  except Exception as e:
+                      print(f"Error hashing {path}: {e}")
 
-for log_folder in sorted(pathlib.Path(ARTIFACTS_DIR).glob("log-*"), key=lambda p: str(p).lower()):
-    if not log_folder.is_dir():
-        continue
-    log_id = re.sub(r"^log-", "", log_folder.name, flags=re.I).upper()
+          with open(INDEX_FILE, "w") as out:
+              json.dump(data, out, indent=2)
+              print(f"Wrote {len(data)} artifact entries → {INDEX_FILE}")
+          PY
 
-    manifest = {"log_id": log_id, "files": []}
-    for fp in log_folder.glob("*"):
-        if fp.name == "artifacts.json" or fp.is_dir():
-            continue
-        item = {
-            "name": fp.name,
-            "size": fp.stat().st_size,
-            "sha256": sha256(str(fp)),
-            "relpath": str(fp.relative_to(ROOT)).replace("\\", "/")
-        }
-        if fp.suffix.lower() in [".wav", ".mp3", ".m4a", ".flac", ".ogg"]:
-            item.update(audio_meta(str(fp)))
-        manifest["files"].append(item)
-
-    (log_folder / "artifacts.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
-PY
-
-      - name: Commit artifacts manifest
+      - name: Commit & push index
         run: |
           git config user.name "Finch Bot"
-          git config user.email "actions@users.noreply.github.com"
-          git add artifacts/** || true
-          if git diff --cached --quiet; then
-            echo "No artifacts changes."
-          else:
-            git commit -m "chore(artifacts): update artifacts manifests"
+          git config user.email "actions@github.com"
+          git add logs/index.json || true
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(artifacts): update artifact index"
             git push
+          else
+            echo "No artifact changes to commit."
           fi
