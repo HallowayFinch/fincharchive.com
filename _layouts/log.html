@@ -1,24 +1,31 @@
-<!-- _layouts/log.html -->
 ---
+layout: default
 ---
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>{{ page.title }} · Finch Archive</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    {% include head.html %}
-  </head>
-  <body>
-    <main class="container">
-      <h1>{{ page.title }}</h1>
-      <p><small>{{ page.date | date: "%B %e, %Y" }}</small></p>
-      <article class="prose">
-        {{ content }}
-      </article>
-      {% if page.source_url %}
-      <p><a href="{{ page.source_url }}">Original on Substack</a></p>
-      {% endif %}
-    </main>
-  </body>
-</html>
+
+<main class="container" style="margin:3rem auto 2rem">
+  <div class="rule" style="margin-bottom:1rem"></div>
+
+  <header style="margin-bottom:1rem;">
+    {% if page.alias %}
+      <div style="font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;opacity:.8;">
+        {{ page.alias }}
+      </div>
+    {% endif %}
+    <h1>{{ page.title }}</h1>
+    <div style="opacity:.75;font-size:.95rem;">
+      {{ page.date | date: "%b %-d, %Y" }}
+    </div>
+  </header>
+
+  <article style="font-size:1.05rem;">
+    {{ content }}
+  </article>
+
+  {% if page.artifact and page.artifact.path %}
+  <section style="margin-top:2rem;border-top:1px solid #222;padding-top:1rem;">
+    <a class="btn" href="{{ page.artifact.path | relative_url }}">
+      {{ page.artifact.label | default: "Artifact" }}
+    </a>
+  </section>
+  {% endif %}
+</main>
