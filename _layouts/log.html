@@ -1,31 +1,32 @@
 ---
 layout: default
+title: Recovered Logs
+permalink: /logs/
 ---
 
-<main class="container" style="margin:3rem auto 2rem">
-  <div class="rule" style="margin-bottom:1rem"></div>
+<main class="wrap" style="margin:3rem auto">
+  <h1 style="margin-bottom:1rem;">Recovered Logs</h1>
+  <div class="rule" style="margin-bottom:1.5rem"></div>
 
-  <header style="margin-bottom:1rem;">
-    {% if page.alias %}
-      <div style="font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;opacity:.8;">
-        {{ page.alias }}
-      </div>
-    {% endif %}
-    <h1>{{ page.title }}</h1>
-    <div style="opacity:.75;font-size:.95rem;">
-      {{ page.date | date: "%b %-d, %Y" }}
-    </div>
-  </header>
-
-  <article style="font-size:1.05rem;">
-    {{ content }}
-  </article>
-
-  {% if page.artifact and page.artifact.path %}
-  <section style="margin-top:2rem;border-top:1px solid #222;padding-top:1rem;">
-    <a class="btn" href="{{ page.artifact.path | relative_url }}">
-      {{ page.artifact.label | default: "Artifact" }}
-    </a>
-  </section>
-  {% endif %}
+  <ul style="list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
+    {% assign ordered = site.logs | sort: "date" | reverse %}
+    {% for log in ordered %}
+      <li style="border:1px solid #222;padding:1rem;">
+        {% if log.alias %}
+          <div style="font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;opacity:.8;">{{ log.alias }}</div>
+        {% endif %}
+        <a href="{{ log.url | relative_url }}" style="display:block;font-weight:600;margin:.25rem 0 .5rem;text-decoration:none;">
+          {{ log.title }}
+        </a>
+        {% if log.date %}
+        <div style="opacity:.7;font-size:.9rem;margin-bottom:.75rem;">
+          {{ log.date | date: "%b %-d, %Y" }}
+        </div>
+        {% endif %}
+        {% if log.artifact and log.artifact.path %}
+          <a class="btn" href="{{ log.artifact.path | relative_url }}">{{ log.artifact.label | default: "Artifact" }}</a>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
 </main>
