@@ -189,7 +189,7 @@ def import_post(entry, state):
     esc_title = title.replace('"', '\\"')
     fm = [
         "---",
-        "layout: post",
+        "layout: log",
         f'title: "{esc_title}"',
         f'log_id: "{log_id}"',
         f'date: "{date}"',
