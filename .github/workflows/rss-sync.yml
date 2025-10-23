@@ -1,9 +1,18 @@
 name: RSS → Repo (Substack sync)
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      import_latest_only:
+        description: 'Force-import the newest Substack entry (failsafe)'
+        required: false
+        default: 'true'
+      debug:
+        description: 'Enable verbose logging in the job output'
+        required: false
+        default: 'true'
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "*/30 * * * *" # every 30 minutes; adjust as you like
 
 permissions:
   contents: write
@@ -11,6 +20,7 @@ permissions:
 jobs:
   sync:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,12 +33,15 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install requests feedparser readability-lxml lxml html5lib html2text markdown jinja2
+          pip install requests feedparser readability-lxml lxml html5lib html2text jinja2
 
       - name: Run sync
         env:
           SUBSTACK_RSS_URL: "https://hallowayfinch.substack.com/feed"
           SITE_BASE_URL: "https://fincharchive.com"
+          # Convert workflow inputs to "1"/"0" env flags for the script
+          IMPORT_LATEST_ONLY: ${{ inputs.import_latest_only == 'true' && '1' || '0' }}
+          IMPORT_DEBUG: ${{ inputs.debug == 'true' && '1' || '0' }}
         run: |
           python scripts/rss_to_repo.py
 
@@ -36,9 +49,11 @@ jobs:
         run: |
           git config user.name "Finch Bot"
           git config user.email "actions@users.noreply.github.com"
+          # Add specific paths (in case any .gitignore rules exist), then add all as a catch-all
+          git add _logs/** logs/** .finch/state.json || true
           git add -A
           if git diff --cached --quiet; then
-            echo "No changes."
+            echo "No changes to commit."
           else
             git commit -m "chore(logs): import new Substack posts & rebuild pages"
             git push
