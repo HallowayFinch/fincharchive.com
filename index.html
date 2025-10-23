@@ -1,10 +1,57 @@
 ---
 layout: default
-title: Archive
+title: Finch Archive
 ---
-<section class="list">
-  <h2>Logs</h2>
-  {% include logs_list.html %}
-  <h2 style="margin-top:32px">Field Notes</h2>
-  {% include fieldnotes_list.html %}
-</section>
+
+<main class="wrap" style="margin:2.5rem auto 3rem;">
+  <h1 style="font-family:Georgia, 'Times New Roman', serif; margin:0 0 .5rem;">FINCH ARCHIVE</h1>
+  <p style="opacity:.9; max-width:72ch;">Recovered notes from incomplete transmissions.</p>
+
+  <hr class="rule" style="margin:1.25rem 0 1.5rem;">
+
+  {%- comment -%}
+    Pull the most recent log from the Jekyll "logs" collection.
+    This assumes _config.yml has:
+      collections:
+        logs:
+          output: true
+          permalink: /logs/:slug/
+  {%- endcomment -%}
+  {% assign latest_log = site.logs | sort: "date" | reverse | first %}
+
+  {% if latest_log %}
+    <section style="max-width:72ch;">
+      <h2 style="margin:0 0 .5rem;">
+        {% if latest_log.log_id %}Log {{ latest_log.log_id | replace:'1022','1022' }}{% else %}Recovered Log{% endif %} — “{{ latest_log.title }}”
+      </h2>
+
+      <ul style="margin:.25rem 0 1rem 1.25rem;">
+        <li>
+          <a href="{{ latest_log.url | relative_url }}">Read the recovered log</a>
+        </li>
+
+        {% if latest_log.artifact and latest_log.artifact.path %}
+        <li>
+          <a href="{{ latest_log.artifact.path | relative_url }}">
+            {{ latest_log.artifact.label | default: "Artifact" }}
+          </a>
+        </li>
+        {% endif %}
+
+        {% if site.artifacts and site.artifacts.sha256 %}
+        <li><a href="{{ site.artifacts.sha256 | relative_url }}">Integrity (SHA256)</a></li>
+        {% endif %}
+
+        {% if site.artifacts and site.artifacts.metadata %}
+        <li><a href="{{ site.artifacts.metadata | relative_url }}">Metadata</a></li>
+        {% endif %}
+      </ul>
+
+      <div style="opacity:.7; font-size:.95rem;">
+        Last updated: {{ site.time | date: "%b %-d, %Y %H:%M %Z" }}
+      </div>
+    </section>
+  {% else %}
+    <p>No logs found. Once a log exists in <code>_logs/</code>, it will appear here.</p>
+  {% endif %}
+</main>
