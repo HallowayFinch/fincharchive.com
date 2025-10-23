@@ -32,7 +32,6 @@ def ensure_logs_index():
     items = []
     for p in sorted(LOGS.glob("*/meta.json"), key=lambda p: p.stat().st_mtime, reverse=True):
         if p.parent.name.startswith("log-"):
-            # skip alias folders in index
             continue
         meta = json.loads(p.read_text("utf-8"))
         url = f"/logs/{p.parent.name}/"
@@ -85,11 +84,14 @@ def import_post(entry, state):
     pretty_folder.mkdir(parents=True, exist_ok=True)
     (pretty_folder / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
+    # --- FIX: pre-escape quotes to avoid backslashes in f-string expressions
+    esc_title = title.replace('"', '\\"')
+
     # Markdown with basic front matter
     fm = [
         "---",
         f'log_id: "{log_id}"',
-        f'title: "{title.replace("\"", "\\\"")}"',
+        f'title: "{esc_title}"',
         f'date: "{date}"',
         f'source_url: "{url}"',
         f'guid: "{guid}"',
