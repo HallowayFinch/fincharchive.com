@@ -1,6 +1,7 @@
 name: RSS → Repo (Substack sync)
 
 on:
+  # Manual trigger
   workflow_dispatch:
     inputs:
       import_latest_only:
@@ -13,6 +14,9 @@ on:
         required: false
         default: "false"
         type: boolean
+  # Run hourly at :15 UTC
+  schedule:
+    - cron: "22 * * * *"
 
 permissions:
   contents: write
@@ -36,37 +40,30 @@ jobs:
 
       - name: Run sync
         env:
-          # The RAW Substack RSS feed (not proxied)
+          # RAW feed (do not pre-wrap)
           SUBSTACK_RSS_URL: "https://hallowayfinch.substack.com/feed"
-
-          # The Cloudflare Worker proxy (e.g., rss.fincharchive.com)
+          # Your Cloudflare Worker proxy
           RSS_PROXY_URL: "https://rss.fincharchive.com"
-
-          # Workflow input toggles
-          IMPORT_LATEST_ONLY: ${{ inputs.import_latest_only == 'true' && '1' || '0' }}
+          # New posts only by default; verbose logs off by default
+          IMPORT_LATEST_ONLY: "1"
           IMPORT_DEBUG: ${{ inputs.debug == 'true' && '1' || '0' }}
         run: |
           set -euo pipefail
-          echo "=== python version ==="
-          python --version
+          echo "=== python version ==="; python --version
           echo "=== env ==="
           echo "RSS_PROXY_URL=${RSS_PROXY_URL}"
           echo "SUBSTACK_RSS_URL=${SUBSTACK_RSS_URL}"
-
+          echo "IMPORT_LATEST_ONLY=${IMPORT_LATEST_ONLY}"
+          echo "IMPORT_DEBUG=${IMPORT_DEBUG}"
           echo "=== running importer ==="
           python scripts/rss_to_repo.py
-
           echo "=== post-run tree ==="
           find . -maxdepth 2 -type d | sort
-          echo "--- .finch ---"
-          ls -la .finch || true
-          echo "--- _logs ---"
-          ls -la _logs || true
-          echo "--- logs ---"
-          ls -la logs || true
+          echo "--- .finch ---"; ls -la .finch || true
+          echo "--- _logs ---"; ls -la _logs || true
+          echo "--- logs ---"; ls -la logs || true
 
       - name: Commit & push changes
-        if: success()
         run: |
           git config user.name "Finch Bot"
           git config user.email "actions@github.com"
