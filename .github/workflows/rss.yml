@@ -3,7 +3,7 @@ name: RSS → Jekyll import
 on:
   schedule:
     - cron: "*/15 * * * *"   # every 15 minutes
-  workflow_dispatch: {}      # manual run button
+  workflow_dispatch: {}      # allow manual run
 
 concurrency:
   group: finch-rss-sync
@@ -13,14 +13,18 @@ jobs:
   import:
     runs-on: ubuntu-latest
     env:
+      # --- RSS Source & Behavior ---
       SUBSTACK_RSS_URL: ${{ secrets.SUBSTACK_RSS_URL }}
-      RSS_PROXY_URL: ${{ secrets.RSS_PROXY_URL }}   # optional; leave unset if not using a proxy
-      IMPORT_LATEST_ONLY: "1"
-      GENERATE_LOG_ALIAS: "1"                       # set "0" to disable /logs/log-1022x/ alias folders
-      CLEAN_OLD_ALIASES: "1"
-      IMPORT_DEBUG: "0"
+      RSS_PROXY_URL: ${{ secrets.RSS_PROXY_URL }}        # optional proxy; leave unset if unused
+      IMPORT_LATEST_ONLY: "1"                            # "1" = import newest only; "0" = full upsert
+      IMPORT_DEBUG: "0"                                  # "1" = verbose feed logging
+
+      # --- Folder / Alias Behavior ---
+      GENERATE_LOG_ALIAS: "0"                            # disable legacy /logs/log-1022x/ alias folders
+      CLEAN_OLD_ALIASES: "0"                             # prevent alias cleanup (no-op when aliases disabled)
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Python
@@ -28,23 +32,27 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install feedparser
 
+      # --- RSS to Repo ---
       - name: Import RSS → _logs
         run: |
           python scripts/rss_to_repo.py
 
+      # --- Artifacts Hashing ---
       - name: Hash artifacts (metadata.json)
         run: |
           python scripts/hash_artifacts.py
 
+      # --- Site Validation ---
       - name: Validate site
         run: |
           python scripts/validate_site.py
 
+      # --- Commit & Push ---
       - name: Commit changes
         run: |
           git config user.name  "actions-user"
@@ -52,6 +60,6 @@ jobs:
           git add -A
           git diff --staged --quiet || git commit -m "chore(logs): import new Substack posts, hash artifacts, validate site"
 
-      - name: Push
+      - name: Push changes
         run: |
           git push
