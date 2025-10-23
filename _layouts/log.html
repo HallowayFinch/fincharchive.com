@@ -6,17 +6,7 @@ layout: default
   <div class="rule" style="margin-bottom:1rem"></div>
 
   <header style="margin-bottom:1rem;">
-    {% if page.alias %}
-      <div style="font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;opacity:.8;">
-        {{ page.alias }}
-      </div>
-    {% endif %}
-
     <h1>{{ page.title }}</h1>
-
-    {%- comment -%}
-      Display date in a nice, standard way; page.date is ISO-8601 from the importer
-    {%- endcomment -%}
     <div class="meta">
       {{ page.date | date: "%A, %B %-d, %Y %H:%M:%S %Z" }}
       {%- if page.source_url %} · <a href="{{ page.source_url }}">Source</a>{% endif -%}
@@ -27,11 +17,14 @@ layout: default
     {{ content }}
   </article>
 
-  {% if page.artifact and page.artifact.path %}
+  {% if page.artifacts and page.artifacts.size > 0 %}
   <section style="margin-top:2rem;border-top:1px solid #222;padding-top:1rem;">
-    <a class="btn" href="{{ page.artifact.path | relative_url }}">
-      {{ page.artifact.label | default: "Artifact" }}
-    </a>
+    <h2 style="margin:0 0 .75rem;">Artifacts</h2>
+    <ul style="list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem;">
+      {% for a in page.artifacts %}
+        <li><a class="btn" href="{{ a.path | relative_url }}">{{ a.label | default: "Artifact" }}</a></li>
+      {% endfor %}
+    </ul>
   </section>
   {% endif %}
 </main>
