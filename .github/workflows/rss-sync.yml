@@ -1,16 +1,18 @@
-name: "RSS → Repo (Substack sync)"
+name: RSS → Repo (Substack sync)
 
 on:
   workflow_dispatch:
     inputs:
       import_latest_only:
-        description: "Import only the newest post?"
+        description: "Import only the latest Substack post"
         required: false
         default: "true"
+        type: boolean
       debug:
-        description: "Verbose debug logging?"
+        description: "Enable verbose debug output"
         required: false
-        default: "true"
+        default: "false"
+        type: boolean
 
 permissions:
   contents: write
@@ -18,9 +20,8 @@ permissions:
 jobs:
   sync:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -28,49 +29,51 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install feedparser
 
       - name: Run sync
         env:
-          # Your Worker domain
+          # The RAW Substack RSS feed (not proxied)
+          SUBSTACK_RSS_URL: "https://hallowayfinch.substack.com/feed"
+
+          # The Cloudflare Worker proxy (e.g., rss.fincharchive.com)
           RSS_PROXY_URL: "https://rss.fincharchive.com"
 
-          # Force the script to use the proxy even if it somehow ignores RSS_PROXY_URL.
-          # (This is the fully proxy-wrapped URL.)
-          SUBSTACK_RSS_URL: "https://rss.fincharchive.com/?url=https%3A%2F%2Fhallowayfinch.substack.com%2Ffeed"
-
+          # Workflow input toggles
           IMPORT_LATEST_ONLY: ${{ inputs.import_latest_only == 'true' && '1' || '0' }}
           IMPORT_DEBUG: ${{ inputs.debug == 'true' && '1' || '0' }}
         run: |
           set -euo pipefail
           echo "=== python version ==="
-          python -V
+          python --version
           echo "=== env ==="
           echo "RSS_PROXY_URL=${RSS_PROXY_URL}"
           echo "SUBSTACK_RSS_URL=${SUBSTACK_RSS_URL}"
-          echo "=== script head (should contain 'RSS_PROXY_URL' and 'proxied(') ==="
-          sed -n '1,120p' scripts/rss_to_repo.py || true
+
           echo "=== running importer ==="
           python scripts/rss_to_repo.py
-          echo "=== post-run tree ==="
-          ls -la
-          echo "--- .finch"; ls -la .finch || true
-          echo "--- _logs"; ls -la _logs || true
-          echo "--- logs"; ls -la logs || true
 
-      - name: Commit changes
+          echo "=== post-run tree ==="
+          find . -maxdepth 2 -type d | sort
+          echo "--- .finch ---"
+          ls -la .finch || true
+          echo "--- _logs ---"
+          ls -la _logs || true
+          echo "--- logs ---"
+          ls -la logs || true
+
+      - name: Commit & push changes
+        if: success()
         run: |
-          set -euo pipefail
           git config user.name "Finch Bot"
-          git config user.email "actions@users.noreply.github.com"
-          git add _logs/** logs/** .finch/state.json || true
-          git add -A
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
+          git config user.email "actions@github.com"
+          git add _logs logs .finch/state.json || true
+          if ! git diff --cached --quiet; then
             git commit -m "chore(logs): import new Substack posts & rebuild pages"
             git push
+          else
+            echo "No new posts to commit."
           fi
