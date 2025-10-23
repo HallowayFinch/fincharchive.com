@@ -13,7 +13,9 @@ redirect_from:
   - "/logs/the-voice-in-the-static-3.md"
   - "/logs/log-1022a.md"
 ---
-The Voice in the StaticOct 23, 2025I started the cataloging again tonight. The archive smells like wet paper and burnt dust, the air conditioner humming somewhere behind the walls. Most of the boxes are routine—interviews, grant reports, lab dictations from decades ago.
+The Voice in the StaticOct 23, 2025
+
+I started the cataloging again tonight. The archive smells like wet paper and burnt dust, the air conditioner humming somewhere behind the walls. Most of the boxes are routine—interviews, grant reports, lab dictations from decades ago.
 
 One cassette caught my eye because the ink on its label had bled into the cardboard sleeve. Someone had written Test log 10-22 in a hand that looked a little like mine. I turned it over, expecting the tape to be blank. The reel was wound tight, as if it had been played recently.
 
