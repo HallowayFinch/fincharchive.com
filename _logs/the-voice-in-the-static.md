@@ -1,11 +1,17 @@
 ---
-layout: post
+layout: log
 title: "The Voice in the Static"
-log_id: "1022A"
+log_id: "1022E"
 date: "Thu, 23 Oct 2025 03:22:15 GMT"
 source_url: "https://hallowayfinch.substack.com/p/the-voice-in-the-static"
 guid: "https://hallowayfinch.substack.com/p/the-voice-in-the-static"
 permalink: "/logs/the-voice-in-the-static/"
+redirect_from:
+  - "/logs/the-voice-in-the-static-2/"
+  - "/logs/the-voice-in-the-static-2.md"
+  - "/logs/the-voice-in-the-static-3/"
+  - "/logs/the-voice-in-the-static-3.md"
+  - "/logs/log-1022a.md"
 ---
 The Voice in the Static[](https://substack.com/@hallowayfinch)[Halloway Finch](https://substack.com/@hallowayfinch)Oct 23, 2025[](https://hallowayfinch.substack.com/p/the-voice-in-the-static/comments)[Share](javascript:void(0))I started the cataloging again tonight. The archive smells like wet paper and burnt dust, the air conditioner humming somewhere behind the walls. Most of the boxes are routine—interviews, grant reports, lab dictations from decades ago.
 
