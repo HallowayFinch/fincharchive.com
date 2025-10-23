@@ -3,31 +3,27 @@ import os, sys, json, time, feedparser, datetime as dt
 from pathlib import Path
 import re, html, urllib.request, urllib.parse
 
-# -----------------------------
-# Logging helper
-# -----------------------------
 def log(*args):
     print("[rss-sync]", *args, flush=True)
 
-# -----------------------------
-# HTTP helpers (manual fetch with UA)
-# -----------------------------
+# --- Improved fetch: uses full browser headers, supports redirect mirrors
 def fetch_url(url: str, timeout=30) -> str:
-    req = urllib.request.Request(
-        url,
-        headers={
-            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) FinchArchiveBot/1.0 (+https://fincharchive.com)",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        },
-    )
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+            "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
+        ),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": "https://substack.com/",
+        "Connection": "keep-alive",
+    }
+    req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read().decode("utf-8", "ignore")
 
-# -----------------------------
-# Minimal readable-content + HTML→MD (no extra deps)
-# -----------------------------
+# --- Helpers ---
 def readability_extract(html_text: str) -> str:
-    # prefer <article>, else <body>, else everything
     m = re.search(r"(?is)<article[^>]*>(.*?)</article>", html_text)
     if m:
         return m.group(1)
@@ -35,25 +31,18 @@ def readability_extract(html_text: str) -> str:
     return m.group(1) if m else html_text
 
 def html_to_markdown_simple(html_text: str) -> str:
-    # strip scripts/styles
     text = re.sub(r"(?is)<script.*?</script>", "", html_text)
     text = re.sub(r"(?is)<style.*?</style>", "", text)
-    # paragraph / br → newlines
     text = re.sub(r"(?is)</p>", "\n\n", text)
     text = re.sub(r"(?is)<br\s*/?>", "\n", text)
-    # convert links: <a href="">text</a> → [text](href)
     def _a(m):
         href = m.group(1)
         inner = re.sub(r"(?is)<.*?>", "", m.group(2))
         return f"[{inner}]({href})"
     text = re.sub(r'(?is)<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>', _a, text)
-    # strip remaining tags
     text = re.sub(r"(?is)<.*?>", "", text)
     return html.unescape(text).strip()
 
-# -----------------------------
-# 1022A / slug helpers
-# -----------------------------
 def int_to_letters(n: int) -> str:
     s = ""
     while n > 0:
@@ -89,25 +78,16 @@ def dedupe_slug(base_slug: str, existing_slugs: set) -> str:
         i += 1
     return f"{slug}-{i}"
 
-# -----------------------------
-# Paths & ENV
-# -----------------------------
 ROOT = Path(__file__).resolve().parents[1]
 STATE = ROOT / ".finch" / "state.json"
-LOGS_DIR = ROOT / "logs"      # alias redirects live here
-COLL_DIR = ROOT / "_logs"     # Jekyll collection entries live here
-ARTIFACTS = ROOT / "artifacts"
-
-for p in (STATE.parent, LOGS_DIR, COLL_DIR, ARTIFACTS):
+LOGS_DIR = ROOT / "logs"
+COLL_DIR = ROOT / "_logs"
+for p in (STATE.parent, LOGS_DIR, COLL_DIR):
     p.mkdir(parents=True, exist_ok=True)
 
-SUBSTACK_RSS_URL   = os.environ.get("SUBSTACK_RSS_URL", "").strip()
-IMPORT_LATEST_ONLY = os.environ.get("IMPORT_LATEST_ONLY", "1") == "1"  # default ON for seeding
-IMPORT_DEBUG       = os.environ.get("IMPORT_DEBUG", "1") == "1"
+SUBSTACK_RSS_URL = os.environ.get("SUBSTACK_RSS_URL", "").strip()
+IMPORT_LATEST_ONLY = os.environ.get("IMPORT_LATEST_ONLY", "1") == "1"
 
-# -----------------------------
-# State
-# -----------------------------
 def load_state():
     if STATE.exists():
         return json.loads(STATE.read_text("utf-8"))
@@ -116,51 +96,39 @@ def load_state():
 def save_state(s):
     STATE.write_text(json.dumps(s, indent=2), encoding="utf-8")
 
-# -----------------------------
-# Feed fetch (manual + fallbacks)
-# -----------------------------
+# --- Fetch and parse RSS (handles 403s + mirrors) ---
 def fetch_and_parse_feed(url: str):
-    # primary fetch
-    log(f"Fetching feed (manual UA): {url}")
-    raw = fetch_url(url)
-    log(f"Fetched {len(raw)} bytes")
-    feed = feedparser.parse(raw)
-    cnt = len(feed.entries or [])
-    log(f"Primary parsed entries: {cnt}")
+    try:
+        log(f"Fetching feed (browser headers): {url}")
+        raw = fetch_url(url)
+        feed = feedparser.parse(raw)
+        if feed.entries:
+            log(f"Parsed {len(feed.entries)} entries from primary feed.")
+            return feed
+        log("Primary feed empty; trying fallback mirror…")
+    except Exception as e:
+        log(f"Primary fetch failed: {e}")
 
-    if cnt:
-        return feed
-
-    # try fallbacks if empty
-    from urllib.parse import urlparse
-    host = (urlparse(url).hostname or "").lower()
-    pub = host.split(".")[0] if host.endswith(".substack.com") else host.replace("substack.com", "").strip("/")
-    fallback_urls = []
-    if pub:
-        fallback_urls = [
-            f"https://{pub}.substack.com/feed",     # retry same base
-            f"https://substack.com/feeds/{pub}.rss",
-            f"https://substack.com/feed/{pub}",
-        ]
-
-    for fu in fallback_urls:
+    # fallback mirrors (Substack sometimes blocks feedparser IPs)
+    host = urllib.parse.urlparse(url).hostname or ""
+    pub = host.split(".")[0] if ".substack.com" in host else host
+    alt_urls = [
+        f"https://{pub}.substack.com/api/v1/posts/rss",      # modern API endpoint
+        f"https://substackapi.com/feed/{pub}",               # unofficial mirror
+        f"https://substackproxy.vercel.app/feed/{pub}",      # generic proxy mirror
+    ]
+    for alt in alt_urls:
         try:
-            log(f"Fallback fetch: {fu}")
-            raw2 = fetch_url(fu)
-            log(f"Fetched {len(raw2)} bytes (fallback)")
-            f2 = feedparser.parse(raw2)
-            c2 = len(f2.entries or [])
-            log(f"Fallback parsed entries: {c2}")
-            if c2:
-                return f2
+            log(f"Trying fallback feed: {alt}")
+            raw2 = fetch_url(alt)
+            feed2 = feedparser.parse(raw2)
+            log(f"Fallback parsed entries: {len(feed2.entries or [])}")
+            if feed2.entries:
+                return feed2
         except Exception as ex:
-            log(f"Fallback fetch error for {fu}: {ex}")
+            log(f"Fallback fetch error for {alt}: {ex}")
+    return feedparser.parse("")  # empty feed if all fail
 
-    return feed  # possibly empty
-
-# -----------------------------
-# Entry selection
-# -----------------------------
 def pick_entries(feed):
     entries = list(feed.entries or [])
     if IMPORT_LATEST_ONLY and entries:
@@ -177,22 +145,18 @@ def pick_entries(feed):
         out.append(e)
     return out
 
-# -----------------------------
-# Import one entry
-# -----------------------------
 def import_post(entry, state):
     title = clean_title(entry.get("title"))
     guid  = entry.get("id") or entry.get("guid") or entry.get("link")
     url   = entry.get("link")
     date  = entry.get("published") or entry.get("updated") or dt.datetime.utcnow().isoformat() + "Z"
 
-    log(f"Importing: '{title}' url={url}")
+    log(f"Importing: '{title}'")
     if not url:
-        raise RuntimeError("Entry has no link URL")
-
-    page_html = fetch_url(url)
-    main_html = readability_extract(page_html)
-    body_md   = html_to_markdown_simple(main_html)
+        raise RuntimeError("Entry missing URL")
+    html_text = fetch_url(url)
+    main_html = readability_extract(html_text)
+    body_md = html_to_markdown_simple(main_html)
 
     log_id = make_log_id(state["next_seq"])
     alias  = slugify_log_id(log_id)
@@ -227,36 +191,30 @@ def import_post(entry, state):
 <a href="/logs/{slug}/">Redirecting to /logs/{slug}/</a>
 <script>location.href="/logs/{slug}/";</script>"""
     (alias_dir / "index.html").write_text(redirect_html, encoding="utf-8")
-    log(f"Wrote: {alias_dir / 'index.html'} (alias for {log_id})")
+    log(f"Wrote alias redirect: {alias_dir/'index.html'}")
 
     state["seen_guids"].append(guid)
     state["next_seq"] += 1
 
-# -----------------------------
-# Main
-# -----------------------------
 def main():
     try:
         if not SUBSTACK_RSS_URL:
-            raise RuntimeError("SUBSTACK_RSS_URL is empty")
-
+            raise RuntimeError("SUBSTACK_RSS_URL not set")
         feed = fetch_and_parse_feed(SUBSTACK_RSS_URL)
-        log(f"Feed entries reported (final): {len(feed.entries or [])}")
+        log(f"Final feed entries count: {len(feed.entries or [])}")
+
+        if not (feed.entries or []):
+            log("No feed entries found. Aborting without change.")
+            return
 
         candidates = pick_entries(feed)
-        log(f"Entries selected for import: {len(candidates)} (latest_only={IMPORT_LATEST_ONLY})")
-
-        if not candidates and (feed.entries or []):
-            log("No entries selected after filtering; importing newest as failsafe.")
-            newest = max(feed.entries, key=lambda x: x.get('published_parsed') or x.get('updated_parsed') or time.gmtime(0))
-            candidates = [newest]
-
+        log(f"Entries selected for import: {len(candidates)}")
         if not candidates:
-            log("No entries found in feed. Exiting without changes.")
+            log("No new entries to import.")
             return
 
         state = load_state()
-        for e in sorted(candidates, key=lambda x: x.get("published_parsed") or x.get("updated_parsed") or time.gmtime(0)):
+        for e in sorted(candidates, key=lambda x: x.get("published_parsed") or time.gmtime(0)):
             import_post(e, state)
         save_state(state)
         log("Done.")
