@@ -50,8 +50,8 @@ def proxied(url: str) -> str:
     if not RSS_PROXY_URL: return raw
     return f"{RSS_PROXY_URL}?url={urllib.parse.quote(raw, safe='')}"
 
-# ----- HTTP fetch ------------------------------------------------------------
-def fetch_url(url: str, timeout=30) -> str:
+# ----- HTTP fetch (with retries) --------------------------------------------
+def fetch_url(url: str, timeout=30, retries=3, backoff=2.0) -> str:
     headers = {
         "User-Agent": ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
                        "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"),
@@ -60,9 +60,18 @@ def fetch_url(url: str, timeout=30) -> str:
         "Referer": "https://substack.com/",
         "Connection": "keep-alive",
     }
-    req = urllib.request.Request(url, headers=headers)
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return resp.read().decode("utf-8", "ignore")
+    last_err = None
+    for i in range(max(1, retries)):
+        try:
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return resp.read().decode("utf-8", "ignore")
+        except Exception as e:
+            last_err = e
+            if i < retries - 1:
+                time.sleep(backoff ** i)  # exponential backoff: 1s, 2s, 4s...
+            else:
+                raise last_err
 
 # ----- Minimal readability & HTML→MD -----------------------------------------
 def readability_extract(html_text: str) -> str:
