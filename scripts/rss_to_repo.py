@@ -7,10 +7,10 @@ def log(*args): print("[rss-sync]", *args, flush=True)
 
 # ----- ENV & paths -----------------------------------------------------------
 ROOT = Path(__file__).resolve().parents[1]
-STATE_FILE = ROOT / ".finch" / "state.json"
-LOGS_ALIAS_DIR = ROOT / "logs"   # optional alias redirects (log-1022x → /logs/:slug/)
-COLL_DIR = ROOT / "_logs"        # Jekyll collection items (source of truth)
-ARTIFACTS_DIR = ROOT / "artifacts"
+STATE_FILE      = ROOT / ".finch" / "state.json"
+LOGS_ALIAS_DIR  = ROOT / "logs"       # optional legacy alias redirects (log-1022x → /logs/:slug/)
+COLL_DIR        = ROOT / "_logs"      # Jekyll collection items (source of truth)
+ARTIFACTS_DIR   = ROOT / "artifacts"  # /artifacts/<slug>/*
 
 for p in (STATE_FILE.parent, LOGS_ALIAS_DIR, COLL_DIR, ARTIFACTS_DIR):
     p.mkdir(parents=True, exist_ok=True)
@@ -22,7 +22,7 @@ RSS_PROXY_URL        = os.environ.get("RSS_PROXY_URL", "").strip()
 GENERATE_LOG_ALIAS   = os.environ.get("GENERATE_LOG_ALIAS", "1") == "1"  # "0" disables /logs/log-1022x/
 CLEAN_OLD_ALIASES    = os.environ.get("CLEAN_OLD_ALIASES", "1") == "1"   # remove stale alias folders for same slug
 
-# File types we’ll surface on the page
+# File types we surface on the page
 ARTIFACT_EXTS = [
     ".wav", ".flac", ".mp3",                 # audio
     ".pdf",                                  # docs
@@ -69,7 +69,7 @@ def fetch_url(url: str, timeout=30, retries=3, backoff=2.0) -> str:
         except Exception as e:
             last_err = e
             if i < retries - 1:
-                time.sleep(backoff ** i)  # exponential backoff: 1s, 2s, 4s...
+                time.sleep(backoff ** i)  # 1s, 2s, 4s...
             else:
                 raise last_err
 
@@ -81,10 +81,7 @@ def readability_extract(html_text: str) -> str:
     return m.group(1) if m else html_text
 
 def strip_substack_chrome(html_text: str) -> str:
-    """
-    Remove Substack title/header, author block, comments link, 'Share' button, etc.,
-    BEFORE HTML→MD so they never appear in the Markdown.
-    """
+    """Remove Substack title/author chrome, comments link, Share buttons, etc."""
     t = html_text
     t = re.sub(r"(?is)<header[^>]*>.*?</header>", "", t)
     t = re.sub(r"(?is)^\s*<h1[^>]*>.*?</h1>", "", t, count=1)
@@ -111,7 +108,7 @@ def html_to_markdown_simple(html_text: str) -> str:
 
 def tidy_markdown(md: str, title: str) -> str:
     out = md
-    out = re.sub(rf"(?im)^\s*{re.escape(title)}\s*$\n?", "", out)  # drop repeated H1
+    out = re.sub(rf"(?im)^\s*{re.escape(title)}\s*$\n?", "", out)  # drop repeated H1 line
     out = re.sub(r"\[\s*\]\([^)]+\)", "", out)                    # remove empty links [](...)
     out = re.sub(r"(?m)^\s*Share\s*$", "", out)                   # remove lone 'Share'
     out = re.sub(r"\n{3,}", "\n\n", out)                          # collapse blank lines
@@ -251,6 +248,23 @@ def read_existing_log_id_from_md(slug: str):
         pass
     return None
 
+def ensure_artifact_folder(slug: str, log_id: str) -> Path:
+    """
+    Ensure artifacts live under /artifacts/:slug/.
+    If a legacy folder /artifacts/log-1022x/ exists and the slug folder doesn't,
+    migrate it to the slug.
+    """
+    desired = ARTIFACTS_DIR / slug
+    legacy  = ARTIFACTS_DIR / f"log-{(log_id or '').lower()}"
+    try:
+        if legacy.exists() and legacy.is_dir() and not desired.exists():
+            legacy.rename(desired)
+            log(f"Artifacts folder migrated: {legacy} → {desired}")
+    except Exception as e:
+        log(f"Artifacts migrate error ({legacy}→{desired}): {e}")
+    desired.mkdir(parents=True, exist_ok=True)
+    return desired
+
 def build_front_matter(*, title, date, slug, log_id, url, guid, artifacts=None) -> str:
     esc_title = title.replace('"', '\\"')
     lines = [
@@ -343,6 +357,9 @@ def import_post(entry, state):
             log_id = make_log_id(state["next_seq"])
             state["guid_to_log_id"][guid] = log_id
             state["next_seq"] += 1
+
+    # Ensure artifacts folder uses slug (auto-migrate legacy log-1022x/)
+    ensure_artifact_folder(slug, log_id)
 
     log(f"Upserting: '{title}' slug={slug} log_id={log_id}")
 
