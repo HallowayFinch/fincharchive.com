@@ -1,18 +1,21 @@
 title: Finch Archive
 description: Recovered notes from incomplete transmissions.
-baseurl: "" # the subpath of your site, e.g. /blog
+baseurl: ""  # leave empty for apex domain
 url: "https://fincharchive.com"
+
 markdown: kramdown
 theme: null
 
+# --- Collections ---
 collections:
   logs:
     output: true
-    permalink: /logs/:name/
+    permalink: /logs/:slug/
   field-notes:
     output: true
-    permalink: /field-notes/:name/
+    permalink: /field-notes/:slug/
 
+# --- Default layouts for each collection ---
 defaults:
   - scope:
       path: ""
@@ -25,6 +28,7 @@ defaults:
     values:
       layout: fieldnote
 
+# --- Build & Plugins ---
 sass:
   style: compressed
 
@@ -33,5 +37,9 @@ plugins:
   - jekyll-sitemap
   - jekyll-redirect-from
 
+# --- Feed ---
 feed:
   path: feed.xml
+
+# --- Permalink defaults for everything else ---
+permalink: /:categories/:slug/
