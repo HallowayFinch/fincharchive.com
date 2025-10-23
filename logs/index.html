@@ -1,0 +1,34 @@
+---
+layout: default
+title: Recovered Logs
+permalink: /logs/
+---
+
+<main class="wrap" style="margin:3rem auto">
+  <h1 style="margin-bottom:1rem;">Recovered Logs</h1>
+  <div class="rule" style="margin-bottom:1.5rem"></div>
+
+  <ul style="list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
+    {% assign ordered = site.logs | sort: "date" | reverse %}
+    {% for log in ordered %}
+      <li style="border:1px solid #222;padding:1rem;">
+        {% if log.alias %}
+          <div style="font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;opacity:.8;">{{ log.alias }}</div>
+        {% endif %}
+        <a href="{{ log.url | relative_url }}" style="display:block;font-weight:600;margin:.25rem 0 .5rem;text-decoration:none;">
+          {{ log.title }}
+        </a>
+        {% if log.date %}
+        <div class="meta">
+          {{ log.date | date: "%A, %B %-d, %Y %H:%M:%S %Z" }}
+        </div>
+        {% endif %}
+        {% if log.artifact and log.artifact.path %}
+          <div style="margin-top:.75rem;">
+            <a class="btn" href="{{ log.artifact.path | relative_url }}">{{ log.artifact.label | default: "Artifact" }}</a>
+          </div>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+</main>
