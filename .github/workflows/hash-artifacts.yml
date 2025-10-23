@@ -1,10 +1,9 @@
-name: Artifact Hasher & Metadata Updater
+name: Hash & Index Artifacts
 
 on:
   push:
     paths:
       - "artifacts/**"
-  workflow_dispatch: {}   # lets you run it manually from the Actions tab
 
 permissions:
   contents: write
@@ -13,108 +12,72 @@ jobs:
   hash:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Install jq and ffmpeg
+      - name: Install ffmpeg (for audio metadata)
         run: |
           sudo apt-get update
-          sudo apt-get install -y jq ffmpeg
+          sudo apt-get install -y ffmpeg
 
-      - name: Find artifact files (scan folder; no diff)
-        id: files
-        shell: bash
+      - name: Hash & index
         run: |
-          set -euo pipefail
-          find artifacts -type f \
-            ! -name 'metadata.json' \
-            ! -name 'SHA256SUMS.txt' \
-            -print > files.txt || true
-          COUNT=$(wc -l < files.txt | tr -d ' ')
-          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
-          echo "Will process $COUNT file(s):"
-          cat files.txt || true
+          python - << 'PY'
+import os, json, hashlib, subprocess, pathlib, re
 
-      - name: Compute hashes & update metadata
-        if: steps.files.outputs.count != '0'
-        shell: bash
+ARTIFACTS_DIR = "artifacts"
+LOG_DIR = "logs"
+
+def sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+def audio_meta(path):
+    try:
+        cmd = ["ffprobe", "-v", "error", "-show_entries", "format=duration,bit_rate", "-of", "json", path]
+        out = subprocess.check_output(cmd).decode("utf-8", "ignore")
+        data = json.loads(out).get("format", {})
+        return {
+            "duration_seconds": float(data.get("duration")) if "duration" in data else None,
+            "bit_rate": int(data.get("bit_rate")) if "bit_rate" in data else None
+        }
+    except Exception:
+        return {}
+
+ROOT = os.getcwd()
+
+for log_folder in sorted(pathlib.Path(ARTIFACTS_DIR).glob("log-*"), key=lambda p: str(p).lower()):
+    if not log_folder.is_dir():
+        continue
+    log_id = re.sub(r"^log-", "", log_folder.name, flags=re.I).upper()
+
+    manifest = {"log_id": log_id, "files": []}
+    for fp in log_folder.glob("*"):
+        if fp.name == "artifacts.json" or fp.is_dir():
+            continue
+        item = {
+            "name": fp.name,
+            "size": fp.stat().st_size,
+            "sha256": sha256(str(fp)),
+            "relpath": str(fp.relative_to(ROOT)).replace("\\", "/")
+        }
+        if fp.suffix.lower() in [".wav", ".mp3", ".m4a", ".flac", ".ogg"]:
+            item.update(audio_meta(str(fp)))
+        manifest["files"].append(item)
+
+    (log_folder / "artifacts.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
+PY
+
+      - name: Commit artifacts manifest
         run: |
-          set -euo pipefail
-          while IFS= read -r f; do
-            [ -n "${f:-}" ] && [ -f "$f" ] || continue
-            echo "Processing $f"
-
-            HASH=$(sha256sum "$f" | awk '{print $1}')
-            DIR=$(dirname "$f")
-            BASE=$(basename "$f")
-            MIME=$(file --mime-type -b "$f" || echo application/octet-stream)
-
-            DUR="0.000"
-            if [[ "$MIME" == audio/* || "$MIME" == video/* ]]; then
-              DUR=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$f" | awk '{printf "%.3f",$1}')
-              DUR=${DUR:-0.000}
-            fi
-
-            # Update SHA256SUMS.txt (idempotent)
-            SUMS="$DIR/SHA256SUMS.txt"
-            (grep -v "  $f\$" "$SUMS" 2>/dev/null || true; printf "%s  %s\n" "$HASH" "$f") | sort -u > "$SUMS.tmp"
-            mv "$SUMS.tmp" "$SUMS"
-
-            # LOG_ID from folder name: artifacts/log-1022a -> 1022A
-            LOGDIR=$(basename "$DIR"); RAW="${LOGDIR#log-}"; LOGID=$(echo "$RAW" | tr '[:lower:]' '[:upper:]')
-            META="$DIR/metadata.json"
-
-            if [ ! -f "$META" ]; then
-              jq -n \
-                --arg logid "$LOGID" \
-                --arg mime "$MIME" \
-                --arg file "$BASE" \
-                --arg algo "SHA256" \
-                --arg hash "$HASH" \
-                --arg dir "$DIR" \
-                --argjson dur "$DUR" \
-                '{
-                  log_id: $logid,
-                  title: "",
-                  date_published: "",
-                  artifact_type: $mime,
-                  file: $file,
-                  duration_seconds: $dur,
-                  reverse_playback: false,
-                  notable_timestamp: "",
-                  description: "",
-                  checksum: { algorithm: $algo, value: $hash },
-                  provenance: {},
-                  license: "See repository LICENSE",
-                  canonical_url: ("https://fincharchive.com/" + $dir + "/metadata.json")
-                }' > "$META"
-            else
-              jq \
-                --arg file "$BASE" \
-                --arg algo "SHA256" \
-                --arg hash "$HASH" \
-                --arg type "$MIME" \
-                --argjson dur "$DUR" \
-                '
-                  .file = $file
-                  | .artifact_type = $type
-                  | .duration_seconds = $dur
-                  | .checksum = ({algorithm: $algo, value: $hash})
-                ' "$META" > "$META.tmp" && mv "$META.tmp" "$META"
-            fi
-
-            git add "$SUMS" "$META"
-          done < files.txt
-
-      - name: Commit and push
-        if: steps.files.outputs.count != '0'
-        run: |
+          git config user.name "Finch Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add artifacts/** || true
           if git diff --cached --quiet; then
-            echo "No changes to commit."
-            exit 0
+            echo "No artifacts changes."
+          else:
+            git commit -m "chore(artifacts): update artifacts manifests"
+            git push
           fi
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
-            commit -m "ci(artifact): ensure checksums and metadata"
-          git push
