@@ -1,12 +1,47 @@
 # scripts/rss_to_repo.py
+# Imports Substack posts from RSS into a Jekyll site:
+# - Writes collection entries to /_logs/<slug>.md (pretty permalinks)
+# - Writes alias redirect /logs/log-1022x/index.html -> /logs/<slug>/
+# - Tracks 1022A/1022B… sequence in .finch/state.json
+#
+# Works behind a proxy (Cloudflare Worker etc.) via RSS_PROXY_URL.
+# If RSS_PROXY_URL is set, *all* network requests are routed through it.
+
 import os, sys, json, time, feedparser, datetime as dt
 from pathlib import Path
 import re, html, urllib.request, urllib.parse
 
+# -----------------------------
+# Logging
+# -----------------------------
 def log(*args):
     print("[rss-sync]", *args, flush=True)
 
-# --- Improved fetch: uses full browser headers, supports redirect mirrors
+# -----------------------------
+# ENV & paths
+# -----------------------------
+ROOT = Path(__file__).resolve().parents[1]
+STATE = ROOT / ".finch" / "state.json"
+LOGS_DIR = ROOT / "logs"      # alias redirects live here
+COLL_DIR = ROOT / "_logs"     # Jekyll collection entries live here
+
+for p in (STATE.parent, LOGS_DIR, COLL_DIR):
+    p.mkdir(parents=True, exist_ok=True)
+
+SUBSTACK_RSS_URL   = os.environ.get("SUBSTACK_RSS_URL", "").strip()
+IMPORT_LATEST_ONLY = os.environ.get("IMPORT_LATEST_ONLY", "1") == "1"
+IMPORT_DEBUG       = os.environ.get("IMPORT_DEBUG", "0") == "1"
+RSS_PROXY_URL      = os.environ.get("RSS_PROXY_URL", "").strip()   # e.g. https://rss.fincharchive.com
+
+def proxied(url: str) -> str:
+    """Return a proxy-wrapped URL if RSS_PROXY_URL is set."""
+    if not RSS_PROXY_URL:
+        return url
+    return f"{RSS_PROXY_URL}?url={urllib.parse.quote(url, safe='')}"
+
+# -----------------------------
+# HTTP fetch (browsery headers)
+# -----------------------------
 def fetch_url(url: str, timeout=30) -> str:
     headers = {
         "User-Agent": (
@@ -22,7 +57,9 @@ def fetch_url(url: str, timeout=30) -> str:
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read().decode("utf-8", "ignore")
 
-# --- Helpers ---
+# -----------------------------
+# Light readability + HTML→MD
+# -----------------------------
 def readability_extract(html_text: str) -> str:
     m = re.search(r"(?is)<article[^>]*>(.*?)</article>", html_text)
     if m:
@@ -43,6 +80,9 @@ def html_to_markdown_simple(html_text: str) -> str:
     text = re.sub(r"(?is)<.*?>", "", text)
     return html.unescape(text).strip()
 
+# -----------------------------
+# 1022A / slug helpers
+# -----------------------------
 def int_to_letters(n: int) -> str:
     s = ""
     while n > 0:
@@ -78,57 +118,66 @@ def dedupe_slug(base_slug: str, existing_slugs: set) -> str:
         i += 1
     return f"{slug}-{i}"
 
-ROOT = Path(__file__).resolve().parents[1]
-STATE = ROOT / ".finch" / "state.json"
-LOGS_DIR = ROOT / "logs"
-COLL_DIR = ROOT / "_logs"
-for p in (STATE.parent, LOGS_DIR, COLL_DIR):
-    p.mkdir(parents=True, exist_ok=True)
-
-SUBSTACK_RSS_URL = os.environ.get("SUBSTACK_RSS_URL", "").strip()
-IMPORT_LATEST_ONLY = os.environ.get("IMPORT_LATEST_ONLY", "1") == "1"
-
+# -----------------------------
+# State
+# -----------------------------
 def load_state():
     if STATE.exists():
-        return json.loads(STATE.read_text("utf-8"))
+        try:
+            return json.loads(STATE.read_text("utf-8"))
+        except Exception:
+            pass
     return {"next_seq": 1, "seen_guids": []}
 
 def save_state(s):
     STATE.write_text(json.dumps(s, indent=2), encoding="utf-8")
 
-# --- Fetch and parse RSS (handles 403s + mirrors) ---
+# -----------------------------
+# Feed fetch (manual + proxy + fallbacks)
+# -----------------------------
 def fetch_and_parse_feed(url: str):
-    try:
-        log(f"Fetching feed (browser headers): {url}")
-        raw = fetch_url(url)
+    def parse_raw(label: str, raw: str):
         feed = feedparser.parse(raw)
+        log(f"{label} parsed entries: {len(feed.entries or [])}")
+        return feed
+
+    # primary (through proxy if set)
+    try:
+        u = proxied(url)
+        log(f"Fetching feed: {u}")
+        raw = fetch_url(u)
+        if IMPORT_DEBUG:
+            log(f"Feed head: {raw[:250].replace(chr(10),' ')}")
+        feed = parse_raw("Primary", raw)
         if feed.entries:
-            log(f"Parsed {len(feed.entries)} entries from primary feed.")
             return feed
-        log("Primary feed empty; trying fallback mirror…")
+        log("Primary feed empty; trying fallbacks…")
     except Exception as e:
         log(f"Primary fetch failed: {e}")
 
-    # fallback mirrors (Substack sometimes blocks feedparser IPs)
+    # fallbacks
     host = urllib.parse.urlparse(url).hostname or ""
     pub = host.split(".")[0] if ".substack.com" in host else host
-    alt_urls = [
-        f"https://{pub}.substack.com/api/v1/posts/rss",      # modern API endpoint
-        f"https://substackapi.com/feed/{pub}",               # unofficial mirror
-        f"https://substackproxy.vercel.app/feed/{pub}",      # generic proxy mirror
+    fallbacks = [
+        f"https://{pub}.substack.com/api/v1/posts/rss",
+        f"https://{pub}.substack.com/feed",
     ]
-    for alt in alt_urls:
+    for fu in fallbacks:
         try:
-            log(f"Trying fallback feed: {alt}")
-            raw2 = fetch_url(alt)
-            feed2 = feedparser.parse(raw2)
-            log(f"Fallback parsed entries: {len(feed2.entries or [])}")
+            u2 = proxied(fu)
+            log(f"Fallback fetch: {u2}")
+            raw2 = fetch_url(u2)
+            feed2 = parse_raw("Fallback", raw2)
             if feed2.entries:
                 return feed2
         except Exception as ex:
-            log(f"Fallback fetch error for {alt}: {ex}")
-    return feedparser.parse("")  # empty feed if all fail
+            log(f"Fallback error for {fu}: {ex}")
 
+    return feedparser.parse("")  # empty feed
+
+# -----------------------------
+# Entry selection
+# -----------------------------
 def pick_entries(feed):
     entries = list(feed.entries or [])
     if IMPORT_LATEST_ONLY and entries:
@@ -145,18 +194,22 @@ def pick_entries(feed):
         out.append(e)
     return out
 
+# -----------------------------
+# Import one entry
+# -----------------------------
 def import_post(entry, state):
     title = clean_title(entry.get("title"))
     guid  = entry.get("id") or entry.get("guid") or entry.get("link")
     url   = entry.get("link")
     date  = entry.get("published") or entry.get("updated") or dt.datetime.utcnow().isoformat() + "Z"
 
-    log(f"Importing: '{title}'")
+    log(f"Importing: '{title}' url={url}")
     if not url:
         raise RuntimeError("Entry missing URL")
-    html_text = fetch_url(url)
+
+    html_text = fetch_url(proxied(url))
     main_html = readability_extract(html_text)
-    body_md = html_to_markdown_simple(main_html)
+    body_md   = html_to_markdown_simple(main_html)
 
     log_id = make_log_id(state["next_seq"])
     alias  = slugify_log_id(log_id)
@@ -196,31 +249,30 @@ def import_post(entry, state):
     state["seen_guids"].append(guid)
     state["next_seq"] += 1
 
+# -----------------------------
+# Main
+# -----------------------------
 def main():
-    try:
-        if not SUBSTACK_RSS_URL:
-            raise RuntimeError("SUBSTACK_RSS_URL not set")
-        feed = fetch_and_parse_feed(SUBSTACK_RSS_URL)
-        log(f"Final feed entries count: {len(feed.entries or [])}")
+    if not SUBSTACK_RSS_URL:
+        raise RuntimeError("SUBSTACK_RSS_URL not set")
 
-        if not (feed.entries or []):
-            log("No feed entries found. Aborting without change.")
-            return
+    feed = fetch_and_parse_feed(SUBSTACK_RSS_URL)
+    log(f"Final feed entries: {len(feed.entries or [])}")
+    if not (feed.entries or []):
+        log("No feed entries found. Aborting without change.")
+        return
 
-        candidates = pick_entries(feed)
-        log(f"Entries selected for import: {len(candidates)}")
-        if not candidates:
-            log("No new entries to import.")
-            return
+    candidates = pick_entries(feed)
+    log(f"Entries selected for import: {len(candidates)}")
+    if not candidates:
+        log("No new entries to import.")
+        return
 
-        state = load_state()
-        for e in sorted(candidates, key=lambda x: x.get("published_parsed") or time.gmtime(0)):
-            import_post(e, state)
-        save_state(state)
-        log("Done.")
-    except Exception as e:
-        log(f"ERROR: {e}")
-        raise
+    state = load_state()
+    for e in sorted(candidates, key=lambda x: x.get("published_parsed") or x.get("updated_parsed") or time.gmtime(0)):
+        import_post(e, state)
+    save_state(state)
+    log("Done.")
 
 if __name__ == "__main__":
     main()
