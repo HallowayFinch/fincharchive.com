@@ -25,7 +25,6 @@ def _proxy_host() -> str:
     return urllib.parse.urlparse(RSS_PROXY_URL).netloc
 
 def unproxy_url(url: str) -> str:
-    """If url is proxied (?url=...), return the original target; else return url."""
     try:
         u = urllib.parse.urlparse(url)
         if _proxy_host() and u.netloc == _proxy_host():
@@ -37,7 +36,6 @@ def unproxy_url(url: str) -> str:
     return url
 
 def proxied(url: str) -> str:
-    """Wrap url through the proxy (if configured). Never double-wrap."""
     raw = unproxy_url(url)
     if not RSS_PROXY_URL: return raw
     return f"{RSS_PROXY_URL}?url={urllib.parse.quote(raw, safe='')}"
@@ -63,18 +61,63 @@ def readability_extract(html_text: str) -> str:
     m = re.search(r"(?is)<body[^>]*>(.*?)</body>", html_text)
     return m.group(1) if m else html_text
 
+def strip_substack_chrome(html_text: str) -> str:
+    """
+    Remove Substack title/header, author block, comments link, 'Share' button, etc.
+    This happens BEFORE HTML→MD so they never appear in the Markdown.
+    """
+    t = html_text
+
+    # kill header blocks and leading H1 (the title is already in front matter)
+    t = re.sub(r"(?is)<header[^>]*>.*?</header>", "", t)
+    t = re.sub(r"(?is)^\s*<h1[^>]*>.*?</h1>", "", t, count=1)
+
+    # kill 'Share' buttons and comment links
+    t = re.sub(r'(?is)<a[^>]+href="javascript:void\(0\)".*?</a>', "", t)
+    t = re.sub(r'(?is)<a[^>]+href="[^"]*/comments[^"]*".*?</a>', "", t)
+
+    # kill author/profile links like substack.com/@hallowayfinch
+    t = re.sub(r'(?is)<a[^>]+href="https?://[^"]*substack\.com/@[^"]*".*?</a>', "", t)
+
+    # stray 'Share' words wrapped in spans/divs
+    t = re.sub(r'(?is)>(\s*Share\s*)<', "><", t)
+
+    return t
+
 def html_to_markdown_simple(html_text: str) -> str:
     text = re.sub(r"(?is)<script.*?</script>", "", html_text)
     text = re.sub(r"(?is)<style.*?</style>", "", text)
     text = re.sub(r"(?is)</p>", "\n\n", text)
     text = re.sub(r"(?is)<br\s*/?>", "\n", text)
+
     def _a(m):
         href = m.group(1)
         inner = re.sub(r"(?is)<.*?>", "", m.group(2))
         return f"[{inner}]({href})"
+
     text = re.sub(r'(?is)<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>', _a, text)
     text = re.sub(r"(?is)<.*?>", "", text)
     return html.unescape(text).strip()
+
+def tidy_markdown(md: str, title: str) -> str:
+    """
+    Remove stray header line/empty links, standalone 'Share', collapse spacing.
+    """
+    out = md
+
+    # remove a leading line that exactly matches the title (Substack sometimes repeats it)
+    out = re.sub(rf"(?im)^\s*{re.escape(title)}\s*$\n?", "", out)
+
+    # remove empty link artifacts like [](...)
+    out = re.sub(r"\[\s*\]\([^)]+\)", "", out)
+
+    # remove standalone 'Share' lines
+    out = re.sub(r"(?m)^\s*Share\s*$", "", out)
+
+    # collapse 3+ newlines to 2
+    out = re.sub(r"\n{3,}", "\n\n", out)
+
+    return out.strip() + "\n"
 
 # ----- 1022 helpers ----------------------------------------------------------
 def int_to_letters(n: int) -> str:
@@ -102,17 +145,16 @@ def extract_substack_slug(url: str) -> str:
 
 # ----- State -----------------------------------------------------------------
 DEFAULT_STATE = {
-    "next_seq": 1,               # for assigning 1022A/B/C… once per new GUID
-    "guid_to_slug": {},          # GUID -> stable slug
-    "guid_to_log_id": {},        # GUID -> 1022X
-    "seen_guids": []             # legacy; still append for compatibility
+    "next_seq": 1,
+    "guid_to_slug": {},
+    "guid_to_log_id": {},
+    "seen_guids": []
 }
 
 def load_state():
     if STATE_FILE.exists():
         try:
             s = json.loads(STATE_FILE.read_text("utf-8"))
-            # merge with defaults to be safe
             for k, v in DEFAULT_STATE.items():
                 if k not in s: s[k] = v
             return s
@@ -166,14 +208,8 @@ def pick_entries(feed, state):
     if IMPORT_LATEST_ONLY and entries:
         newest = max(entries, key=lambda x: x.get("published_parsed") or x.get("updated_parsed") or time.gmtime(0))
         return [newest]
-    out = []
-    for e in entries:
-        gid = e.get("id") or e.get("guid") or e.get("link")
-        if not gid: continue
-        # If we’ve already imported this GUID, we still re-import (upsert) to update content,
-        # but we do not create new files. So include it once here.
-        out.append(e)
-    return out
+    # Upsert all entries so edits propagate, but never create new filenames
+    return entries
 
 # ----- Content write helpers --------------------------------------------------
 def write_text_if_changed(path: Path, content: str) -> bool:
@@ -194,7 +230,6 @@ def build_front_matter(*, title, date, slug, log_id, url, guid) -> str:
         f'source_url: "{url}"',
         f'guid: "{guid}"',
         f'permalink: "/logs/{slug}/"',
-        # heal a few legacy wrong paths:
         "redirect_from:",
         f'  - "/logs/{slug}-2/"',
         f'  - "/logs/{slug}-2.md"',
@@ -207,11 +242,10 @@ def build_front_matter(*, title, date, slug, log_id, url, guid) -> str:
     return "\n".join(lines)
 
 def ensure_alias_redirect(log_id: str, slug: str):
-    """Create /logs/log-1022X/ → /logs/<slug>/ as a one-time static redirect."""
     alias = slugify_log_id(log_id)  # e.g., log-1022a
     alias_dir = LOGS_ALIAS_DIR / alias
     if alias_dir.exists() and (alias_dir / "index.html").exists():
-        return  # already created
+        return
     alias_dir.mkdir(parents=True, exist_ok=True)
     redirect_html = f"""<!doctype html><meta charset="utf-8">
 <title>Redirecting…</title>
@@ -222,45 +256,54 @@ def ensure_alias_redirect(log_id: str, slug: str):
     (alias_dir / "index.html").write_text(redirect_html, encoding="utf-8")
     log(f"Wrote alias redirect: {alias_dir/'index.html'}")
 
-# ----- Import one entry (IDEMPOTENT) -----------------------------------------
+# ----- Import one entry (IDEMPOTENT + CLEAN) ---------------------------------
 def import_post(entry, state):
     title = clean_title(entry.get("title"))
     guid  = entry.get("id") or entry.get("guid") or entry.get("link")
     url   = entry.get("link")
-    date  = entry.get("published") or entry.get("updated") or dt.datetime.utcnow().isoformat() + "Z"
+
+    # --- NEW: always store ISO-8601 with timezone ---
+    if entry.get("published_parsed"):
+        date = dt.datetime.fromtimestamp(time.mktime(entry.published_parsed)).astimezone().isoformat()
+    elif entry.get("updated_parsed"):
+        date = dt.datetime.fromtimestamp(time.mktime(entry.updated_parsed)).astimezone().isoformat()
+    else:
+        date = dt.datetime.now().astimezone().isoformat()
+    # -----------------------------------------------
+
     if not url: raise RuntimeError("Entry missing URL")
 
-    # Stable slug derived from Substack URL
+    # Stable slug from URL; remember mapping
     slug = state["guid_to_slug"].get(guid) or extract_substack_slug(url)
-    state["guid_to_slug"][guid] = slug  # remember mapping
+    state["guid_to_slug"][guid] = slug
 
-    # Assign a 1022 sequence ONLY the first time we see this GUID
+    # Assign a 1022 sequence only once per GUID
     log_id = state["guid_to_log_id"].get(guid)
     if not log_id:
-        log_id = make_log_id(state["next_seq"])  # 1022A, then 1022B...
+        log_id = make_log_id(state["next_seq"])
         state["guid_to_log_id"][guid] = log_id
         state["next_seq"] += 1
 
     log(f"Upserting: '{title}' slug={slug} log_id={log_id}")
 
-    # Fetch & convert body
-    html_text = fetch_url(proxied(url))
-    main_html = readability_extract(html_text)
-    body_md   = html_to_markdown_simple(main_html)
+    # Fetch & convert body with cleanup
+    raw_html = fetch_url(proxied(url))
+    article_html = readability_extract(raw_html)
+    article_html = strip_substack_chrome(article_html)
+    body_md = html_to_markdown_simple(article_html)
+    body_md = tidy_markdown(body_md, title)
 
-    # Build collection file (overwrite-in-place if exists)
     fm = build_front_matter(title=title, date=date, slug=slug, log_id=log_id, url=url, guid=guid)
     md_path = COLL_DIR / f"{slug}.md"
     changed = write_text_if_changed(md_path, fm + body_md + "\n")
+
     if changed:
         log(f"Wrote: {md_path}")
     else:
         log(f"No content change: {md_path}")
 
-    # Ensure one-time alias redirect folder (e.g., /logs/log-1022a/)
     ensure_alias_redirect(log_id, slug)
 
-    # Book-keeping (kept for compatibility with your existing state)
     if guid not in state["seen_guids"]:
         state["seen_guids"].append(guid)
 
@@ -282,7 +325,6 @@ def main():
         log("No entries to process.")
         return
 
-    # Process oldest→newest for stable 1022 sequencing across historic imports
     for e in sorted(candidates, key=lambda x: x.get("published_parsed") or x.get("updated_parsed") or time.gmtime(0)):
         import_post(e, state)
 
