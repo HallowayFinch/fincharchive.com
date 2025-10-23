@@ -14,9 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SUBSTACK_RSS_URL: ${{ secrets.SUBSTACK_RSS_URL }}
-      RSS_PROXY_URL: ${{ secrets.RSS_PROXY_URL }}   # optional
+      RSS_PROXY_URL: ${{ secrets.RSS_PROXY_URL }}   # optional; leave unset if not using a proxy
       IMPORT_LATEST_ONLY: "1"
-      GENERATE_LOG_ALIAS: "1"                       # set "0" to disable /logs/log-1022x/
+      GENERATE_LOG_ALIAS: "1"                       # set "0" to disable /logs/log-1022x/ alias folders
       CLEAN_OLD_ALIASES: "1"
       IMPORT_DEBUG: "0"
     steps:
@@ -37,17 +37,20 @@ jobs:
         run: |
           python scripts/rss_to_repo.py
 
-      - name: (Optional) Repair state from _logs (safety net)
-        if: always()
+      - name: Hash artifacts (metadata.json)
         run: |
-          python scripts/repair_state.py --write || true
+          python scripts/hash_artifacts.py
+
+      - name: Validate site
+        run: |
+          python scripts/validate_site.py
 
       - name: Commit changes
         run: |
           git config user.name  "actions-user"
           git config user.email "actions@users.noreply.github.com"
           git add -A
-          git diff --staged --quiet || git commit -m "chore(logs): import new Substack posts & rebuild pages"
+          git diff --staged --quiet || git commit -m "chore(logs): import new Substack posts, hash artifacts, validate site"
 
       - name: Push
         run: |
