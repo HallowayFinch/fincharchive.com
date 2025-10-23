@@ -8,16 +8,25 @@ def log(*args): print("[rss-sync]", *args, flush=True)
 # ----- ENV & paths -----------------------------------------------------------
 ROOT = Path(__file__).resolve().parents[1]
 STATE_FILE = ROOT / ".finch" / "state.json"
-LOGS_ALIAS_DIR = ROOT / "logs"   # ONLY for one-time alias redirect folders
+LOGS_ALIAS_DIR = ROOT / "logs"   # optional alias redirects (log-1022x → /logs/:slug/)
 COLL_DIR = ROOT / "_logs"        # Jekyll collection items (source of truth)
+ARTIFACTS_DIR = ROOT / "artifacts"
 
-for p in (STATE_FILE.parent, LOGS_ALIAS_DIR, COLL_DIR):
+for p in (STATE_FILE.parent, LOGS_ALIAS_DIR, COLL_DIR, ARTIFACTS_DIR):
     p.mkdir(parents=True, exist_ok=True)
 
-SUBSTACK_RSS_URL   = os.environ.get("SUBSTACK_RSS_URL", "").strip()
-IMPORT_LATEST_ONLY = os.environ.get("IMPORT_LATEST_ONLY", "1") == "1"
-IMPORT_DEBUG       = os.environ.get("IMPORT_DEBUG", "0") == "1"
-RSS_PROXY_URL      = os.environ.get("RSS_PROXY_URL", "").strip()  # e.g. https://rss.fincharchive.com
+SUBSTACK_RSS_URL     = os.environ.get("SUBSTACK_RSS_URL", "").strip()
+IMPORT_LATEST_ONLY   = os.environ.get("IMPORT_LATEST_ONLY", "1") == "1"
+IMPORT_DEBUG         = os.environ.get("IMPORT_DEBUG", "0") == "1"
+RSS_PROXY_URL        = os.environ.get("RSS_PROXY_URL", "").strip()
+GENERATE_LOG_ALIAS   = os.environ.get("GENERATE_LOG_ALIAS", "1") == "1"  # "0" disables /logs/log-1022x/
+
+# File types we’ll surface on the page (expandable)
+ARTIFACT_EXTS = [
+    ".wav", ".flac", ".mp3",                 # audio
+    ".pdf",                                  # docs
+    ".jpg", ".jpeg", ".png", ".gif", ".webp" # images
+]
 
 # ----- Proxy helpers ---------------------------------------------------------
 def _proxy_host() -> str:
@@ -62,26 +71,13 @@ def readability_extract(html_text: str) -> str:
     return m.group(1) if m else html_text
 
 def strip_substack_chrome(html_text: str) -> str:
-    """
-    Remove Substack title/header, author block, comments link, 'Share' button, etc.
-    This happens BEFORE HTML→MD so they never appear in the Markdown.
-    """
     t = html_text
-
-    # kill header blocks and leading H1 (the title is already in front matter)
     t = re.sub(r"(?is)<header[^>]*>.*?</header>", "", t)
     t = re.sub(r"(?is)^\s*<h1[^>]*>.*?</h1>", "", t, count=1)
-
-    # kill 'Share' buttons and comment links
     t = re.sub(r'(?is)<a[^>]+href="javascript:void\(0\)".*?</a>', "", t)
     t = re.sub(r'(?is)<a[^>]+href="[^"]*/comments[^"]*".*?</a>', "", t)
-
-    # kill author/profile links like substack.com/@hallowayfinch
     t = re.sub(r'(?is)<a[^>]+href="https?://[^"]*substack\.com/@[^"]*".*?</a>', "", t)
-
-    # stray 'Share' words wrapped in spans/divs
     t = re.sub(r'(?is)>(\s*Share\s*)<', "><", t)
-
     return t
 
 def html_to_markdown_simple(html_text: str) -> str:
@@ -100,23 +96,11 @@ def html_to_markdown_simple(html_text: str) -> str:
     return html.unescape(text).strip()
 
 def tidy_markdown(md: str, title: str) -> str:
-    """
-    Remove stray header line/empty links, standalone 'Share', collapse spacing.
-    """
     out = md
-
-    # remove a leading line that exactly matches the title (Substack sometimes repeats it)
     out = re.sub(rf"(?im)^\s*{re.escape(title)}\s*$\n?", "", out)
-
-    # remove empty link artifacts like [](...)
     out = re.sub(r"\[\s*\]\([^)]+\)", "", out)
-
-    # remove standalone 'Share' lines
     out = re.sub(r"(?m)^\s*Share\s*$", "", out)
-
-    # collapse 3+ newlines to 2
     out = re.sub(r"\n{3,}", "\n\n", out)
-
     return out.strip() + "\n"
 
 # ----- 1022 helpers ----------------------------------------------------------
@@ -208,8 +192,7 @@ def pick_entries(feed, state):
     if IMPORT_LATEST_ONLY and entries:
         newest = max(entries, key=lambda x: x.get("published_parsed") or x.get("updated_parsed") or time.gmtime(0))
         return [newest]
-    # Upsert all entries so edits propagate, but never create new filenames
-    return entries
+    return entries  # upsert all so edits propagate
 
 # ----- Content write helpers --------------------------------------------------
 def write_text_if_changed(path: Path, content: str) -> bool:
@@ -219,7 +202,28 @@ def write_text_if_changed(path: Path, content: str) -> bool:
     path.write_text(content, encoding="utf-8")
     return True
 
-def build_front_matter(*, title, date, slug, log_id, url, guid) -> str:
+def nice_label_from_path(p: Path) -> str:
+    # e.g., "Cicada clue (PDF)" / "Reversed audio (WAV)"
+    base = p.stem.replace("_", " ").replace("-", " ").strip()
+    ext = p.suffix.upper().lstrip(".")
+    if not base:
+        base = "Artifact"
+    return f"{base} ({ext})"
+
+def find_artifacts_for_slug(slug: str):
+    """Return a list of {'path': str, 'label': str} under /artifacts/:slug/ for supported exts."""
+    folder = ARTIFACTS_DIR / slug
+    items = []
+    if folder.exists() and folder.is_dir():
+        for ext in ARTIFACT_EXTS:
+            for p in sorted(folder.glob(f"*{ext}"), key=lambda x: x.name.lower()):
+                items.append({
+                    "path": f"/artifacts/{slug}/{p.name}",
+                    "label": nice_label_from_path(p)
+                })
+    return items
+
+def build_front_matter(*, title, date, slug, log_id, url, guid, artifacts=None) -> str:
     esc_title = title.replace('"', '\\"')
     lines = [
         "---",
@@ -236,12 +240,20 @@ def build_front_matter(*, title, date, slug, log_id, url, guid) -> str:
         f'  - "/logs/{slug}-3/"',
         f'  - "/logs/{slug}-3.md"',
         f'  - "/logs/log-1022a.md"',
-        "---",
-        ""
     ]
+    if artifacts:
+        lines += ["artifacts:"]
+        for a in artifacts:
+            lines += [
+                f'  - path: "{a["path"]}"',
+                f'    label: "{a.get("label","Artifact")}"'
+            ]
+    lines += ["---", ""]
     return "\n".join(lines)
 
 def ensure_alias_redirect(log_id: str, slug: str):
+    if not GENERATE_LOG_ALIAS:
+        return
     alias = slugify_log_id(log_id)  # e.g., log-1022a
     alias_dir = LOGS_ALIAS_DIR / alias
     if alias_dir.exists() and (alias_dir / "index.html").exists():
@@ -262,14 +274,13 @@ def import_post(entry, state):
     guid  = entry.get("id") or entry.get("guid") or entry.get("link")
     url   = entry.get("link")
 
-    # --- NEW: always store ISO-8601 with timezone ---
+    # ISO-8601 with timezone
     if entry.get("published_parsed"):
         date = dt.datetime.fromtimestamp(time.mktime(entry.published_parsed)).astimezone().isoformat()
     elif entry.get("updated_parsed"):
         date = dt.datetime.fromtimestamp(time.mktime(entry.updated_parsed)).astimezone().isoformat()
     else:
         date = dt.datetime.now().astimezone().isoformat()
-    # -----------------------------------------------
 
     if not url: raise RuntimeError("Entry missing URL")
 
@@ -293,7 +304,13 @@ def import_post(entry, state):
     body_md = html_to_markdown_simple(article_html)
     body_md = tidy_markdown(body_md, title)
 
-    fm = build_front_matter(title=title, date=date, slug=slug, log_id=log_id, url=url, guid=guid)
+    # Collect artifacts under /artifacts/:slug/
+    artifacts = find_artifacts_for_slug(slug)
+
+    fm = build_front_matter(
+        title=title, date=date, slug=slug, log_id=log_id,
+        url=url, guid=guid, artifacts=artifacts
+    )
     md_path = COLL_DIR / f"{slug}.md"
     changed = write_text_if_changed(md_path, fm + body_md + "\n")
 
