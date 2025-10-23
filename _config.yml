@@ -41,5 +41,10 @@ plugins:
 feed:
   path: feed.xml
 
+# --- Site-wide artifact references (used by homepage links) ---
+artifacts:
+  sha256: /artifacts/SHA256SUMS.txt
+  metadata: /artifacts/metadata.json
+
 # --- Permalink defaults for everything else ---
 permalink: /:categories/:slug/
