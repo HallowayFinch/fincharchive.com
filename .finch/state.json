@@ -1,4 +1,6 @@
 {
-  "next_seq": 1,
-  "seen_guids": []
+  "next_seq": 2,
+  "seen_guids": [
+    "https://hallowayfinch.substack.com/p/the-voice-in-the-static"
+  ]
 }
