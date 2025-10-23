@@ -1,7 +1,7 @@
 # scripts/rss_to_repo.py
 import os, sys, json, time, feedparser, datetime as dt
 from pathlib import Path
-import re, html, urllib.request, urllib.parse
+import re, html, urllib.request, urllib.parse, shutil
 
 def log(*args): print("[rss-sync]", *args, flush=True)
 
@@ -20,8 +20,9 @@ IMPORT_LATEST_ONLY   = os.environ.get("IMPORT_LATEST_ONLY", "1") == "1"
 IMPORT_DEBUG         = os.environ.get("IMPORT_DEBUG", "0") == "1"
 RSS_PROXY_URL        = os.environ.get("RSS_PROXY_URL", "").strip()
 GENERATE_LOG_ALIAS   = os.environ.get("GENERATE_LOG_ALIAS", "1") == "1"  # "0" disables /logs/log-1022x/
+CLEAN_OLD_ALIASES    = os.environ.get("CLEAN_OLD_ALIASES", "1") == "1"   # remove stale alias folders for same slug
 
-# File types we’ll surface on the page (expandable)
+# File types we’ll surface on the page
 ARTIFACT_EXTS = [
     ".wav", ".flac", ".mp3",                 # audio
     ".pdf",                                  # docs
@@ -203,11 +204,8 @@ def write_text_if_changed(path: Path, content: str) -> bool:
     return True
 
 def nice_label_from_path(p: Path) -> str:
-    # e.g., "Cicada clue (PDF)" / "Reversed audio (WAV)"
-    base = p.stem.replace("_", " ").replace("-", " ").strip()
+    base = p.stem.replace("_", " ").replace("-", " ").strip() or "Artifact"
     ext = p.suffix.upper().lstrip(".")
-    if not base:
-        base = "Artifact"
     return f"{base} ({ext})"
 
 def find_artifacts_for_slug(slug: str):
@@ -222,6 +220,24 @@ def find_artifacts_for_slug(slug: str):
                     "label": nice_label_from_path(p)
                 })
     return items
+
+def read_existing_log_id_from_md(slug: str):
+    """If _logs/:slug.md exists and has log_id in front matter, return it."""
+    md_path = COLL_DIR / f"{slug}.md"
+    if not md_path.exists():
+        return None
+    try:
+        head = md_path.read_text("utf-8")
+        # front matter is between first two --- lines
+        m = re.search(r"(?s)^---(.*?)---", head)
+        if not m: return None
+        fm = m.group(1)
+        m2 = re.search(r"^\s*log_id:\s*\"?([A-Za-z0-9-]+)\"?\s*$", fm, re.M)
+        if m2:
+            return m2.group(1)
+    except Exception:
+        pass
+    return None
 
 def build_front_matter(*, title, date, slug, log_id, url, guid, artifacts=None) -> str:
     esc_title = title.replace('"', '\\"')
@@ -256,8 +272,6 @@ def ensure_alias_redirect(log_id: str, slug: str):
         return
     alias = slugify_log_id(log_id)  # e.g., log-1022a
     alias_dir = LOGS_ALIAS_DIR / alias
-    if alias_dir.exists() and (alias_dir / "index.html").exists():
-        return
     alias_dir.mkdir(parents=True, exist_ok=True)
     redirect_html = f"""<!doctype html><meta charset="utf-8">
 <title>Redirecting…</title>
@@ -267,6 +281,24 @@ def ensure_alias_redirect(log_id: str, slug: str):
 <script>location.href="/logs/{slug}/";</script>"""
     (alias_dir / "index.html").write_text(redirect_html, encoding="utf-8")
     log(f"Wrote alias redirect: {alias_dir/'index.html'}")
+
+def cleanup_old_aliases_for_slug(current_log_id: str, slug: str):
+    """Remove other /logs/log-1022*/ folders that point to this slug but aren't the current one."""
+    if not CLEAN_OLD_ALIASES or not GENERATE_LOG_ALIAS:
+        return
+    want_alias = slugify_log_id(current_log_id)
+    for d in LOGS_ALIAS_DIR.glob("log-1022*/"):
+        if d.name == want_alias:
+            continue
+        idx = d / "index.html"
+        try:
+            if idx.exists():
+                html_text = idx.read_text("utf-8")
+                if f'href="/logs/{slug}/"' in html_text or f'href="/logs/{slug}/"' in html_text:
+                    shutil.rmtree(d)
+                    log(f"Removed stale alias folder: {d}")
+        except Exception as e:
+            log(f"Alias cleanup error for {d}: {e}")
 
 # ----- Import one entry (IDEMPOTENT + CLEAN) ---------------------------------
 def import_post(entry, state):
@@ -288,12 +320,19 @@ def import_post(entry, state):
     slug = state["guid_to_slug"].get(guid) or extract_substack_slug(url)
     state["guid_to_slug"][guid] = slug
 
-    # Assign a 1022 sequence only once per GUID
-    log_id = state["guid_to_log_id"].get(guid)
-    if not log_id:
-        log_id = make_log_id(state["next_seq"])
-        state["guid_to_log_id"][guid] = log_id
-        state["next_seq"] += 1
+    # --- NEW: reuse existing log_id from on-disk markdown if present ---
+    existing_log_id = read_existing_log_id_from_md(slug)
+    if existing_log_id:
+        log_id = existing_log_id
+        state["guid_to_log_id"][guid] = log_id  # refresh mapping in state
+    else:
+        # Otherwise use (or assign) from state
+        log_id = state["guid_to_log_id"].get(guid)
+        if not log_id:
+            log_id = make_log_id(state["next_seq"])
+            state["guid_to_log_id"][guid] = log_id
+            state["next_seq"] += 1
+    # --------------------------------------------------------------------
 
     log(f"Upserting: '{title}' slug={slug} log_id={log_id}")
 
@@ -305,7 +344,10 @@ def import_post(entry, state):
     body_md = tidy_markdown(body_md, title)
 
     # Collect artifacts under /artifacts/:slug/
-    artifacts = find_artifacts_for_slug(slug)
+    artifacts = []
+    folder = ARTIFACTS_DIR / slug
+    if folder.exists():
+        artifacts = find_artifacts_for_slug(slug)
 
     fm = build_front_matter(
         title=title, date=date, slug=slug, log_id=log_id,
@@ -320,6 +362,7 @@ def import_post(entry, state):
         log(f"No content change: {md_path}")
 
     ensure_alias_redirect(log_id, slug)
+    cleanup_old_aliases_for_slug(log_id, slug)
 
     if guid not in state["seen_guids"]:
         state["seen_guids"].append(guid)
