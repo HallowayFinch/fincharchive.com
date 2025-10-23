@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "artifacts/**"
+  workflow_dispatch: {}   # lets you run it manually from the Actions tab
 
 permissions:
   contents: write
@@ -14,18 +15,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install jq and ffmpeg
         run: |
           sudo apt-get update
           sudo apt-get install -y jq ffmpeg
 
-      - name: Find artifact files (no diff; scan folder)
+      - name: Find artifact files (scan folder; no diff)
         id: files
         shell: bash
         run: |
           set -euo pipefail
-          # List all regular files under artifacts/, excluding our sidecar files
           find artifacts -type f \
             ! -name 'metadata.json' \
             ! -name 'SHA256SUMS.txt' \
@@ -60,12 +62,11 @@ jobs:
             (grep -v "  $f\$" "$SUMS" 2>/dev/null || true; printf "%s  %s\n" "$HASH" "$f") | sort -u > "$SUMS.tmp"
             mv "$SUMS.tmp" "$SUMS"
 
-            # LOG_ID from folder name: e.g., artifacts/log-1022a -> 1022A
+            # LOG_ID from folder name: artifacts/log-1022a -> 1022A
             LOGDIR=$(basename "$DIR"); RAW="${LOGDIR#log-}"; LOGID=$(echo "$RAW" | tr '[:lower:]' '[:upper:]')
             META="$DIR/metadata.json"
 
             if [ ! -f "$META" ]; then
-              # Create minimal metadata via jq
               jq -n \
                 --arg logid "$LOGID" \
                 --arg mime "$MIME" \
@@ -90,7 +91,6 @@ jobs:
                   canonical_url: ("https://fincharchive.com/" + $dir + "/metadata.json")
                 }' > "$META"
             else
-              # Update core fields; keep your custom ones
               jq \
                 --arg file "$BASE" \
                 --arg algo "SHA256" \
