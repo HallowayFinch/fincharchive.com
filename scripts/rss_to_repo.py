@@ -107,11 +107,32 @@ def html_to_markdown_simple(html_text: str) -> str:
     return html.unescape(text).strip()
 
 def tidy_markdown(md: str, title: str) -> str:
+    """
+    Cleans up markdown from Substack posts to improve readability.
+    - Removes duplicate title lines.
+    - Removes empty or stray 'Share' lines.
+    - Inserts line breaks between title/date and first paragraph.
+    - Normalizes spacing and blank lines.
+    """
     out = md
-    out = re.sub(rf"(?im)^\s*{re.escape(title)}\s*$\n?", "", out)  # drop repeated H1 line
-    out = re.sub(r"\[\s*\]\([^)]+\)", "", out)                    # remove empty links [](...)
-    out = re.sub(r"(?m)^\s*Share\s*$", "", out)                   # remove lone 'Share'
-    out = re.sub(r"\n{3,}", "\n\n", out)                          # collapse blank lines
+
+    # remove a leading line that exactly matches the title (Substack sometimes repeats it)
+    out = re.sub(rf"(?im)^\s*{re.escape(title)}\s*$\n?", "", out)
+
+    # remove empty link artifacts like [](...)
+    out = re.sub(r"\[\s*\]\([^)]+\)", "", out)
+
+    # remove standalone 'Share' lines
+    out = re.sub(r"(?m)^\s*Share\s*$", "", out)
+
+    # ensure at least one blank line between title/date block and main body
+    out = re.sub(r"([0-9]{4})\s*([A-Z][a-z])", r"\1\n\n\2", out)  # add break after year
+    out = re.sub(r"([A-Za-z]{3,}\s\d{1,2},\s\d{4})", r"\1\n\n", out)  # after date like Oct 23, 2025
+
+    # collapse multiple blank lines (3+ → 2)
+    out = re.sub(r"\n{3,}", "\n\n", out)
+
+    # strip leading/trailing whitespace
     return out.strip() + "\n"
 
 # ----- 1022 helpers ----------------------------------------------------------
