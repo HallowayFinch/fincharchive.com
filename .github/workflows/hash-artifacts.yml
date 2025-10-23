@@ -20,21 +20,20 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq ffmpeg
 
-      - name: List changed artifact files (ignore metadata & sums)
+      - name: Find artifact files (no diff; scan folder)
         id: files
         shell: bash
         run: |
           set -euo pipefail
-          BEFORE="${{ github.event.before }}"
-          AFTER="${{ github.sha }}"
-          # List changed files under artifacts/**
-          git diff --name-only "$BEFORE" "$AFTER" -- 'artifacts/**' > all.txt || true
-          # Ignore these two
-          grep -vE '/(metadata\.json|SHA256SUMS\.txt)$' all.txt || true > changed.txt
-          COUNT=$(wc -l < changed.txt | tr -d ' ')
+          # List all regular files under artifacts/, excluding our sidecar files
+          find artifacts -type f \
+            ! -name 'metadata.json' \
+            ! -name 'SHA256SUMS.txt' \
+            -print > files.txt || true
+          COUNT=$(wc -l < files.txt | tr -d ' ')
           echo "count=$COUNT" >> "$GITHUB_OUTPUT"
-          echo "Changed files:"
-          cat changed.txt || true
+          echo "Will process $COUNT file(s):"
+          cat files.txt || true
 
       - name: Compute hashes & update metadata
         if: steps.files.outputs.count != '0'
@@ -61,12 +60,12 @@ jobs:
             (grep -v "  $f\$" "$SUMS" 2>/dev/null || true; printf "%s  %s\n" "$HASH" "$f") | sort -u > "$SUMS.tmp"
             mv "$SUMS.tmp" "$SUMS"
 
-            # Build LOG_ID from folder name: log-1022a -> 1022A
+            # LOG_ID from folder name: e.g., artifacts/log-1022a -> 1022A
             LOGDIR=$(basename "$DIR"); RAW="${LOGDIR#log-}"; LOGID=$(echo "$RAW" | tr '[:lower:]' '[:upper:]')
             META="$DIR/metadata.json"
 
             if [ ! -f "$META" ]; then
-              # Create minimal metadata (jq-only, no heredocs)
+              # Create minimal metadata via jq
               jq -n \
                 --arg logid "$LOGID" \
                 --arg mime "$MIME" \
@@ -91,7 +90,7 @@ jobs:
                   canonical_url: ("https://fincharchive.com/" + $dir + "/metadata.json")
                 }' > "$META"
             else
-              # Update core fields; preserve your custom ones (e.g., HiddenPhrase)
+              # Update core fields; keep your custom ones
               jq \
                 --arg file "$BASE" \
                 --arg algo "SHA256" \
@@ -107,7 +106,7 @@ jobs:
             fi
 
             git add "$SUMS" "$META"
-          done < changed.txt
+          done < files.txt
 
       - name: Commit and push
         if: steps.files.outputs.count != '0'
@@ -117,5 +116,5 @@ jobs:
             exit 0
           fi
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
-            commit -m "ci(artifact): update checksums and metadata"
+            commit -m "ci(artifact): ensure checksums and metadata"
           git push
