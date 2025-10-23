@@ -1,19 +1,24 @@
-import os, json, time, feedparser, datetime as dt
+import os, json, time, feedparser, datetime as dt, sys
 from pathlib import Path
 from html_to_md import fetch_full_html, extract_main_html, html_to_markdown
 from utils import make_log_id, slugify_log_id, clean_title, extract_substack_slug, dedupe_slug
 
 ROOT = Path(__file__).resolve().parents[1]
 STATE = ROOT / ".finch" / "state.json"
-LOGS_DIR = ROOT / "logs"          # for alias redirects only
-COLL_DIR = ROOT / "_logs"         # Jekyll collection output
+LOGS_DIR = ROOT / "logs"          # alias redirects
+COLL_DIR = ROOT / "_logs"         # Jekyll collection
 ARTIFACTS = ROOT / "artifacts"
 
 SUBSTACK_RSS_URL = os.environ.get("SUBSTACK_RSS_URL", "").strip()
+IMPORT_LATEST_ONLY = os.environ.get("IMPORT_LATEST_ONLY", "0") == "1"
+IMPORT_DEBUG = os.environ.get("IMPORT_DEBUG", "0") == "1"
 
 COLL_DIR.mkdir(exist_ok=True, parents=True)
 LOGS_DIR.mkdir(exist_ok=True, parents=True)
 ARTIFACTS.mkdir(exist_ok=True, parents=True)
+
+def log(*args):
+    print("[rss-sync]", *args, flush=True)
 
 def load_state():
     STATE.parent.mkdir(exist_ok=True, parents=True)
@@ -34,22 +39,20 @@ def import_post(entry, state):
     url   = entry.get("link")
     date  = entry.get("published") or entry.get("updated") or dt.datetime.utcnow().isoformat() + "Z"
 
-    # Fetch full HTML and convert to MD
+    log(f"Importing: title='{title}', guid='{guid}', url='{url}'")
+
     full_html = fetch_full_html(url)
     main_html = extract_main_html(full_html)
     body_md   = html_to_markdown(main_html)
 
-    # Assign log id
     log_id = make_log_id(state["next_seq"])
-    log_alias = slugify_log_id(log_id)  # e.g., log-1022a
+    log_alias = slugify_log_id(log_id)
 
-    # Derive pretty slug from Substack
     base_slug = extract_substack_slug(url) or f"log-{log_id.lower()}"
     existing = {p.stem for p in COLL_DIR.glob("*.md")}
     pretty_slug = base_slug if base_slug not in existing else dedupe_slug(base_slug, set(existing))
 
-    # Write Jekyll collection item: _logs/<pretty-slug>.md
-    esc_title = title.replace('"', '\"')
+    esc_title = title.replace('"', '\\"')
     fm = [
         "---",
         'layout: post',
@@ -62,9 +65,10 @@ def import_post(entry, state):
         "---",
         ""
     ]
-    (COLL_DIR / f"{pretty_slug}.md").write_text("\n".join(fm) + body_md + "\n", encoding="utf-8")
+    md_path = COLL_DIR / f"{pretty_slug}.md"
+    md_path.write_text("\n".join(fm) + body_md + "\n", encoding="utf-8")
+    log(f"Wrote collection item: {md_path}")
 
-    # Create alias redirect folder: /logs/log-1022a/index.html
     alias_folder = LOGS_DIR / log_alias
     alias_folder.mkdir(parents=True, exist_ok=True)
     redirect_html = f'''<!doctype html><meta charset="utf-8">
@@ -74,8 +78,8 @@ def import_post(entry, state):
 <a href="/logs/{pretty_slug}/">Redirecting to /logs/{pretty_slug}/</a>
 <script>location.href="/logs/{pretty_slug}/";</script>'''
     (alias_folder / "index.html").write_text(redirect_html, encoding="utf-8")
+    log(f"Wrote alias redirect: {alias_folder / 'index.html'} -> /logs/{pretty_slug}/")
 
-    # Mark as seen & bump sequence
     state["seen_guids"].append(guid)
     state["next_seq"] += 1
 
@@ -83,24 +87,38 @@ def main():
     state = load_state()
 
     if not SUBSTACK_RSS_URL:
-        print("No SUBSTACK_RSS_URL provided.")
+        log("No SUBSTACK_RSS_URL provided.")
         return
 
     feed = feedparser.parse(SUBSTACK_RSS_URL)
-    new_entries = []
+    log(f"Feed entries: {len(feed.entries)}")
+
+    candidates = []
     for e in feed.entries:
         gid = e.get("id") or e.get("guid") or e.get("link")
         if not gid:
             continue
-        if gid in state["seen_guids"]:
+        if gid in state["seen_guids"] and not IMPORT_LATEST_ONLY:
             continue
-        new_entries.append(e)
+        candidates.append(e)
 
-    # Import oldest first for stable ordering
-    for e in sorted(new_entries, key=lambda x: x.get("published_parsed") or x.get("updated_parsed") or time.gmtime(0)):
-        import_post(e, state)
+    if IMPORT_LATEST_ONLY and feed.entries:
+        candidates = [max(feed.entries, key=lambda x: x.get("published_parsed") or x.get("updated_parsed") or time.gmtime(0))]
+        log("IMPORT_LATEST_ONLY enabled: forcing newest entry import.")
+
+    log(f"Selected entries to import: {len(candidates)}")
+
+    if not candidates and feed.entries:
+        # Failsafe: import newest one anyway
+        newest = max(feed.entries, key=lambda x: x.get("published_parsed") or x.get("updated_parsed") or time.gmtime(0))
+        log("No candidates after filtering; importing newest as failsafe.")
+        import_post(newest, state)
+    else:
+        for e in sorted(candidates, key=lambda x: x.get("published_parsed") or x.get("updated_parsed") or time.gmtime(0)):
+            import_post(e, state)
 
     save_state(state)
+    log("Done.")
 
 if __name__ == "__main__":
     main()
