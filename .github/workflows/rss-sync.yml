@@ -12,7 +12,7 @@ on:
         required: false
         default: 'true'
   schedule:
-    - cron: "*/30 * * * *" # every 30 minutes; adjust as you like
+    - cron: "*/30 * * * *"
 
 permissions:
   contents: write
@@ -33,25 +33,43 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install requests feedparser readability-lxml lxml html5lib html2text jinja2
+          pip install feedparser
 
       - name: Run sync
         env:
           SUBSTACK_RSS_URL: "https://hallowayfinch.substack.com/feed"
           SITE_BASE_URL: "https://fincharchive.com"
-          # Convert workflow inputs to "1"/"0" env flags for the script
           IMPORT_LATEST_ONLY: ${{ inputs.import_latest_only == 'true' && '1' || '0' }}
           IMPORT_DEBUG: ${{ inputs.debug == 'true' && '1' || '0' }}
         run: |
+          set -euo pipefail
+          echo "=== python version ==="
+          python -V
+          echo "=== running importer ==="
           python scripts/rss_to_repo.py
+          echo "=== post-run tree ==="
+          ls -la
+          echo "--- .finch ---"
+          ls -la .finch || true
+          echo "--- state.json ---"
+          cat .finch/state.json || true
+          echo "--- _logs ---"
+          ls -la _logs || true
+          echo "--- logs ---"
+          ls -la logs || true
 
       - name: Commit changes
         run: |
+          set -euo pipefail
           git config user.name "Finch Bot"
           git config user.email "actions@users.noreply.github.com"
-          # Add specific paths (in case any .gitignore rules exist), then add all as a catch-all
+          echo "=== git status (before add) ==="
+          git status --porcelain=1 || true
+          # Add explicit paths (ok if they don't exist), then add all as a catch-all
           git add _logs/** logs/** .finch/state.json || true
           git add -A
+          echo "=== git status (after add) ==="
+          git status --porcelain=1 || true
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
