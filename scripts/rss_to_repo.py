@@ -72,6 +72,10 @@ def readability_extract(html_text: str) -> str:
     return m.group(1) if m else html_text
 
 def strip_substack_chrome(html_text: str) -> str:
+    """
+    Remove Substack title/header, author block, comments link, 'Share' button, etc.,
+    BEFORE HTML→MD so they never appear in the Markdown.
+    """
     t = html_text
     t = re.sub(r"(?is)<header[^>]*>.*?</header>", "", t)
     t = re.sub(r"(?is)^\s*<h1[^>]*>.*?</h1>", "", t, count=1)
@@ -98,10 +102,10 @@ def html_to_markdown_simple(html_text: str) -> str:
 
 def tidy_markdown(md: str, title: str) -> str:
     out = md
-    out = re.sub(rf"(?im)^\s*{re.escape(title)}\s*$\n?", "", out)
-    out = re.sub(r"\[\s*\]\([^)]+\)", "", out)
-    out = re.sub(r"(?m)^\s*Share\s*$", "", out)
-    out = re.sub(r"\n{3,}", "\n\n", out)
+    out = re.sub(rf"(?im)^\s*{re.escape(title)}\s*$\n?", "", out)  # drop repeated H1
+    out = re.sub(r"\[\s*\]\([^)]+\)", "", out)                    # remove empty links [](...)
+    out = re.sub(r"(?m)^\s*Share\s*$", "", out)                   # remove lone 'Share'
+    out = re.sub(r"\n{3,}", "\n\n", out)                          # collapse blank lines
     return out.strip() + "\n"
 
 # ----- 1022 helpers ----------------------------------------------------------
@@ -228,8 +232,7 @@ def read_existing_log_id_from_md(slug: str):
         return None
     try:
         head = md_path.read_text("utf-8")
-        # front matter is between first two --- lines
-        m = re.search(r"(?s)^---(.*?)---", head)
+        m = re.search(r"(?s)^---(.*?)---", head)  # front matter
         if not m: return None
         fm = m.group(1)
         m2 = re.search(r"^\s*log_id:\s*\"?([A-Za-z0-9-]+)\"?\s*$", fm, re.M)
@@ -294,7 +297,7 @@ def cleanup_old_aliases_for_slug(current_log_id: str, slug: str):
         try:
             if idx.exists():
                 html_text = idx.read_text("utf-8")
-                if f'href="/logs/{slug}/"' in html_text or f'href="/logs/{slug}/"' in html_text:
+                if f'href="/logs/{slug}/"' in html_text:
                     shutil.rmtree(d)
                     log(f"Removed stale alias folder: {d}")
         except Exception as e:
@@ -305,8 +308,10 @@ def import_post(entry, state):
     title = clean_title(entry.get("title"))
     guid  = entry.get("id") or entry.get("guid") or entry.get("link")
     url   = entry.get("link")
+    if not url:
+        raise RuntimeError("Entry missing URL")
 
-    # ISO-8601 with timezone
+    # ISO-8601 with timezone (prefer RSS published date)
     if entry.get("published_parsed"):
         date = dt.datetime.fromtimestamp(time.mktime(entry.published_parsed)).astimezone().isoformat()
     elif entry.get("updated_parsed"):
@@ -314,25 +319,21 @@ def import_post(entry, state):
     else:
         date = dt.datetime.now().astimezone().isoformat()
 
-    if not url: raise RuntimeError("Entry missing URL")
-
     # Stable slug from URL; remember mapping
     slug = state["guid_to_slug"].get(guid) or extract_substack_slug(url)
     state["guid_to_slug"][guid] = slug
 
-    # --- NEW: reuse existing log_id from on-disk markdown if present ---
+    # Reuse existing log_id from on-disk markdown if present; else allocate once
     existing_log_id = read_existing_log_id_from_md(slug)
     if existing_log_id:
         log_id = existing_log_id
-        state["guid_to_log_id"][guid] = log_id  # refresh mapping in state
+        state["guid_to_log_id"][guid] = log_id
     else:
-        # Otherwise use (or assign) from state
         log_id = state["guid_to_log_id"].get(guid)
         if not log_id:
             log_id = make_log_id(state["next_seq"])
             state["guid_to_log_id"][guid] = log_id
             state["next_seq"] += 1
-    # --------------------------------------------------------------------
 
     log(f"Upserting: '{title}' slug={slug} log_id={log_id}")
 
@@ -344,10 +345,7 @@ def import_post(entry, state):
     body_md = tidy_markdown(body_md, title)
 
     # Collect artifacts under /artifacts/:slug/
-    artifacts = []
-    folder = ARTIFACTS_DIR / slug
-    if folder.exists():
-        artifacts = find_artifacts_for_slug(slug)
+    artifacts = find_artifacts_for_slug(slug)
 
     fm = build_front_matter(
         title=title, date=date, slug=slug, log_id=log_id,
