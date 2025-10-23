@@ -5,13 +5,14 @@ from utils import make_log_id, slugify_log_id, clean_title, extract_substack_slu
 
 ROOT = Path(__file__).resolve().parents[1]
 STATE = ROOT / ".finch" / "state.json"
-LOGS = ROOT / "logs"
+LOGS_DIR = ROOT / "logs"          # for alias redirects only
+COLL_DIR = ROOT / "_logs"         # Jekyll collection output
 ARTIFACTS = ROOT / "artifacts"
 
 SUBSTACK_RSS_URL = os.environ.get("SUBSTACK_RSS_URL", "").strip()
-SITE_BASE_URL = os.environ.get("SITE_BASE_URL", "https://fincharchive.com").rstrip("/")
 
-LOGS.mkdir(exist_ok=True, parents=True)
+COLL_DIR.mkdir(exist_ok=True, parents=True)
+LOGS_DIR.mkdir(exist_ok=True, parents=True)
 ARTIFACTS.mkdir(exist_ok=True, parents=True)
 
 def load_state():
@@ -27,26 +28,7 @@ def checksum(s: str) -> str:
     import hashlib
     return hashlib.sha256(s.encode("utf-8")).hexdigest()
 
-def ensure_logs_index():
-    # Build index linking to the pretty permalink dirs (non-alias)
-    items = []
-    for p in sorted(LOGS.glob("*/meta.json"), key=lambda p: p.stat().st_mtime, reverse=True):
-        if p.parent.name.startswith("log-"):
-            continue
-        meta = json.loads(p.read_text("utf-8"))
-        url = f"/logs/{p.parent.name}/"
-        items.append(f'<li><a href="{url}">{meta["log_id"]} — {meta["title"]}</a> <span style="opacity:.7;">({meta["date"]})</span></li>')
-    html = """<!doctype html><meta charset="utf-8"><title>Logs — Finch Archive</title>
-<style>body{background:#000;color:#e6e6e6;font-family:ui-monospace,monospace;margin:40px}a{color:#e6e6e6}</style>
-<h1>Logs</h1>
-<ul>
-%s
-</ul>""" % ("\n".join(items) if items else "<li>(none yet)</li>")
-    (LOGS / "index.html").write_text(html, encoding="utf-8")
-
 def import_post(entry, state):
-    from build_log_page import build, build_redirect
-
     title = clean_title(entry.get("title", "Untitled"))
     guid  = entry.get("id") or entry.get("guid") or entry.get("link")
     url   = entry.get("link")
@@ -56,42 +38,23 @@ def import_post(entry, state):
     full_html = fetch_full_html(url)
     main_html = extract_main_html(full_html)
     body_md   = html_to_markdown(main_html)
-    post_ck   = checksum(title + "\n" + body_md)
 
-    # Assign log id and alias folder
+    # Assign log id
     log_id = make_log_id(state["next_seq"])
     log_alias = slugify_log_id(log_id)  # e.g., log-1022a
 
     # Derive pretty slug from Substack
     base_slug = extract_substack_slug(url) or f"log-{log_id.lower()}"
-    existing = {p.name for p in LOGS.glob("*") if p.is_dir()}
-    pretty_slug = dedupe_slug(base_slug, existing)
-    pretty_folder = LOGS / pretty_slug
-    alias_folder  = LOGS / log_alias
+    existing = {p.stem for p in COLL_DIR.glob("*.md")}
+    pretty_slug = base_slug if base_slug not in existing else dedupe_slug(base_slug, set(existing))
 
-    # meta.json in pretty folder
-    meta = {
-        "log_id": log_id,
-        "slug": pretty_slug,
-        "alias": log_alias,
-        "title": title,
-        "date": date,
-        "source_url": url,
-        "guid": guid,
-        "content_checksum": post_ck,
-        "permalink": f"/logs/{pretty_slug}/"
-    }
-    pretty_folder.mkdir(parents=True, exist_ok=True)
-    (pretty_folder / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
-
-    # --- FIX: pre-escape quotes to avoid backslashes in f-string expressions
-    esc_title = title.replace('"', '\\"')
-
-    # Markdown with basic front matter
+    # Write Jekyll collection item: _logs/<pretty-slug>.md
+    esc_title = title.replace('"', '\"')
     fm = [
         "---",
-        f'log_id: "{log_id}"',
+        'layout: post',
         f'title: "{esc_title}"',
+        f'log_id: "{log_id}"',
         f'date: "{date}"',
         f'source_url: "{url}"',
         f'guid: "{guid}"',
@@ -99,18 +62,18 @@ def import_post(entry, state):
         "---",
         ""
     ]
-    (pretty_folder / "index.md").write_text("\n".join(fm) + body_md + "\n", encoding="utf-8")
+    (COLL_DIR / f"{pretty_slug}.md").write_text("\n".join(fm) + body_md + "\n", encoding="utf-8")
 
-    # Include artifacts if present (keyed by alias under /artifacts/)
-    artifacts_manifest = None
-    afolder = ARTIFACTS / log_alias
-    if afolder.is_dir() and (afolder / "artifacts.json").exists():
-        artifacts_manifest = str(afolder / "artifacts.json")
-
-    # Build pretty page and alias redirect
-    canonical_url = f"{SITE_BASE_URL}/logs/{pretty_slug}/"
-    build(str(pretty_folder), meta, body_md, artifacts_manifest_path=artifacts_manifest, canonical_url=canonical_url)
-    build_redirect(str(alias_folder), to_url=f"/logs/{pretty_slug}/")
+    # Create alias redirect folder: /logs/log-1022a/index.html
+    alias_folder = LOGS_DIR / log_alias
+    alias_folder.mkdir(parents=True, exist_ok=True)
+    redirect_html = f'''<!doctype html><meta charset="utf-8">
+<title>Redirecting…</title>
+<link rel="canonical" href="/logs/{pretty_slug}/">
+<meta http-equiv="refresh" content="0; url=/logs/{pretty_slug}/">
+<a href="/logs/{pretty_slug}/">Redirecting to /logs/{pretty_slug}/</a>
+<script>location.href="/logs/{pretty_slug}/";</script>'''
+    (alias_folder / "index.html").write_text(redirect_html, encoding="utf-8")
 
     # Mark as seen & bump sequence
     state["seen_guids"].append(guid)
@@ -133,11 +96,10 @@ def main():
             continue
         new_entries.append(e)
 
-    # Import oldest first
+    # Import oldest first for stable ordering
     for e in sorted(new_entries, key=lambda x: x.get("published_parsed") or x.get("updated_parsed") or time.gmtime(0)):
         import_post(e, state)
 
-    ensure_logs_index()
     save_state(state)
 
 if __name__ == "__main__":
