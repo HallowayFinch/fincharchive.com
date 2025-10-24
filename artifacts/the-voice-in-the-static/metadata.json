@@ -3,5 +3,10 @@
     "file": "README.md",
     "bytes": 138,
     "sha256": "0647801156441c90a9da9c73a0ec12277c807fcd9c94e22c333e74719eb4101d"
+  },
+  {
+    "file": "metadata.json",
+    "bytes": 135,
+    "sha256": "2af0cfdcbaf85c5edb81ed1c9d0c8de1fa87c041f852b73a6ec9a2baa98dcdef"
   }
 ]
