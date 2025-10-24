@@ -1,25 +1,25 @@
 # scripts/rss_to_repo.py
 import os, sys, json, time, feedparser, datetime as dt
 from pathlib import Path
-import re, html, urllib.request, urllib.parse, shutil
+import re, html, urllib.request, urllib.parse
 
 def log(*args): print("[rss-sync]", *args, flush=True)
 
 # ----- ENV & paths -----------------------------------------------------------
 ROOT = Path(__file__).resolve().parents[1]
-STATE_FILE   = ROOT / ".finch" / "state.json"
-COLL_DIR     = ROOT / "_logs"          # Jekyll source collection (truth)
-ARTIFACTS_DIR= ROOT / "artifacts"      # sidecar files live under /artifacts/:slug/
+STATE_FILE    = ROOT / ".finch" / "state.json"
+COLL_DIR      = ROOT / "_logs"         # Jekyll collection (source of truth)
+ARTIFACTS_DIR = ROOT / "artifacts"     # sidecar files per slug
 
 for p in (STATE_FILE.parent, COLL_DIR, ARTIFACTS_DIR):
     p.mkdir(parents=True, exist_ok=True)
 
-SUBSTACK_RSS_URL     = os.environ.get("SUBSTACK_RSS_URL", "").strip()
-IMPORT_LATEST_ONLY   = os.environ.get("IMPORT_LATEST_ONLY", "1") == "1"
-IMPORT_DEBUG         = os.environ.get("IMPORT_DEBUG", "0") == "1"
-RSS_PROXY_URL        = os.environ.get("RSS_PROXY_URL", "").strip()
+SUBSTACK_RSS_URL   = os.environ.get("SUBSTACK_RSS_URL", "").strip()
+IMPORT_LATEST_ONLY = os.environ.get("IMPORT_LATEST_ONLY", "1") == "1"
+IMPORT_DEBUG       = os.environ.get("IMPORT_DEBUG", "0") == "1"
+RSS_PROXY_URL      = os.environ.get("RSS_PROXY_URL", "").strip()
 
-# File types we’ll surface on the page (if present under /artifacts/:slug/)
+# File types we surface if present under /artifacts/:slug/
 ARTIFACT_EXTS = [
     ".wav", ".flac", ".mp3",
     ".pdf",
@@ -71,12 +71,10 @@ def readability_extract(html_text: str) -> str:
 def strip_chrome(html_text: str) -> str:
     """
     Remove Substack header/title/author/share/comments etc.
-    Then, keep from the **first <p>** onward so we never keep
-    the duplicate title/date line before the story.
+    Then keep from the **first <p>** onward so the duplicate
+    title/date line before the story never survives.
     """
     t = html_text
-
-    # remove obvious chrome blocks
     t = re.sub(r"(?is)<header[^>]*>.*?</header>", "", t)
     t = re.sub(r"(?is)<h1[^>]*>.*?</h1>", "", t, count=1)
     t = re.sub(r'(?is)<a[^>]+href="javascript:void\(0\)".*?</a>', "", t)                 # “Share”
@@ -84,10 +82,8 @@ def strip_chrome(html_text: str) -> str:
     t = re.sub(r'(?is)<a[^>]+href="https?://[^"]*substack\.com/@[^"]*".*?</a>', "", t)  # author profile
     t = re.sub(r'(?is)>(\s*Share\s*)<', "><", t)
 
-    # keep from first paragraph onward (kills any lingering preface blocks)
-    m = re.search(r"(?is)<p[^>]*>.*", t)
+    m = re.search(r"(?is)<p[^>]*>.*", t)  # keep from the first paragraph onward
     if m: t = m.group(0)
-
     return t
 
 def html_to_markdown_simple(html_text: str) -> str:
@@ -139,11 +135,7 @@ def find_artifacts_for_slug(slug: str):
     return items
 
 def primary_image_from_entry(entry) -> str:
-    """
-    Try common places feedparser exposes an image:
-      - <enclosure url="...">
-      - media:content / media_thumbnail
-    """
+    """Try common places feedparser exposes an image (enclosure or media)."""
     try:
         if getattr(entry, "enclosures", None):
             for enc in entry.enclosures:
@@ -274,10 +266,9 @@ def import_post(entry, state):
     slug = state["guid_to_slug"].get(guid) or extract_slug_from_url(url)
     state["guid_to_slug"][guid] = slug
 
-    # log id (stable)
+    # assign stable 1022A/B/C… if new
     log_id = state["guid_to_log_id"].get(guid)
     if not log_id:
-        # 1022 + base-26 sequence (A, B, C…)
         n = state["next_seq"]
         s = ""
         while n > 0:
@@ -291,7 +282,6 @@ def import_post(entry, state):
     content_html = ""
     try:
         if entry.get("content") and entry.content:
-            # feedparser exposes <content:encoded> here
             content_html = entry.content[0].value or ""
     except Exception:
         pass
@@ -299,7 +289,7 @@ def import_post(entry, state):
         raw_html = fetch_url(proxied(url))
         content_html = readability_extract(raw_html)
 
-    # Clean and keep from the first paragraph
+    # Clean and keep from the first paragraph only
     content_html = strip_chrome(content_html)
     body_md = html_to_markdown_simple(content_html)
     body_md = tidy_markdown(body_md, title)
@@ -307,7 +297,7 @@ def import_post(entry, state):
     # hero image (enclosure/media)
     hero = primary_image_from_entry(entry)
 
-    # ensure artifacts folder exists for this slug (so you can drop files)
+    # ensure artifacts folder exists for this slug
     (ARTIFACTS_DIR / slug).mkdir(parents=True, exist_ok=True)
     artifacts = find_artifacts_for_slug(slug)
 
