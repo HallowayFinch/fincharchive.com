@@ -9,7 +9,33 @@ title: Finch Archive
   <p>Recovered notes from incomplete transmissions.</p>
   <div class="rule" style="margin:1.25rem 0;"></div>
 
-  {% include logs_list.html %}
+  {% assign logs = site.logs | sort: "date" | reverse %}
+
+  {% if logs.size == 0 %}
+    <p>No logs found. Once a log exists in <code>_logs/</code>, it will appear here.</p>
+  {% else %}
+    <ul class="log-list">
+      {% for item in logs %}
+      <li class="log-card">
+        <a class="log-link" href="{{ item.url | relative_url }}">
+          {% if item.hero_image %}
+            <img class="log-thumb" src="{{ item.hero_image }}" alt="" loading="lazy">
+          {% endif %}
+          <div class="log-meta">
+            <h2 class="log-title">{{ item.title }}</h2>
+            <div class="log-sub">
+              <span class="log-id">{{ item.log_id }}</span>
+              <span aria-hidden="true">•</span>
+              <time datetime="{{ item.date | date_to_xmlschema }}">
+                {{ item.date | date: "%A, %B %-d, %Y %H:%M %Z" }}
+              </time>
+            </div>
+          </div>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
 
   <div class="rule" style="margin-top:2rem;"></div>
   <p>Recovered notes · Halloway Finch</p>
