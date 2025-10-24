@@ -59,11 +59,23 @@ jobs:
               print(f"Wrote {len(data)} artifact entries → {INDEX_FILE}")
           PY
 
+      - name: Check for artifact changes
+        id: diffcheck
+        run: |
+          if git diff --quiet artifacts/ logs/index.json; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No artifact changes detected; skipping commit."
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Artifact changes detected; committing."
+          fi
+
       - name: Commit & push index
+        if: steps.diffcheck.outputs.changed == 'true'
         run: |
           git config user.name "Finch Bot"
           git config user.email "actions@github.com"
-          git add logs/index.json || true
+          git add artifacts/ logs/index.json || true
           if ! git diff --cached --quiet; then
             git commit -m "chore(artifacts): update artifact index"
             git push
