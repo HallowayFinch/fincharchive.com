@@ -1,383 +1,69 @@
 :root{
   --bg: #000000;
   --fg: #E6E6E6;
+  --muted: #9A9A9A;
   --accent: #7A3A3A;
-  --muted: #8A8A8A;
-  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --serif: "Georgia", "Times New Roman", serif;
+  --line: #222;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --serif: Georgia, "Times New Roman", serif;
+  --wrap: 1100px;
 }
 
+/* Base */
 *{box-sizing:border-box}
-html,body{
-  margin:0;
-  padding:0;
-  background:var(--bg);
-  color:var(--fg);
-  font-family:var(--mono);
-  line-height:1.6;
-}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--fg)}
+body{font:16px/1.65 var(--mono);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+a:hover{color:#fff}
+img{max-width:100%;height:auto;display:block}
 
-a{
-  color:var(--fg);
-  text-decoration:none;
-  border-bottom:1px solid var(--accent);
-}
-a:hover{
-  background:linear-gradient(90deg, transparent, rgba(122,58,58,.3), transparent);
-}
+/* Containers */
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 20px}
+.container{max-width:72ch;margin:0 auto;padding:0 20px}
 
-.container{
-  max-width:860px;
-  margin:0 auto;
-  padding:32px 20px;
-}
+/* Rules / dividers */
+.rule{height:1px;background:linear-gradient(90deg, var(--accent), transparent)}
+hr{border:0;height:1px;background:linear-gradient(90deg, transparent, rgba(122,58,58,.4), transparent);margin:24px 0}
 
-.header{
-  border-bottom:1px solid var(--accent);
-  padding:18px 0;
-  margin-bottom:24px;
-}
+/* Type */
+h1,h2,h3{font-family:var(--serif);line-height:1.25;margin:0 0 .6rem}
+h1{font-size:clamp(1.8rem,2.6vw,2.2rem)}
+h2{font-size:clamp(1.2rem,1.9vw,1.5rem)}
+.meta{color:var(--muted);font-size:.95rem}
+.kicker{font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;font-size:12px;color:var(--accent)}
 
-.brand{
-  display:flex;
-  align-items:flex-end;
-  gap:12px;
-}
-.brand h1{
-  font-family:var(--serif);
-  font-weight:700;
-  letter-spacing:.5px;
-  margin:0;
-  font-size:28px;
-}
+/* Header (sticky, single-line brand + horizontally scrollable nav on mobile) */
+header.site{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(0,0,0,.85);backdrop-filter:saturate(180%) blur(6px);z-index:10}
+.brand{display:flex;align-items:center;gap:.75rem;padding:14px 0;white-space:nowrap}
+.brand .dot{width:8px;height:8px;border-radius:999px;background:var(--accent)}
+.brand a{font-family:var(--serif);font-size:1.1rem}
+nav[aria-label="Primary"]{display:flex;gap:18px;align-items:center;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;padding:10px 0}
+nav[aria-label="Primary"]::-webkit-scrollbar{display:none}
+nav a{opacity:.85}
+nav a[aria-current="page"]{opacity:1;border-bottom:2px solid var(--accent)}
 
-.tagline{
-  color:var(--muted);
-  font-size:14px;
-  margin:0 0 2px 0;
-}
+/* Footer */
+footer.site{border-top:1px solid var(--line);margin-top:3rem;padding:1.25rem 0;color:var(--muted);font-size:.95rem}
 
-.nav{
-  margin-top:10px;
-  display:flex;
-  gap:14px;
-  font-size:14px;
-}
+/* Post page content */
+.content img{border:1px solid rgba(255,255,255,.07)}
+.log-hero{width:100%;max-height:50vh;object-fit:cover;border:1px solid rgba(255,255,255,.07);margin:1rem 0}
 
-.codebar{
-  height:1px;
-  background:linear-gradient(90deg, transparent, var(--accent), transparent);
-  margin:12px 0 24px 0;
-}
+/* Home & /logs/ cards (responsive grid with cover thumbs) */
+.log-list{list-style:none;margin:0;padding:0;display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.log-card{border:1px solid rgba(122,58,58,.35);background:#0b0b0b;border-radius:6px;overflow:hidden;transition:transform .08s ease}
+.log-card:hover{transform:translateY(-2px)}
+.log-link{display:grid;grid-template-rows:auto 1fr;height:100%}
+.log-thumb{width:100%;height:180px;object-fit:cover;display:block}
+.log-meta{padding:12px}
+.log-title{font-family:var(--serif);font-size:1.05rem;margin:0 0 .25rem}
+.log-sub{color:var(--muted);font-size:.9rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.log-id{border:1px solid var(--accent);padding:2px 6px;font-size:.75rem;border-radius:3px;color:var(--fg)}
 
-.list h2, .content h1, .content h2 {
-  font-family:var(--serif);
-}
-
-.list-item{
-  padding:14px 0;
-  border-bottom:1px dashed rgba(122,58,58,.45);
-}
-
-.meta{
-  color:var(--muted);
-  font-size:12px;
-  margin-top:4px;
-}
-
-.footer{
-  margin-top:48px;
-  padding-top:12px;
-  border-top:1px solid rgba(122,58,58,.45);
-  color:var(--muted);
-  font-size:12px;
-}
-
-.kicker{
-  font-family:var(--mono);
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  font-size:12px;
-  color:var(--accent);
-}
-
-hr{
-  border:0;
-  height:1px;
-  background:linear-gradient(90deg, transparent, rgba(122,58,58,.4), transparent);
-  margin:24px 0;
-}
-
-blockquote{
-  border-left:3px solid var(--accent);
-  padding-left:12px;
-  color:#ddd;
-}
-
-pre, code{
-  font-family:var(--mono);
-  background:#0b0b0b;
-  padding:2px 4px;
-  border-radius:2px;
-}
-
-.badge{
-  display:inline-block;
-  border:1px solid var(--accent);
-  padding:2px 6px;
-  font-size:11px;
-  margin-right:6px;
-  border-radius:3px;
-}
-
-.post-footer{
-  margin-top:36px;
-  color:var(--muted);
-  font-size:12px;
-}
-
-ul.plain{list-style:none;padding:0;margin:0}
-ul.plain li::before{content:"— ";color:var(--accent)}
-header .mono{font-family:var(--mono);font-size:12px;color:var(--muted)}
-
-
-/* ========================================================================== */
-/* NEW — Responsive header (keeps logo & nav on one line, even on mobile)     */
-/* ========================================================================== */
-
-.site-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:1rem;
-  padding:.75rem 1rem;
-  position:sticky;
-  top:0;
-  z-index:10;
-  background:var(--bg);
-  border-bottom:1px solid rgba(255,255,255,.08);
-}
-
-.site-header .brand{
-  font-weight:700;
-  font-size:1.15rem;
-  letter-spacing:.03em;
-  text-decoration:none;
-  white-space:nowrap;
-}
-
-.site-header .site-nav{
-  display:flex;
-  gap:1rem;
-  white-space:nowrap;
-  overflow-x:auto;
-  scrollbar-width:none;
-}
-.site-header .site-nav::-webkit-scrollbar{ display:none; }
-
-.site-header .site-nav a{
-  text-decoration:none;
-  border-bottom:none;
-  color:var(--fg);
-}
-.site-header .site-nav a:hover{
-  border-bottom:1px solid var(--accent);
-}
-
-/* Tighten on small phones */
-@media (max-width: 420px){
-  .site-header{ padding:.6rem .75rem; gap:.5rem; }
-  .site-header .brand{ font-size:1.05rem; letter-spacing:.02em; }
-  .site-header .site-nav{ gap:.75rem; font-size:.95rem; }
-}
-
-
-/* ========================================================================== */
-/* NEW — Homepage log list with hero thumbnails                               */
-/* ========================================================================== */
-
-.log-list{
-  list-style:none;
-  padding:0;
-  margin:0;
-  display:flex;
-  flex-direction:column;
-  gap:.75rem;
-}
-
-.log-card{
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:.4rem;
-  overflow:hidden;
-  background:rgba(255,255,255,.02);
-}
-
-.log-link{
-  display:grid;
-  grid-template-columns:136px 1fr;
-  gap:1rem;
-  align-items:center;
-  padding:.75rem;
-  text-decoration:none;
-}
-
-.log-thumb{
-  width:100%;
-  height:86px;
-  object-fit:cover;
-  border:1px solid rgba(255,255,255,.08);
-  background:#111;
-}
-
-.log-meta{
-  display:flex;
-  flex-direction:column;
-  gap:.25rem;
-}
-
-.log-title{
-  margin:0;
-  font-size:1.05rem;
-  line-height:1.25;
-}
-
-.log-sub{
-  opacity:.8;
-  font-size:.9rem;
-  display:flex;
-  gap:.5rem;
-  align-items:center;
-}
-
-.log-id{
-  font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size:.85rem;
-}
-
-/* Hide the image gracefully when no hero_image exists */
-.log-card img:where(:not([src])){ display:none; }
-.log-card img[src=""]{ display:none; }
-
-/* Single-column on small phones */
-@media (max-width: 520px){
-  .log-link{ grid-template-columns:1fr; }
-  .log-thumb{ width:100%; height:160px; }
-}
-
-/* ---------- Responsive home grid (thumbnails) ---------- */
-.log-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:16px;
-  margin-top:1rem;
-}
-
-.log-card{
-  border:1px solid rgba(122,58,58,.35);
-  background:#0b0b0b;
-  border-radius:4px;
-  overflow:hidden;
-}
-
-.log-card a{
-  text-decoration:none;
-  border:0;
-}
-
-.log-card .thumb{
-  position:relative;
-  width:100%;
-  aspect-ratio:16/9;        /* keeps a tidy, responsive box */
-  overflow:hidden;
-}
-
-.log-card .thumb img{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;          /* crop to fill without distortion */
-  display:block;
-}
-
-.log-card .body{
-  padding:12px;
-}
-
-.log-card .title{
-  font-family:var(--serif);
-  margin:0 0 6px 0;
-  font-size:18px;
-  line-height:1.25;
-  color:var(--fg);
-}
-
-.log-card .meta{
-  color:var(--muted);
-  font-size:12px;
-}
-
-/* ---------- Single post hero (on /logs/:slug/) ---------- */
-.hero{
-  margin:10px 0 18px 0;
-  border:1px solid rgba(122,58,58,.35);
-  border-radius:4px;
-  overflow:hidden;
-}
-
-.hero img{
-  display:block;
-  width:100%;
-  height:auto;               /* naturally responsive */
-  max-height:55vh;           /* avoid mega-tall on huge screens */
-  object-fit:cover;
-}
-
-/* ---------- Header tweaks for small screens ---------- */
-@media (max-width: 560px){
-  .brand{flex-direction:column; align-items:flex-start; gap:4px}
-  .nav{flex-wrap:wrap; gap:10px}
-}
-
-/* Header layout polish */
-.site-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  flex-wrap:nowrap;
-}
-
-@media (max-width: 560px){
-  .brand h1{ font-size:22px; }
-  .nav{ font-size:13px; gap:10px; flex-wrap:nowrap; }
-  .nav a{ white-space:nowrap; }
-}
-
-/* Make sure any images are never wider than their box */
-img{ max-width:100%; height:auto; }
-
-/* --- Log list layout (thumbs stay small on mobile) --- */
-.log-list{list-style:none;margin:0;padding:0;display:grid;gap:12px}
-.log-card{display:flex;gap:12px;align-items:flex-start;border-bottom:1px dashed rgba(122,58,58,.35);padding:10px 0}
-.log-link{display:flex;gap:12px;align-items:flex-start;text-decoration:none;border:0}
-
-.log-thumb{
-  display:block;
-  width:clamp(88px, 32vw, 160px);   /* hard cap on mobile */
-  height:auto;
-  aspect-ratio:3/2;
-  object-fit:cover;
-  border:1px solid rgba(122,58,58,.35);
-  filter:grayscale(20%);
-}
-
-.log-meta{min-width:0}
-.log-title{margin:0 0 4px 0;font-size:clamp(16px, 4vw, 22px);line-height:1.2}
-.log-sub{color:var(--muted);font-size:12px;display:flex;gap:6px;flex-wrap:wrap}
-
-@media (min-width:700px){
-  .log-list{gap:14px}
-  .log-card{gap:14px}
-  .log-thumb{width:clamp(120px, 18vw, 180px)}
+/* Smaller screens */
+@media (max-width: 600px){
+  .wrap{padding:0 16px}
+  .container{padding:0 16px}
+  .log-thumb{height:150px}
+  .log-sub{font-size:.85rem}
 }
