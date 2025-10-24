@@ -1,3 +1,4 @@
+
 # Finch Archive Automation Workflows
 
 This document explains how the Finch Archive automations work together to keep the Substack feed, Jekyll site, and artifact system in sync.
@@ -20,56 +21,50 @@ The Finch Archive repo is built on a set of coordinated GitHub Actions that auto
 **Purpose:** Fetches and imports new posts from the Substack RSS feed.
 
 **Runs:**
-- Every 15 minutes (via cron).
+- Every hour at `:22` past the hour (via cron).
 - On manual trigger (`Run workflow`).
 
 **What it does:**
 1. Fetches the RSS feed from Substack (`https://hallowayfinch.substack.com/feed`).
 2. Converts new posts into `_logs/{slug}.md` files.
-3. Generates matching `/logs/{slug}/index.html` pages.
-4. Creates folders under `/artifacts/{slug}/` if attachments exist.
-5. Updates `.finch/state.json` to track known posts and avoid duplicates.
+3. Generates matching `/logs/{slug}/` pages for the site.
+4. Creates folders under `/artifacts/{slug}/` for attachments or sidecar files.
+5. Updates `.finch/state.json` to track known posts and prevent duplicates.
 
 **Safe to delete before running:**  
 - `_logs/*`  
-- `/logs/*`  
 - `/artifacts/*`  
-- `.finch/state.json`
+- `.finch/state.json`  
 
-*(All will be recreated automatically.)*
+(All will be recreated automatically.)
 
 ---
 
-### **2. RSS → Jekyll Import**
-**Purpose:** Validates and cleans the site after import.
+### **2. Hash & Index Artifacts**
+**Purpose:** Maintains the integrity of supporting assets and metadata.
 
 **Runs:**
-- Every 15 minutes (after Substack sync).
-- On manual trigger.
+- Automatically when any file changes within `/artifacts/`.
 
 **What it does:**
-1. Runs the same RSS importer to confirm structure.
-2. Validates Markdown formatting and front matter.
-3. Re-hashes artifacts (`hash_artifacts.py`).
-4. Commits any metadata or structural corrections.
-
-**When to run manually:**
-- After confirming new posts pulled correctly.
-- After making edits in `_logs/` or `/artifacts/`.
-
----
-
-### **3. Hash & Index Artifacts**
-**Purpose:** Maintains integrity of supporting assets.
-
-**What it does:**
-- Scans `/artifacts/` for `.wav`, `.jpg`, `.png`, `.pdf`, etc.
-- Creates or updates `metadata.json` and `SHA256SUMS.txt` files.
-- Ensures artifacts are discoverable and verifiable.
+1. Scans `/artifacts/` for `.wav`, `.jpg`, `.png`, `.pdf`, and other supported types.
+2. Computes and updates SHA‑256 checksums for each file.
+3. Writes or updates `metadata.json` entries for artifact size and hash.
+4. Generates `/logs/index.json` to serve as a machine-readable index of all artifacts.
 
 **When to run manually:**
 - After uploading or replacing any artifact files.
 - After a bulk cleanup or reorganization.
+
+---
+
+### **3. Site Build & Deployment (Planned)**
+**Purpose:** Automatically rebuild and deploy the Finch Archive site to GitHub Pages.
+
+**Planned tasks:**
+1. Regenerate site with Jekyll.
+2. Deploy to `gh-pages` branch.
+3. Optionally clear Cloudflare cache to ensure latest content appears immediately.
 
 ---
 
@@ -78,48 +73,45 @@ The Finch Archive repo is built on a set of coordinated GitHub Actions that auto
 | Secret | Description | Example |
 |--------|--------------|----------|
 | `SUBSTACK_RSS_URL` | Full RSS feed URL | `https://hallowayfinch.substack.com/feed` |
-| `RSS_PROXY_URL` | Proxy URL for caching or rate limiting | `https://rss.fincharchive.com` |
+| `RSS_PROXY_URL` | Optional proxy or caching endpoint | `https://rss.fincharchive.com` |
 
-Both are stored under:  
+Secrets are stored under:  
 **Settings → Secrets and Variables → Actions → Secrets**
 
 ---
 
-## 🧼 Safe-Delete Rules
+## 🧼 Safe‑Delete Rules
 
-| File/Folder | Safe to Delete? | Auto-Recreated? | Purpose |
+| File/Folder | Safe to Delete? | Auto‑Recreated? | Purpose |
 |--------------|----------------|-----------------|----------|
 | `_logs/*` | ✅ | ✅ | Source Markdown posts |
-| `/logs/*` | ✅ | ✅ | Generated HTML pages |
-| `/artifacts/*` | ✅ | ✅ | Attachment folders |
-| `.finch/state.json` | ✅ | ✅ | RSS import state memory |
-| `.github/workflows/rss.yml` | ❌ | ❌ | Main automation logic |
-| `/scripts/*` | ❌ | ❌ | Python utilities for import/validation |
+| `/artifacts/*` | ✅ | ✅ | Attachment folders and metadata |
+| `.finch/state.json` | ✅ | ✅ | RSS importer state memory |
+| `.github/workflows/*` | ❌ | ❌ | Core automation logic |
+| `/scripts/*` | ❌ | ❌ | Python utilities for import and validation |
 
 ---
 
 ## 🔄 Typical Maintenance Flow
 
-1. **Run → RSS → Repo (Substack Sync)**  
+1. **RSS → Repo (Substack Sync)**  
    → Imports new posts and updates folder structure.
 
-2. **(Optional)** Verify new post appears under `_logs/` and `/logs/`.
+2. **Verify** the new post appears under `_logs/` and `/artifacts/`.
 
-3. **Run → RSS → Jekyll Import**  
-   → Validates structure, hashes artifacts, commits any corrections.
+3. **Hash & Index Artifacts**  
+   → Updates hashes and metadata for all artifact files.
 
-4. **Run → Hash & Index Artifacts**  
-   → (Only if you manually uploaded new files to `/artifacts/`.)
-
-5. **Confirm** the site rebuilds successfully on GitHub Pages.
+4. **Confirm** site deployment and index accuracy.
 
 ---
 
-## 🧰 Future Improvements
+## 🧰 Future Enhancements
 
-- Merge RSS → Repo and Jekyll Import into a single chained workflow for efficiency.
-- Extend artifact support for `.mp4`, `.txt`, and `.json`.
-- Add Slack or email notification when new posts are imported.
+- Combine the RSS and Hash workflows into a single pipeline.
+- Add `.mp4`, `.txt`, and `.json` artifact support.
+- Add notification when new posts are imported (email or Slack).
+- Automated `gh-pages` deployment and Cloudflare purge integration.
 
 ---
 
