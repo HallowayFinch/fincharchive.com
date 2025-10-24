@@ -5,7 +5,9 @@ Recovered notes from incomplete transmissions.
 This repository is the canonical archive for **Halloway Finch** and deploys **https://fincharchive.com**.  
 It stores public logs, sidecar artifacts (audio/images/docs), and integrity metadata.
 
-![Artifacts](https://img.shields.io/endpoint?url=https://fincharchive.com/badges/artifacts.json)
+[![RSS → Repo](https://github.com/HallowayFinch/fincharchive.com/actions/workflows/rss.yml/badge.svg?branch=main)](https://github.com/HallowayFinch/fincharchive.com/actions/workflows/rss.yml)
+[![Hash & Index Artifacts](https://github.com/HallowayFinch/fincharchive.com/actions/workflows/hash-artifacts.yml/badge.svg?branch=main)](https://github.com/HallowayFinch/fincharchive.com/actions/workflows/hash-artifacts.yml)
+[![Pages build & deploy](https://github.com/HallowayFinch/fincharchive.com/actions/workflows/pages.yml/badge.svg?branch=main)](https://github.com/HallowayFinch/fincharchive.com/actions/workflows/pages.yml)
 
 ---
 
