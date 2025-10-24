@@ -3,55 +3,40 @@ layout: default
 title: Finch Archive
 ---
 
-<main class="wrap" style="margin:2.5rem auto 3rem;">
-  <h1 style="font-family:Georgia, 'Times New Roman', serif; margin:0 0 .5rem;">FINCH ARCHIVE</h1>
-  <p style="opacity:.9; max-width:72ch;">Recovered notes from incomplete transmissions.</p>
+<main class="container" style="margin:2rem auto;">
+  <header class="rule" style="margin-bottom:1.25rem;"></header>
+  <h1>FINCH ARCHIVE</h1>
+  <p>Recovered notes from incomplete transmissions.</p>
+  <div class="rule" style="margin:1.25rem 0;"></div>
 
-  <hr class="rule" style="margin:1.25rem 0 1.5rem;">
+  {% assign logs = site.logs | sort: "date" | reverse %}
 
-  {%- comment -%}
-    Pull the most recent log from the Jekyll "logs" collection.
-    This assumes _config.yml has:
-      collections:
-        logs:
-          output: true
-          permalink: /logs/:slug/
-  {%- endcomment -%}
-  {% assign latest_log = site.logs | sort: "date" | reverse | first %}
-
-  {% if latest_log %}
-    <section style="max-width:72ch;">
-      <h2 style="margin:0 0 .5rem;">
-        {% if latest_log.log_id %}Log {{ latest_log.log_id | replace:'1022','1022' }}{% else %}Recovered Log{% endif %} — “{{ latest_log.title }}”
-      </h2>
-
-      <ul style="margin:.25rem 0 1rem 1.25rem;">
-        <li>
-          <a href="{{ latest_log.url | relative_url }}">Read the recovered log</a>
-        </li>
-
-        {% if latest_log.artifact and latest_log.artifact.path %}
-        <li>
-          <a href="{{ latest_log.artifact.path | relative_url }}">
-            {{ latest_log.artifact.label | default: "Artifact" }}
-          </a>
-        </li>
-        {% endif %}
-
-        {% if site.artifacts and site.artifacts.sha256 %}
-        <li><a href="{{ site.artifacts.sha256 | relative_url }}">Integrity (SHA256)</a></li>
-        {% endif %}
-
-        {% if site.artifacts and site.artifacts.metadata %}
-        <li><a href="{{ site.artifacts.metadata | relative_url }}">Metadata</a></li>
-        {% endif %}
-      </ul>
-
-      <div style="opacity:.7; font-size:.95rem;">
-        Last updated: {{ site.time | date: "%b %-d, %Y %H:%M %Z" }}
-      </div>
-    </section>
-  {% else %}
+  {% if logs.size == 0 %}
     <p>No logs found. Once a log exists in <code>_logs/</code>, it will appear here.</p>
+  {% else %}
+    <ul class="log-list">
+      {% for item in logs %}
+      <li class="log-card">
+        <a class="log-link" href="{{ item.url | relative_url }}">
+          {% if item.hero_image %}
+            <img class="log-thumb" src="{{ item.hero_image }}" alt="" loading="lazy">
+          {% endif %}
+          <div class="log-meta">
+            <h2 class="log-title">{{ item.title }}</h2>
+            <div class="log-sub">
+              <span class="log-id">{{ item.log_id }}</span>
+              <span aria-hidden="true">•</span>
+              <time datetime="{{ item.date | date_to_xmlschema }}">
+                {{ item.date | date: "%A, %B %-d, %Y %H:%M %Z" }}
+              </time>
+            </div>
+          </div>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
   {% endif %}
+
+  <div class="rule" style="margin-top:2rem;"></div>
+  <p>Recovered notes · Halloway Finch</p>
 </main>
