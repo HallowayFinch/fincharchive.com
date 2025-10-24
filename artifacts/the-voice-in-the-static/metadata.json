@@ -1,12 +1,5 @@
-[
-  {
-    "file": "README.md",
-    "bytes": 120,
-    "sha256": "a75ffddf4ee8c8cc350a72dc05e7fd033d03858b516caddd8c8d3892e75f1de6"
-  },
-  {
-    "file": "metadata.json",
-    "bytes": 272,
-    "sha256": "e959a3d65f65cbecd775bed94560ed54ed51065a64459e588c7b06af097cce30"
-  }
-]
+{
+  "artifact_count": 0,
+  "artifacts": [],
+  "folder": "the-voice-in-the-static"
+}
