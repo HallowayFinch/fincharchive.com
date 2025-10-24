@@ -11,6 +11,8 @@
       :root{
         --bg:#000; --fg:#E6E6E6; --muted:#BDBDBD; --line:#222; --red:#7A3A3A; --max:72ch;
       }
+
+      /* Base */
       html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);}
       body{font:16px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; -webkit-font-smoothing:antialiased;}
       a{color:inherit} a:hover{color:#fff}
@@ -24,13 +26,55 @@
       .btn{display:inline-block;border:1px solid #444;padding:.6rem .9rem;text-decoration:none}
       .btn:hover{background:#111}
       .meta{opacity:.75;font-size:.95rem;margin:.25rem 0 0}
-      header.site{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(0,0,0,.85);backdrop-filter:saturate(180%) blur(6px);z-index:10}
-      .brand{display:flex;align-items:center;gap:.75rem;padding:16px 0}
+
+      /* Header */
+      header.site{
+        border-bottom:1px solid var(--line);
+        position:sticky;top:0;background:rgba(0,0,0,.85);
+        backdrop-filter:saturate(180%) blur(6px);z-index:10
+      }
+      .brand{display:flex;align-items:center;gap:.65rem;padding:12px 0}
       .brand .dot{width:8px;height:8px;border-radius:999px;background:var(--red)}
-      .brand a{font-family:Georgia,"Times New Roman",serif;font-size:1.1rem;text-decoration:none}
-      nav a{margin-left:18px;text-decoration:none;opacity:.85}
+      .brand a{font-family:Georgia,"Times New Roman",serif;font-size:1.05rem;text-decoration:none}
+
+      nav{display:flex;gap:14px;align-items:center;overflow-x:auto;white-space:nowrap}
+      nav::-webkit-scrollbar{display:none} /* hide scroll bar on iOS */
+      nav a{text-decoration:none;opacity:.85}
       nav a[aria-current="page"]{opacity:1;border-bottom:2px solid var(--red)}
       footer.site{border-top:1px solid var(--line);margin-top:3rem;padding:1.25rem 0;color:var(--muted);font-size:.95rem}
+
+      /* Tighten header on small screens so it stays one line */
+      @media (max-width:640px){
+        .wrap{padding:0 14px}
+        .brand{padding:10px 0}
+        .brand a{font-size:1rem}
+        nav{gap:12px}
+        nav a{font-size:.95rem}
+      }
+
+      /* -------- Log list & thumbnails (for home and /logs) -------- */
+      .log-list{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+      .log-card{display:flex;gap:12px;align-items:flex-start;border-bottom:1px dashed rgba(122,58,58,.35);padding:10px 0}
+      .log-link{display:flex;gap:12px;align-items:flex-start;text-decoration:none;border:0}
+      .log-meta{min-width:0}
+      .log-title{margin:0 0 4px 0;font-size:clamp(16px,4vw,22px);line-height:1.2}
+      .log-sub{color:var(--muted);font-size:12px;display:flex;gap:6px;flex-wrap:wrap}
+
+      /* Keep images small on mobile, scale up modestly on larger screens */
+      .log-thumb{
+        display:block;
+        width:clamp(88px, 32vw, 160px);   /* hard cap on phones */
+        height:auto;
+        aspect-ratio:3/2;
+        object-fit:cover;
+        border:1px solid rgba(122,58,58,.35);
+        filter:grayscale(20%);
+      }
+      @media (min-width:700px){
+        .log-list{gap:14px}
+        .log-card{gap:14px}
+        .log-thumb{width:clamp(120px, 18vw, 180px)}
+      }
     </style>
   </head>
   <body>
