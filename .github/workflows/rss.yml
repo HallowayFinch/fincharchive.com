@@ -2,8 +2,8 @@ name: RSS → Jekyll import
 
 on:
   schedule:
-    - cron: "*/15 * * * *"   # every 15 minutes
-  workflow_dispatch: {}      # allow manual run
+    - cron: "22 * * * *"   # every hour at :22 minutes
+  workflow_dispatch: {}    # allow manual run
 
 concurrency:
   group: finch-rss-sync
