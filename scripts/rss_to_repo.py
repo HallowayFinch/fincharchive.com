@@ -7,19 +7,19 @@ def log(*args): print("[rss-sync]", *args, flush=True)
 
 # ----- ENV & paths -----------------------------------------------------------
 ROOT = Path(__file__).resolve().parents[1]
-STATE_FILE    = ROOT / ".finch" / "state.json"
-COLL_DIR      = ROOT / "_logs"         # Jekyll collection (source of truth)
-ARTIFACTS_DIR = ROOT / "artifacts"     # sidecar files per slug
+STATE_FILE   = ROOT / ".finch" / "state.json"
+COLL_DIR     = ROOT / "_logs"          # Jekyll source collection (truth)
+ARTIFACTS_DIR= ROOT / "artifacts"      # sidecar files live under /artifacts/:slug/
 
 for p in (STATE_FILE.parent, COLL_DIR, ARTIFACTS_DIR):
     p.mkdir(parents=True, exist_ok=True)
 
-SUBSTACK_RSS_URL   = os.environ.get("SUBSTACK_RSS_URL", "").strip()
-IMPORT_LATEST_ONLY = os.environ.get("IMPORT_LATEST_ONLY", "1") == "1"
-IMPORT_DEBUG       = os.environ.get("IMPORT_DEBUG", "0") == "1"
-RSS_PROXY_URL      = os.environ.get("RSS_PROXY_URL", "").strip()
+SUBSTACK_RSS_URL     = os.environ.get("SUBSTACK_RSS_URL", "").strip()
+IMPORT_LATEST_ONLY   = os.environ.get("IMPORT_LATEST_ONLY", "1") == "1"
+IMPORT_DEBUG         = os.environ.get("IMPORT_DEBUG", "0") == "1"
+RSS_PROXY_URL        = os.environ.get("RSS_PROXY_URL", "").strip()
 
-# File types we surface if present under /artifacts/:slug/
+# File types we’ll surface on the page (if present under /artifacts/:slug/)
 ARTIFACT_EXTS = [
     ".wav", ".flac", ".mp3",
     ".pdf",
@@ -71,18 +71,17 @@ def readability_extract(html_text: str) -> str:
 def strip_chrome(html_text: str) -> str:
     """
     Remove Substack header/title/author/share/comments etc.
-    Then keep from the **first <p>** onward so the duplicate
-    title/date line before the story never survives.
+    Then, keep from the **first <p>** onward so we never keep
+    the duplicate title/date line before the story.
     """
     t = html_text
     t = re.sub(r"(?is)<header[^>]*>.*?</header>", "", t)
     t = re.sub(r"(?is)<h1[^>]*>.*?</h1>", "", t, count=1)
-    t = re.sub(r'(?is)<a[^>]+href="javascript:void\(0\)".*?</a>', "", t)                 # “Share”
-    t = re.sub(r'(?is)<a[^>]+href="[^"]*/comments[^"]*".*?</a>', "", t)                 # comments links
-    t = re.sub(r'(?is)<a[^>]+href="https?://[^"]*substack\.com/@[^"]*".*?</a>', "", t)  # author profile
+    t = re.sub(r'(?is)<a[^>]+href="javascript:void\(0\)".*?</a>', "", t)
+    t = re.sub(r'(?is)<a[^>]+href="[^"]*/comments[^"]*".*?</a>', "", t)
+    t = re.sub(r'(?is)<a[^>]+href="https?://[^"]*substack\.com/@[^"]*".*?</a>', "", t)
     t = re.sub(r'(?is)>(\s*Share\s*)<', "><", t)
-
-    m = re.search(r"(?is)<p[^>]*>.*", t)  # keep from the first paragraph onward
+    m = re.search(r"(?is)<p[^>]*>.*", t)
     if m: t = m.group(0)
     return t
 
@@ -103,10 +102,10 @@ def html_to_markdown_simple(html_text: str) -> str:
 
 def tidy_markdown(md: str, title: str) -> str:
     out = md
-    out = re.sub(rf"(?im)^\s*{re.escape(title)}\s*$\n?", "", out)  # stray leading title
-    out = re.sub(r"\[\s*\]\([^)]+\)", "", out)                    # empty []() links
-    out = re.sub(r"(?m)^\s*Share\s*$", "", out)                   # naked “Share”
-    out = re.sub(r"\n{3,}", "\n\n", out)                          # collapse spacing
+    out = re.sub(rf"(?im)^\s*{re.escape(title)}\s*$\n?", "", out)
+    out = re.sub(r"\[\s*\]\([^)]+\)", "", out)
+    out = re.sub(r"(?m)^\s*Share\s*$", "", out)
+    out = re.sub(r"\n{3,}", "\n\n", out)
     return out.strip() + "\n"
 
 # ----- Helpers ----------------------------------------------------------------
@@ -124,18 +123,34 @@ def extract_slug_from_url(url: str) -> str:
     if not path: return "log"
     return safe_filename(path.split("/")[-1]) or "log"
 
+def ensure_artifacts_folder(slug: str):
+    """Create /artifacts/<slug>/ and ensure Git will track it with a README if empty."""
+    folder = ARTIFACTS_DIR / slug
+    folder.mkdir(parents=True, exist_ok=True)
+    # If empty (or only hidden files), add a tiny README so the folder is committed.
+    visible = [p for p in folder.iterdir() if not p.name.startswith(".")]
+    if not visible:
+        (folder / "README.md").write_text(
+            f"# Artifacts for `{slug}`\n\n"
+            "Drop audio/images/PDFs here. This placeholder ensures the folder is tracked.\n",
+            encoding="utf-8"
+        )
+
+def nice_label_from_path(p: Path) -> str:
+    base = p.stem.replace("_"," ").replace("-"," ").strip() or "Artifact"
+    ext = p.suffix.upper().lstrip(".")
+    return f"{base} ({ext})"
+
 def find_artifacts_for_slug(slug: str):
     folder = ARTIFACTS_DIR / slug
     items = []
     if folder.exists():
         for ext in ARTIFACT_EXTS:
             for p in sorted(folder.glob(f"*{ext}"), key=lambda x: x.name.lower()):
-                label = f"{p.stem.replace('_',' ').replace('-',' ').strip()} ({p.suffix.upper()[1:]})"
-                items.append({"path": f"/artifacts/{slug}/{p.name}", "label": label})
+                items.append({"path": f"/artifacts/{slug}/{p.name}", "label": nice_label_from_path(p)})
     return items
 
 def primary_image_from_entry(entry) -> str:
-    """Try common places feedparser exposes an image (enclosure or media)."""
     try:
         if getattr(entry, "enclosures", None):
             for enc in entry.enclosures:
@@ -266,7 +281,7 @@ def import_post(entry, state):
     slug = state["guid_to_slug"].get(guid) or extract_slug_from_url(url)
     state["guid_to_slug"][guid] = slug
 
-    # assign stable 1022A/B/C… if new
+    # log id (stable)
     log_id = state["guid_to_log_id"].get(guid)
     if not log_id:
         n = state["next_seq"]
@@ -289,7 +304,7 @@ def import_post(entry, state):
         raw_html = fetch_url(proxied(url))
         content_html = readability_extract(raw_html)
 
-    # Clean and keep from the first paragraph only
+    # Clean and keep from the first paragraph
     content_html = strip_chrome(content_html)
     body_md = html_to_markdown_simple(content_html)
     body_md = tidy_markdown(body_md, title)
@@ -297,8 +312,8 @@ def import_post(entry, state):
     # hero image (enclosure/media)
     hero = primary_image_from_entry(entry)
 
-    # ensure artifacts folder exists for this slug
-    (ARTIFACTS_DIR / slug).mkdir(parents=True, exist_ok=True)
+    # ensure artifacts folder exists AND is committed
+    ensure_artifacts_folder(slug)
     artifacts = find_artifacts_for_slug(slug)
 
     fm = build_front_matter(
