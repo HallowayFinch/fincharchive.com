@@ -2,19 +2,73 @@
 layout: default
 ---
 
-<main class="container" style="margin:3rem auto 2rem">
-  <div class="rule" style="margin-bottom:1rem"></div>
-
-  <header style="margin-bottom:1rem;">
-    <h1>{{ page.title }}</h1>
-    {% if page.date %}
-    <div style="opacity:.75;font-size:.95rem;">
-      {{ page.date | date: "%b %-d, %Y" }}
-    </div>
-    {% endif %}
+<main class="fieldnote">
+  <header class="fieldnote-header">
+    <h1 class="fieldnote-title">{{ page.title }}</h1>
+    <p class="fieldnote-meta">
+      <time datetime="{{ page.date | date_to_xmlschema }}">
+        {{ page.date | date: "%A, %B %-d, %Y %I:%M %p %Z" }}
+      </time>
+      {% if page.source_url %}
+        <span class="fieldnote-source">
+          • <a href="{{ page.source_url }}" target="_blank" rel="noopener">Source</a>
+        </span>
+      {% endif %}
+    </p>
   </header>
 
-  <article style="font-size:1.05rem;">
+  <article class="fieldnote-body">
     {{ content }}
   </article>
 </main>
+
+<style>
+.fieldnote {
+  max-width: 640px;
+  margin: 4rem auto;
+  padding: 0 1rem;
+  color: #e6e6e6;
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.fieldnote-header {
+  margin-bottom: 2rem;
+}
+
+.fieldnote-title {
+  font-family: var(--serif, "Georgia", serif);
+  font-size: 1.6rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #e6e6e6;
+}
+
+.fieldnote-meta {
+  font-size: 0.9rem;
+  color: #999;
+}
+
+.fieldnote-meta a {
+  color: #999;
+  text-decoration: none;
+}
+
+.fieldnote-meta a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.fieldnote-body p {
+  margin: 1.25rem 0;
+  color: #ccc;
+}
+
+.fieldnote-body em {
+  color: #ddd;
+}
+
+.fieldnote-body strong {
+  color: #fff;
+}
+</style>
