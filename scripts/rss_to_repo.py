@@ -1,42 +1,37 @@
 # scripts/rss_to_repo.py
-import os, json, time, feedparser, datetime as dt
+import os, sys, json, time, feedparser, datetime as dt
 from pathlib import Path
 import re, html, urllib.request, urllib.parse, shutil
 
 def log(*args): print("[rss-sync]", *args, flush=True)
 
-# -----------------------------------------------------------------------------
-# ENV & PATHS
-# -----------------------------------------------------------------------------
-ROOT            = Path(__file__).resolve().parents[1]
-STATE_FILE      = ROOT / ".finch" / "state.json"
-COLL_DIR        = ROOT / "_logs"          # Jekyll collection items (source of truth)
-ARTIFACTS_DIR   = ROOT / "artifacts"      # where you’ll drop wav/pdf/jpg/etc.
+# ----- ENV & paths -----------------------------------------------------------
+ROOT = Path(__file__).resolve().parents[1]
+STATE_FILE     = ROOT / ".finch" / "state.json"
+COLL_DIR       = ROOT / "_logs"            # Jekyll collection items (source of truth)
+ARTIFACTS_DIR  = ROOT / "artifacts"        # Sidecar artifacts per slug
 
 for p in (STATE_FILE.parent, COLL_DIR, ARTIFACTS_DIR):
     p.mkdir(parents=True, exist_ok=True)
 
-SUBSTACK_RSS_URL   = os.environ.get("SUBSTACK_RSS_URL", "").strip()
-IMPORT_LATEST_ONLY = os.environ.get("IMPORT_LATEST_ONLY", "1") == "1"
-IMPORT_DEBUG       = os.environ.get("IMPORT_DEBUG", "0") == "1"
-RSS_PROXY_URL      = os.environ.get("RSS_PROXY_URL", "").strip()  # e.g. https://rss.fincharchive.com
+SUBSTACK_RSS_URL     = os.environ.get("SUBSTACK_RSS_URL", "").strip()
+IMPORT_LATEST_ONLY   = os.environ.get("IMPORT_LATEST_ONLY", "1") == "1"
+IMPORT_DEBUG         = os.environ.get("IMPORT_DEBUG", "0") == "1"
+RSS_PROXY_URL        = os.environ.get("RSS_PROXY_URL", "").strip()
 
-# File types we’ll surface on the page (optional; kept for future use)
+# File types we’ll surface on the page
 ARTIFACT_EXTS = [
     ".wav", ".flac", ".mp3",                 # audio
     ".pdf",                                  # docs
     ".jpg", ".jpeg", ".png", ".gif", ".webp" # images
 ]
 
-# -----------------------------------------------------------------------------
-# PROXY HELPERS
-# -----------------------------------------------------------------------------
+# ----- Proxy helpers ---------------------------------------------------------
 def _proxy_host() -> str:
     if not RSS_PROXY_URL: return ""
     return urllib.parse.urlparse(RSS_PROXY_URL).netloc
 
 def unproxy_url(url: str) -> str:
-    """Return original target from a proxy-wrapped URL (?url=...), else url."""
     try:
         u = urllib.parse.urlparse(url)
         if _proxy_host() and u.netloc == _proxy_host():
@@ -48,14 +43,11 @@ def unproxy_url(url: str) -> str:
     return url
 
 def proxied(url: str) -> str:
-    """Wrap url through the proxy (if configured). Never double-wrap."""
     raw = unproxy_url(url)
     if not RSS_PROXY_URL: return raw
     return f"{RSS_PROXY_URL}?url={urllib.parse.quote(raw, safe='')}"
 
-# -----------------------------------------------------------------------------
-# HTTP FETCH
-# -----------------------------------------------------------------------------
+# ----- HTTP fetch ------------------------------------------------------------
 def fetch_url(url: str, timeout=30) -> str:
     headers = {
         "User-Agent": ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -69,27 +61,70 @@ def fetch_url(url: str, timeout=30) -> str:
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read().decode("utf-8", "ignore")
 
-# -----------------------------------------------------------------------------
-# MINIMAL READABILITY & HTML→MD
-# -----------------------------------------------------------------------------
+# ----- Content extraction helpers -------------------------------------------
+def _first(regex: str, text: str):
+    m = re.search(regex, text, flags=re.I | re.S)
+    return m.group(1) if m else None
+
+def _largest_block(candidates) -> str:
+    """Pick the candidate with the most non-whitespace text."""
+    best = ""
+    for c in candidates:
+        if not c: continue
+        # crude weight: visible chars + number of <p> blocks
+        score = len(re.sub(r"\s+", " ", re.sub(r"(?is)<script.*?</script>|<style.*?</style>", "", c))) + 200*len(re.findall(r"(?i)<p\b", c))
+        if score > len(best):
+            best = c
+    return best or ""
+
 def readability_extract(html_text: str) -> str:
-    m = re.search(r"(?is)<article[^>]*>(.*?)</article>", html_text)
-    if m: return m.group(1)
-    m = re.search(r"(?is)<body[^>]*>(.*?)</body>", html_text)
-    return m.group(1) if m else html_text
+    """
+    Try a few containers in order:
+      - <article ...>...</article>
+      - role="article"
+      - <main ...>...</main>
+      - common wrappers used by Substack (<div data-...>, .post, etc.)
+      - fallback to <body>
+    Then choose the *largest* candidate to avoid truncation.
+    """
+    t = html_text or ""
+    candidates = []
+
+    # 1) article (explicit)
+    candidates.append(_first(r"(?is)<article[^>]*>(.*?)</article>", t))
+    # 2) ARIA role=article
+    candidates.append(_first(r'(?is)<(?:div|section)[^>]*\brole\s*=\s*["\']article["\'][^>]*>(.*?)</(?:div|section)>', t))
+    # 3) main
+    candidates.append(_first(r"(?is)<main[^>]*>(.*?)</main>", t))
+    # 4) common substack wrappers
+    candidates.append(_first(r'(?is)<div[^>]*\bclass=["\'][^"\']*(?:post|body|content)[^"\']*["\'][^>]*>(.*?)</div>', t))
+    candidates.append(_first(r'(?is)<section[^>]*\bclass=["\'][^"\']*(?:post|body|content)[^"\']*["\'][^>]*>(.*?)</section>', t))
+    # 5) fallback to body
+    candidates.append(_first(r"(?is)<body[^>]*>(.*?)</body>", t) or t)
+
+    return _largest_block(candidates)
 
 def strip_substack_chrome(html_text: str) -> str:
     """
-    Remove Substack header/title blocks, author/profile links, comment/share links.
-    Do this BEFORE converting to Markdown so they never appear in the MD.
+    Remove Substack title/header, author blocks, comments link, 'Share', etc.
+    Do this BEFORE HTML→MD so they never appear in Markdown.
     """
     t = html_text
+
+    # kill header blocks and leading H1 (we render the title separately)
     t = re.sub(r"(?is)<header[^>]*>.*?</header>", "", t)
     t = re.sub(r"(?is)^\s*<h1[^>]*>.*?</h1>", "", t, count=1)
+
+    # kill 'Share' buttons and comment links
     t = re.sub(r'(?is)<a[^>]+href="javascript:void\(0\)".*?</a>', "", t)
     t = re.sub(r'(?is)<a[^>]+href="[^"]*/comments[^"]*".*?</a>', "", t)
+
+    # kill author/profile links like substack.com/@hallowayfinch
     t = re.sub(r'(?is)<a[^>]+href="https?://[^"]*substack\.com/@[^"]*".*?</a>', "", t)
+
+    # stray 'Share' words wrapped in spans/divs
     t = re.sub(r'(?is)>(\s*Share\s*)<', "><", t)
+
     return t
 
 def html_to_markdown_simple(html_text: str) -> str:
@@ -109,43 +144,26 @@ def html_to_markdown_simple(html_text: str) -> str:
 
 def tidy_markdown(md: str, title: str) -> str:
     """
-    Remove duplicated title/date line, empty links, stray 'Share', and fix spacing.
+    Remove stray header line/empty links, standalone 'Share', collapse spacing.
+    Also remove a repeated leading line that exactly matches the title.
     """
-    out = md.strip()
-
-    MONTHS = r"(January|February|March|April|May|June|July|August|September|October|November|December|" \
-             r"Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)"
-
-    # Fix cases where the month is glued to the end of the title (e.g., 'StaticOct')
-    out = re.sub(rf"([A-Za-z])(?={MONTHS}\b)", r"\1 ", out)
-
-    # Remove a leading "Title + Month Day, Year ..." line if present
-    out = re.sub(
-        rf"(?is)^\s*{re.escape(title)}\s*(?:\[\]\([^)]+\))?\s*{MONTHS}\w*\s+\d{{1,2}},\s+\d{{4}}[^\n]*\n",
-        "",
-        out,
-        count=1,
-    )
-
-    # Remove a clean duplicate title line if it still remains
-    out = re.sub(rf"(?im)^\s*{re.escape(title)}\s*$\n?", "", out, count=1)
-
-    # Remove empty link artifacts like [](...)
+    out = md
+    out = re.sub(rf"(?im)^\s*{re.escape(title)}\s*$\n?", "", out)
     out = re.sub(r"\[\s*\]\([^)]+\)", "", out)
-
-    # Remove standalone 'Share'
     out = re.sub(r"(?m)^\s*Share\s*$", "", out)
-
-    # Collapse 3+ newlines to 2
     out = re.sub(r"\n{3,}", "\n\n", out)
-
     return out.strip() + "\n"
 
-# -----------------------------------------------------------------------------
-# HELPERS: SLUGS, STATE, ETC.
-# -----------------------------------------------------------------------------
-def clean_title(title: str) -> str:
-    return re.sub(r"\s+", " ", title or "").strip() or "Untitled"
+# ----- 1022 helpers ----------------------------------------------------------
+def int_to_letters(n: int) -> str:
+    s = ""
+    while n > 0:
+        n, rem = divmod(n-1, 26)
+        s = chr(65 + rem) + s
+    return s
+
+def make_log_id(seq: int) -> str: return f"1022{int_to_letters(seq)}"
+def clean_title(title: str) -> str: return re.sub(r"\s+", " ", title or "").strip() or "Untitled"
 
 def safe_filename(s: str) -> str:
     s = (s or "").strip().lower()
@@ -159,10 +177,11 @@ def extract_substack_slug(url: str) -> str:
     parts = [p for p in path.split("/") if p]
     return safe_filename(parts[-1]) or "log"
 
+# ----- State -----------------------------------------------------------------
 DEFAULT_STATE = {
     "next_seq": 1,
     "guid_to_slug": {},
-    "guid_to_log_id": {},   # kept for continuity if you want 1022A/B/C labeling later
+    "guid_to_log_id": {},
     "seen_guids": []
 }
 
@@ -179,25 +198,7 @@ def load_state():
 
 def save_state(s): STATE_FILE.write_text(json.dumps(s, indent=2), encoding="utf-8")
 
-def read_existing_log_id_from_md(slug: str):
-    """If _logs/:slug.md exists and has log_id in front matter, return it."""
-    md_path = COLL_DIR / f"{slug}.md"
-    if not md_path.exists():
-        return None
-    try:
-        head = md_path.read_text("utf-8")
-        m = re.search(r"(?s)^---(.*?)---", head)
-        if not m: return None
-        fm = m.group(1)
-        m2 = re.search(r"^\s*log_id:\s*\"?([A-Za-z0-9-]+)\"?\s*$", fm, re.M)
-        if m2: return m2.group(1)
-    except Exception:
-        pass
-    return None
-
-# -----------------------------------------------------------------------------
-# FEED FETCH
-# -----------------------------------------------------------------------------
+# ----- Feed fetch (proxy-aware + fallbacks) ----------------------------------
 def fetch_and_parse_feed(url: str):
     raw_feed_url = unproxy_url(url)
 
@@ -235,26 +236,20 @@ def fetch_and_parse_feed(url: str):
 
     return feedparser.parse("")
 
-# -----------------------------------------------------------------------------
-# ENTRY SELECTION
-# -----------------------------------------------------------------------------
+# ----- Entry selection --------------------------------------------------------
 def pick_entries(feed, state):
     entries = list(feed.entries or [])
     if IMPORT_LATEST_ONLY and entries:
         newest = max(entries, key=lambda x: x.get("published_parsed") or x.get("updated_parsed") or time.gmtime(0))
         return [newest]
-    # Upsert all entries so edits propagate (idempotent)
-    return entries
+    return entries  # upsert all so edits propagate
 
-# -----------------------------------------------------------------------------
-# CONTENT WRITE HELPERS
-# -----------------------------------------------------------------------------
-def write_text_if_changed(path: Path, content: str) -> bool:
-    old = path.read_text("utf-8") if path.exists() else ""
-    if old == content:
-        return False
-    path.write_text(content, encoding="utf-8")
-    return True
+# ----- Artifacts helpers -----------------------------------------------------
+def ensure_artifact_dir(slug: str) -> Path:
+    """Always create /artifacts/<slug>/ so you have a place to drop files."""
+    folder = ARTIFACTS_DIR / slug
+    folder.mkdir(parents=True, exist_ok=True)
+    return folder
 
 def nice_label_from_path(p: Path) -> str:
     base = p.stem.replace("_", " ").replace("-", " ").strip() or "Artifact"
@@ -274,6 +269,31 @@ def find_artifacts_for_slug(slug: str):
                 })
     return items
 
+def read_existing_log_id_from_md(slug: str):
+    """If _logs/:slug.md exists and has log_id in front matter, return it."""
+    md_path = COLL_DIR / f"{slug}.md"
+    if not md_path.exists():
+        return None
+    try:
+        head = md_path.read_text("utf-8")
+        m = re.search(r"(?s)^---(.*?)---", head)
+        if not m: return None
+        fm = m.group(1)
+        m2 = re.search(r"^\s*log_id:\s*\"?([A-Za-z0-9-]+)\"?\s*$", fm, re.M)
+        if m2:
+            return m2.group(1)
+    except Exception:
+        pass
+    return None
+
+# ----- Content write helpers --------------------------------------------------
+def write_text_if_changed(path: Path, content: str) -> bool:
+    old = path.read_text("utf-8") if path.exists() else ""
+    if old == content:
+        return False
+    path.write_text(content, encoding="utf-8")
+    return True
+
 def build_front_matter(*, title, date, slug, log_id, url, guid, artifacts=None) -> str:
     esc_title = title.replace('"', '\\"')
     lines = [
@@ -285,6 +305,11 @@ def build_front_matter(*, title, date, slug, log_id, url, guid, artifacts=None) 
         f'source_url: "{url}"',
         f'guid: "{guid}"',
         f'permalink: "/logs/{slug}/"',
+        "redirect_from:",
+        f'  - "/logs/{slug}-2/"',
+        f'  - "/logs/{slug}-2.md"',
+        f'  - "/logs/{slug}-3/"',
+        f'  - "/logs/{slug}-3.md"',
     ]
     if artifacts:
         lines += ["artifacts:"]
@@ -296,15 +321,13 @@ def build_front_matter(*, title, date, slug, log_id, url, guid, artifacts=None) 
     lines += ["---", ""]
     return "\n".join(lines)
 
-# -----------------------------------------------------------------------------
-# IMPORT ONE ENTRY (IDEMPOTENT + CLEAN)
-# -----------------------------------------------------------------------------
+# ----- Import one entry (IDEMPOTENT + CLEAN) ---------------------------------
 def import_post(entry, state):
     title = clean_title(entry.get("title"))
     guid  = entry.get("id") or entry.get("guid") or entry.get("link")
     url   = entry.get("link")
 
-    # ISO-8601 with timezone (prefer published, then updated, else now)
+    # ISO-8601 with timezone (prefer published)
     if entry.get("published_parsed"):
         date = dt.datetime.fromtimestamp(time.mktime(entry.published_parsed)).astimezone().isoformat()
     elif entry.get("updated_parsed"):
@@ -312,43 +335,35 @@ def import_post(entry, state):
     else:
         date = dt.datetime.now().astimezone().isoformat()
 
-    if not url:
-        raise RuntimeError("Entry missing URL")
+    if not url: raise RuntimeError("Entry missing URL")
 
-    # Stable slug from Substack URL; remember mapping
+    # Stable slug from URL; remember mapping
     slug = state["guid_to_slug"].get(guid) or extract_substack_slug(url)
     state["guid_to_slug"][guid] = slug
 
-    # Reuse existing log_id if the file already exists; else assign a simple sequence
+    # Reuse existing log_id if present on disk; else assign
     existing_log_id = read_existing_log_id_from_md(slug)
     if existing_log_id:
         log_id = existing_log_id
+        state["guid_to_log_id"][guid] = log_id
     else:
         log_id = state["guid_to_log_id"].get(guid)
         if not log_id:
-            # Keep a compact “1022A/B/C…” style if you already started using it;
-            # otherwise you can switch to something else later.
-            seq = state["next_seq"]
-            # Turn 1→A, 2→B, etc.
-            s, n = "", seq
-            while n > 0:
-                n, rem = divmod(n-1, 26)
-                s = chr(65 + rem) + s
-            log_id = f"1022{s}"
+            log_id = make_log_id(state["next_seq"])
             state["guid_to_log_id"][guid] = log_id
-            state["next_seq"] = seq + 1
+            state["next_seq"] += 1
 
     log(f"Upserting: '{title}' slug={slug} log_id={log_id}")
 
-    # Fetch & convert body with cleanup
+    # Fetch & convert body with cleanup (more robust extractor)
     raw_html = fetch_url(proxied(url))
     article_html = readability_extract(raw_html)
     article_html = strip_substack_chrome(article_html)
     body_md = html_to_markdown_simple(article_html)
     body_md = tidy_markdown(body_md, title)
 
-    # Ensure /artifacts/{slug}/ exists so you can drop files later
-    (ARTIFACTS_DIR / slug).mkdir(parents=True, exist_ok=True)
+    # Ensure artifacts folder exists (even if empty) so you can drop files
+    ensure_artifact_dir(slug)
     artifacts = find_artifacts_for_slug(slug)
 
     fm = build_front_matter(
@@ -366,9 +381,7 @@ def import_post(entry, state):
     if guid not in state["seen_guids"]:
         state["seen_guids"].append(guid)
 
-# -----------------------------------------------------------------------------
-# MAIN
-# -----------------------------------------------------------------------------
+# ----- Main -------------------------------------------------------------------
 def main():
     if not SUBSTACK_RSS_URL:
         raise RuntimeError("SUBSTACK_RSS_URL not set")
