@@ -2,15 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
     <meta name="description" content="{{ site.description | escape }}" />
     <link rel="canonical" href="{{ page.url | absolute_url }}" />
     <meta name="theme-color" content="#000000" />
 
-    <!-- Main site stylesheet (all styles live here) -->
+    <!-- Single, centralized stylesheet -->
     <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
   </head>
+
   <body>
     <header class="site">
       <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;">
@@ -19,7 +20,6 @@
           <a href="{{ '/' | relative_url }}">{{ site.title }}</a>
         </div>
 
-        <!-- Horizontally scrollable on small screens to avoid wrapping -->
         <nav aria-label="Primary">
           {%- assign here = page.url | relative_url -%}
           <a href="{{ '/' | relative_url }}" {% if here == '/' %}aria-current="page"{% endif %}>Home</a>
@@ -30,7 +30,13 @@
       </div>
     </header>
 
-    {{ content }}
+    {% if page.full_width %}
+      {{ content }}
+    {% else %}
+      <main class="container" role="main">
+        {{ content }}
+      </main>
+    {% endif %}
 
     <footer class="site">
       <div class="wrap">Recovered notes · Halloway Finch</div>
