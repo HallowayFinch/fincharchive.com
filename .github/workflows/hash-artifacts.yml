@@ -1,12 +1,17 @@
 name: Hash & Index Artifacts
 
 on:
+  workflow_dispatch: {}
   push:
     paths:
-      - "artifacts/**"
+      - "artifacts/**/*.{wav,flac,mp3,mp4,mov,png,jpg,jpeg,gif,webp,tif,tiff,pdf,txt}"
 
 permissions:
   contents: write
+
+concurrency:
+  group: finch-hash-index
+  cancel-in-progress: false
 
 jobs:
   hash:
@@ -14,71 +19,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install ffmpeg (for audio metadata)
+      - name: Compute hashes & metadata (idempotent)
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          python scripts/hash_artifacts.py
 
-      - name: Hash & index artifacts
+      - name: Commit & push if changed
         run: |
-          python - <<'PY'
-          import os, json, hashlib, subprocess, pathlib, re
-
-          ARTIFACTS_DIR = "artifacts"
-          LOG_DIR = "logs"
-          INDEX_FILE = os.path.join(LOG_DIR, "index.json")
-
-          def file_hash(path):
-              h = hashlib.sha256()
-              with open(path, "rb") as f:
-                  for chunk in iter(lambda: f.read(8192), b""):
-                      h.update(chunk)
-              return h.hexdigest()[:12]
-
-          data = []
-          os.makedirs(LOG_DIR, exist_ok=True)
-
-          for root, _, files in os.walk(ARTIFACTS_DIR):
-              for f in files:
-                  path = os.path.join(root, f)
-                  rel = os.path.relpath(path, ARTIFACTS_DIR)
-                  if f.startswith("."):
-                      continue
-                  try:
-                      sha = file_hash(path)
-                      data.append({
-                          "file": rel,
-                          "sha": sha,
-                          "size": os.path.getsize(path),
-                      })
-                  except Exception as e:
-                      print(f"Error hashing {path}: {e}")
-
-          with open(INDEX_FILE, "w") as out:
-              json.dump(data, out, indent=2)
-              print(f"Wrote {len(data)} artifact entries → {INDEX_FILE}")
-          PY
-
-      - name: Check for artifact changes
-        id: diffcheck
-        run: |
-          if git diff --quiet artifacts/ logs/index.json; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-            echo "No artifact changes detected; skipping commit."
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "Artifact changes detected; committing."
-          fi
-
-      - name: Commit & push index
-        if: steps.diffcheck.outputs.changed == 'true'
-        run: |
-          git config user.name "Finch Bot"
-          git config user.email "actions@github.com"
-          git add artifacts/ logs/index.json || true
+          set -e
+          git config user.name  "actions-user"
+          git config user.email "actions@users.noreply.github.com"
+          git add artifacts/**/metadata.json artifacts/**/SHA256SUMS.txt || true
           if ! git diff --cached --quiet; then
-            git commit -m "chore(artifacts): update artifact index"
+            git commit -m "chore(artifacts): update checksums & metadata"
             git push
           else
-            echo "No artifact changes to commit."
+            echo "No artifact metadata changes to commit."
           fi
