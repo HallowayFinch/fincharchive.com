@@ -18,12 +18,12 @@
 
       <!-- Creative Commons -->
       <li role="listitem">
-        <a class="badge" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" rel="noopener noreferrer" title="Creative Commons BY-NC-ND 4.0 license">
+        <a class="badge badge-cc" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" rel="noopener noreferrer" title="Creative Commons BY-NC-ND 4.0 license">
           <svg class="badge-icon" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="12" cy="12" r="10"></circle>
             <text x="12" y="16" text-anchor="middle" font-size="10" class="badge-text">CC</text>
           </svg>
-          <span class="badge-label">BY-NC-ND&nbsp;4.0</span>
+          <span class="badge-label">BY-NC-ND 4.0</span>
         </a>
       </li>
 
@@ -38,4 +38,15 @@
       </li>
     </ul>
   </div>
+
+  <style>
+    /* tighten just the CC badge on small screens */
+    @media (max-width: 500px) {
+      .badge-cc {
+        letter-spacing: -0.02em;
+        font-size: 0.85rem;
+        white-space: nowrap;
+      }
+    }
+  </style>
 </footer>
