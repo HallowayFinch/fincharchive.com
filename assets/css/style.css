@@ -143,3 +143,38 @@ footer.site{
   .badge{padding:.2rem .45rem}
   .badge-icon{width:14px;height:14px}
 }
+
+/* Responsive footer layout improvements */
+.footer-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.footer-left {
+  color: var(--muted);
+  font-size: .95rem;
+  white-space: nowrap;
+}
+
+/* Stack footer content on mobile */
+@media (max-width: 640px) {
+  .footer-flex {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.6rem;
+  }
+
+  .footer-left {
+    white-space: normal;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .badges {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
