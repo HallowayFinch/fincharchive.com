@@ -9,19 +9,27 @@
 <meta name="description" content="{{ _desc | strip_html | strip_newlines | truncate: 160 }}">
 
 {%- comment %}
+Early theme: default to dark, or use user’s stored choice.
+Runs before CSS to avoid a flash.
+{%- endcomment -%}
+<script>
+(function () {
+  try {
+    var key = 'fa-theme';
+    var t = localStorage.getItem(key) || 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+</script>
+<meta name="color-scheme" content="dark light">
+
+{%- comment %}
 Canonical URL and image
-- og_image falls back to page.hero_image (for logs) then to a site default
 {%- endcomment -%}
 {%- assign _url  = page.canonical_url | default: page.url | absolute_url -%}
 {%- assign _img  = page.og_image | default: page.hero_image | default: '/assets/og/og-default.png' | absolute_url -%}
-
 <link rel="canonical" href="{{ _url }}">
 
-{%- comment %}
-Open Graph / Twitter
-- og:type = "article" for collections (logs, field-notes), else "website"
-- Includes published/modified times when available
-{%- endcomment -%}
 {%- assign _is_article = false -%}
 {%- if page.collection == 'logs' or page.collection == 'field-notes' -%}
   {%- assign _is_article = true -%}
@@ -46,15 +54,12 @@ Open Graph / Twitter
   <meta property="article:modified_time" content="{{ page.last_modified_at | date_to_xmlschema }}">
 {%- endif -%}
 
-{%- comment %} Feeds (Logs + Field Notes) {%- endcomment -%}
 <link rel="alternate" type="application/rss+xml" title="{{ site.title }} — Logs" href="{{ '/logs.xml' | absolute_url }}">
 <link rel="alternate" type="application/rss+xml" title="{{ site.title }} — Field Notes" href="{{ '/field-notes/feed.xml' | absolute_url }}">
 
-{%- comment %} Icons / meta {%- endcomment -%}
 <link rel="icon" href="{{ '/favicon.ico' | relative_url }}">
 <meta name="theme-color" content="#000000">
 
-{%- comment %} Robots override (optional per-page) {%- endcomment -%}
 {%- if page.noindex -%}
   <meta name="robots" content="noindex, nofollow">
 {%- endif -%}
