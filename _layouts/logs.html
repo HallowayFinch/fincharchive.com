@@ -9,80 +9,30 @@ title: Log Archive
     <p class="archive-subtitle">Filed chronologically</p>
   </header>
 
+  {%- assign sorted_logs = site.logs | sort: "date" | reverse -%}
+
   <div class="archive-list">
-    {% assign sorted_logs = site.logs | sort: 'date' | reverse %}
-    {% for log in sorted_logs %}
+    {%- for log in sorted_logs -%}
       <article class="archive-item">
         <h2 class="archive-item-title">
           <a href="{{ log.url | relative_url }}">{{ log.title }}</a>
         </h2>
+
         <p class="archive-item-meta">
           <time datetime="{{ log.date | date_to_xmlschema }}">
-            {{ log.date | date: "%A, %B %-d, %Y %I:%M %p %Z" }}
+            {% include date-local.html dt=log.date %}
           </time>
-          {% if log.log_id %}
+          {%- if log.log_id -%}
             <span class="archive-item-id">• Log {{ log.log_id }}</span>
-          {% endif %}
+          {%- endif -%}
         </p>
-        {% if log.excerpt %}
-          <p class="archive-item-excerpt">{{ log.excerpt | strip_html | truncate: 220 }}</p>
-        {% endif %}
+
+        {%- if log.excerpt -%}
+          <p class="archive-item-excerpt">
+            {{ log.excerpt | strip_html | truncate: 220 }}
+          </p>
+        {%- endif -%}
       </article>
-    {% endfor %}
+    {%- endfor -%}
   </div>
 </section>
-
-<style>
-.archive {
-  max-width: 700px;
-  margin: 3rem auto;
-  padding: 0 1rem;
-}
-.archive-header {
-  margin-bottom: 3rem;
-  border-bottom: 1px solid #333;
-  padding-bottom: 1rem;
-}
-.archive-title {
-  font-family: var(--serif, 'Georgia', serif);
-  font-size: 2rem;
-  margin: 0 0 0.25rem 0;
-  color: #e6e6e6;
-}
-.archive-subtitle {
-  font-size: 0.9rem;
-  color: #999;
-  margin: 0;
-}
-.archive-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
-}
-.archive-item-title {
-  margin-bottom: 0.25rem;
-  font-family: var(--serif, 'Georgia', serif);
-  font-weight: 600;
-}
-.archive-item-title a {
-  color: #e6e6e6;
-  text-decoration: none;
-}
-.archive-item-title a:hover {
-  text-decoration: underline;
-}
-.archive-item-meta {
-  color: #777;
-  font-size: 0.85rem;
-  margin: 0 0 1rem 0;
-}
-.archive-item-id {
-  margin-left: 0.5rem;
-  color: #555;
-}
-.archive-item-excerpt {
-  color: #ccc;
-  line-height: 1.6;
-  margin: 0;
-}
-</style>
