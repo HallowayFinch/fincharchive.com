@@ -9,74 +9,28 @@ title: Field Notes
     <p class="fn-archive-subtitle">Fragments, observations, and marginalia</p>
   </header>
 
+  {%- assign notes = site["field-notes"] | sort: "date" | reverse -%}
+
   <div class="fn-archive-list">
-    {% assign notes = site["field-notes"] | sort: "date" | reverse %}
-    {% for note in notes %}
+    {%- for note in notes -%}
       <article class="fn-item">
         <h2 class="fn-item-title">
           <a href="{{ note.url | relative_url }}">{{ note.title }}</a>
         </h2>
         <p class="fn-item-meta">
           <time datetime="{{ note.date | date_to_xmlschema }}">
-            {{ note.date | date: "%A, %B %-d, %Y %I:%M %p %Z" }}
+            {% include date-local.html dt=note.date %}
           </time>
-          {% if note.source_url %}
-            <span class="fn-item-source"> • <a href="{{ note.source_url }}" target="_blank" rel="noopener">Source</a></span>
-          {% endif %}
+          {%- if note.source_url -%}
+            <span class="fn-item-source">
+              • <a href="{{ note.source_url }}" target="_blank" rel="noopener">Source</a>
+            </span>
+          {%- endif -%}
         </p>
-        {% if note.excerpt %}
+        {%- if note.excerpt -%}
           <p class="fn-item-excerpt">{{ note.excerpt | strip_html | truncate: 200 }}</p>
-        {% endif %}
+        {%- endif -%}
       </article>
-    {% endfor %}
+    {%- endfor -%}
   </div>
 </section>
-
-<style>
-.fn-archive {
-  max-width: 720px;
-  margin: 3rem auto;
-  padding: 0 1rem;
-}
-.fn-archive-header {
-  margin-bottom: 2.5rem;
-  border-bottom: 1px solid #333;
-  padding-bottom: 1rem;
-}
-.fn-archive-title {
-  font-family: var(--serif, "Georgia", serif);
-  font-size: 2rem;
-  margin: 0 0 .25rem 0;
-  color: #e6e6e6;
-}
-.fn-archive-subtitle {
-  font-size: .9rem;
-  color: #999;
-  margin: 0;
-}
-.fn-archive-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-.fn-item-title {
-  margin: 0 0 .25rem 0;
-  font-family: var(--serif, "Georgia", serif);
-  font-weight: 600;
-}
-.fn-item-title a {
-  color: #e6e6e6;
-  text-decoration: none;
-}
-.fn-item-title a:hover { text-decoration: underline; }
-.fn-item-meta {
-  color: #888;
-  font-size: .9rem;
-  margin: 0 0 .75rem 0;
-}
-.fn-item-excerpt {
-  color: #ccc;
-  line-height: 1.6;
-  margin: 0;
-}
-</style>
