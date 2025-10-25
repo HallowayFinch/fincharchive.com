@@ -155,3 +155,57 @@ footer.site{
   .footer-left{white-space:normal;font-size:.9rem;line-height:1.35}
   .badges{justify-content:center}
 }
+
+/* ==========================
+   Archive (/_layouts/logs.html)
+   ========================== */
+.archive{
+  max-width:700px;
+  margin:3rem auto;
+  padding:0 1rem;
+}
+.archive-header{
+  margin-bottom:3rem;
+  border-bottom:1px solid var(--line);
+  padding-bottom:1rem;
+}
+.archive-title{
+  font-family:var(--serif);
+  font-size:2rem;
+  margin:0 0 .25rem 0;
+  color:var(--fg);
+}
+.archive-subtitle{
+  font-size:.9rem;
+  color:var(--muted);
+  margin:0;
+}
+.archive-list{
+  display:flex;
+  flex-direction:column;
+  gap:2.5rem;
+}
+.archive-item-title{
+  margin-bottom:.25rem;
+  font-family:var(--serif);
+  font-weight:600;
+}
+.archive-item-title a{
+  color:var(--fg);
+  text-decoration:none;
+}
+.archive-item-title a:hover{text-decoration:underline}
+.archive-item-meta{
+  color:#777;
+  font-size:.85rem;
+  margin:0 0 1rem 0;
+}
+.archive-item-id{
+  margin-left:.5rem;
+  color:#555;
+}
+.archive-item-excerpt{
+  color:#ccc;
+  line-height:1.6;
+  margin:0;
+}
