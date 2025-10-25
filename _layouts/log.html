@@ -2,35 +2,46 @@
 layout: default
 ---
 
-<main class="container" style="margin:3rem auto 2rem;">
-  <div class="rule" style="margin-bottom:1rem;"></div>
+<main class="container">
+  <div class="rule"></div>
 
-  {%- if page.hero_image %}
-  <figure style="margin:0 0 1.25rem 0;">
-    <img src="{{ page.hero_image }}" alt="{{ page.title | escape }}" style="width:100%;height:auto;display:block;">
+  {%- if page.hero_image -%}
+  <figure class="log-figure">
+    <img
+      class="log-hero"
+      src="{{ page.hero_image | relative_url }}"
+      alt="{{ page.title | escape }}">
   </figure>
-  {%- endif %}
+  {%- endif -%}
 
-  <header style="margin-bottom:1rem;">
+  <header class="log-header">
     <h1>{{ page.title }}</h1>
     <div class="meta">
-      {{ page.date | date: "%A, %B %-d, %Y %-I:%M:%S %Z" }}
-      {%- if page.source_url %} · <a href="{{ page.source_url }}">Source</a>{% endif -%}
+      <time datetime="{{ page.date | date_to_xmlschema }}">
+        {% include date-local.html dt=page.date %}
+      </time>
+      {%- if page.source_url -%}
+        · <a href="{{ page.source_url }}">Source</a>
+      {%- endif -%}
     </div>
   </header>
 
-  <article style="font-size:1.05rem;">
+  <article class="log-content">
     {{ content }}
   </article>
 
-  {%- if page.artifacts and page.artifacts.size > 0 %}
-  <section style="margin-top:2rem;border-top:1px solid #222;padding-top:1rem;">
-    <h2 style="margin:0 0 .75rem;">Artifacts</h2>
-    <ul style="list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem;">
+  {%- if page.artifacts and page.artifacts.size > 0 -%}
+  <section class="log-artifacts">
+    <h2>Artifacts</h2>
+    <ul class="artifact-list">
       {%- for a in page.artifacts -%}
-      <li><a class="btn" href="{{ a.path | relative_url }}">{{ a.label | default: "Artifact" }}</a></li>
+        <li>
+          <a class="btn" href="{{ a.path | relative_url }}">
+            {{ a.label | default: "Artifact" }}
+          </a>
+        </li>
       {%- endfor -%}
     </ul>
   </section>
-  {%- endif %}
+  {%- endif -%}
 </main>
