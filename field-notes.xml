@@ -3,20 +3,38 @@ layout: null
 permalink: /field-notes/feed.xml
 ---
 <?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
-<channel>
-  <title>{{ site.title }} — Field Notes</title>
-  <link>{{ site.url }}/field-notes/</link>
-  <description>{{ site.description }}</description>
-  {% assign items = site['field-notes'] | sort: 'date' | reverse %}
-  {% for item in items %}
-    <item>
-      <title>{{ item.title | xml_escape }}</title>
-      <link>{{ item.url | absolute_url }}</link>
-      <pubDate>{{ item.date | date_to_rfc822 }}</pubDate>
-      <guid>{{ item.url | absolute_url }}</guid>
-      <description><![CDATA[{{ item.content }}]]></description>
-    </item>
-  {% endfor %}
-</channel>
+<rss version="2.0"
+     xmlns:atom="http://www.w3.org/2005/Atom"
+     xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>{{ site.title | xml_escape }} — Field Notes</title>
+    <link>{{ '/field-notes/' | absolute_url }}</link>
+    <atom:link href="{{ '/field-notes/feed.xml' | absolute_url }}" rel="self" type="application/rss+xml"/>
+    <description>{{ site.description | xml_escape }}</description>
+    <language>en-us</language>
+    <lastBuildDate>{{ site.time | date_to_rfc822 }}</lastBuildDate>
+    <generator>Jekyll</generator>
+    <ttl>60</ttl>
+
+    {%- assign items = site["field-notes"] | sort: "date" | reverse -%}
+    {%- for item in items -%}
+      {%- unless item.date > site.time -%} {#-- hide future-dated notes --#}
+      <item>
+        <title>{{ item.title | xml_escape }}</title>
+        <link>{{ item.url | absolute_url }}</link>
+        <guid isPermaLink="true">{{ item.url | absolute_url }}</guid>
+        <pubDate>{{ item.date | date_to_rfc822 }}</pubDate>
+        {%- if item.categories and item.categories.size > 0 -%}
+          {%- for cat in item.categories -%}
+            <category>{{ cat | xml_escape }}</category>
+          {%- endfor -%}
+        {%- endif -%}
+        <description><![CDATA[{{ item.excerpt | default: item.content | strip | strip_html | truncate: 240 }}]]></description>
+        <content:encoded><![CDATA[
+{{ item.content }}
+        ]]></content:encoded>
+      </item>
+      {%- endunless -%}
+    {%- endfor -%}
+  </channel>
 </rss>
