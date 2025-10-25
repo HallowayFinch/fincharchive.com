@@ -393,3 +393,12 @@ a:focus-visible,
   line-height:1.6;
   margin:0;
 }
+
+/* Footer badge tweak: tighten CC label on small screens */
+@media (max-width:500px){
+  .badge-cc{
+    letter-spacing:-0.02em;
+    font-size:.85rem;
+    white-space:nowrap;
+  }
+}
