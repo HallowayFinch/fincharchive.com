@@ -412,3 +412,11 @@ main .rule:first-child{ display:none; }
   }
   .feature-thumb{ aspect-ratio: 3/2; }
 }
+
+/* Theme toggle: icon swap via CSS (no masks) */
+.theme-toggle{ display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:6px;border:1px solid var(--badge-border);background:var(--badge-bg);color:var(--fg);cursor:pointer;margin-left:10px;transition:opacity .15s ease,transform .08s ease,border-color .15s ease; }
+.theme-toggle:hover{ opacity:1; transform:translateY(-1px); border-color:var(--accent); }
+
+.icon{ display:none; width:18px; height:18px; }
+:root[data-theme="dark"]  .icon-moon{ display:block; }
+:root[data-theme="light"] .icon-sun { display:block; }
