@@ -1,53 +1,79 @@
-/* ===============================
-   Finch Archive · global styles
-   =============================== */
+/* ======================================
+   Finch Archive · Global Stylesheet
+   ====================================== */
 
-/* Theme tokens */
+/* ----------------
+   Theme tokens
+   ---------------- */
 :root{
-  --bg:#000;                     /* page background */
-  --fg:#E6E6E6;                  /* primary text */
-  --muted:#9A9A9A;               /* secondary text */
-  --accent:#7A3A3A;              /* red accent */
-  --line:#222;                   /* hairline divider */
-  --wrap:1100px;                 /* header max width */
-  --col:72ch;                    /* content column width */
+  /* Dark (default) */
+  --bg:#000;
+  --fg:#E6E6E6;
+  --muted:#9A9A9A;
+  --accent:#7A3A3A;
+  --line:#222;
+  --wrap:1100px;
+  --col:72ch;
   --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
   --serif:Georgia,"Times New Roman",serif;
+
+  /* UI tokens */
+  --header-bg: rgba(0,0,0,.85);
+  --badge-bg: #0b0b0b;
+  --badge-border: rgba(122,58,58,.45);
 }
 
-/* Base */
+/* Light theme overrides */
+:root[data-theme="light"]{
+  --bg:#ffffff;
+  --fg:#111111;
+  --muted:#555555;
+  --accent:#7A3A3A;   /* keep brand accent */
+  --line:#e5e5e5;
+
+  --header-bg: rgba(255,255,255,.9);
+  --badge-bg: #f7f7f7;
+  --badge-border: rgba(122,58,58,.35);
+}
+
+/* ----------------
+   Base / Resets
+   ---------------- */
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--fg)}
 body{font:16px/1.65 var(--mono);-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
-a:hover{color:#fff}
+a:hover{color:#000; }
+:root[data-theme="dark"] a:hover{ color:#fff; } /* keep white hover in dark */
 img{max-width:100%;height:auto;display:block}
 
-/* Layout helpers */
+/* ----------------
+   Layout helpers
+   ---------------- */
 .wrap{max-width:var(--wrap);margin:0 auto;padding:0 20px}
 .container{max-width:var(--col);margin:3rem auto;padding:0 1.25rem}
 .rule{height:1px;background:linear-gradient(90deg,var(--accent),transparent)}
 hr{border:0;height:1px;background:linear-gradient(90deg,transparent,rgba(122,58,58,.4),transparent);margin:2rem 0}
 
-/* Type scale */
+/* ----------------
+   Typography
+   ---------------- */
 h1,h2,h3{font-family:var(--serif);line-height:1.25;margin:0 0 .8rem}
 h1{font-size:clamp(1.8rem,2.6vw,2.2rem)}
 h2{font-size:clamp(1.2rem,1.9vw,1.5rem)}
 .meta{color:var(--muted);font-size:.95rem}
 
-/* ==================================
+/* ======================================
    Header (sticky, single-line brand)
-   ================================== */
+   ====================================== */
 header.site{
   position:sticky;top:0;z-index:10;
-  background:rgba(0,0,0,.85);
+  background:var(--header-bg);
   backdrop-filter:saturate(180%) blur(6px);
   border-bottom:1px solid var(--line);
 }
-.brand{
-  display:flex;align-items:center;gap:.75rem;
-  padding:12px 0;white-space:nowrap;
-}
+.header-flex{display:flex;justify-content:space-between;align-items:center}
+.brand{display:flex;align-items:center;gap:.75rem;padding:12px 0;white-space:nowrap}
 .brand .dot{width:8px;height:8px;border-radius:999px;background:var(--accent)}
 .brand a{font-family:var(--serif);font-size:1.1rem}
 nav[aria-label="Primary"]{
@@ -59,7 +85,31 @@ nav[aria-label="Primary"]::-webkit-scrollbar{display:none}
 nav a{opacity:.85}
 nav a[aria-current="page"]{opacity:1;border-bottom:2px solid var(--accent)}
 
-/* Tighten header & containers on small screens */
+/* Theme toggle button */
+.theme-toggle{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:36px;height:36px;border-radius:6px;
+  border:1px solid var(--badge-border);background:var(--badge-bg);color:var(--fg);
+  cursor:pointer;margin-left:10px;
+  transition:opacity .15s ease,transform .08s ease,border-color .15s ease;
+}
+.theme-toggle:hover{opacity:1;transform:translateY(-1px);border-color:var(--accent)}
+.theme-toggle__icon{
+  width:18px;height:18px;display:inline-block;
+  background: currentColor; -webkit-mask-size: contain; mask-size: contain;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: center; mask-position: center;
+}
+/* Moon/Sun glyph via CSS mask */
+:root[data-theme="dark"] .theme-toggle__icon{
+  -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>');
+          mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>');
+}
+:root[data-theme="light"] .theme-toggle__icon{
+  -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a1 1 0 011 1v1a1 1 0 11-2 0V5a1 1 0 011-1zm0 9a3 3 0 100-6 3 3 0 000 6zm7-3a1 1 0 011 1h1a1 1 0 110 2h-1a1 1 0 11-2 0 1 1 0 011-1zm-7 7a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM4 12a1 1 0 011-1H6a1 1 0 110 2H5a1 1 0 01-1-1zm1.64-6.36a1 1 0 011.41 0l.71.71a1 1 0 11-1.41 1.41l-.71-.71a1 1 0 010-1.41zm12.02 12.02a1 1 0 010 1.41l-.71.71a1 1 0 11-1.41-1.41l.71-.71a1 1 0 011.41 0zM5.64 17.36a1 1 0 010 1.41l-.71.71a1 1 0 11-1.41-1.41l.71-.71a1 1 0 011.41 0zm12.02-12.02a1 1 0 011.41 0l.71.71a1 1 0 11-1.41 1.41l-.71-.71a1 1 0 010-1.41z"/></svg>');
+          mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a1 1 0 011 1v1a1 1 0 11-2 0V5a1 1 0 011-1zm0 9a3 3 0 100-6 3 3 0 000 6zm7-3a1 1 0 011 1h1a1 1 0 110 2h-1a1 1 0 11-2 0 1 1 0 011-1zm-7 7a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM4 12a1 1 0 011-1H6a1 1 0 110 2H5a1 1 0 01-1-1zm1.64-6.36a1 1 0 011.41 0l.71.71a1 1 0 11-1.41 1.41l-.71-.71a1 1 0 010-1.41zm12.02 12.02a1 1 0 010 1.41l-.71.71a1 1 0 11-1.41-1.41l.71-.71a1 1 0 011.41 0zM5.64 17.36a1 1 0 010 1.41l-.71.71a1 1 0 11-1.41-1.41l.71-.71a1 1 0 011.41 0zm12.02-12.02a1 1 0 011.41 0l.71.71a1 1 0 11-1.41 1.41l-.71-.71a1 1 0 010-1.41z"/></svg>');
+}
+
 @media (max-width:640px){
   .wrap{padding:0 14px}
   .container{margin:2rem auto;padding:0 1rem}
@@ -68,344 +118,142 @@ nav a[aria-current="page"]{opacity:1;border-bottom:2px solid var(--accent)}
   nav[aria-label="Primary"]{gap:12px}
 }
 
-/* ==========================
+/* ======================================
    Home & /logs/ list layout
-   ========================== */
-
-/* UL wrapper */
-.log-list{
-  list-style:none;margin:0;padding:0;
-  display:grid;gap:12px;
-}
-
-/* Each row */
-.log-card{
-  display:flex;gap:12px;align-items:flex-start;
-  padding:10px 0;
-  border-bottom:1px dashed rgba(122,58,58,.35);
-}
-
-/* Click target */
+   ====================================== */
+.log-list{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.log-card{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px dashed rgba(122,58,58,.35)}
 .log-link{display:flex;gap:12px;align-items:flex-start;border:0}
-
-/* Thumbnail (small on mobile, scales gently on larger screens) */
-.log-thumb{
-  width:clamp(88px,30vw,160px);
-  aspect-ratio:3/2;height:auto;object-fit:cover;
-  border:1px solid rgba(122,58,58,.35);
-  filter:grayscale(20%);
-}
-
-/* Text block */
+.log-thumb{width:clamp(88px,30vw,160px);aspect-ratio:3/2;object-fit:cover;border:1px solid rgba(122,58,58,.35);filter:grayscale(20%)}
 .log-meta{min-width:0}
 .log-title{font-family:var(--serif);font-size:clamp(16px,4vw,22px);margin:0 0 .25rem;line-height:1.2}
 .log-sub{color:var(--muted);font-size:.9rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
 .log-id{border:1px solid var(--accent);padding:2px 6px;font-size:.75rem;border-radius:3px}
-
-/* Roomier on wider screens */
 @media (min-width:700px){
   .log-list{gap:14px}
   .log-card{gap:14px}
   .log-thumb{width:clamp(120px,18vw,180px)}
 }
 
-/* ==================
-   Single log (post)
-   ================== */
+/* ======================================
+   Single Log (entry) layout
+   ====================================== */
 .content img{border:1px solid rgba(255,255,255,.07)}
-.log-hero{
-  width:100%;max-height:50vh;object-fit:cover;
-  border:1px solid rgba(255,255,255,.07);margin:1rem 0;
-}
+:root[data-theme="light"] .content img{border-color: rgba(0,0,0,.07)}
+.log-hero{width:100%;max-height:50vh;object-fit:cover;border:1px solid rgba(255,255,255,.07);margin:1rem 0}
+:root[data-theme="light"] .log-hero{border-color: rgba(0,0,0,.07)}
+.log-header{margin-bottom:1.25rem}
+.log-figure{margin:1.25rem 0}
+.log-content{font-size:1.05rem;line-height:1.7}
+.log-artifacts{margin-top:2rem;border-top:1px solid var(--line);padding-top:1rem}
+.log-artifacts h2{margin:0 0 .75rem;font-family:var(--serif);font-size:1.25rem;color:var(--fg)}
+.artifact-list{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem}
 
-/* ================
+/* ======================================
+   Logs Archive layout
+   ====================================== */
+.archive{max-width:700px;margin:3rem auto;padding:0 1rem}
+.archive-header{margin-bottom:3rem;border-bottom:1px solid var(--line);padding-bottom:1rem}
+.archive-title{font-family:var(--serif);font-size:2rem;margin:0 0 .25rem 0;color:var(--fg)}
+.archive-subtitle{font-size:.9rem;color:var(--muted);margin:0}
+.archive-list{display:flex;flex-direction:column;gap:2.5rem}
+.archive-item-title{margin-bottom:.25rem;font-family:var(--serif);font-weight:600}
+.archive-item-title a{color:var(--fg);text-decoration:none}
+.archive-item-title a:hover{text-decoration:underline}
+.archive-item-meta{color:#777;font-size:.85rem;margin:0 0 1rem 0}
+.archive-item-id{margin-left:.5rem;color:#555}
+.archive-item-excerpt{color:#ccc;line-height:1.6;margin:0}
+
+/* ======================================
+   Field Notes (single) layout
+   ====================================== */
+.fieldnote{max-width:640px;margin:4rem auto;padding:0 1rem;color:var(--fg);font-size:1rem;line-height:1.75}
+.fieldnote-header{margin-bottom:2rem}
+.fieldnote-title{font-family:var(--serif);font-size:1.6rem;font-weight:500;margin:0 0 .5rem 0;color:var(--fg)}
+.fieldnote-meta{font-size:.9rem;color:var(--muted)}
+.fieldnote-meta a{color:var(--muted);text-decoration:none}
+.fieldnote-meta a:hover{color:#000;text-decoration:underline}
+:root[data-theme="dark"] .fieldnote-meta a:hover{color:#fff}
+.fieldnote-body p{margin:1.25rem 0;color:#ccc}
+.fieldnote-body em{color:#ddd}
+.fieldnote-body strong{color:#000}
+:root[data-theme="dark"] .fieldnote-body strong{color:#fff}
+
+/* ======================================
+   Field Notes archive layout
+   ====================================== */
+.fn-archive{max-width:720px;margin:3rem auto;padding:0 1rem}
+.fn-archive-header{margin-bottom:2.5rem;border-bottom:1px solid var(--line);padding-bottom:1rem}
+.fn-archive-title{font-family:var(--serif);font-size:2rem;margin:0 0 .25rem 0;color:var(--fg)}
+.fn-archive-subtitle{font-size:.9rem;color:var(--muted);margin:0}
+.fn-archive-list{display:flex;flex-direction:column;gap:2rem}
+.fn-item-title{margin:0 0 .25rem 0;font-family:var(--serif);font-weight:600}
+.fn-item-title a{color:var(--fg);text-decoration:none}
+.fn-item-title a:hover{text-decoration:underline}
+.fn-item-meta{color:#888;font-size:.9rem;margin:0 0 .75rem 0}
+.fn-item-excerpt{color:#ccc;line-height:1.6;margin:0}
+
+/* ======================================
    Footer & badges
-   ================ */
-footer.site{
-  border-top:1px solid var(--line);
-  margin-top:3rem;padding:1.25rem 0;
-  color:var(--muted);font-size:.95rem;
-}
-.footer-flex{
-  display:flex;justify-content:space-between;align-items:center;
-  gap:1rem;flex-wrap:wrap;
-}
+   ====================================== */
+footer.site{border-top:1px solid var(--line);margin-top:3rem;padding:1.25rem 0;color:var(--muted);font-size:.95rem}
+.footer-flex{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
 .footer-left{color:var(--muted);font-size:.95rem;white-space:nowrap}
-
-/* Badges: keep full size on all screens */
-.badges{
-  display:flex;gap:.5rem;list-style:none;margin:0;padding:0;
-  align-items:center;flex-wrap:wrap;
-}
+.badges{display:flex;gap:.5rem;list-style:none;margin:0;padding:0;align-items:center;flex-wrap:wrap}
 .badge{
   display:inline-flex;align-items:center;gap:.4rem;
-  padding:.35rem .6rem; /* comfortable tap target */
-  border:1px solid rgba(122,58,58,.45);border-radius:6px;
-  background:#0b0b0b;color:var(--fg);text-decoration:none;
+  padding:.35rem .6rem;border:1px solid var(--badge-border);border-radius:6px;
+  background:var(--badge-bg);color:var(--fg);text-decoration:none;
   opacity:.9;transition:opacity .15s ease,transform .08s ease,border-color .15s ease;
-  font-size:.95rem;line-height:1.2; /* full-size label */
+  font-size:.95rem;line-height:1.2;
 }
 .badge:hover{opacity:1;transform:translateY(-1px);border-color:var(--accent)}
 .badge-icon{width:16px;height:16px;fill:currentColor;opacity:.9;flex-shrink:0}
 .badge-text{fill:var(--bg);font-family:var(--mono)}
-
-/* Footer stacking on small screens (no shrinking of badges) */
 @media (max-width:640px){
   .footer-flex{flex-direction:column;text-align:center;gap:.7rem}
   .footer-left{white-space:normal;font-size:.9rem;line-height:1.35}
   .badges{justify-content:center}
 }
-
-/* ==========================
-   Archive (/_layouts/logs.html)
-   ========================== */
-.archive{
-  max-width:700px;
-  margin:3rem auto;
-  padding:0 1rem;
-}
-.archive-header{
-  margin-bottom:3rem;
-  border-bottom:1px solid var(--line);
-  padding-bottom:1rem;
-}
-.archive-title{
-  font-family:var(--serif);
-  font-size:2rem;
-  margin:0 0 .25rem 0;
-  color:var(--fg);
-}
-.archive-subtitle{
-  font-size:.9rem;
-  color:var(--muted);
-  margin:0;
-}
-.archive-list{
-  display:flex;
-  flex-direction:column;
-  gap:2.5rem;
-}
-.archive-item-title{
-  margin-bottom:.25rem;
-  font-family:var(--serif);
-  font-weight:600;
-}
-.archive-item-title a{
-  color:var(--fg);
-  text-decoration:none;
-}
-.archive-item-title a:hover{text-decoration:underline}
-.archive-item-meta{
-  color:#777;
-  font-size:.85rem;
-  margin:0 0 1rem 0;
-}
-.archive-item-id{
-  margin-left:.5rem;
-  color:#555;
-}
-.archive-item-excerpt{
-  color:#ccc;
-  line-height:1.6;
-  margin:0;
-}
-
-/* ==================
-   Single Log layout
-   ================== */
-.log-header {
-  margin-bottom: 1.25rem;
-}
-
-.log-figure {
-  margin: 1.25rem 0;
-}
-
-.log-content {
-  font-size: 1.05rem;
-  line-height: 1.7;
-}
-
-.log-artifacts {
-  margin-top: 2rem;
-  border-top: 1px solid var(--line);
-  padding-top: 1rem;
-}
-
-.log-artifacts h2 {
-  margin: 0 0 .75rem;
-  font-family: var(--serif);
-  font-size: 1.25rem;
-  color: var(--fg);
-}
-
-.artifact-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: .75rem;
-}
-
-/* ==========================
-   Enhancements & Utilities
-   ========================== */
-
-/* 1) Accessible focus states (keyboard-friendly) */
-a:focus-visible,
-.btn:focus-visible,
-.log-link:focus-visible {
-  outline: 2px dashed var(--accent);
-  outline-offset: 2px;
-}
-
-/* Reduce motion preference: remove subtle transforms if any are added later */
-@media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; animation: none !important; }
-}
-
-/* 2) Buttons (used by Artifacts links) */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: .4rem;
-  padding: .5rem .75rem;
-  border: 1px solid rgba(122,58,58,.45);
-  border-radius: 6px;
-  background: #0b0b0b;
-  color: var(--fg);
-  text-decoration: none;
-  font: 14px/1.2 var(--mono);
-  opacity: .95;
-  transition: opacity .15s ease, transform .08s ease, border-color .15s ease;
-}
-.btn:hover { opacity: 1; transform: translateY(-1px); border-color: var(--accent); }
-
-/* 3) Spacing utilities (use in markup instead of inline styles) */
-.mt-12 { margin-top: .75rem; }
-.mb-12 { margin-bottom: .75rem; }
-.my-12 { margin-top: .75rem; margin-bottom: .75rem; }
-
-.mt-20 { margin-top: 1.25rem; }
-.mb-20 { margin-bottom: 1.25rem; }
-.my-20 { margin-top: 1.25rem; margin-bottom: 1.25rem; }
-
-.mt-32 { margin-top: 2rem; }
-.mb-32 { margin-bottom: 2rem; }
-.my-32 { margin-top: 2rem; margin-bottom: 2rem; }
-
-/* 4) Rule spacing helpers (optional, mirrors your prior inline margins) */
-.rule--tight { margin: .75rem 0; }
-.rule--spaced { margin: 1.25rem 0; }
-
-/* Optional: make log titles show an underline on hover for clarity */
-.log-card .log-title a,
-.archive-item-title a { text-decoration: none; }
-.log-card .log-title a:hover,
-.archive-item-title a:hover { text-decoration: underline; }
-
-/* ==========================
-   Field Notes layout
-   ========================== */
-.fieldnote{
-  max-width:640px;
-  margin:4rem auto;
-  padding:0 1rem;
-  color:var(--fg);
-  font-size:1rem;
-  line-height:1.75;
-}
-.fieldnote-header{ margin-bottom:2rem; }
-.fieldnote-title{
-  font-family:var(--serif);
-  font-size:1.6rem;
-  font-weight:500;
-  margin:0 0 .5rem 0;
-  color:var(--fg);
-}
-.fieldnote-meta{
-  font-size:.9rem;
-  color:var(--muted);
-}
-.fieldnote-meta a{
-  color:var(--muted);
-  text-decoration:none;
-}
-.fieldnote-meta a:hover{
-  color:#fff;
-  text-decoration:underline;
-}
-.fieldnote-body p{
-  margin:1.25rem 0;
-  color:#ccc;
-}
-.fieldnote-body em{ color:#ddd; }
-.fieldnote-body strong{ color:#fff; }
-
-/* ==========================
-   Field Notes archive layout
-   ========================== */
-.fn-archive{
-  max-width:720px;
-  margin:3rem auto;
-  padding:0 1rem;
-}
-.fn-archive-header{
-  margin-bottom:2.5rem;
-  border-bottom:1px solid var(--line);
-  padding-bottom:1rem;
-}
-.fn-archive-title{
-  font-family:var(--serif);
-  font-size:2rem;
-  margin:0 0 .25rem 0;
-  color:var(--fg);
-}
-.fn-archive-subtitle{
-  font-size:.9rem;
-  color:var(--muted);
-  margin:0;
-}
-.fn-archive-list{
-  display:flex;
-  flex-direction:column;
-  gap:2rem;
-}
-.fn-item-title{
-  margin:0 0 .25rem 0;
-  font-family:var(--serif);
-  font-weight:600;
-}
-.fn-item-title a{
-  color:var(--fg);
-  text-decoration:none;
-}
-.fn-item-title a:hover{ text-decoration:underline; }
-.fn-item-meta{
-  color:#888;
-  font-size:.9rem;
-  margin:0 0 .75rem 0;
-}
-.fn-item-excerpt{
-  color:#ccc;
-  line-height:1.6;
-  margin:0;
-}
-
-/* Footer badge tweak: tighten CC label on small screens */
 @media (max-width:500px){
-  .badge-cc{
-    letter-spacing:-0.02em;
-    font-size:.85rem;
-    white-space:nowrap;
-  }
+  .badge-cc{letter-spacing:-0.02em;font-size:.85rem;white-space:nowrap}
 }
 
-/* Header flex bar */
-.header-flex{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+/* ======================================
+   Enhancements & Utilities
+   ====================================== */
+a:focus-visible,.btn:focus-visible,.log-link:focus-visible,.theme-toggle:focus-visible{
+  outline:2px dashed var(--accent);outline-offset:2px;
+}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important;animation:none !important}
+}
+
+/* Buttons (used by Artifacts links) */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
+  padding:.5rem .75rem;border:1px solid var(--badge-border);border-radius:6px;
+  background:var(--badge-bg);color:var(--fg);text-decoration:none;
+  font:14px/1.2 var(--mono);opacity:.95;
+  transition:opacity .15s ease,transform .08s ease,border-color .15s ease;
+}
+.btn:hover{opacity:1;transform:translateY(-1px);border-color:var(--accent)}
+
+/* Spacing utilities */
+.mt-12{margin-top:.75rem}.mb-12{margin-bottom:.75rem}.my-12{margin-top:.75rem;margin-bottom:.75rem}
+.mt-20{margin-top:1.25rem}.mb-20{margin-bottom:1.25rem}.my-20{margin-top:1.25rem;margin-bottom:1.25rem}
+.mt-32{margin-top:2rem}.mb-32{margin-bottom:2rem}.my-32{margin-top:2rem;margin-bottom:2rem}
+
+/* Rule spacing modifiers */
+.rule--tight{margin:.75rem 0}
+.rule--spaced{margin:1.25rem 0}
+
+/* Optional: clearer hovers */
+.log-card .log-title a,.archive-item-title a{text-decoration:none}
+.log-card .log-title a:hover,.archive-item-title a:hover{text-decoration:underline}
+
+/* Visually hidden utility for a11y */
+.visually-hidden{
+  position:absolute !important;width:1px;height:1px;margin:-1px;padding:0;border:0;
+  clip:rect(0 0 0 0);clip-path:inset(50%);overflow:hidden;white-space:nowrap;
 }
