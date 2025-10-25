@@ -4,11 +4,11 @@ title: Finch Archive
 full_width: true
 ---
 
-<main class="container">
-  <header class="rule mb-20"></header>
-  <h1>FINCH ARCHIVE</h1>
-  <p>Recovered notes from incomplete transmissions.</p>
-  <div class="rule my-20"></div>
+<main class="container" id="content">
+  <header class="page-header">
+    <h1 class="page-title">FINCH ARCHIVE</h1>
+    <p class="page-lead">Recovered notes from incomplete transmissions.</p>
+  </header>
 
   {%- assign logs = site.logs | sort: "date" | reverse -%}
 
@@ -44,8 +44,6 @@ full_width: true
         </div>
       </a>
     </article>
-
-    <div class="rule my-20"></div>
 
     <ul class="log-list">
       {%- for item in logs offset:1 -%}
