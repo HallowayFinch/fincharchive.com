@@ -1,0 +1,38 @@
+{%- comment -%}
+Reusable image helper
+Params:
+  - src*        : required (string)
+  - alt         : optional (string; defaults to empty string)
+  - class       : optional (string)
+  - width       : optional (number)   -> include if known (prevents CLS)
+  - height      : optional (number)   -> include if known (prevents CLS)
+  - sizes       : optional (string)   -> e.g. "(min-width:980px) 55vw, 100vw"
+  - loading     : optional (lazy|eager) default: lazy (unless overridden)
+  - decoding    : optional (async|auto) default: async
+  - fetchpriority : optional (high|low|auto) (use 'high' for hero only)
+  - src2x       : optional (string)   -> URL for 2x DPR asset
+Notes:
+  - If width/height are provided, they’re emitted to stabilize layout.
+  - If not provided, the CSS aspect-ratio on your classes still helps.
+{%- endcomment -%}
+{%- assign _src   = include.src   | relative_url -%}
+{%- assign _alt   = include.alt   | default: "" -%}
+{%- assign _class = include.class | default: "" -%}
+{%- assign _dec   = include.decoding | default: "async" -%}
+{%- assign _load  = include.loading  | default: "lazy" -%}
+{%- assign _prio  = include.fetchpriority | default: nil -%}
+{%- assign _sizes = include.sizes | default: nil -%}
+{%- assign _src2x = include.src2x | default: nil -%}
+
+<img
+  src="{{ _src }}"
+  {%- if _src2x %} srcset="{{ _src }} 1x, {{ _src2x | relative_url }} 2x"{% endif -%}
+  {%- if _sizes %} sizes="{{ _sizes }}"{% endif -%}
+  alt="{{ _alt | escape }}"
+  class="{{ _class }}"
+  decoding="{{ _dec }}"
+  loading="{{ _load }}"
+  {%- if _prio %} fetchpriority="{{ _prio }}"{% endif -%}
+  {%- if include.width %} width="{{ include.width }}"{% endif -%}
+  {%- if include.height %} height="{{ include.height }}"{% endif -%}
+/>
