@@ -2,31 +2,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
-<meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | strip_newlines | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
-
-{%- assign og_title = page.title | default: site.title -%}
-{%- assign og_desc  = page.excerpt | default: site.description -%}
-{%- assign og_url   = page.url | absolute_url -%}
-{%- assign og_img   = page.og_image | default: '/assets/og/og-default.png' | absolute_url -%}
-
-<link rel="canonical" href="{% if page.canonical_url %}{{ page.canonical_url }}{% else %}{{ og_url }}{% endif %}"/>
-
-<!-- Open Graph / Twitter -->
-<meta property="og:type" content="article">
-<meta property="og:title" content="{{ og_title }}">
-<meta property="og:description" content="{{ og_desc | strip_html | strip_newlines }}">
-<meta property="og:url" content="{{ og_url }}">
-<meta property="og:image" content="{{ og_img }}">
-
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{{ og_title }}">
-<meta name="twitter:description" content="{{ og_desc | strip_html | strip_newlines }}">
-<meta name="twitter:image" content="{{ og_img }}">
-
-<!-- Feed discovery -->
-<link rel="alternate" type="application/rss+xml" title="{{ site.title }} — Logs" href="{{ '/logs.xml' | absolute_url }}">
-<link rel="alternate" type="application/rss+xml" title="{{ site.title }} — Field Notes" href="{{ '/field-notes/feed.xml' | absolute_url }}">
+{% comment %} Centralized SEO + Social tags {% endcomment %}
+{% include seo.html %}
 
 <!-- Browser UI tint for light/dark (system-preference aware) -->
 <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="#000000">
@@ -34,3 +11,7 @@
 
 <!-- Hint to UA we support both color schemes -->
 <meta name="color-scheme" content="dark light">
+
+<!-- Preload main CSS -->
+<link rel="preload" as="style" href="{{ '/assets/css/style.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+<link rel="icon" href="{{ '/assets/favicon.png' | relative_url }}" type="image/png">
