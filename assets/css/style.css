@@ -104,8 +104,28 @@ header.site{
   padding:10px 0;
 }
 .primary-nav::-webkit-scrollbar{display:none}
-.primary-nav a{opacity:.85}
-.primary-nav a[aria-current="page"]{opacity:1;border-bottom:2px solid var(--accent)}
+
+/* NAV — subtle fade-in underline for active page */
+.primary-nav a{
+  position:relative;
+  padding-bottom:6px;                  /* room for underline */
+  opacity:.85;
+  transition:opacity .25s ease;
+}
+.primary-nav a::after{
+  content:"";
+  position:absolute;left:0;right:0;bottom:0;height:2px;
+  background:var(--accent);
+  transform:scaleX(0);
+  transform-origin:left;
+  transition:transform .4s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity:.95;
+}
+.primary-nav a:hover{opacity:1}
+.primary-nav a:hover::after{transform:scaleX(1);opacity:.65}
+/* Keep underline for current page; no border-bottom needed */
+.primary-nav a[aria-current="page"]{opacity:1}
+.primary-nav a[aria-current="page"]::after{transform:scaleX(1)}
 
 /* --- Tighter mobile header (no top divider) --- */
 @media (max-width: 720px){
