@@ -1,32 +1,35 @@
 {% comment %}
 Renders a compact, responsive list of logs with small thumbnails.
-Assumes each log may have front-matter `hero_image` and optional `hero_alt`, `log_id`.
+Assumes each log may have front-matter `hero_image` and optional `hero_image_2x`.
 {% endcomment %}
 
-{%- assign logs = site.logs | sort: "date" | reverse -%}
+{% assign logs = site.logs | sort: "date" | reverse %}
 
-{%- if logs.size == 0 -%}
+{% if logs.size == 0 %}
   <p>No logs found. Once a log exists in <code>_logs/</code>, it will appear here.</p>
-{%- else -%}
-  <ul class="log-list">
-    {%- for item in logs -%}
+{% else %}
+  <ul class="log-list" role="list">
+    {% for item in logs %}
       <li class="log-card">
         <a class="log-link" href="{{ item.url | relative_url }}">
-          {%- if item.hero_image -%}
-            <img
-              class="log-thumb"
-              src="{{ item.hero_image | relative_url }}"
-              alt="{{ item.hero_alt | default: item.title }}"
-              loading="lazy">
-          {%- endif -%}
+          {% if item.hero_image %}
+            {% include img.html
+               src=item.hero_image
+               src2x=item.hero_image_2x
+               alt=item.hero_alt | default: item.title
+               class="log-thumb"
+               sizes="(min-width:700px) 180px, 30vw"
+               loading="lazy"
+               decoding="async"
+            %}
+          {% endif %}
 
           <div class="log-meta">
             <h2 class="log-title">{{ item.title }}</h2>
             <div class="log-sub">
-              {%- if item.log_id -%}
-                <span class="log-id">{{ item.log_id }}</span>
-                <span aria-hidden="true">•</span>
-              {%- endif -%}
+              {% if item.log_id %}
+                <span class="log-id">{{ item.log_id }}</span><span aria-hidden="true">•</span>
+              {% endif %}
               <time datetime="{{ item.date | date_to_xmlschema }}">
                 {% include date-local.html dt=item.date %}
               </time>
@@ -34,6 +37,6 @@ Assumes each log may have front-matter `hero_image` and optional `hero_alt`, `lo
           </div>
         </a>
       </li>
-    {%- endfor -%}
+    {% endfor %}
   </ul>
-{%- endif -%}
+{% endif %}
