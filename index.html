@@ -4,73 +4,85 @@ title: Finch Archive
 full_width: true
 ---
 
-<main class="container" id="content">
+<main class="container" role="main">
   <header class="page-header">
     <h1 class="page-title">FINCH ARCHIVE</h1>
     <p class="page-lead">Recovered notes from incomplete transmissions.</p>
   </header>
 
-  {%- assign logs = site.logs | sort: "date" | reverse -%}
+  {% assign logs = site.logs | sort: "date" | reverse %}
 
-  {%- if logs.size == 0 -%}
+  {% if logs.size == 0 %}
     <p>No logs found. Once a log exists in <code>_logs/</code>, it will appear here.</p>
-  {%- else -%}
-    {%- assign featured = logs.first -%}
-    <article class="feature-card">
-      <a class="feature-link" href="{{ featured.url | relative_url }}">
-        {%- if featured.hero_image -%}
-          <img
-            class="feature-thumb"
-            src="{{ featured.hero_image | relative_url }}"
-            alt="{{ featured.hero_alt | default: featured.title }}"
-            loading="lazy">
-        {%- endif -%}
+  {% else %}
 
+    {%- comment -%} Featured: most recent log {%- endcomment -%}
+    {% assign feature = logs.first %}
+    <article class="feature-card">
+      <a class="feature-link" href="{{ feature.url | relative_url }}">
+        {%- if feature.hero_image -%}
+          {% include img.html
+             src=feature.hero_image
+             src2x=feature.hero_image_2x
+             alt=feature.hero_alt | default: feature.title
+             class="feature-thumb"
+             sizes="(min-width:980px) 55vw, 100vw"
+             loading="eager"
+             decoding="async"
+             fetchpriority="high"
+          %}
+        {%- endif -%}
         <div class="feature-meta">
-          <h2 class="feature-title">{{ featured.title }}</h2>
+          <h2 class="feature-title">{{ feature.title }}</h2>
           <div class="feature-sub">
-            {%- if featured.log_id -%}
-              <span class="log-id">{{ featured.log_id }}</span>
-              <span aria-hidden="true">•</span>
-            {%- endif -%}
-            <time datetime="{{ featured.date | date_to_xmlschema }}">
-              {% include date-local.html dt=featured.date %}
+            {% if feature.log_id %}
+              <span class="log-id">{{ feature.log_id }}</span><span aria-hidden="true">•</span>
+            {% endif %}
+            <time datetime="{{ feature.date | date_to_xmlschema }}">
+              {% include date-local.html dt=feature.date %}
             </time>
           </div>
-
-          {%- if featured.excerpt -%}
-            <p class="feature-excerpt">{{ featured.excerpt | strip_html | truncate: 220 }}</p>
-          {%- endif -%}
+          {% if feature.excerpt %}
+            <p class="feature-excerpt">{{ feature.excerpt | strip_html | truncate: 220 }}</p>
+          {% endif %}
         </div>
       </a>
     </article>
 
-    <ul class="log-list">
-      {%- for item in logs offset:1 -%}
-        <li class="log-card">
-          <a class="log-link" href="{{ item.url | relative_url }}">
-            {%- if item.hero_image -%}
-              <img
-                class="log-thumb"
-                src="{{ item.hero_image | relative_url }}"
-                alt="{{ item.hero_alt | default: item.title }}"
-                loading="lazy">
-            {%- endif -%}
-            <div class="log-meta">
-              <h2 class="log-title">{{ item.title }}</h2>
-              <div class="log-sub">
-                {%- if item.log_id -%}
-                  <span class="log-id">{{ item.log_id }}</span>
-                  <span aria-hidden="true">•</span>
-                {%- endif -%}
-                <time datetime="{{ item.date | date_to_xmlschema }}">
-                  {% include date-local.html dt=item.date %}
-                </time>
+    {%- comment -%} List: remaining logs {%- endcomment -%}
+    {% if logs.size > 1 %}
+      <ul class="log-list" role="list">
+        {% for item in logs offset:1 %}
+          <li class="log-card">
+            <a class="log-link" href="{{ item.url | relative_url }}">
+              {% if item.hero_image %}
+                {% include img.html
+                   src=item.hero_image
+                   src2x=item.hero_image_2x
+                   alt=item.hero_alt | default: item.title
+                   class="log-thumb"
+                   sizes="(min-width:700px) 180px, 30vw"
+                   loading="lazy"
+                   decoding="async"
+                %}
+              {% endif %}
+
+              <div class="log-meta">
+                <h2 class="log-title">{{ item.title }}</h2>
+                <div class="log-sub">
+                  {% if item.log_id %}
+                    <span class="log-id">{{ item.log_id }}</span><span aria-hidden="true">•</span>
+                  {% endif %}
+                  <time datetime="{{ item.date | date_to_xmlschema }}">
+                    {% include date-local.html dt=item.date %}
+                  </time>
+                </div>
               </div>
-            </div>
-          </a>
-        </li>
-      {%- endfor -%}
-    </ul>
-  {%- endif -%}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+  {% endif %}
 </main>
