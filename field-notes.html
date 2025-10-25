@@ -3,7 +3,39 @@ layout: default
 title: Field Notes
 permalink: /field-notes/
 ---
-<section class="list">
-  <h2>Field Notes</h2>
-  {% include fieldnotes_list.html %}
+
+<section class="fn-archive">
+  <header class="fn-archive-header">
+    <h1 class="fn-archive-title">Field Notes</h1>
+    <p class="fn-archive-subtitle">Fragments, observations, and marginalia</p>
+  </header>
+
+  {%- assign notes = site["field-notes"] | sort: "date" | reverse -%}
+
+  <div class="fn-archive-list">
+    {%- if notes.size == 0 -%}
+      <p>No field notes found. Once a note exists in <code>_field-notes/</code>, it will appear here.</p>
+    {%- else -%}
+      {%- for note in notes -%}
+        <article class="fn-item">
+          <h2 class="fn-item-title">
+            <a href="{{ note.url | relative_url }}">{{ note.title }}</a>
+          </h2>
+          <p class="fn-item-meta">
+            <time datetime="{{ note.date | date_to_xmlschema }}">
+              {% include date-local.html dt=note.date %}
+            </time>
+            {%- if note.source_url -%}
+              <span class="fn-item-source">
+                • <a href="{{ note.source_url }}" target="_blank" rel="noopener">Source</a>
+              </span>
+            {%- endif -%}
+          </p>
+          {%- if note.excerpt -%}
+            <p class="fn-item-excerpt">{{ note.excerpt | strip_html | truncate: 200 }}</p>
+          {%- endif -%}
+        </article>
+      {%- endfor -%}
+    {%- endif -%}
+  </div>
 </section>
