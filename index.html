@@ -5,18 +5,50 @@ full_width: true
 ---
 
 <main class="container">
-  <header class="rule"></header>
+  <header class="rule mb-20"></header>
   <h1>FINCH ARCHIVE</h1>
   <p>Recovered notes from incomplete transmissions.</p>
-  <div class="rule"></div>
+  <div class="rule my-20"></div>
 
   {%- assign logs = site.logs | sort: "date" | reverse -%}
 
   {%- if logs.size == 0 -%}
     <p>No logs found. Once a log exists in <code>_logs/</code>, it will appear here.</p>
   {%- else -%}
+    {%- assign featured = logs.first -%}
+    <article class="feature-card">
+      <a class="feature-link" href="{{ featured.url | relative_url }}">
+        {%- if featured.hero_image -%}
+          <img
+            class="feature-thumb"
+            src="{{ featured.hero_image | relative_url }}"
+            alt="{{ featured.hero_alt | default: featured.title }}"
+            loading="lazy">
+        {%- endif -%}
+
+        <div class="feature-meta">
+          <h2 class="feature-title">{{ featured.title }}</h2>
+          <div class="feature-sub">
+            {%- if featured.log_id -%}
+              <span class="log-id">{{ featured.log_id }}</span>
+              <span aria-hidden="true">•</span>
+            {%- endif -%}
+            <time datetime="{{ featured.date | date_to_xmlschema }}">
+              {% include date-local.html dt=featured.date %}
+            </time>
+          </div>
+
+          {%- if featured.excerpt -%}
+            <p class="feature-excerpt">{{ featured.excerpt | strip_html | truncate: 220 }}</p>
+          {%- endif -%}
+        </div>
+      </a>
+    </article>
+
+    <div class="rule my-20"></div>
+
     <ul class="log-list">
-      {%- for item in logs -%}
+      {%- for item in logs offset:1 -%}
         <li class="log-card">
           <a class="log-link" href="{{ item.url | relative_url }}">
             {%- if item.hero_image -%}
@@ -26,7 +58,6 @@ full_width: true
                 alt="{{ item.hero_alt | default: item.title }}"
                 loading="lazy">
             {%- endif -%}
-
             <div class="log-meta">
               <h2 class="log-title">{{ item.title }}</h2>
               <div class="log-sub">
