@@ -5,36 +5,48 @@
 /* ----------------
    Theme tokens
    ---------------- */
+/* Default: DARK */
 :root{
-  /* Dark (default) */
-  --bg:#000;
-  --fg:#E6E6E6;
-  --muted:#9A9A9A;
-  --accent:#7A3A3A;
-  --line:#222;
-  --wrap:1100px;
-  --col:72ch;
+  --bg:#000;                      /* page background */
+  --fg:#E6E6E6;                   /* primary text */
+  --muted:#9A9A9A;                /* secondary text */
+  --accent:#7A3A3A;               /* Finch red */
+  --line:#222;                    /* hairline divider */
+
+  --wrap:1100px;                  /* header max width */
+  --col:72ch;                     /* content column width */
+
   --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
   --serif:Georgia,"Times New Roman",serif;
 
-  /* UI tokens */
   --header-bg: rgba(0,0,0,.85);
   --badge-bg: #0b0b0b;
   --badge-border: rgba(122,58,58,.45);
 }
 
-/* Light theme overrides */
+/* Light theme: Parchment / aged ivory */
 :root[data-theme="light"]{
-  --bg:#ffffff;
-  --fg:#111111;
-  --muted:#555555;
-  --accent:#7A3A3A;   /* keep brand accent */
-  --line:#e5e5e5;
+  --bg:#f6f2e7;       /* paper / ivory */
+  --fg:#2e2b27;       /* dark ink tone */
+  --muted:#6f655b;    /* aged sepia-gray */
+  --accent:#7A3A3A;   /* keep Finch red */
+  --line:#d9cfc0;     /* faint paper fiber divider */
 
-  --header-bg: rgba(255,255,255,.9);
-  --badge-bg: #f7f7f7;
+  --header-bg: rgba(246,242,231,.9);
+  --badge-bg: #f4efe4;
   --badge-border: rgba(122,58,58,.35);
 }
+
+/* Optional: subtle paper texture overlay for light mode
+   (uncomment and provide an asset at /assets/img/paper.png, very light 3–5% opacity) */
+/*
+:root[data-theme="light"] body::before{
+  content:"";
+  position:fixed; inset:0; pointer-events:none; z-index:-1;
+  background: url("/assets/img/paper.png") repeat;
+  opacity:.04;
+}
+*/
 
 /* ----------------
    Base / Resets
@@ -43,8 +55,8 @@
 html,body{margin:0;padding:0;background:var(--bg);color:var(--fg)}
 body{font:16px/1.65 var(--mono);-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
-a:hover{color:#000; }
-:root[data-theme="dark"] a:hover{ color:#fff; } /* keep white hover in dark */
+a:hover{color:#000}
+:root[data-theme="dark"] a:hover{color:#fff}
 img{max-width:100%;height:auto;display:block}
 
 /* ----------------
@@ -85,7 +97,7 @@ nav[aria-label="Primary"]::-webkit-scrollbar{display:none}
 nav a{opacity:.85}
 nav a[aria-current="page"]{opacity:1;border-bottom:2px solid var(--accent)}
 
-/* Theme toggle button */
+/* Theme toggle */
 .theme-toggle{
   display:inline-flex;align-items:center;justify-content:center;
   width:36px;height:36px;border-radius:6px;
@@ -100,14 +112,14 @@ nav a[aria-current="page"]{opacity:1;border-bottom:2px solid var(--accent)}
   -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
   -webkit-mask-position: center; mask-position: center;
 }
-/* Moon/Sun glyph via CSS mask */
+/* Moon (dark), Sun (light) glyph masks */
 :root[data-theme="dark"] .theme-toggle__icon{
   -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>');
           mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>');
 }
 :root[data-theme="light"] .theme-toggle__icon{
   -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a1 1 0 011 1v1a1 1 0 11-2 0V5a1 1 0 011-1zm0 9a3 3 0 100-6 3 3 0 000 6zm7-3a1 1 0 011 1h1a1 1 0 110 2h-1a1 1 0 11-2 0 1 1 0 011-1zm-7 7a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM4 12a1 1 0 011-1H6a1 1 0 110 2H5a1 1 0 01-1-1zm1.64-6.36a1 1 0 011.41 0l.71.71a1 1 0 11-1.41 1.41l-.71-.71a1 1 0 010-1.41zm12.02 12.02a1 1 0 010 1.41l-.71.71a1 1 0 11-1.41-1.41l.71-.71a1 1 0 011.41 0zM5.64 17.36a1 1 0 010 1.41l-.71.71a1 1 0 11-1.41-1.41l.71-.71a1 1 0 011.41 0zm12.02-12.02a1 1 0 011.41 0l.71.71a1 1 0 11-1.41 1.41l-.71-.71a1 1 0 010-1.41z"/></svg>');
-          mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a1 1 0 011 1v1a1 1 0 11-2 0V5a1 1 0 011-1zm0 9a3 3 0 100-6 3 3 0 000 6zm7-3a1 1 0 011 1h1a1 1 0 110 2h-1a1 1 0 11-2 0 1 1 0 011-1zm-7 7a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM4 12a1 1 0 011-1H6a1 1 0 110 2H5a1 1 0 01-1-1zm1.64-6.36a1 1 0 011.41 0l.71.71a1 1 0 11-1.41 1.41l-.71-.71a1 1 0 010-1.41zm12.02 12.02a1 1 0 010 1.41l-.71.71a1 1 0 11-1.41-1.41l.71-.71a1 1 0 011.41 0zM5.64 17.36a1 1 0 010 1.41l-.71.71a1 1 0 11-1.41-1.41l.71-.71a1 1 0 011.41 0zm12.02-12.02a1 1 0 011.41 0l.71.71a1 1 0 11-1.41 1.41l-.71-.71a1 1 0 010-1.41z"/></svg>');
+          mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a1 1 0 011 1v1a1 1 0 11-2 0V5a1 1 0 011-1zm0 9a3 3 0 100-6 3 3 0 000 6zm7-3a1 1 0 011 1h1a1 1 0 110 2h-1a1 1 0 11-2 0 1 1 0 011-1zm-7 7a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM4 12a1 1 0 011-1H6a1 1 0 110 2H5a1 1 0 01-1-1zm1.64-6.36a1 1 0 011.41 0l.71.71a1 1 0 11-1.41 1.41l-.71-.71a1 1 0 010-1.41zm12.02 12.02a1 1 0 010 1.41l-.71.71a1 1 0 11-1.41-1.41l.71-.71a1 1 0 011.41 0z"/></svg>');
 }
 
 @media (max-width:640px){
