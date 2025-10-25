@@ -7,7 +7,7 @@ layout: default
     <h1 class="fieldnote-title">{{ page.title }}</h1>
     <p class="fieldnote-meta">
       <time datetime="{{ page.date | date_to_xmlschema }}">
-        {{ page.date | date: "%A, %B %-d, %Y %I:%M %p %Z" }}
+        {% include date-local.html dt=page.date %}
       </time>
       {% if page.source_url %}
         <span class="fieldnote-source">
@@ -21,54 +21,3 @@ layout: default
     {{ content }}
   </article>
 </main>
-
-<style>
-.fieldnote {
-  max-width: 640px;
-  margin: 4rem auto;
-  padding: 0 1rem;
-  color: #e6e6e6;
-  font-size: 1rem;
-  line-height: 1.75;
-}
-
-.fieldnote-header {
-  margin-bottom: 2rem;
-}
-
-.fieldnote-title {
-  font-family: var(--serif, "Georgia", serif);
-  font-size: 1.6rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  color: #e6e6e6;
-}
-
-.fieldnote-meta {
-  font-size: 0.9rem;
-  color: #999;
-}
-
-.fieldnote-meta a {
-  color: #999;
-  text-decoration: none;
-}
-
-.fieldnote-meta a:hover {
-  color: #fff;
-  text-decoration: underline;
-}
-
-.fieldnote-body p {
-  margin: 1.25rem 0;
-  color: #ccc;
-}
-
-.fieldnote-body em {
-  color: #ddd;
-}
-
-.fieldnote-body strong {
-  color: #fff;
-}
-</style>
