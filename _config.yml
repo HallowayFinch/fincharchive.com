@@ -1,7 +1,13 @@
 title: Finch Archive
 description: Recovered notes from incomplete transmissions.
-baseurl: ""  # leave empty for apex domain
+baseurl: ""            # leave empty for apex domain
 url: "https://fincharchive.com"
+
+# Render times in US Central (CST/CDT) while keeping stored dates in UTC
+timezone: America/Chicago
+
+# Allow content whose UTC timestamp may be slightly ahead (import timing)
+future: true
 
 markdown: kramdown
 theme: null
