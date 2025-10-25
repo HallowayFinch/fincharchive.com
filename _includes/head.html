@@ -1,67 +1,36 @@
-{% comment %} Global head include for meta, previews, and feeds {% endcomment %}
+{% comment %} Global head include for meta & previews {% endcomment %}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-{%- assign _title = page.title | default: site.title -%}
-<title>{{ _title }}{% if page.title %} · {{ site.title }}{% endif %}</title>
+<title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
+<meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | strip_newlines | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
 
-{%- assign _desc = page.excerpt | default: site.description -%}
-<meta name="description" content="{{ _desc | strip_html | strip_newlines | truncate: 160 }}">
+{%- assign og_title = page.title | default: site.title -%}
+{%- assign og_desc  = page.excerpt | default: site.description -%}
+{%- assign og_url   = page.url | absolute_url -%}
+{%- assign og_img   = page.og_image | default: '/assets/og/og-default.png' | absolute_url -%}
 
-{%- comment %}
-Early theme: default to dark, or use user’s stored choice.
-Runs before CSS to avoid a flash.
-{%- endcomment -%}
-<script>
-(function () {
-  try {
-    var key = 'fa-theme';
-    var t = localStorage.getItem(key) || 'dark';
-    document.documentElement.setAttribute('data-theme', t);
-  } catch (e) {}
-})();
-</script>
-<meta name="color-scheme" content="dark light">
+<link rel="canonical" href="{% if page.canonical_url %}{{ page.canonical_url }}{% else %}{{ og_url }}{% endif %}"/>
 
-{%- comment %}
-Canonical URL and image
-{%- endcomment -%}
-{%- assign _url  = page.canonical_url | default: page.url | absolute_url -%}
-{%- assign _img  = page.og_image | default: page.hero_image | default: '/assets/og/og-default.png' | absolute_url -%}
-<link rel="canonical" href="{{ _url }}">
-
-{%- assign _is_article = false -%}
-{%- if page.collection == 'logs' or page.collection == 'field-notes' -%}
-  {%- assign _is_article = true -%}
-{%- endif -%}
-
-<meta property="og:site_name" content="{{ site.title }}">
-<meta property="og:type" content="{% if _is_article %}article{% else %}website{% endif %}">
-<meta property="og:title" content="{{ _title }}">
-<meta property="og:description" content="{{ _desc | strip_html | strip_newlines }}">
-<meta property="og:url" content="{{ _url }}">
-<meta property="og:image" content="{{ _img }}">
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="{{ og_title }}">
+<meta property="og:description" content="{{ og_desc | strip_html | strip_newlines }}">
+<meta property="og:url" content="{{ og_url }}">
+<meta property="og:image" content="{{ og_img }}">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{{ _title }}">
-<meta name="twitter:description" content="{{ _desc | strip_html | strip_newlines }}">
-<meta name="twitter:image" content="{{ _img }}">
+<meta name="twitter:title" content="{{ og_title }}">
+<meta name="twitter:description" content="{{ og_desc | strip_html | strip_newlines }}">
+<meta name="twitter:image" content="{{ og_img }}">
 
-{%- if _is_article and page.date -%}
-  <meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
-{%- endif -%}
-{%- if _is_article and page.last_modified_at -%}
-  <meta property="article:modified_time" content="{{ page.last_modified_at | date_to_xmlschema }}">
-{%- endif -%}
-
+<!-- Feed discovery -->
 <link rel="alternate" type="application/rss+xml" title="{{ site.title }} — Logs" href="{{ '/logs.xml' | absolute_url }}">
 <link rel="alternate" type="application/rss+xml" title="{{ site.title }} — Field Notes" href="{{ '/field-notes/feed.xml' | absolute_url }}">
 
-<link rel="icon" href="{{ '/favicon.ico' | relative_url }}">
-<meta name="theme-color" content="#000000">
+<!-- Browser UI tint for light/dark (system-preference aware) -->
+<meta name="theme-color" media="(prefers-color-scheme: dark)"  content="#000000">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f2e7">
 
-{%- if page.noindex -%}
-  <meta name="robots" content="noindex, nofollow">
-{%- endif -%}
-
-<meta name="generator" content="Jekyll">
+<!-- Hint to UA we support both color schemes -->
+<meta name="color-scheme" content="dark light">
