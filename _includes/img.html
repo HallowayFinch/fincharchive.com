@@ -1,38 +1,47 @@
 {%- comment -%}
-Reusable image helper
-Params:
-  - src*        : required (string)
-  - alt         : optional (string; defaults to empty string)
-  - class       : optional (string)
-  - width       : optional (number)   -> include if known (prevents CLS)
-  - height      : optional (number)   -> include if known (prevents CLS)
-  - sizes       : optional (string)   -> e.g. "(min-width:980px) 55vw, 100vw"
-  - loading     : optional (lazy|eager) default: lazy (unless overridden)
-  - decoding    : optional (async|auto) default: async
-  - fetchpriority : optional (high|low|auto) (use 'high' for hero only)
-  - src2x       : optional (string)   -> URL for 2x DPR asset
-Notes:
-  - If width/height are provided, they’re emitted to stabilize layout.
-  - If not provided, the CSS aspect-ratio on your classes still helps.
-{%- endcomment -%}
-{%- assign _src   = include.src   | relative_url -%}
-{%- assign _alt   = include.alt   | default: "" -%}
-{%- assign _class = include.class | default: "" -%}
-{%- assign _dec   = include.decoding | default: "async" -%}
-{%- assign _load  = include.loading  | default: "lazy" -%}
-{%- assign _prio  = include.fetchpriority | default: nil -%}
-{%- assign _sizes = include.sizes | default: nil -%}
-{%- assign _src2x = include.src2x | default: nil -%}
+Reusable responsive image include.
 
-<img
-  src="{{ _src }}"
-  {%- if _src2x %} srcset="{{ _src }} 1x, {{ _src2x | relative_url }} 2x"{% endif -%}
-  {%- if _sizes %} sizes="{{ _sizes }}"{% endif -%}
-  alt="{{ _alt | escape }}"
-  class="{{ _class }}"
-  decoding="{{ _dec }}"
-  loading="{{ _load }}"
-  {%- if _prio %} fetchpriority="{{ _prio }}"{% endif -%}
-  {%- if include.width %} width="{{ include.width }}"{% endif -%}
-  {%- if include.height %} height="{{ include.height }}"{% endif -%}
-/>
+Params:
+  src          – required; primary image path
+  src2x        – optional; 2x image path
+  alt          – optional; alt text
+  fallback     – optional; used if alt is blank
+  class        – optional; CSS class(es)
+  sizes        – optional; sizes attribute (string)
+  loading      – optional; "lazy" (default) | "eager"
+  decoding     – optional; "async" (default) | "auto" | "sync"
+  fetchpriority– optional; "high" | "low" (omit by default)
+
+Usage (single line only — GitHub Pages/Liquid 4 requirement):
+  {% include img.html src=post.hero src2x=post.hero_2x alt=post.hero_alt fallback=post.title class="thumb" sizes="100vw" loading="lazy" decoding="async" %}
+{%- endcomment -%}
+
+{%- assign _src = include.src | relative_url -%}
+{%- assign _src2x = include.src2x | default: "" -%}
+{%- assign _alt = include.alt | default: include.fallback | default: "" -%}
+{%- assign _class = include.class | default: "" -%}
+{%- assign _sizes = include.sizes | default: "100vw" -%}
+{%- assign _loading = include.loading | default: "lazy" -%}
+{%- assign _decoding = include.decoding | default: "async" -%}
+{%- assign _fetch = include.fetchpriority -%}
+
+{%- if _src2x != "" -%}
+  <img
+    src="{{ _src }}"
+    srcset="{{ _src }} 1x, {{ _src2x | relative_url }} 2x"
+    alt="{{ _alt | escape }}"
+    class="{{ _class }}"
+    sizes="{{ _sizes }}"
+    loading="{{ _loading }}"
+    decoding="{{ _decoding }}"
+    {%- if _fetch %} fetchpriority="{{ _fetch }}"{% endif -%}>
+{%- else -%}
+  <img
+    src="{{ _src }}"
+    alt="{{ _alt | escape }}"
+    class="{{ _class }}"
+    sizes="{{ _sizes }}"
+    loading="{{ _loading }}"
+    decoding="{{ _decoding }}"
+    {%- if _fetch %} fetchpriority="{{ _fetch }}"{% endif -%}>
+{%- endif -%}
