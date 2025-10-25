@@ -1,0 +1,78 @@
+{%- comment -%}
+  Central SEO + Social meta for Finch Archive
+  Usage: included from _includes/head.html
+{%- endcomment -%}
+
+{%- assign is_article = false -%}
+{%- if page.collection == "logs" or page.collection == "field-notes" -%}
+  {%- assign is_article = true -%}
+{%- endif -%}
+
+{%- comment %} Title & description {% endcomment -%}
+{%- assign page_title = page.title | default: site.title -%}
+{%- assign page_desc  = page.excerpt | default: site.description | strip_html | strip_newlines | truncate: 200 -%}
+
+{%- comment %} Canonical URL {% endcomment -%}
+{%- assign canonical_url = page.canonical_url | default: page.url | absolute_url -%}
+
+{%- comment %} Pick best image: front matter (og_image > image > hero_image) with absolute URL {% endcomment -%}
+{%- assign _img = page.og_image | default: page.image | default: page.hero_image | default: '/assets/og/og-default.png' -%}
+{%- assign og_image = _img | absolute_url -%}
+
+{%- comment %} Robots control (e.g., `noindex: true` in front matter) {% endcomment -%}
+{%- if page.noindex or layout.noindex -%}
+  <meta name="robots" content="noindex, nofollow">
+{%- endif -%}
+
+<title>{{ page_title }}{% if page.title %} · {{ site.title }}{% endif %}</title>
+<meta name="description" content="{{ page_desc }}">
+
+<link rel="canonical" href="{{ canonical_url }}">
+
+{%- comment %} Open Graph {% endcomment -%}
+<meta property="og:type" content="{% if is_article %}article{% else %}website{% endif %}">
+<meta property="og:site_name" content="{{ site.title }}">
+<meta property="og:title" content="{{ page_title }}">
+<meta property="og:description" content="{{ page_desc }}">
+<meta property="og:url" content="{{ canonical_url }}">
+<meta property="og:image" content="{{ og_image }}">
+
+{%- if is_article and page.date -%}
+  <meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
+{%- endif -%}
+{%- if is_article and page.last_modified_at -%}
+  <meta property="article:modified_time" content="{{ page.last_modified_at | date_to_xmlschema }}">
+{%- endif -%}
+
+{%- comment %} Twitter {% endcomment -%}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ page_title }}">
+<meta name="twitter:description" content="{{ page_desc }}">
+<meta name="twitter:image" content="{{ og_image }}">
+{%- if site.twitter_username -%}
+  <meta name="twitter:site" content="@{{ site.twitter_username | replace: '@','' }}">
+{%- endif -%}
+
+{%- comment %} Feeds (logs + field notes) {% endcomment -%}
+<link rel="alternate" type="application/rss+xml" title="{{ site.title }} — Logs" href="{{ '/logs.xml' | relative_url }}">
+<link rel="alternate" type="application/rss+xml" title="{{ site.title }} — Field Notes" href="{{ '/field-notes/feed.xml' | relative_url }}">
+
+{%- comment %} Theme color (respects light/dark) {% endcomment -%}
+<meta name="theme-color" media="(prefers-color-scheme: dark)"  content="#000000">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f2e7">
+
+{%- comment %} Optional JSON-LD for articles {% endcomment -%}
+{%- if is_article -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": {{ page_title | jsonify }},
+  "description": {{ page_desc | jsonify }},
+  "image": [{{ og_image | jsonify }}],
+  "author": {{ site.author | default: "Halloway Finch" | jsonify }},
+  "datePublished": "{{ page.date | date_to_xmlschema }}",
+  "mainEntityOfPage": {{ canonical_url | jsonify }}
+}
+</script>
+{%- endif -%}
