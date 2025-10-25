@@ -305,3 +305,41 @@ a:focus-visible,
 .archive-item-title a { text-decoration: none; }
 .log-card .log-title a:hover,
 .archive-item-title a:hover { text-decoration: underline; }
+
+/* ==========================
+   Field Notes layout
+   ========================== */
+.fieldnote{
+  max-width:640px;
+  margin:4rem auto;
+  padding:0 1rem;
+  color:var(--fg);
+  font-size:1rem;
+  line-height:1.75;
+}
+.fieldnote-header{ margin-bottom:2rem; }
+.fieldnote-title{
+  font-family:var(--serif);
+  font-size:1.6rem;
+  font-weight:500;
+  margin:0 0 .5rem 0;
+  color:var(--fg);
+}
+.fieldnote-meta{
+  font-size:.9rem;
+  color:var(--muted);
+}
+.fieldnote-meta a{
+  color:var(--muted);
+  text-decoration:none;
+}
+.fieldnote-meta a:hover{
+  color:#fff;
+  text-decoration:underline;
+}
+.fieldnote-body p{
+  margin:1.25rem 0;
+  color:#ccc;
+}
+.fieldnote-body em{ color:#ddd; }
+.fieldnote-body strong{ color:#fff; }
