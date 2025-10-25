@@ -1,0 +1,10 @@
+{%- comment -%}
+Displays a log’s timestamp in the site’s configured timezone (America/Chicago)
+Usage:
+  {% include date-local.html dt=page.date %}
+  {% include date-local.html dt=log.date %}
+{%- endcomment -%}
+
+{%- if include.dt -%}
+  {{ include.dt | date: "%A, %B %-d, %Y %I:%M %p %Z" }}
+{%- endif -%}
