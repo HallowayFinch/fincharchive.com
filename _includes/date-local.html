@@ -1,10 +1,24 @@
 {%- comment -%}
-Displays a log’s timestamp in the site’s configured timezone (America/Chicago)
+date-local.html
+Renders a timestamp in the site's configured timezone (America/Chicago).
+
 Usage:
   {% include date-local.html dt=page.date %}
   {% include date-local.html dt=log.date %}
+  {% include date-local.html dt=page.date fmt="%b %-d, %Y %I:%M %p %Z" %}
+  {% include date-local.html dt=page.date show_utc=true %}
+
+Params:
+  - dt:   Date or string parseable by Liquid
+  - fmt:  Optional Liquid date format (defaults below)
+  - show_utc: Optional boolean; when true, appends "(HH:MM UTC)"
 {%- endcomment -%}
 
+{%- assign _fmt = include.fmt | default: "%A, %B %-d, %Y %I:%M %p %Z" -%}
+
 {%- if include.dt -%}
-  {{ include.dt | date: "%A, %B %-d, %Y %I:%M %p %Z" }}
+  {{ include.dt | date: _fmt }}
+  {%- if include.show_utc -%}
+    <span class="utc"> ({{ include.dt | date: "%H:%M UTC" }})</span>
+  {%- endif -%}
 {%- endif -%}
