@@ -4,14 +4,13 @@ title: Logs
 permalink: /logs/
 ---
 
-<section class="list container">
-  <header class="rule"></header>
-  <h1>LOGS</h1>
-  <p>Recovered transmissions from the Finch Archive.</p>
-  <div class="rule"></div>
+<section class="container">
+  <header class="page-header">
+    <h1 class="page-title">LOGS</h1>
+    <p class="page-lead">Recovered transmissions from the Finch Archive.</p>
+  </header>
 
   {%- assign logs = site.logs | sort: "date" | reverse -%}
-
   {%- if logs.size == 0 -%}
     <p>No logs found. Once a log exists in <code>_logs/</code>, it will appear here.</p>
   {%- else -%}
@@ -26,7 +25,6 @@ permalink: /logs/
                 alt="{{ item.hero_alt | default: item.title }}"
                 loading="lazy">
             {%- endif -%}
-
             <div class="log-meta">
               <h2 class="log-title">{{ item.title }}</h2>
               <div class="log-sub">
