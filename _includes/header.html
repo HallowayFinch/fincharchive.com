@@ -12,5 +12,35 @@
       <a href="{{ '/field-notes/' | relative_url }}" {% if here == '/field-notes/' %}aria-current="page"{% endif %}>Field Notes</a>
       <a href="{{ '/about/' | relative_url }}" {% if here == '/about/' %}aria-current="page"{% endif %}>About</a>
     </nav>
+
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false" title="Toggle color scheme">
+      <span class="theme-toggle__icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Toggle color scheme</span>
+    </button>
   </div>
 </header>
+
+<script>
+(function () {
+  var key = 'fa-theme';
+  var btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+
+  function setPressed(theme) {
+    btn.setAttribute('aria-pressed', theme === 'light');
+  }
+
+  function current() {
+    return document.documentElement.getAttribute('data-theme') || 'dark';
+  }
+
+  setPressed(current());
+
+  btn.addEventListener('click', function () {
+    var next = current() === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem(key, next); } catch (e) {}
+    setPressed(next);
+  });
+})();
+</script>
