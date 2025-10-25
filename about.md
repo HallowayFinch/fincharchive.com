@@ -4,18 +4,16 @@ title: About
 permalink: /about/
 ---
 
-<section class="container">
-  <header class="rule"></header>
-  # About the Finch Archive
+<div class="rule"></div>
 
-  The Finch Archive collects recovered notes from incomplete transmissions.
+# About the Finch Archive
 
-  This project preserves the fragments, with minimal intervention, and presents them
-  in a consistent, navigable form.
+The Finch Archive collects recovered notes from incomplete transmissions.  
+This project preserves the fragments, with minimal intervention, and presents them
+in a consistent, navigable form.
 
-  <div class="rule"></div>
+<div class="rule"></div>
 
-  **Credits**
-  - Curator: Halloway Finch  
-  - License: [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)
-</section>
+**Credits**  
+Curator: Halloway Finch  
+License: [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)
