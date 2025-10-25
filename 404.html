@@ -1,10 +1,18 @@
-
 ---
 layout: default
-title: Not Found
 permalink: /404.html
 ---
-<section class="container">
-  <h1>Not Found</h1>
-  <p>This file may be corrupted or incomplete.</p>
-</section>
+
+<main class="container" role="main" aria-labelledby="nf-title">
+  <header class="page-header">
+    <h1 id="nf-title" class="page-title">Page not found</h1>
+    <p class="page-lead">That transmission fragment doesn’t exist, or it was lost in the archive drift.</p>
+  </header>
+
+  <div class="rule rule--tight"></div>
+
+  <p class="mt-20">
+    Try returning to the <a href="{{ '/' | relative_url }}">homepage</a>, browsing the <a href="{{ '/logs/' | relative_url }}">logs</a>,
+    or checking <a href="{{ '/field-notes/' | relative_url }}">field notes</a>.
+  </p>
+</main>
