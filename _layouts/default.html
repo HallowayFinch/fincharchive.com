@@ -7,12 +7,17 @@
   </head>
 
   <body>
+    <!-- Skip link for keyboard / screen readers -->
+    <a class="skip-link" href="#main">Skip to content</a>
+
     {% include header.html %}
 
     {% if page.full_width %}
-      {{ content }}
+      <main id="main" class="container" role="main">
+        {{ content }}
+      </main>
     {% else %}
-      <main class="container">
+      <main id="main" class="container" role="main">
         {{ content }}
       </main>
     {% endif %}
