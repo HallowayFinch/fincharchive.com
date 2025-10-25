@@ -269,3 +269,34 @@ a:focus-visible,.btn:focus-visible,.log-link:focus-visible,.theme-toggle:focus-v
   position:absolute !important;width:1px;height:1px;margin:-1px;padding:0;border:0;
   clip:rect(0 0 0 0);clip-path:inset(50%);overflow:hidden;white-space:nowrap;
 }
+
+/* Header grid (brand + actions on row 1, nav on row 2 for small screens) */
+.header-bar{
+  display:grid;
+  grid-template-columns: 1fr auto;
+  align-items:center;
+  gap:12px;
+}
+.header-actions{display:flex;align-items:center;gap:8px}
+
+/* Primary nav now gets its own line on narrow screens; wraps/scrolls cleanly */
+.primary-nav{
+  display:flex;gap:18px;align-items:center;
+  overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;
+  padding:10px 0;
+}
+.primary-nav::-webkit-scrollbar{display:none}
+.primary-nav a{opacity:.85}
+.primary-nav a[aria-current="page"]{opacity:1;border-bottom:2px solid var(--accent)}
+
+@media (max-width: 720px){
+  .header-bar{
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+  }
+  .primary-nav{
+    grid-column: 1 / -1; /* full width */
+    border-top: 1px solid var(--line);
+    padding-top: 8px;
+  }
+}
