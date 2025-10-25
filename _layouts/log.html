@@ -2,37 +2,28 @@
 layout: default
 ---
 
-<main class="container" role="main">
+<main class="container">
+  {%- if page.hero_image -%}
+    <figure class="log-figure">
+      {% include img.html src=page.hero_image src2x=page.hero_image_2x alt=page.hero_alt fallback=page.title class="log-hero" sizes="100vw" loading="eager" decoding="async" fetchpriority="high" %}
+    </figure>
+  {%- endif -%}
+
   <header class="log-header">
-    <h1 class="page-title">{{ page.title }}</h1>
+    <h1>{{ page.title }}</h1>
     <div class="meta">
       <time datetime="{{ page.date | date_to_xmlschema }}">
         {% include date-local.html dt=page.date %}
       </time>
-      {%- if page.source_url %} · <a href="{{ page.source_url }}">Source</a>{% endif -%}
+      {%- if page.source_url -%} &nbsp;·&nbsp; <a href="{{ page.source_url }}">Source</a>{%- endif -%}
     </div>
   </header>
-
-  {%- if page.hero_image %}
-    <figure class="log-figure">
-      {% include img.html
-         src=page.hero_image
-         src2x=page.hero_image_2x
-         alt=page.hero_alt | default: page.title
-         class="log-hero"
-         sizes="100vw"
-         loading="eager"
-         decoding="async"
-         fetchpriority="high"
-      %}
-    </figure>
-  {%- endif %}
 
   <article class="log-content">
     {{ content }}
   </article>
 
-  {%- if page.artifacts and page.artifacts.size > 0 %}
+  {%- if page.artifacts and page.artifacts.size > 0 -%}
     <section class="log-artifacts">
       <h2>Artifacts</h2>
       <ul class="artifact-list">
@@ -41,5 +32,5 @@ layout: default
         {%- endfor -%}
       </ul>
     </section>
-  {%- endif %}
+  {%- endif -%}
 </main>
