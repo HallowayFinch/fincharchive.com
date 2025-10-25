@@ -402,3 +402,10 @@ a:focus-visible,
     white-space:nowrap;
   }
 }
+
+/* Header flex bar */
+.header-flex{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
