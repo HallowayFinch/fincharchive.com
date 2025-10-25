@@ -209,3 +209,41 @@ footer.site{
   line-height:1.6;
   margin:0;
 }
+
+/* ==================
+   Single Log layout
+   ================== */
+.log-header {
+  margin-bottom: 1.25rem;
+}
+
+.log-figure {
+  margin: 1.25rem 0;
+}
+
+.log-content {
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.log-artifacts {
+  margin-top: 2rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+
+.log-artifacts h2 {
+  margin: 0 0 .75rem;
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  color: var(--fg);
+}
+
+.artifact-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: .75rem;
+}
