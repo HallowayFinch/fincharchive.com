@@ -1,22 +1,26 @@
 <header class="site">
-  <div class="wrap header-flex">
+  <div class="wrap header-bar">
+    <!-- Row 1: brand (left) + actions (right) -->
     <div class="brand">
       <span class="dot" aria-hidden="true"></span>
       <a href="{{ '/' | relative_url }}">{{ site.title }}</a>
     </div>
 
-    <nav aria-label="Primary">
+    <div class="header-actions">
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false" title="Toggle color scheme">
+        <span class="theme-toggle__icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Toggle color scheme</span>
+      </button>
+    </div>
+
+    <!-- Row 2: primary nav (full width on mobile) -->
+    <nav class="primary-nav" aria-label="Primary">
       {%- assign here = page.url | relative_url -%}
       <a href="{{ '/' | relative_url }}" {% if here == '/' %}aria-current="page"{% endif %}>Home</a>
       <a href="{{ '/logs/' | relative_url }}" {% if here == '/logs/' %}aria-current="page"{% endif %}>Logs</a>
       <a href="{{ '/field-notes/' | relative_url }}" {% if here == '/field-notes/' %}aria-current="page"{% endif %}>Field Notes</a>
       <a href="{{ '/about/' | relative_url }}" {% if here == '/about/' %}aria-current="page"{% endif %}>About</a>
     </nav>
-
-    <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false" title="Toggle color scheme">
-      <span class="theme-toggle__icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Toggle color scheme</span>
-    </button>
   </div>
 </header>
 
@@ -26,18 +30,12 @@
   var btn = document.getElementById('theme-toggle');
   if (!btn) return;
 
-  function setPressed(theme) {
-    btn.setAttribute('aria-pressed', theme === 'light');
-  }
+  function cur(){ return document.documentElement.getAttribute('data-theme') || 'dark'; }
+  function setPressed(t){ btn.setAttribute('aria-pressed', t === 'light'); }
 
-  function current() {
-    return document.documentElement.getAttribute('data-theme') || 'dark';
-  }
-
-  setPressed(current());
-
+  setPressed(cur());
   btn.addEventListener('click', function () {
-    var next = current() === 'dark' ? 'light' : 'dark';
+    var next = cur() === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     try { localStorage.setItem(key, next); } catch (e) {}
     setPressed(next);
