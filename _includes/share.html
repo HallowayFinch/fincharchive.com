@@ -4,7 +4,8 @@ Renders:
 - Optional "Source" (with icon) if page.source_url is present
 - Share button (Web Share API + clipboard fallback)
 - Auto-prepends a centered dot separator
-- Custom tooltip on hover/focus, hides instantly on click
+- Custom tooltip on hover/focus; hides instantly on click
+- Intent-aware delay: 0.9s fade-in ONLY when entering from outside the meta line
 - "Copied ✓" micro-animation + a11y live announcement
 {% endcomment %}
 
@@ -38,6 +39,13 @@ Renders:
   var url   = window.location.href;
   var live  = document.getElementById('share-live');
 
+  // Add intent-aware class to the meta container:
+  var meta = btn.closest('.meta-actions');
+  if (meta){
+    meta.addEventListener('mouseenter', function(){ meta.classList.add('in-meta'); });
+    meta.addEventListener('mouseleave', function(){ meta.classList.remove('in-meta'); });
+  }
+
   function flashCopied() {
     var oldHTML = btn.innerHTML;
     btn.classList.add('is-copied');
@@ -53,28 +61,26 @@ Renders:
     }, 1200);
   }
 
-  // Hide tooltip immediately on click (prevents overlap with ✓)
-  btn.addEventListener('mousedown', function () { btn.classList.add('tooltip-hide'); });
-  btn.addEventListener('mouseup',   function () { btn.classList.remove('tooltip-hide'); });
+  // Hide tooltip immediately on activation (prevents clash with ✓)
+  btn.addEventListener('mousedown', function(){ btn.classList.add('tooltip-hide'); });
+  btn.addEventListener('mouseup',   function(){ btn.classList.remove('tooltip-hide'); });
   btn.addEventListener('keyup',     function (e) {
     if (e.key === 'Enter' || e.key === ' ') btn.classList.add('tooltip-hide');
   });
-  btn.addEventListener('blur', function () { btn.classList.remove('tooltip-hide'); }, true);
+  btn.addEventListener('blur', function(){ btn.classList.remove('tooltip-hide'); }, true);
 
   btn.addEventListener('click', async function () {
     try {
       if (navigator.share) {
         await navigator.share({ title: title, url: url });
-        // No reliable "success" signal from share sheet; skip ✓ here.
+        // No reliable "success" event from share sheet; skip ✓.
       } else if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(url);
         flashCopied();
       } else {
         prompt('Copy this link:', url);
       }
-    } catch (e) {
-      // User canceled or blocked; no-op
-    }
+    } catch (e) { /* user canceled; no-op */ }
   });
 })();
 </script>
@@ -101,7 +107,7 @@ Renders:
 }
 .share-inline .icon{ width:15px; height:15px; }
 
-/* Tooltip */
+/* Tooltip base */
 .tooltip{
   position:absolute;
   bottom:calc(100% + 6px);
@@ -127,11 +133,23 @@ Renders:
   border-top-color:var(--badge-bg);
   opacity:.9;
 }
+
+/* Default: add a brief delay when hovering from outside the meta line */
+.share-inline:hover .tooltip{ transition-delay:.9s; }
+
+/* But show immediately when:
+   - keyboard focusing, or
+   - pointer is already inside the meta cluster (.in-meta) */
+.share-inline:focus-visible .tooltip{ transition-delay:0s; }
+.meta-actions.in-meta .share-inline:hover .tooltip{ transition-delay:0s; }
+
+/* Show tooltip */
 .share-inline:hover .tooltip,
 .share-inline:focus-visible .tooltip{
   opacity:1;
   transform:translateX(-50%) scale(1);
 }
+
 /* Hide tooltip instantly during activation */
 .tooltip-hide .tooltip{
   opacity:0 !important;
