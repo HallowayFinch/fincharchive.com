@@ -5,60 +5,65 @@ full_width: true
 ---
 
 <main class="container">
+  {%- assign logs = site.logs | sort: "date" | reverse -%}
+  {%- assign feat = logs | first -%}
+  {%- assign rest = logs | slice: 1, 50 -%}
+
   <header class="page-header">
     <h1 class="page-title">FINCH ARCHIVE</h1>
     <p class="page-lead">Recovered notes from incomplete transmissions.</p>
   </header>
 
-  {%- assign logs = site.logs | sort: "date" | reverse -%}
-  {%- assign featured = logs.first -%}
-
-  {%- if featured -%}
-  <section class="feature-card">
-    <a class="feature-link" href="{{ featured.url | relative_url }}">
-      {%- if featured.hero_image -%}
-        {% include img.html src=featured.hero_image src2x=featured.hero_image_2x alt=featured.hero_alt fallback=featured.title class="feature-thumb" sizes="(min-width:980px) 55vw, 100vw" loading="eager" decoding="async" fetchpriority="high" %}
+  {%- if feat -%}
+  <article class="feature-card">
+    <a class="feature-link" href="{{ feat.url | relative_url }}">
+      {%- if feat.hero_image -%}
+      <img
+        class="feature-thumb"
+        src="{{ feat.hero_image | relative_url }}"
+        alt="{{ feat.hero_alt | default: feat.title | escape }}"
+        decoding="async"
+        fetchpriority="high">
       {%- endif -%}
-
       <div class="feature-meta">
-        <h2 class="feature-title">{{ featured.title }}</h2>
+        <h2 class="feature-title">{{ feat.title }}</h2>
         <div class="feature-sub">
-          {%- if featured.log_id -%}
-            <span class="log-id">{{ featured.log_id }}</span>
-            <span aria-hidden="true">•</span>
-          {%- endif -%}
-          <time datetime="{{ featured.date | date_to_xmlschema }}">
-            {% include date-local.html dt=featured.date %}
-          </time>
+          {%- if feat.log_id -%}<span class="log-id">{{ feat.log_id }}</span><span aria-hidden="true">•</span>{%- endif -%}
+          <time datetime="{{ feat.date | date_to_xmlschema }}">{% include date-local.html dt=feat.date %}</time>
         </div>
-        {%- if featured.excerpt -%}
-          <p class="feature-excerpt">{{ featured.excerpt | strip_html | truncate: 220 }}</p>
+        {%- if feat.excerpt -%}
+          <p class="feature-excerpt">{{ feat.excerpt | strip_html | truncate: 190 }}</p>
         {%- endif -%}
       </div>
     </a>
-  </section>
+  </article>
   {%- endif -%}
 
-  {%- if logs.size > 1 -%}
-    <ul class="log-list">
-      {%- for item in logs offset:1 -%}
-        <li class="log-card">
-          <a class="log-link" href="{{ item.url | relative_url }}">
-            {%- if item.hero_image -%}
-              {% include img.html src=item.hero_image src2x=item.hero_image_2x alt=item.hero_alt fallback=item.title class="log-thumb" sizes="(min-width:700px) 18vw, 30vw" loading="lazy" decoding="async" %}
-            {%- endif -%}
-            <div class="log-meta">
-              <h2 class="log-title">{{ item.title }}</h2>
-              <div class="log-sub">
-                {%- if item.log_id -%}<span class="log-id">{{ item.log_id }}</span><span aria-hidden="true">•</span>{%- endif -%}
-                <time datetime="{{ item.date | date_to_xmlschema }}">
-                  {% include date-local.html dt=item.date %}
-                </time>
-              </div>
+  {%- if rest and rest.size > 0 -%}
+    <ul class="log-list" role="list">
+      {%- for item in rest -%}
+      <li class="log-card">
+        <a class="log-link" href="{{ item.url | relative_url }}">
+          {%- if item.hero_image -%}
+          <img
+            class="log-thumb"
+            src="{{ item.hero_image | relative_url }}"
+            alt="{{ item.hero_alt | default: item.title | escape }}"
+            loading="lazy"
+            decoding="async">
+          {%- endif -%}
+          <div class="log-meta">
+            <h3 class="log-title">{{ item.title }}</h3>
+            <div class="log-sub">
+              {%- if item.log_id -%}<span class="log-id">{{ item.log_id }}</span><span aria-hidden="true">•</span>{%- endif -%}
+              <time datetime="{{ item.date | date_to_xmlschema }}">{% include date-local.html dt=item.date %}</time>
             </div>
-          </a>
-        </li>
+          </div>
+        </a>
+      </li>
       {%- endfor -%}
     </ul>
+  {%- else -%}
+    <p>No logs found. Once a log exists in <code>_logs/</code>, it will appear here.</p>
   {%- endif -%}
 </main>
