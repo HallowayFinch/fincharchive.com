@@ -60,3 +60,34 @@ Preload homepage featured image (newest log’s hero) to speed LCP.
 
 {%- comment -%} Structured data {%- endcomment -%}
 {% include seo.html %}
+
+{%- comment -%}
+Rel prev/next for single entries (Logs and Field Notes).
+Sorted ascending by date so:
+- prev  = earlier entry
+- next  = later entry
+Links are emitted only when neighbors exist.
+{%- endcomment -%}
+{%- assign coll = nil -%}
+{%- if page.collection == 'logs' -%}
+  {%- assign coll = site.logs | sort: 'date' -%}
+{%- elsif page.collection == 'field-notes' -%}
+  {%- assign coll = site["field-notes"] | sort: 'date' -%}
+{%- endif -%}
+
+{%- if coll and coll.size > 0 -%}
+  {%- assign idx = nil -%}
+  {%- for doc in coll -%}
+    {%- if doc.url == page.url -%}{%- assign idx = forloop.index0 -%}{%- break -%}{%- endif -%}
+  {%- endfor -%}
+  {%- if idx != nil -%}
+    {%- assign prev_idx = idx | minus: 1 -%}
+    {%- assign next_idx = idx | plus: 1 -%}
+    {%- if prev_idx >= 0 -%}
+      <link rel="prev" href="{{ coll[prev_idx].url | absolute_url }}">
+    {%- endif -%}
+    {%- if next_idx < coll.size -%}
+      <link rel="next" href="{{ coll[next_idx].url | absolute_url }}">
+    {%- endif -%}
+  {%- endif -%}
+{%- endif -%}
