@@ -4,15 +4,20 @@ permalink: /feed.json
 ---
 
 {%- comment -%}
-Build a combined, date-sorted list from these sources:
-- site.logs
-- site["field-notes"] (hyphen-safe)
-- site.posts        (optional)
+Coerce safe empty arrays so concat never breaks:
 {%- endcomment -%}
-{%- assign logs  = site.logs           | default: empty -%}
-{%- assign notes = site["field-notes"] | default: empty -%}
-{%- assign posts = site.posts          | default: empty -%}
-{%- assign items = logs | concat: notes | concat: posts | sort: 'date' | reverse -%}
+{%- assign EMPTY = '' | split: '' -%}
+
+{%- assign logs  = site.logs            | default: EMPTY -%}
+{%- assign notes = site["field-notes"]  | default: EMPTY -%}
+{%- assign posts = site.posts           | default: EMPTY -%}
+
+{%- assign items = EMPTY
+  | concat: logs
+  | concat: notes
+  | concat: posts
+  | sort: 'date'
+  | reverse -%}
 
 {
   "version": "https://jsonfeed.org/version/1.1",
