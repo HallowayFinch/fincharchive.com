@@ -27,6 +27,8 @@ layout: default
     {{ content }}
   </article>
 
+  {% include prev_next.html %}
+
   {%- if page.artifacts and page.artifacts.size > 0 %}
   <section class="log-artifacts">
     <h2>Artifacts</h2>
