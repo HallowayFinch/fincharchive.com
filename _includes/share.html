@@ -1,16 +1,15 @@
 <!-- /_includes/share.html -->
 {% comment %}
 Renders:
-- "Source" (with external-link icon) if `page.source_url` is present
-- A Share button that uses Web Share API (mobile) and a clipboard fallback (desktop)
-
-Usage (in layouts):
-... date ...
-<span aria-hidden="true"> · </span>
-{% include source_share.html %}
+- Optional "Source" (with icon) if page.source_url is present
+- A Share button (Web Share API + clipboard fallback)
+- Automatically prepends a · separator
+Usage: place directly after the date line in layouts.
 {% endcomment %}
 
 <span class="meta-actions">
+  <span aria-hidden="true">·</span>
+
   {%- if page.source_url -%}
     <a class="meta-link" href="{{ page.source_url }}" target="_blank" rel="noopener">
       Source
