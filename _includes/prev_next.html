@@ -1,7 +1,8 @@
 {%- comment -%}
 Prev/Next navigation for single entries in a collection.
-Usage: {% include prev_next.html %}
+Stops wrapping around so first/last entries show “None”.
 {%- endcomment -%}
+
 {%- assign coll = site[page.collection] | sort: "date" -%}
 {%- assign current_index = nil -%}
 {%- for doc in coll -%}
@@ -14,8 +15,12 @@ Usage: {% include prev_next.html %}
 {%- if current_index != nil -%}
   {%- assign prev_i = current_index | minus: 1 -%}
   {%- assign next_i = current_index | plus: 1 -%}
-  {%- assign prev_doc = coll[prev_i] -%}
-  {%- assign next_doc = coll[next_i] -%}
+  {%- if prev_i >= 0 -%}
+    {%- assign prev_doc = coll[prev_i] -%}
+  {%- endif -%}
+  {%- if next_i < coll.size -%}
+    {%- assign next_doc = coll[next_i] -%}
+  {%- endif -%}
 
   <nav class="pager" aria-label="Post navigation">
     {%- if prev_doc -%}
