@@ -1,3 +1,4 @@
+<!-- /_layouts/fieldnote.html -->
 ---
 layout: default
 ---
@@ -10,14 +11,7 @@ layout: default
       <time datetime="{{ page.date | date_to_xmlschema }}">
         {% include date-local.html dt=page.date %}
       </time>
-
-      {%- if page.source_url -%}
-        <span aria-hidden="true"> · </span>
-        <a href="{{ page.source_url }}" rel="noopener noreferrer">Source</a>
-      {%- endif -%}
-
-      <span aria-hidden="true"> · </span>
-      {% include share.html inline=true %}
+      {% include share.html %}
     </p>
   </header>
 
