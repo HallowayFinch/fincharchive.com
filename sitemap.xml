@@ -2,48 +2,77 @@
 layout: null
 permalink: /sitemap.xml
 ---
+
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
   <!-- Home -->
   <url>
-    <loc>{{ '/' | absolute_url }}</loc>
-    <lastmod>{{ site.time | date_to_xmlschema }}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-
-  <!-- Section indexes (if present) -->
-  {% assign sections = site.pages | where_exp:'p','p.url == "/" or p.url == "/logs/" or p.url == "/field-notes/" or p.url == "/about/"' %}
-  {% for p in sections %}
-  {% if p.url != "/" %}
-  <url>
-    <loc>{{ p.url | absolute_url }}</loc>
-    <lastmod>{{ p.date | default: site.time | date_to_xmlschema }}</lastmod>
+    <loc>{{ "/" | absolute_url }}</loc>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  {% endif %}
-  {% endfor %}
-
-  <!-- Logs -->
-  {% assign logs = site.logs | sort: 'date' | reverse %}
-  {% for item in logs %}
-  <url>
-    <loc>{{ item.url | absolute_url }}</loc>
-    <lastmod>{{ item.date | date_to_xmlschema }}</lastmod>
-    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  {% endfor %}
 
-  <!-- Field notes -->
-  {% assign notes = site.field-notes | sort: 'date' | reverse %}
-  {% for note in notes %}
-  <url>
-    <loc>{{ note.url | absolute_url }}</loc>
-    <lastmod>{{ note.date | date_to_xmlschema }}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  {% endfor %}
+  {%- comment -%}
+  Regular pages
+  - Skip XML/feeds, assets, drafts, and anything that sets `sitemap: false`
+  {%- endcomment -%}
+  {%- for p in site.pages -%}
+    {%- unless p.sitemap == false
+          or p.url contains ".xml"
+          or p.url contains "/feed"
+          or p.url contains "/assets/"
+          or p.url == "/404.html" -%}
+      <url>
+        <loc>{{ p.url | absolute_url }}</loc>
+        {%- if p.last_modified_at or p.date -%}
+          <lastmod>{{ p.last_modified_at | default: p.date | date_to_xmlschema }}</lastmod>
+        {%- endif -%}
+      </url>
+    {%- endunless -%}
+  {%- endfor -%}
+
+  {%- comment -%}
+  Logs collection
+  {%- endcomment -%}
+  {%- if site.logs -%}
+    {%- for item in site.logs -%}
+      {%- unless item.sitemap == false -%}
+      <url>
+        <loc>{{ item.url | absolute_url }}</loc>
+        <lastmod>{{ item.last_modified_at | default: item.date | date_to_xmlschema }}</lastmod>
+      </url>
+      {%- endunless -%}
+    {%- endfor -%}
+  {%- endif -%}
+
+  {%- comment -%}
+  Field Notes collection
+  {%- endcomment -%}
+  {%- assign fn = site["field-notes"] -%}
+  {%- if fn -%}
+    {%- for item in fn -%}
+      {%- unless item.sitemap == false -%}
+      <url>
+        <loc>{{ item.url | absolute_url }}</loc>
+        <lastmod>{{ item.last_modified_at | default: item.date | date_to_xmlschema }}</lastmod>
+      </url>
+      {%- endunless -%}
+    {%- endfor -%}
+  {%- endif -%}
+
+  {%- comment -%}
+  (Optional) blog posts if you ever add _posts/
+  {%- endcomment -%}
+  {%- if site.posts -%}
+    {%- for post in site.posts -%}
+      {%- unless post.sitemap == false -%}
+      <url>
+        <loc>{{ post.url | absolute_url }}</loc>
+        <lastmod>{{ post.last_modified_at | default: post.date | date_to_xmlschema }}</lastmod>
+      </url>
+      {%- endunless -%}
+    {%- endfor -%}
+  {%- endif -%}
+
 </urlset>
