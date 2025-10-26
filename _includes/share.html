@@ -4,8 +4,8 @@ Renders:
 - Optional "Source" (with icon) if page.source_url is present
 - Share button (Web Share API + clipboard fallback)
 - Auto-prepends a centered dot separator
-- Adds "copied ✓" micro-animation
-- Adds custom fade tooltip on hover/focus
+- Custom tooltip on hover/focus, hides instantly on click
+- "Copied ✓" micro-animation + a11y live announcement
 {% endcomment %}
 
 <span class="meta-actions">
@@ -53,17 +53,28 @@ Renders:
     }, 1200);
   }
 
+  // Hide tooltip immediately on click (prevents overlap with ✓)
+  btn.addEventListener('mousedown', function () { btn.classList.add('tooltip-hide'); });
+  btn.addEventListener('mouseup',   function () { btn.classList.remove('tooltip-hide'); });
+  btn.addEventListener('keyup',     function (e) {
+    if (e.key === 'Enter' || e.key === ' ') btn.classList.add('tooltip-hide');
+  });
+  btn.addEventListener('blur', function () { btn.classList.remove('tooltip-hide'); }, true);
+
   btn.addEventListener('click', async function () {
     try {
       if (navigator.share) {
         await navigator.share({ title: title, url: url });
+        // No reliable "success" signal from share sheet; skip ✓ here.
       } else if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(url);
         flashCopied();
       } else {
         prompt('Copy this link:', url);
       }
-    } catch (e) { /* ignore cancel */ }
+    } catch (e) {
+      // User canceled or blocked; no-op
+    }
   });
 })();
 </script>
@@ -90,7 +101,7 @@ Renders:
 }
 .share-inline .icon{ width:15px; height:15px; }
 
-/* Tooltip styling */
+/* Tooltip */
 .tooltip{
   position:absolute;
   bottom:calc(100% + 6px);
@@ -121,8 +132,13 @@ Renders:
   opacity:1;
   transform:translateX(-50%) scale(1);
 }
+/* Hide tooltip instantly during activation */
+.tooltip-hide .tooltip{
+  opacity:0 !important;
+  transform:translateX(-50%) scale(.95) !important;
+}
 
-/* Copy animation */
+/* Copied ✓ animation */
 @keyframes fa-pop {
   0%   { transform:scale(0.92); opacity:.0; }
   40%  { transform:scale(1.04); opacity:1; }
@@ -142,7 +158,7 @@ Renders:
   animation:fa-pop 220ms cubic-bezier(.2,.8,.3,1) forwards;
 }
 
-/* Respect reduced motion */
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce){
   .tooltip,
   .share-inline,
