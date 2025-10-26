@@ -1,3 +1,4 @@
+<!-- /_layouts/default.html -->
 <!doctype html>
 <html lang="en">
   <head>
@@ -23,5 +24,49 @@
     {% endif %}
 
     {% include footer.html %}
+
+    <!-- Finch Archive: inline icon sprite (once per page) -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+      <!-- Clean, crisp sun with rays -->
+      <symbol id="icon-sun" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12 4.5a.75.75 0 0 1 .75-.75h.5a.75.75 0 1 1 0 1.5h-.5A.75.75 0 0 1 12 4.5Zm0 14.25a.75.75 0 0 1 .75.75v.5a.75.75 0 1 1-1.5 0v-.5a.75.75 0 0 1 .75-.75ZM4.5 12a.75.75 0 0 1-.75.75h-.5a.75.75 0 1 1 0-1.5h.5A.75.75 0 0 1 4.5 12Zm16.25 0a.75.75 0 0 1-.75-.75v-.5a.75.75 0 1 1 1.5 0v.5a.75.75 0 0 1-.75.75ZM6.22 6.22a.75.75 0 0 1 1.06 0l.35.35a.75.75 0 1 1-1.06 1.06l-.35-.35a.75.75 0 0 1 0-1.06Zm10.15 10.15a.75.75 0 0 1 1.06 0l.35.35a.75.75 0 1 1-1.06 1.06l-.35-.35a.75.75 0 0 1 0-1.06ZM17.78 6.22a.75.75 0 0 1 0 1.06l-.35.35a.75.75 0 1 1-1.06-1.06l.35-.35a.75.75 0 0 1 1.06 0ZM6.57 16.37a.75.75 0 0 1 0 1.06l-.35.35a.75.75 0 1 1-1.06-1.06l.35-.35a.75.75 0 0 1 1.06 0ZM12 8a4 4 0 1 1 0 8a4 4 0 0 1 0-8Z"/>
+      </symbol>
+      <!-- Simple crescent moon -->
+      <symbol id="icon-moon" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M21 12.8A9 9 0 0 1 11.2 3 7 7 0 1 0 21 12.8Z"/>
+      </symbol>
+      <!-- External link (for “Source”) -->
+      <symbol id="icon-external" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42 9.3-9.29H14V3z"/>
+        <path fill="currentColor" d="M5 5h7v2H7v10h10v-5h2v7H5z"/>
+      </symbol>
+      <!-- Share icon (for later) -->
+      <symbol id="icon-share" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M18 8a3 3 0 1 0-2.83-4A3 3 0 0 0 18 8Zm0 8a3 3 0 1 0 3 3a3 3 0 0 0-3-3ZM6 10a3 3 0 1 0-3-3a3 3 0 0 0 3 3Zm2.1-2.4 7.3 3.65m-7.3 1.5 7.3 3.65" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+    </svg>
+
+    <!-- Theme toggle script (loads after button) -->
+    <script>
+      (function () {
+        var key  = 'fa-theme';
+        var root = document.documentElement;
+        var btn  = document.getElementById('theme-toggle');
+        if (!btn) return;
+
+        // Initial: saved → default dark
+        var saved = localStorage.getItem(key);
+        var initial = (saved === 'light' || saved === 'dark') ? saved : 'dark';
+        root.setAttribute('data-theme', initial);
+        btn.setAttribute('aria-pressed', String(initial === 'dark'));
+
+        btn.addEventListener('click', function () {
+          var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          root.setAttribute('data-theme', next);
+          localStorage.setItem(key, next);
+          btn.setAttribute('aria-pressed', String(next === 'dark'));
+        });
+      })();
+    </script>
   </body>
 </html>
