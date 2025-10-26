@@ -25,6 +25,21 @@
   --badge-border: rgba(122,58,58,.45);
 }
 
+/* Let form controls & built-ins style themselves for each theme */
+:root { color-scheme: dark light; }
+
+/* Align native highlight color with Finch red family */
+:root { accent-color: var(--accent); }
+
+/* Subtle text selection that fits both themes */
+::selection {
+  background: rgba(122, 58, 58, 0.28);
+  color: inherit;
+}
+
+/* Anchors scrolled into view won’t hide under sticky header */
+:target { scroll-margin-top: 78px; } /* adjust if header height changes */
+
 /* Light theme: Parchment / aged ivory */
 :root[data-theme="light"]{
   --bg:#f6f2e7;       /* paper / ivory */
