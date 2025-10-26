@@ -1,3 +1,24 @@
+---
+layout: null
+permalink: /robots.txt
+---
 User-agent: *
 Allow: /
-Sitemap: https://fincharchive.com/sitemap.xml
+
+Sitemap: {{ '/sitemap.xml' | absolute_url }}
+
+# ------------------------
+# Feeds (for discovery)
+# ------------------------
+
+# Main site feed
+Feed: {{ '/feed.xml' | absolute_url }}
+
+# Logs feed
+Feed: {{ '/logs/feed.xml' | absolute_url }}
+
+# Field Notes feed
+Feed: {{ '/field-notes/feed.xml' | absolute_url }}
+
+# Crawl-friendly delay (optional, conservative)
+Crawl-delay: 5
