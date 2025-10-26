@@ -1,38 +1,68 @@
 ---
 layout: default
-title: Log Archive
 ---
 
-<section class="archive">
-  <header class="archive-header">
-    <h1 class="archive-title">Recovered Logs</h1>
-    <p class="archive-subtitle">Filed chronologically</p>
+{%- comment -%}
+LOGS LAYOUT (Paginated)
+Displays the logs list with manual pagination (GitHub Pages compatible).
+page_num  → current page number (1-based)
+per_page  → items per page
+{%- endcomment -%}
+
+{%- assign all_logs  = site.logs | sort: "date" | reverse -%}
+{%- assign per_page  = page.per_page | default: 12 | plus: 0 -%}
+{%- assign page_num  = page.page_num | default: 1  | plus: 0 -%}
+{%- assign total     = all_logs | size -%}
+
+{%- assign q = total | divided_by: per_page -%}
+{%- assign r = total | modulo: per_page -%}
+{%- if r > 0 -%}{% assign total_pages = q | plus: 1 %}{%- else -%}{% assign total_pages = q %}{%- endif -%}
+
+{%- assign offset = per_page | times: page_num | minus: per_page -%}
+{%- assign items  = all_logs | slice: offset, per_page -%}
+
+<section class="container">
+  <header class="page-header">
+    <h1 class="page-title">Logs{% if page_num > 1 %} · Page {{ page_num }}{% endif %}</h1>
+    <p class="page-lead">Recovered transmissions from the Finch Archive.</p>
   </header>
 
-  {%- assign sorted_logs = site.logs | sort: "date" | reverse -%}
+  {%- if items and items.size > 0 -%}
+    <ul class="log-list">
+      {%- for item in items -%}
+        <li class="log-card">
+          <a class="log-link" href="{{ item.url | relative_url }}">
+            {%- if item.hero_image -%}
+              {% include img.html
+                 src=item.hero_image
+                 src2x=item.hero_image_2x
+                 alt=item.hero_alt
+                 fallback=item.title
+                 class="log-thumb"
+                 sizes="(min-width:700px) 18vw, 30vw"
+                 loading="lazy"
+                 decoding="async"
+              %}
+            {%- endif -%}
+            <div class="log-meta">
+              <h2 class="log-title">{{ item.title }}</h2>
+              <div class="log-sub">
+                {%- if item.log_id -%}
+                  <span class="log-id">{{ item.log_id }}</span>
+                  <span aria-hidden="true">•</span>
+                {%- endif -%}
+                <time datetime="{{ item.date | date_to_xmlschema }}">
+                  {% include date-local.html dt=item.date %}
+                </time>
+              </div>
+            </div>
+          </a>
+        </li>
+      {%- endfor -%}
+    </ul>
 
-  <div class="archive-list">
-    {%- for log in sorted_logs -%}
-      <article class="archive-item">
-        <h2 class="archive-item-title">
-          <a href="{{ log.url | relative_url }}">{{ log.title }}</a>
-        </h2>
-
-        <p class="archive-item-meta">
-          <time datetime="{{ log.date | date_to_xmlschema }}">
-            {% include date-local.html dt=log.date %}
-          </time>
-          {%- if log.log_id -%}
-            <span class="archive-item-id">• Log {{ log.log_id }}</span>
-          {%- endif -%}
-        </p>
-
-        {%- if log.excerpt -%}
-          <p class="archive-item-excerpt">
-            {{ log.excerpt | strip_html | truncate: 220 }}
-          </p>
-        {%- endif -%}
-      </article>
-    {%- endfor -%}
-  </div>
+    {% include pager.html current=page_num total=total_pages %}
+  {%- else -%}
+    <p>No logs found.</p>
+  {%- endif -%}
 </section>
