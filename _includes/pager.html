@@ -1,0 +1,36 @@
+{%- comment -%}
+Simple older/newer pager.
+Params:
+  current – current page number (required)
+  total   – total pages (required)
+{%- endcomment -%}
+
+{%- assign current = include.current | plus: 0 -%}
+{%- assign total   = include.total   | plus: 0 -%}
+
+{%- if total > 1 -%}
+  <nav class="pager" aria-label="Pagination">
+    <div class="pager-inner">
+      {%- assign prev = current | minus: 1 -%}
+      {%- assign next = current | plus: 1  -%}
+
+      {%- if prev >= 1 -%}
+        {%- if prev == 1 -%}
+          <a class="pager-link pager-prev" href="{{ '/logs/' | relative_url }}" rel="prev">← Newer Logs</a>
+        {%- else -%}
+          <a class="pager-link pager-prev" href="{{ '/logs/page/' | append: prev | append: '/' | relative_url }}" rel="prev">← Newer Logs</a>
+        {%- endif -%}
+      {%- else -%}
+        <span class="pager-link is-disabled" aria-disabled="true">← Newer Logs</span>
+      {%- endif -%}
+
+      <span class="pager-status">Page {{ current }} of {{ total }}</span>
+
+      {%- if next <= total -%}
+        <a class="pager-link pager-next" href="{{ '/logs/page/' | append: next | append: '/' | relative_url }}" rel="next">Older Logs →</a>
+      {%- else -%}
+        <span class="pager-link is-disabled" aria-disabled="true">Older Logs →</span>
+      {%- endif -%}
+    </div>
+  </nav>
+{%- endif -%}
