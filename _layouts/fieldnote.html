@@ -2,16 +2,22 @@
 layout: default
 ---
 
-<main class="fieldnote container" style="max-width: 640px;">
+<main class="fieldnote container">
   <header class="fieldnote-header">
     <h1 class="fieldnote-title">{{ page.title }}</h1>
+
     <p class="fieldnote-meta">
       <time datetime="{{ page.date | date_to_xmlschema }}">
         {% include date-local.html dt=page.date %}
       </time>
-      {% if page.source_url %}
-        <span class="fieldnote-source"> · <a href="{{ page.source_url }}" target="_blank" rel="noopener">Source</a></span>
-      {% endif %}
+
+      {%- if page.source_url -%}
+        <span aria-hidden="true"> · </span>
+        <a href="{{ page.source_url }}" rel="noopener noreferrer">Source</a>
+      {%- endif -%}
+
+      <span aria-hidden="true"> · </span>
+      {% include share.html inline=true %}
     </p>
   </header>
 
