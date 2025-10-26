@@ -1,0 +1,49 @@
+---
+layout: null
+permalink: /sitemap.xml
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Home -->
+  <url>
+    <loc>{{ '/' | absolute_url }}</loc>
+    <lastmod>{{ site.time | date_to_xmlschema }}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Section indexes (if present) -->
+  {% assign sections = site.pages | where_exp:'p','p.url == "/" or p.url == "/logs/" or p.url == "/field-notes/" or p.url == "/about/"' %}
+  {% for p in sections %}
+  {% if p.url != "/" %}
+  <url>
+    <loc>{{ p.url | absolute_url }}</loc>
+    <lastmod>{{ p.date | default: site.time | date_to_xmlschema }}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  {% endif %}
+  {% endfor %}
+
+  <!-- Logs -->
+  {% assign logs = site.logs | sort: 'date' | reverse %}
+  {% for item in logs %}
+  <url>
+    <loc>{{ item.url | absolute_url }}</loc>
+    <lastmod>{{ item.date | date_to_xmlschema }}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  {% endfor %}
+
+  <!-- Field notes -->
+  {% assign notes = site.field-notes | sort: 'date' | reverse %}
+  {% for note in notes %}
+  <url>
+    <loc>{{ note.url | absolute_url }}</loc>
+    <lastmod>{{ note.date | date_to_xmlschema }}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  {% endfor %}
+</urlset>
