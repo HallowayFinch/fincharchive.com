@@ -3,21 +3,12 @@ layout: null
 permalink: /feed.json
 ---
 
-{%- comment -%}
-Coerce safe empty arrays so concat never breaks:
-{%- endcomment -%}
+{%- comment -%} Build arrays safely so concat never breaks {%- endcomment -%}
 {%- assign EMPTY = '' | split: '' -%}
-
-{%- assign logs  = site.logs            | default: EMPTY -%}
-{%- assign notes = site["field-notes"]  | default: EMPTY -%}
-{%- assign posts = site.posts           | default: EMPTY -%}
-
-{%- assign items = EMPTY
-  | concat: logs
-  | concat: notes
-  | concat: posts
-  | sort: 'date'
-  | reverse -%}
+{%- assign logs  = site.logs           | default: EMPTY -%}
+{%- assign notes = site["field-notes"] | default: EMPTY -%}
+{%- assign posts = site.posts          | default: EMPTY -%}
+{%- assign items = EMPTY | concat: logs | concat: notes | concat: posts | sort: 'date' | reverse -%}
 
 {
   "version": "https://jsonfeed.org/version/1.1",
@@ -27,25 +18,21 @@ Coerce safe empty arrays so concat never breaks:
   "description": {{ site.description | jsonify }},
   "language": {{ site.lang | default: 'en' | jsonify }},
   "items": [
-    {%- assign author_name = site.author.name | default: site.title -%}
-    {%- for p in items limit: 20 -%}
-    {%- assign img = p.og_image | default: p.hero_image -%}
+    {% assign author_name = site.author.name | default: site.title %}
+    {% for p in items limit: 20 %}
+    {% assign img = p.og_image | default: p.hero_image %}
     {
       "id": {{ p.url | absolute_url | jsonify }},
       "url": {{ p.url | absolute_url | jsonify }},
       "title": {{ p.title | jsonify }},
       "author": { "name": {{ author_name | jsonify }} },
       "date_published": "{{ p.date | date_to_xmlschema }}",
-      "date_modified": "{{ p.last_modified_at | default: p.date | date_to_xmlschema }}",
-      {%- if img -%}
-      "image": {{ img | absolute_url | jsonify }},
-      {%- endif -%}
-      "summary": {{ p.excerpt | strip_html | strip_newlines | truncate: 200 | jsonify }},
-      {%- if p.tags and p.tags.size > 0 -%}
-      "tags": {{ p.tags | jsonify }},
-      {%- endif -%}
+      "date_modified": "{{ p.last_modified_at | default: p.date | date_to_xmlschema }}"{% if img %},
+      "image": {{ img | absolute_url | jsonify }}{% endif %},
+      "summary": {{ p.excerpt | strip_html | strip_newlines | truncate: 200 | jsonify }}{% if p.tags and p.tags.size > 0 %},
+      "tags": {{ p.tags | jsonify }}{% endif %},
       "content_html": {{ p.content | jsonify }}
-    }{%- if forloop.last == false -%},{%- endif -%}
-    {%- endfor -%}
+    }{% if forloop.last == false %},{% endif %}
+    {% endfor %}
   ]
 }
