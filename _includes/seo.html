@@ -172,3 +172,39 @@
 }
 </script>
 {%- endif -%}
+
+{%- comment -%}
+  7) Site Navigation — helps search engines render sitelinks (Home, Logs, Field Notes, About)
+{%- endcomment -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "itemListElement": [
+    {
+      "@type": "SiteNavigationElement",
+      "position": 1,
+      "name": "Home",
+      "url": "{{ site.url }}/"
+    },
+    {
+      "@type": "SiteNavigationElement",
+      "position": 2,
+      "name": "Logs",
+      "url": "{{ site.url }}/logs/"
+    },
+    {
+      "@type": "SiteNavigationElement",
+      "position": 3,
+      "name": "Field Notes",
+      "url": "{{ site.url }}/field-notes/"
+    },
+    {
+      "@type": "SiteNavigationElement",
+      "position": 4,
+      "name": "About",
+      "url": "{{ site.url }}/about/"
+    }
+  ]
+}
+</script>
