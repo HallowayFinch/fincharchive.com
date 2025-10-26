@@ -105,7 +105,7 @@ header.site{
 }
 .primary-nav::-webkit-scrollbar{display:none}
 
-/* NAV — subtle fade-in underline for active page */
+/* NAV — fade-in underline for active/hover */
 .primary-nav a{
   position:relative;
   padding-bottom:6px;                  /* room for underline */
@@ -123,21 +123,20 @@ header.site{
 }
 .primary-nav a:hover{opacity:1}
 .primary-nav a:hover::after{transform:scaleX(1);opacity:.65}
-/* Keep underline for current page; no border-bottom needed */
 .primary-nav a[aria-current="page"]{opacity:1}
 .primary-nav a[aria-current="page"]::after{transform:scaleX(1)}
 
-/* --- Tighter mobile header (no top divider) --- */
+/* Tighter mobile header (no top divider) */
 @media (max-width: 720px){
   .header-bar{
     grid-template-columns: 1fr auto;
     grid-template-rows: auto auto;
-    row-gap:6px;                 /* tighter vertical rhythm */
+    row-gap:6px;
   }
-  .brand{ padding:8px 0; }       /* tighter brand line */
+  .brand{ padding:8px 0; }
   .primary-nav{
-    grid-column: 1 / -1;         /* full width under brand */
-    padding:6px 0 8px;           /* no border-top, tighter spacing */
+    grid-column: 1 / -1;
+    padding:6px 0 8px;
     gap:14px;
   }
 }
@@ -145,9 +144,7 @@ header.site{
 /* Desktop: center brand+nav, put actions (toggle) in top-right */
 @media (min-width: 980px){
   header.site .wrap{ position:relative; }
-  .header-bar{
-    display:flex; flex-direction:column; align-items:center; gap:6px;
-  }
+  .header-bar{ display:flex; flex-direction:column; align-items:center; gap:6px; }
   .brand{ padding-top:14px; }
   .primary-nav{ padding-top:0; gap:22px; }
   .header-actions{ position:absolute; right:20px; top:12px; }
@@ -214,7 +211,9 @@ main .rule:first-child{ display:none; }
   .feature-thumb{ aspect-ratio:3/2; }
 }
 
-/* List below feature (also used on /logs/) */
+/* ======================================
+   Logs lists (home + /logs/)
+   ====================================== */
 .log-list{ list-style:none; margin:0; padding:0; display:grid; gap:12px; }
 .log-card{
   display:flex; gap:12px; align-items:flex-start;
@@ -293,6 +292,29 @@ main .rule:first-child{ display:none; }
 .fn-item-title a:hover{ text-decoration:underline }
 .fn-item-meta{color:#888;font-size:.9rem;margin:0 0 .75rem 0}
 .fn-item-excerpt{color:#ccc;line-height:1.6;margin:0}
+
+/* ======================================
+   Pager (logs pagination)
+   ====================================== */
+.pager { margin: 1.75rem 0 0; }
+.pager-inner{
+  display:flex;justify-content:space-between;align-items:center;gap:.75rem;
+  border-top:1px solid var(--line); padding-top:1rem;
+}
+.pager-status{ color: var(--muted); font-size:.95rem; }
+.pager-link{
+  display:inline-flex;align-items:center;gap:.4rem;
+  padding:.4rem .65rem;border:1px solid var(--badge-border);border-radius:6px;
+  background:var(--badge-bg);color:var(--fg);text-decoration:none;
+  opacity:.95;transition:opacity .15s ease,transform .08s ease,border-color .15s ease;
+  white-space:nowrap;
+}
+.pager-link:hover{ opacity:1; transform:translateY(-1px); border-color:var(--accent); }
+.pager-link.is-disabled{ opacity:.45; pointer-events:none; }
+@media (max-width:640px){
+  .pager-inner{ flex-wrap:wrap; gap:.5rem 1rem; }
+  .pager-status{ order:3; width:100%; text-align:center; }
+}
 
 /* ======================================
    Footer & badges
