@@ -1,47 +1,40 @@
 {%- comment -%}
-Reusable responsive image include.
-
+Reusable image include
 Params:
-  src          – required; primary image path
-  src2x        – optional; 2x image path
-  alt          – optional; alt text
-  fallback     – optional; used if alt is blank
-  class        – optional; CSS class(es)
-  sizes        – optional; sizes attribute (string)
-  loading      – optional; "lazy" (default) | "eager"
-  decoding     – optional; "async" (default) | "auto" | "sync"
-  fetchpriority– optional; "high" | "low" (omit by default)
-
-Usage (single line only — GitHub Pages/Liquid 4 requirement):
-  {% include img.html src=post.hero src2x=post.hero_2x alt=post.hero_alt fallback=post.title class="thumb" sizes="100vw" loading="lazy" decoding="async" %}
+  src     (required) – URL
+  src2x   (optional) – 2x URL
+  alt     (required)
+  w       (optional) – intrinsic width (number)
+  h       (optional) – intrinsic height (number)
+  class   (optional)
+  sizes   (optional) – e.g. "(min-width:980px) 720px, 100vw"
+  loading (optional) – lazy|eager (default lazy)
+  fetch   (optional) – high|low|auto
 {%- endcomment -%}
 
-{%- assign _src = include.src | relative_url -%}
-{%- assign _src2x = include.src2x | default: "" -%}
-{%- assign _alt = include.alt | default: include.fallback | default: "" -%}
-{%- assign _class = include.class | default: "" -%}
+{%- assign _src   = include.src -%}
+{%- assign _src2  = include.src2x -%}
+{%- assign _alt   = include.alt | default: "" -%}
+{%- assign _w     = include.w -%}
+{%- assign _h     = include.h -%}
+{%- assign _cls   = include.class -%}
 {%- assign _sizes = include.sizes | default: "100vw" -%}
-{%- assign _loading = include.loading | default: "lazy" -%}
-{%- assign _decoding = include.decoding | default: "async" -%}
-{%- assign _fetch = include.fetchpriority -%}
+{%- assign _load  = include.loading | default: "lazy" -%}
+{%- assign _prio  = include.fetch | default: "auto" -%}
 
-{%- if _src2x != "" -%}
-  <img
-    src="{{ _src }}"
-    srcset="{{ _src }} 1x, {{ _src2x | relative_url }} 2x"
-    alt="{{ _alt | escape }}"
-    class="{{ _class }}"
-    sizes="{{ _sizes }}"
-    loading="{{ _loading }}"
-    decoding="{{ _decoding }}"
-    {%- if _fetch %} fetchpriority="{{ _fetch }}"{% endif -%}>
-{%- else -%}
-  <img
-    src="{{ _src }}"
-    alt="{{ _alt | escape }}"
-    class="{{ _class }}"
-    sizes="{{ _sizes }}"
-    loading="{{ _loading }}"
-    decoding="{{ _decoding }}"
-    {%- if _fetch %} fetchpriority="{{ _fetch }}"{% endif -%}>
-{%- endif -%}
+{%- capture _ratio_style -%}
+{%- if _w and _h -%}aspect-ratio: {{ _w }}/{{ _h }};{%- endif -%}
+{%- endcapture -%}
+
+<img
+  src="{{ _src }}"
+  {%- if _src2 %} srcset="{{ _src }} 1x, {{ _src2 }} 2x"{% endif -%}
+  alt="{{ _alt | escape }}"
+  class="{{ _cls }}"
+  sizes="{{ _sizes }}"
+  {%- if _w and _h %} width="{{ _w }}" height="{{ _h }}"{% endif -%}
+  style="{{ _ratio_style | strip }}"
+  loading="{{ _load }}"
+  decoding="async"
+  fetchpriority="{{ _prio }}"
+/>
