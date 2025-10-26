@@ -1,0 +1,45 @@
+{%- comment -%}
+Prev/Next navigation for single entries in a collection.
+Usage: {% include prev_next.html %}
+{%- endcomment -%}
+{%- assign coll = site[page.collection] | sort: "date" -%}
+{%- assign current_index = nil -%}
+{%- for doc in coll -%}
+  {%- if doc.id == page.id -%}
+    {%- assign current_index = forloop.index0 -%}
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if current_index != nil -%}
+  {%- assign prev_i = current_index | minus: 1 -%}
+  {%- assign next_i = current_index | plus: 1 -%}
+  {%- assign prev_doc = coll[prev_i] -%}
+  {%- assign next_doc = coll[next_i] -%}
+
+  <nav class="pager" aria-label="Post navigation">
+    {%- if prev_doc -%}
+      <a class="pager-link pager-prev" href="{{ prev_doc.url | relative_url }}">
+        <span class="pager-kicker" aria-hidden="true">← Previous</span>
+        <span class="pager-title">{{ prev_doc.title }}</span>
+      </a>
+    {%- else -%}
+      <span class="pager-link pager-prev is-disabled" aria-disabled="true">
+        <span class="pager-kicker">← Previous</span>
+        <span class="pager-title">None</span>
+      </span>
+    {%- endif -%}
+
+    {%- if next_doc -%}
+      <a class="pager-link pager-next" href="{{ next_doc.url | relative_url }}">
+        <span class="pager-kicker" aria-hidden="true">Next →</span>
+        <span class="pager-title">{{ next_doc.title }}</span>
+      </a>
+    {%- else -%}
+      <span class="pager-link pager-next is-disabled" aria-disabled="true">
+        <span class="pager-kicker">Next →</span>
+        <span class="pager-title">None</span>
+      </span>
+    {%- endif -%}
+  </nav>
+{%- endif -%}
