@@ -4,22 +4,41 @@ layout: null
 permalink: /feed.json
 ---
 
-{%- assign items = site.logs | concat: site.field-notes | sort: 'date' | reverse -%}
+{%- comment -%}
+Build a combined, date-sorted list from these sources:
+- site.logs
+- site["field-notes"] (hyphen-safe)
+- site.posts        (optional)
+{%- endcomment -%}
+{%- assign logs  = site.logs           | default: empty -%}
+{%- assign notes = site["field-notes"] | default: empty -%}
+{%- assign posts = site.posts          | default: empty -%}
+{%- assign items = logs | concat: notes | concat: posts | sort: 'date' | reverse -%}
+
 {
   "version": "https://jsonfeed.org/version/1.1",
   "title": {{ site.title | jsonify }},
   "home_page_url": {{ site.url | default: site.github.url | jsonify }},
   "feed_url": {{ '/feed.json' | absolute_url | jsonify }},
   "description": {{ site.description | jsonify }},
+  "language": {{ site.lang | default: 'en' | jsonify }},
   "items": [
+    {%- assign author_name = site.author.name | default: site.title -%}
     {%- for p in items limit: 20 -%}
+    {%- assign img = p.og_image | default: p.hero_image -%}
     {
       "id": {{ p.url | absolute_url | jsonify }},
       "url": {{ p.url | absolute_url | jsonify }},
       "title": {{ p.title | jsonify }},
+      "author": { "name": {{ author_name | jsonify }} },
       "date_published": "{{ p.date | date_to_xmlschema }}",
-      {%- if p.og_image -%}
-      "image": {{ p.og_image | absolute_url | jsonify }},
+      "date_modified": "{{ p.last_modified_at | default: p.date | date_to_xmlschema }}",
+      {%- if img -%}
+      "image": {{ img | absolute_url | jsonify }},
+      {%- endif -%}
+      "summary": {{ p.excerpt | strip_html | strip_newlines | truncate: 200 | jsonify }},
+      {%- if p.tags and p.tags.size > 0 -%}
+      "tags": {{ p.tags | jsonify }},
       {%- endif -%}
       "content_html": {{ p.content | jsonify }}
     }{%- if forloop.last == false -%},{%- endif -%}
