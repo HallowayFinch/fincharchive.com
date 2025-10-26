@@ -425,3 +425,17 @@ a:focus-visible,.btn:focus-visible,.log-link:focus-visible,.theme-toggle:focus-v
 @media (max-width:640px){
   .pager{ flex-direction:column; }
 }
+
+/* ===== Print (clean archives) ===== */
+@media print {
+  :root {
+    --bg:#fff; --fg:#000; --muted:#333; --line:#ddd;
+  }
+  html, body { background:#fff !important; color:#000 !important; }
+  header.site, footer.site, .theme-toggle { display:none !important; }
+  .container, .wrap, .archive, .fieldnote, .fn-archive { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+  .log-hero, .feature-thumb, .log-thumb { border-color:#ccc !important; filter:none !important; }
+  a { color:#000 !important; text-decoration: underline; }
+  a[href^="http"]:after { content:" (" attr(href) ")"; font-size: .9em; }
+  .pager { display:none !important; } /* optional: hide next/prev on print */
+}
