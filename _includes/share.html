@@ -1,57 +1,57 @@
-{%- comment -%}
-_includes/share.html
-Usage:
-  {% include share.html %}                 → block style row
-  {% include share.html inline=true %}     → tiny inline button (good for meta line)
-Optional:
-  label="Share" (text next to icon in block mode)
-{%- endcomment -%}
+<!-- /_includes/share.html -->
+{% comment %}
+Renders:
+- "Source" (with external-link icon) if `page.source_url` is present
+- A Share button that uses Web Share API (mobile) and a clipboard fallback (desktop)
 
-{%- assign share_url = page.url | absolute_url -%}
-{%- assign is_inline = include.inline | default: false -%}
-{%- assign label = include.label | default: "Share" -%}
-{%- assign sid = page.url | append: "-share" | slugify -%}
+Usage (in layouts):
+... date ...
+<span aria-hidden="true"> · </span>
+{% include source_share.html %}
+{% endcomment %}
 
-{%- if is_inline -%}
-<button class="share-inline" id="{{ sid }}" type="button" data-url="{{ share_url }}" aria-label="Share this page">
-  <svg class="icon" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
-    <path fill="currentColor" d="M18 8a3 3 0 10-2.83-4H15a3 3 0 102.83 4H18zM6 14a3 3 0 10-2.83 4H3a3 3 0 102.83-4H6zm12 0a3 3 0 10-2.83 4H15a3 3 0 102.83-4H18zM8.59 13l6.82-3.41-.9-1.8L7.7 11.2l.89 1.8z"/>
-  </svg>
-</button>
-<span class="share-toast sr-only" id="{{ sid }}-toast" role="status" aria-live="polite"></span>
-{%- else -%}
-<div class="share-row">
-  <button class="btn btn-ghost" id="{{ sid }}" type="button" data-url="{{ share_url }}">
-    <svg class="icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-      <path fill="currentColor" d="M18 8a3 3 0 10-2.83-4H15a3 3 0 102.83 4H18zM6 14a3 3 0 10-2.83 4H3a3 3 0 102.83-4H6zm12 0a3 3 0 10-2.83 4H15a3 3 0 102.83-4H18zM8.59 13l6.82-3.41-.9-1.8L7.7 11.2l.89 1.8z"/>
-    </svg>
-    <span>{{ label }}</span>
+<span class="meta-actions">
+  {%- if page.source_url -%}
+    <a class="meta-link" href="{{ page.source_url }}" target="_blank" rel="noopener">
+      Source
+      <svg class="icon" aria-hidden="true"><use href="#icon-external"/></svg>
+      <span class="visually-hidden">(opens in new tab)</span>
+    </a>
+    <span aria-hidden="true">·</span>
+  {%- endif -%}
+
+  <button class="share-inline" type="button" id="share-btn" aria-label="Share this page">
+    <svg class="icon" aria-hidden="true"><use href="#icon-share"/></svg>
   </button>
-  <span class="share-toast" id="{{ sid }}-toast" role="status" aria-live="polite"></span>
-</div>
-{%- endif -%}
+</span>
 
 <script>
-(function(){
-  var id = "{{ sid }}";
-  var btn = document.getElementById(id);
-  if(!btn) return;
-  var toast = document.getElementById(id + "-toast");
-  var url = btn.getAttribute('data-url');
+(function () {
+  var btn = document.getElementById('share-btn');
+  if (!btn) return;
 
-  btn.addEventListener('click', async function(){
-    try{
+  var title = (document.querySelector('h1') && document.querySelector('h1').textContent.trim()) || document.title;
+  var url   = window.location.href;
+
+  btn.addEventListener('click', async function () {
+    try {
       if (navigator.share) {
-        await navigator.share({ url: url, title: document.title });
-        return;
-      }
-      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.share({ title: title, url: url });
+      } else if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(url);
-        if (toast){ toast.textContent = 'Link copied'; setTimeout(function(){ toast.textContent=''; }, 1400); }
+        var old = btn.innerHTML;
+        btn.setAttribute('aria-label','Link copied');
+        btn.innerHTML = '✓';
+        setTimeout(function(){ btn.innerHTML = old; btn.setAttribute('aria-label','Share this page'); }, 1400);
       } else {
-        window.prompt('Copy link', url);
+        prompt('Copy this link:', url);
       }
-    }catch(e){ /* no-op */ }
+    } catch (e) { /* user canceled; no-op */ }
   });
 })();
 </script>
+
+<style>
+.meta-actions { display:inline-flex; gap:.45rem; align-items:center; }
+.meta-link { display:inline-flex; gap:.35rem; align-items:center; }
+</style>
