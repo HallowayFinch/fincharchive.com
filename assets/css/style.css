@@ -400,3 +400,28 @@ a:focus-visible,.btn:focus-visible,.log-link:focus-visible,.theme-toggle:focus-v
   background:var(--badge-bg); color:var(--fg); border:1px solid var(--badge-border);
   border-radius:6px; z-index:9999; outline:2px dashed var(--accent); outline-offset:2px;
 }
+
+/* ==========================
+   Prev / Next pager
+   ========================== */
+.pager{
+  display:flex; justify-content:space-between; align-items:stretch;
+  gap:10px; margin:2rem 0 0; border-top:1px solid var(--line); padding-top:1rem;
+}
+.pager-link{
+  display:flex; flex-direction:column; gap:.25rem;
+  min-width:0; text-decoration:none; border:1px solid var(--badge-border);
+  border-radius:6px; padding:.6rem .7rem; background:var(--badge-bg);
+  transition:transform .08s ease, border-color .15s ease, opacity .15s ease;
+}
+.pager-link:hover{ transform:translateY(-1px); border-color:var(--accent); }
+.pager-kicker{ font-size:.8rem; color:var(--muted); letter-spacing:.02em; }
+.pager-title{ font-family:var(--serif); font-size:1rem; line-height:1.35; color:var(--fg); }
+
+.pager .is-disabled{
+  opacity:.45; pointer-events:none;
+}
+
+@media (max-width:640px){
+  .pager{ flex-direction:column; }
+}
