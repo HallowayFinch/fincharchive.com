@@ -1,5 +1,18 @@
 <!-- /_includes/head.html -->
 {% comment %} Global head include for meta & previews {% endcomment %}
+
+<!-- Finch Archive: prevent theme flash (set before paint) -->
+<script>
+(function () {
+  try {
+    var key   = 'fa-theme';
+    var saved = localStorage.getItem(key);
+    var theme = (saved === 'light' || saved === 'dark') ? saved : 'dark'; // default dark
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (e) { /* ignore */ }
+})();
+</script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
