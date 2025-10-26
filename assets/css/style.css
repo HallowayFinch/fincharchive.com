@@ -362,9 +362,13 @@ a:focus-visible,.btn:focus-visible,.log-link:focus-visible,.theme-toggle:focus-v
   padding:.5rem .75rem;border:1px solid var(--badge-border);border-radius:6px;
   background:var(--badge-bg);color:var(--fg);text-decoration:none;
   font:14px/1.2 var(--mono);opacity:.95;
-  transition:opacity .15s ease,transform .08s ease,border-color .15s ease;
+  transition:opacity .15s ease,transform .08s ease,border-color .15s ease,box-shadow .15s ease;
+  will-change: transform;
 }
 .btn:hover{opacity:1;transform:translateY(-1px);border-color:var(--accent)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn:focus-visible{box-shadow:0 0 0 4px rgba(122,58,58,.18)}
+.btn .icon{width:16px;height:16px;fill:currentColor}
 
 /* Spacing utilities */
 .mt-12{margin-top:.75rem}.mb-12{margin-bottom:.75rem}.my-12{margin-top:.75rem;margin-bottom:.75rem}
@@ -443,23 +447,3 @@ a:focus-visible,.btn:focus-visible,.log-link:focus-visible,.theme-toggle:focus-v
   a[href^="http"]:after { content:" (" attr(href) ")"; font-size: .9em; }
   .pager { display:none !important; }
 }
-
-/* Inline share button (meta line) */
-.share-inline{
-  display:inline-flex; align-items:center; justify-content:center;
-  width:26px; height:26px; margin:-3px 0 -3px 2px;
-  border:1px solid var(--badge-border); border-radius:6px;
-  background:var(--badge-bg); color:var(--fg);
-  vertical-align:middle; cursor:pointer;
-  opacity:.85; transition:opacity .15s ease, transform .08s ease, border-color .15s ease;
-}
-.share-inline:hover{ opacity:1; transform:translateY(-1px); border-color:var(--accent); }
-.share-inline .icon{ width:15px; height:15px; }
-
-.share-row{ margin:1rem 0 0; display:flex; align-items:center; gap:.75rem; }
-.btn-ghost{
-  background:transparent; border:1px solid var(--badge-border);
-  padding:.45rem .7rem; border-radius:6px; color:var(--fg); cursor:pointer;
-}
-.btn-ghost:hover{ border-color:var(--accent); transform:translateY(-1px); }
-.share-toast{ color:var(--muted); }
