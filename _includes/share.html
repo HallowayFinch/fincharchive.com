@@ -1,34 +1,57 @@
+{%- comment -%}
+_includes/share.html
+Usage:
+  {% include share.html %}                 → block style row
+  {% include share.html inline=true %}     → tiny inline button (good for meta line)
+Optional:
+  label="Share" (text next to icon in block mode)
+{%- endcomment -%}
+
 {%- assign share_url = page.url | absolute_url -%}
+{%- assign is_inline = include.inline | default: false -%}
+{%- assign label = include.label | default: "Share" -%}
+{%- assign sid = page.url | append: "-share" | slugify -%}
+
+{%- if is_inline -%}
+<button class="share-inline" id="{{ sid }}" type="button" data-url="{{ share_url }}" aria-label="Share this page">
+  <svg class="icon" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+    <path fill="currentColor" d="M18 8a3 3 0 10-2.83-4H15a3 3 0 102.83 4H18zM6 14a3 3 0 10-2.83 4H3a3 3 0 102.83-4H6zm12 0a3 3 0 10-2.83 4H15a3 3 0 102.83-4H18zM8.59 13l6.82-3.41-.9-1.8L7.7 11.2l.89 1.8z"/>
+  </svg>
+</button>
+<span class="share-toast sr-only" id="{{ sid }}-toast" role="status" aria-live="polite"></span>
+{%- else -%}
 <div class="share-row">
-  <button class="btn btn-ghost" id="share-btn" type="button" data-url="{{ share_url }}">
+  <button class="btn btn-ghost" id="{{ sid }}" type="button" data-url="{{ share_url }}">
     <svg class="icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
       <path fill="currentColor" d="M18 8a3 3 0 10-2.83-4H15a3 3 0 102.83 4H18zM6 14a3 3 0 10-2.83 4H3a3 3 0 102.83-4H6zm12 0a3 3 0 10-2.83 4H15a3 3 0 102.83-4H18zM8.59 13l6.82-3.41-.9-1.8L7.7 11.2l.89 1.8z"/>
     </svg>
-    <span>Share</span>
+    <span>{{ label }}</span>
   </button>
-  <span class="share-toast" id="share-toast" role="status" aria-live="polite"></span>
+  <span class="share-toast" id="{{ sid }}-toast" role="status" aria-live="polite"></span>
 </div>
+{%- endif -%}
 
 <script>
 (function(){
-  var btn = document.getElementById('share-btn');
-  var toast = document.getElementById('share-toast');
+  var id = "{{ sid }}";
+  var btn = document.getElementById(id);
   if(!btn) return;
+  var toast = document.getElementById(id + "-toast");
   var url = btn.getAttribute('data-url');
+
   btn.addEventListener('click', async function(){
     try{
       if (navigator.share) {
-        await navigator.share({ url, title: document.title });
+        await navigator.share({ url: url, title: document.title });
         return;
       }
-      await navigator.clipboard.writeText(url);
-      toast.textContent = 'Link copied';
-      btn.disabled = true;
-      setTimeout(function(){ toast.textContent=''; btn.disabled=false; }, 1400);
-    }catch(e){
-      // Fallback: select+copy via prompt
-      window.prompt('Copy link', url);
-    }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(url);
+        if (toast){ toast.textContent = 'Link copied'; setTimeout(function(){ toast.textContent=''; }, 1400); }
+      } else {
+        window.prompt('Copy link', url);
+      }
+    }catch(e){ /* no-op */ }
   });
 })();
 </script>
