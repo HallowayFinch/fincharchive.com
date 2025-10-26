@@ -5,9 +5,17 @@ layout: default
 <main class="container">
   <header class="log-header">
     <h1>{{ page.title }}</h1>
+
     <div class="meta">
       {% include date-local.html dt=page.date %}
-      {%- if page.source_url %} · <a href="{{ page.source_url }}" rel="noopener">Source</a>{% endif -%}
+
+      {%- if page.source_url -%}
+        <span aria-hidden="true"> · </span>
+        <a href="{{ page.source_url }}" rel="noopener noreferrer">Source</a>
+      {%- endif -%}
+
+      <span aria-hidden="true"> · </span>
+      {% include share.html inline=true %}
     </div>
   </header>
 
@@ -34,7 +42,7 @@ layout: default
     <h2>Artifacts</h2>
     <ul class="artifact-list">
       {%- for a in page.artifacts -%}
-      <li><a class="btn" href="{{ a.path | relative_url }}">{{ a.label | default: "Artifact" }}</a></li>
+        <li><a class="btn" href="{{ a.path | relative_url }}">{{ a.label | default: "Artifact" }}</a></li>
       {%- endfor -%}
     </ul>
   </section>
