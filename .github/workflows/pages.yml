@@ -3,19 +3,27 @@ name: github-pages
 on:
   push:
     branches: [ "main" ]
-    # Only rebuild when site-relevant files change
+    # Rebuild when site-relevant files change (now includes JSON/TXT, CNAME)
     paths:
       - "_config.yml"
       - "_data/**"
       - "_includes/**"
       - "_layouts/**"
+      - "_logs/**"
+      - "_field-notes/**"
+      - "_posts/**"
+      - "artifacts/**"
       - "assets/**"
       - "**/*.html"
       - "**/*.md"
-      - "_posts/**"
-      - "_logs/**"
-      - "_field-notes/**"
-      - "artifacts/**"
+      - "**/*.css"
+      - "**/*.js"
+      - "**/*.json"        # feed.json, site.webmanifest, etc.
+      - "**/*.txt"         # robots.txt, humans.txt, etc.
+      - "feed.json"
+      - "robots.txt"
+      - "site.webmanifest"
+      - "CNAME"
   workflow_dispatch: {}
 
 permissions:
@@ -25,17 +33,21 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
+    # Expose whether site files changed so deploy can decide to run
+    outputs:
+      site_changed: ${{ steps.filter.outputs.site }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Extra safety: if this push didn't touch site-relevant paths, skip the build
+      # Gate the rest of the job on site-relevant paths
       - name: Filter for site changes
         id: filter
         uses: dorny/paths-filter@v3
@@ -47,13 +59,21 @@ jobs:
               - '_data/**'
               - '_includes/**'
               - '_layouts/**'
+              - '_logs/**'
+              - '_field-notes/**'
+              - '_posts/**'
+              - 'artifacts/**'
               - 'assets/**'
               - '**/*.html'
               - '**/*.md'
-              - '_posts/**'
-              - '_logs/**'
-              - '_field-notes/**'
-              - 'artifacts/**'
+              - '**/*.css'
+              - '**/*.js'
+              - '**/*.json'
+              - '**/*.txt'
+              - 'feed.json'
+              - 'robots.txt'
+              - 'site.webmanifest'
+              - 'CNAME'
 
       # Validate front matter in content collections (_logs, _field-notes, _posts)
       - name: Validate front matter
@@ -68,7 +88,7 @@ jobs:
               if not os.path.isdir(folder):
                   continue
               for fn in os.listdir(folder):
-                  if not fn.endswith(".md"):
+                  if not fn.endswith((".md", ".markdown")):
                       continue
                   path = os.path.join(folder, fn)
                   with open(path, "r", encoding="utf-8") as f:
@@ -174,8 +194,8 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    # Only deploy if the build actually ran (i.e., we had site changes)
-    if: needs.build.result == 'success'
+    # Deploy only if the build job detected site-relevant changes
+    if: needs.build.outputs.site_changed == 'true'
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
