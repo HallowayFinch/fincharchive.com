@@ -462,3 +462,5 @@ a:focus-visible,.btn:focus-visible,.log-link:focus-visible,.theme-toggle:focus-v
   a[href^="http"]:after { content:" (" attr(href) ")"; font-size: .9em; }
   .pager { display:none !important; }
 }
+
+html { scroll-behavior: smooth; }
