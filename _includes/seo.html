@@ -1,78 +1,174 @@
 {%- comment -%}
-  Central SEO + Social meta for Finch Archive
-  Usage: included from _includes/head.html
+  _includes/seo.html
+  Structured data (JSON-LD) for Finch Archive
+  - WebSite (home)
+  - WebPage (all)
+  - BlogPosting (single Log under _logs/)
+  - CreativeWork (single Field Note under _field-notes/)
+  - BreadcrumbList (Logs / Field Notes paths)
 {%- endcomment -%}
 
-{%- assign is_article = false -%}
-{%- if page.collection == "logs" or page.collection == "field-notes" -%}
-  {%- assign is_article = true -%}
-{%- endif -%}
+{%- assign site_name  = site.title | default: "Site" -%}
+{%- assign site_desc  = site.description | default: site.title -%}
+{%- assign site_url   = site.url | default: "" -%}
+{%- assign page_url   = page.url | absolute_url -%}
+{%- assign page_title = page.title | default: site_name -%}
+{%- assign page_desc  = page.excerpt | default: site_desc -%}
+{%- assign page_image = page.og_image | default: page.hero_image | default: "/assets/og/og-default.png" | absolute_url -%}
+{%- assign author_name = site.author.name | default: site.author | default: site_name -%}
+{%- assign logo_url = site.logo | default: "" | absolute_url -%}
+{%- assign published_iso = page.date | date_to_xmlschema -%}
+{%- assign modified_iso  = page.last_modified_at | default: page.date | date_to_xmlschema -%}
 
-{%- comment %} Title & description {% endcomment -%}
-{%- assign page_title = page.title | default: site.title -%}
-{%- assign page_desc  = page.excerpt | default: site.description | strip_html | strip_newlines | truncate: 200 -%}
-
-{%- comment %} Canonical URL {% endcomment -%}
-{%- assign canonical_url = page.canonical_url | default: page.url | absolute_url -%}
-
-{%- comment %} Pick best image: front matter (og_image > image > hero_image) with absolute URL {% endcomment -%}
-{%- assign _img = page.og_image | default: page.image | default: page.hero_image | default: '/assets/og/og-default.png' -%}
-{%- assign og_image = _img | absolute_url -%}
-
-{%- comment %} Robots control (e.g., `noindex: true` in front matter) {% endcomment -%}
-{%- if page.noindex or layout.noindex -%}
-  <meta name="robots" content="noindex, nofollow">
-{%- endif -%}
-
-<title>{{ page_title }}{% if page.title %} · {{ site.title }}{% endif %}</title>
-<meta name="description" content="{{ page_desc }}">
-
-<link rel="canonical" href="{{ canonical_url }}">
-
-{%- comment %} Open Graph {% endcomment -%}
-<meta property="og:type" content="{% if is_article %}article{% else %}website{% endif %}">
-<meta property="og:site_name" content="{{ site.title }}">
-<meta property="og:title" content="{{ page_title }}">
-<meta property="og:description" content="{{ page_desc }}">
-<meta property="og:url" content="{{ canonical_url }}">
-<meta property="og:image" content="{{ og_image }}">
-
-{%- if is_article and page.date -%}
-  <meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
-{%- endif -%}
-{%- if is_article and page.last_modified_at -%}
-  <meta property="article:modified_time" content="{{ page.last_modified_at | date_to_xmlschema }}">
-{%- endif -%}
-
-{%- comment %} Twitter {% endcomment -%}
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{{ page_title }}">
-<meta name="twitter:description" content="{{ page_desc }}">
-<meta name="twitter:image" content="{{ og_image }}">
-{%- if site.twitter_username -%}
-  <meta name="twitter:site" content="@{{ site.twitter_username | replace: '@','' }}">
-{%- endif -%}
-
-{%- comment %} Feeds (logs + field notes) {% endcomment -%}
-<link rel="alternate" type="application/rss+xml" title="{{ site.title }} — Logs" href="{{ '/logs.xml' | relative_url }}">
-<link rel="alternate" type="application/rss+xml" title="{{ site.title }} — Field Notes" href="{{ '/field-notes/feed.xml' | relative_url }}">
-
-{%- comment %} Theme color (respects light/dark) {% endcomment -%}
-<meta name="theme-color" media="(prefers-color-scheme: dark)"  content="#000000">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f2e7">
-
-{%- comment %} Optional JSON-LD for articles {% endcomment -%}
-{%- if is_article -%}
+{%- comment -%}
+  1) WebSite (home only)
+{%- endcomment -%}
+{%- if page.url == "/" or page.permalink == "/" -%}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "Article",
-  "headline": {{ page_title | jsonify }},
-  "description": {{ page_desc | jsonify }},
-  "image": [{{ og_image | jsonify }}],
-  "author": {{ site.author | default: "Halloway Finch" | jsonify }},
-  "datePublished": "{{ page.date | date_to_xmlschema }}",
-  "mainEntityOfPage": {{ canonical_url | jsonify }}
+  "@type": "WebSite",
+  "name": {{ site_name | jsonify }},
+  "url": {{ site_url | jsonify }},
+  "description": {{ site_desc | strip_html | strip_newlines | jsonify }},
+  {%- if logo_url != site_url and logo_url != "" -%}
+  "publisher": {
+    "@type": "Organization",
+    "name": {{ site_name | jsonify }},
+    "logo": { "@type": "ImageObject", "url": {{ logo_url | jsonify }} }
+  },
+  {%- endif -%}
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "{{ site_url }}/search/?q={query}",
+    "query-input": "required name=query"
+  }
+}
+</script>
+{%- endif -%}
+
+{%- comment -%}
+  2) WebPage (all pages)
+{%- endcomment -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": {{ page_title | jsonify }},
+  "url": {{ page_url | jsonify }},
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": {{ site_name | jsonify }},
+    "url": {{ site_url | jsonify }}
+  },
+  "description": {{ page_desc | strip_html | strip_newlines | jsonify }}
+}
+</script>
+
+{%- comment -%}
+  3) BlogPosting for single Log entries (collection: logs)
+{%- endcomment -%}
+{%- if page.collection == "logs" -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": {{ page.title | jsonify }},
+  "mainEntityOfPage": { "@type": "WebPage", "@id": {{ page_url | jsonify }} },
+  "datePublished": {{ published_iso | jsonify }},
+  "dateModified": {{ modified_iso | jsonify }},
+  "author": { "@type": "Person", "name": {{ author_name | jsonify }} },
+  "publisher": {
+    "@type": "Organization",
+    "name": {{ site_name | jsonify }}
+    {%- if logo_url != site_url and logo_url != "" -%},
+    "logo": { "@type": "ImageObject", "url": {{ logo_url | jsonify }} }
+    {%- endif -%}
+  }
+  {%- if page_image -%},
+  "image": [ {{ page_image | jsonify }} ]
+  {%- endif -%},
+  "description": {{ page_desc | strip_html | strip_newlines | jsonify }}
+}
+</script>
+{%- endif -%}
+
+{%- comment -%}
+  4) CreativeWork for single Field Notes (collection: field-notes)
+{%- endcomment -%}
+{%- if page.collection == "field-notes" -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  "name": {{ page.title | jsonify }},
+  "url": {{ page_url | jsonify }},
+  "datePublished": {{ published_iso | jsonify }},
+  "dateModified": {{ modified_iso | jsonify }},
+  "author": { "@type": "Person", "name": {{ author_name | jsonify }} },
+  "publisher": {
+    "@type": "Organization",
+    "name": {{ site_name | jsonify }}
+    {%- if logo_url != site_url and logo_url != "" -%},
+    "logo": { "@type": "ImageObject", "url": {{ logo_url | jsonify }} }
+    {%- endif -%}
+  }
+  {%- if page_image -%},
+  "image": [ {{ page_image | jsonify }} ]
+  {%- endif -%},
+  "description": {{ page_desc | strip_html | strip_newlines | jsonify }}
+}
+</script>
+{%- endif -%}
+
+{%- comment -%}
+  5) Breadcrumbs for Logs / Field Notes
+     - Logs item: Home > Logs > Title
+     - Field Notes item: Home > Field Notes > Title
+{%- endcomment -%}
+{%- assign is_logs_item = page.collection == "logs" -%}
+{%- assign is_fn_item   = page.collection == "field-notes" -%}
+{%- if is_logs_item or is_fn_item -%}
+{%- assign section_url = is_logs_item | default: false | ternary: "/logs/", "/field-notes/" -%}
+{%- assign section_name = is_logs_item | default: false | ternary: "Logs", "Field Notes" -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": {{ site_url | jsonify }} },
+    { "@type": "ListItem", "position": 2, "name": {{ section_name | jsonify }}, "item": "{{ site_url }}{{ section_url }}" },
+    { "@type": "ListItem", "position": 3, "name": {{ page_title | jsonify }}, "item": {{ page_url | jsonify }} }
+  ]
+}
+</script>
+{%- endif -%}
+
+{%- comment -%}
+  6) (Optional) Logs index: CollectionPage + ItemList on /logs/
+      Emits the latest items so search engines understand the list.
+{%- endcomment -%}
+{%- if page.url == "/logs/" -%}
+{%- assign listed = site.logs | sort: "date" | reverse | slice: 0, 20 -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Logs",
+  "url": {{ page_url | jsonify }},
+  "hasPart": {
+    "@type": "ItemList",
+    "itemListElement": [
+      {%- for item in listed -%}
+      {
+        "@type": "ListItem",
+        "position": {{ forloop.index }},
+        "url": {{ item.url | absolute_url | jsonify }},
+        "name": {{ item.title | jsonify }}
+      }{%- unless forloop.last -%},{%- endunless -%}
+      {%- endfor -%}
+    ]
+  }
 }
 </script>
 {%- endif -%}
