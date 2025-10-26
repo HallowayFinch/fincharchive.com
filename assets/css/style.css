@@ -439,3 +439,27 @@ a:focus-visible,.btn:focus-visible,.log-link:focus-visible,.theme-toggle:focus-v
   a[href^="http"]:after { content:" (" attr(href) ")"; font-size: .9em; }
   .pager { display:none !important; } /* optional: hide next/prev on print */
 }
+
+/* Visually hidden helper (if not already in your CSS) */
+.sr-only{position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,1px,1px);white-space:nowrap;border:0}
+
+/* Inline share button (meta line) */
+.share-inline{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; margin:-3px 0 -3px 2px; /* nudge to text baseline */
+  border:1px solid var(--badge-border); border-radius:6px;
+  background:var(--badge-bg); color:var(--fg);
+  vertical-align:middle; cursor:pointer;
+  opacity:.85; transition:opacity .15s ease, transform .08s ease, border-color .15s ease;
+}
+.share-inline:hover{ opacity:1; transform:translateY(-1px); border-color:var(--accent); }
+.share-inline .icon{ width:15px; height:15px; }
+
+/* Existing block styles if not present */
+.share-row{ margin:1rem 0 0; display:flex; align-items:center; gap:.75rem; }
+.btn-ghost{
+  background:transparent; border:1px solid var(--badge-border);
+  padding:.45rem .7rem; border-radius:6px; color:var(--fg); cursor:pointer;
+}
+.btn-ghost:hover{ border-color:var(--accent); transform:translateY(-1px); }
+.share-toast{ color:var(--muted); }
