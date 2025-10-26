@@ -2,9 +2,9 @@
 {% comment %}
 Renders:
 - Optional "Source" (with icon) if page.source_url is present
-- A Share button (Web Share API + clipboard fallback)
-- Automatically prepends a · separator
-Usage: place directly after the date line in layouts.
+- Share button (Web Share API + clipboard fallback)
+- Auto-prepends a centered dot separator
+- Adds a subtle "copied ✓" micro-animation + a11y live announcement
 {% endcomment %}
 
 <span class="meta-actions">
@@ -22,35 +22,100 @@ Usage: place directly after the date line in layouts.
   <button class="share-inline" type="button" id="share-btn" aria-label="Share this page">
     <svg class="icon" aria-hidden="true"><use href="#icon-share"/></svg>
   </button>
+
+  <!-- SR-only live region for copy confirmation -->
+  <span id="share-live" class="visually-hidden" aria-live="polite"></span>
 </span>
 
 <script>
 (function () {
-  var btn = document.getElementById('share-btn');
+  var btn  = document.getElementById('share-btn');
   if (!btn) return;
 
   var title = (document.querySelector('h1') && document.querySelector('h1').textContent.trim()) || document.title;
   var url   = window.location.href;
+  var live  = document.getElementById('share-live');
+
+  function flashCopied() {
+    // Keep the layout stable: swap icon -> ✓, animate, then restore
+    var oldHTML = btn.innerHTML;
+    btn.classList.add('is-copied');
+    btn.setAttribute('aria-label', 'Link copied');
+    if (live) live.textContent = 'Link copied to clipboard';
+
+    btn.innerHTML = '✓';
+    setTimeout(function () {
+      btn.innerHTML = oldHTML;
+      btn.classList.remove('is-copied');
+      btn.setAttribute('aria-label', 'Share this page');
+      if (live) live.textContent = '';
+    }, 1200);
+  }
 
   btn.addEventListener('click', async function () {
     try {
       if (navigator.share) {
         await navigator.share({ title: title, url: url });
+        // On mobile share sheet success we don’t flash ✓ (no reliable signal).
       } else if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(url);
-        var old = btn.innerHTML;
-        btn.setAttribute('aria-label','Link copied');
-        btn.innerHTML = '✓';
-        setTimeout(function(){ btn.innerHTML = old; btn.setAttribute('aria-label','Share this page'); }, 1400);
+        flashCopied();
       } else {
-        prompt('Copy this link:', url);
+        // Very old fallback—let user copy manually
+        var ok = prompt('Copy this link:', url);
       }
-    } catch (e) { /* user canceled; no-op */ }
+    } catch (e) {
+      // User canceled or blocked; no-op
+    }
   });
 })();
 </script>
 
 <style>
 .meta-actions { display:inline-flex; gap:.45rem; align-items:center; }
-.meta-link { display:inline-flex; gap:.35rem; align-items:center; }
+.meta-link    { display:inline-flex; gap:.35rem; align-items:center; }
+
+/* Share button base */
+.share-inline{
+  position:relative;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; line-height:1;
+  margin:-3px 0 -3px 2px;
+  border:1px solid var(--badge-border); border-radius:6px;
+  background:var(--badge-bg); color:var(--fg);
+  vertical-align:middle; cursor:pointer;
+  opacity:.85; transition:opacity .15s ease, transform .08s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.share-inline:hover{ opacity:1; transform:translateY(-1px); border-color:var(--accent); }
+.share-inline .icon{ width:15px; height:15px; }
+
+/* Micro animation: quick pop + fade when copied */
+@keyframes fa-pop {
+  0%   { transform:scale(0.92); opacity:.0; }
+  40%  { transform:scale(1.04); opacity:1; }
+  100% { transform:scale(1);    opacity:1; }
+}
+@keyframes fa-glow {
+  0%   { box-shadow:0 0 0 0 rgba(122,58,58,.0); }
+  35%  { box-shadow:0 0 0 4px rgba(122,58,58,.18); }
+  100% { box-shadow:0 0 0 0 rgba(122,58,58,.0); }
+}
+
+.share-inline.is-copied{
+  border-color:var(--accent);
+  animation: fa-glow 900ms ease-out;
+}
+.share-inline.is-copied,
+.share-inline.is-copied > * {
+  animation: fa-pop 220ms cubic-bezier(.2,.8,.3,1) forwards;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .share-inline{ transition:none; }
+  .share-inline.is-copied,
+  .share-inline.is-copied > *{
+    animation:none !important;
+  }
+}
 </style>
