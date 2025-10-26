@@ -4,7 +4,8 @@ Renders:
 - Optional "Source" (with icon) if page.source_url is present
 - Share button (Web Share API + clipboard fallback)
 - Auto-prepends a centered dot separator
-- Adds a subtle "copied ✓" micro-animation + a11y live announcement
+- Adds "copied ✓" micro-animation
+- Adds custom fade tooltip on hover/focus
 {% endcomment %}
 
 <span class="meta-actions">
@@ -21,6 +22,7 @@ Renders:
 
   <button class="share-inline" type="button" id="share-btn" aria-label="Share this page">
     <svg class="icon" aria-hidden="true"><use href="#icon-share"/></svg>
+    <span class="tooltip" role="tooltip">Share this page</span>
   </button>
 
   <!-- SR-only live region for copy confirmation -->
@@ -37,7 +39,6 @@ Renders:
   var live  = document.getElementById('share-live');
 
   function flashCopied() {
-    // Keep the layout stable: swap icon -> ✓, animate, then restore
     var oldHTML = btn.innerHTML;
     btn.classList.add('is-copied');
     btn.setAttribute('aria-label', 'Link copied');
@@ -56,17 +57,13 @@ Renders:
     try {
       if (navigator.share) {
         await navigator.share({ title: title, url: url });
-        // On mobile share sheet success we don’t flash ✓ (no reliable signal).
       } else if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(url);
         flashCopied();
       } else {
-        // Very old fallback—let user copy manually
-        var ok = prompt('Copy this link:', url);
+        prompt('Copy this link:', url);
       }
-    } catch (e) {
-      // User canceled or blocked; no-op
-    }
+    } catch (e) { /* ignore cancel */ }
   });
 })();
 </script>
@@ -75,7 +72,7 @@ Renders:
 .meta-actions { display:inline-flex; gap:.45rem; align-items:center; }
 .meta-link    { display:inline-flex; gap:.35rem; align-items:center; }
 
-/* Share button base */
+/* Share button */
 .share-inline{
   position:relative;
   display:inline-flex; align-items:center; justify-content:center;
@@ -84,12 +81,48 @@ Renders:
   border:1px solid var(--badge-border); border-radius:6px;
   background:var(--badge-bg); color:var(--fg);
   vertical-align:middle; cursor:pointer;
-  opacity:.85; transition:opacity .15s ease, transform .08s ease, border-color .15s ease, box-shadow .15s ease;
+  opacity:.85;
+  transition:opacity .15s ease, transform .08s ease, border-color .15s ease, box-shadow .15s ease;
 }
-.share-inline:hover{ opacity:1; transform:translateY(-1px); border-color:var(--accent); }
+.share-inline:hover,
+.share-inline:focus-visible{
+  opacity:1; transform:translateY(-1px); border-color:var(--accent);
+}
 .share-inline .icon{ width:15px; height:15px; }
 
-/* Micro animation: quick pop + fade when copied */
+/* Tooltip styling */
+.tooltip{
+  position:absolute;
+  bottom:calc(100% + 6px);
+  left:50%;
+  transform:translateX(-50%) scale(.95);
+  background:var(--badge-bg);
+  color:var(--fg);
+  font-size:.75rem;
+  padding:.25rem .5rem;
+  border:1px solid var(--badge-border);
+  border-radius:4px;
+  white-space:nowrap;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .2s ease, transform .2s ease;
+  z-index:100;
+}
+.tooltip::after{
+  content:"";
+  position:absolute;
+  top:100%; left:50%; transform:translateX(-50%);
+  border:5px solid transparent;
+  border-top-color:var(--badge-bg);
+  opacity:.9;
+}
+.share-inline:hover .tooltip,
+.share-inline:focus-visible .tooltip{
+  opacity:1;
+  transform:translateX(-50%) scale(1);
+}
+
+/* Copy animation */
 @keyframes fa-pop {
   0%   { transform:scale(0.92); opacity:.0; }
   40%  { transform:scale(1.04); opacity:1; }
@@ -100,22 +133,19 @@ Renders:
   35%  { box-shadow:0 0 0 4px rgba(122,58,58,.18); }
   100% { box-shadow:0 0 0 0 rgba(122,58,58,.0); }
 }
-
 .share-inline.is-copied{
   border-color:var(--accent);
-  animation: fa-glow 900ms ease-out;
+  animation:fa-glow 900ms ease-out;
 }
 .share-inline.is-copied,
-.share-inline.is-copied > * {
-  animation: fa-pop 220ms cubic-bezier(.2,.8,.3,1) forwards;
+.share-inline.is-copied>*{
+  animation:fa-pop 220ms cubic-bezier(.2,.8,.3,1) forwards;
 }
 
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce){
-  .share-inline{ transition:none; }
-  .share-inline.is-copied,
-  .share-inline.is-copied > *{
-    animation:none !important;
-  }
+  .tooltip,
+  .share-inline,
+  .share-inline>*{ transition:none !important; animation:none !important; }
 }
 </style>
