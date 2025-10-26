@@ -62,7 +62,7 @@ SEO + JSON-LD (safe version, no where_exp)
   "url": {{ abs_site | jsonify }},
   "potentialAction": {
     "@type": "SearchAction",
-    "target": {{ (abs_site | append: "/search/?q={query}") | jsonify }},
+    "target": "{{ abs_site }}/search/?q={% raw %}{query}{% endraw %}",
     "query-input": "required name=query"
   }
 }
@@ -95,7 +95,6 @@ SEO + JSON-LD (safe version, no where_exp)
 
 {%- comment -%}
 BreadcrumbList (only on logs index and individual log pages).
-No where_exp used; simple explicit logic:
 {%- endcomment -%}
 {%- assign is_logs_index = false -%}
 {%- if page.url == "/logs/" or page.permalink == "/logs/" or page.layout == "logs" -%}{% assign is_logs_index = true %}{%- endif -%}
