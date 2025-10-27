@@ -3,10 +3,23 @@ layout: null
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     {% include head.html %}
     {% include social-meta.html %}
+
+    <!-- Set initial theme before CSS to avoid icon FOUC -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('fa-theme');
+          var theme = (saved === 'light' || saved === 'dark') ? saved : 'dark';
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
 
     <!-- Site stylesheet -->
     <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}?v={{ site.time | date: '%s' }}">
@@ -63,17 +76,13 @@ layout: null
         const btn = document.getElementById('theme-toggle');
         if (!btn) return;
 
-        // Initialize theme
-        const saved = localStorage.getItem(key);
-        const initial = (saved === 'light' || saved === 'dark') ? saved : 'dark';
-        root.setAttribute('data-theme', initial);
-        btn.setAttribute('aria-pressed', String(initial === 'dark'));
+        // Keep aria-pressed in sync
+        btn.setAttribute('aria-pressed', String(root.getAttribute('data-theme') === 'dark'));
 
-        // Toggle on click
         btn.addEventListener('click', () => {
           const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
           root.setAttribute('data-theme', next);
-          localStorage.setItem(key, next);
+          try { localStorage.setItem(key, next); } catch(e){}
           btn.setAttribute('aria-pressed', String(next === 'dark'));
         });
       })();
