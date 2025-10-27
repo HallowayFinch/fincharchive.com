@@ -5,50 +5,58 @@ permalink: /sitemap.xml
 
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {%- assign ABS = site.url | default: site.github.url -%}
 
   <!-- Home -->
   <url>
     <loc>{{ "/" | absolute_url }}</loc>
     <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
+    <lastmod>{{ site.time | date_to_xmlschema }}</lastmod>
   </url>
 
   {%- comment -%}
   Regular pages
-  - Skip XML/feeds, assets, drafts, and anything that sets `sitemap: false`
+  Skip:
+  - XML/feeds (RSS + JSON)
+  - Assets
+  - 404, robots
+  - Anything setting `sitemap: false`
   {%- endcomment -%}
   {%- for p in site.pages -%}
+    {%- assign u = p.url -%}
     {%- unless p.sitemap == false
-          or p.url contains ".xml"
-          or p.url contains "/feed"
-          or p.url contains "/assets/"
-          or p.url == "/404.html" -%}
+          or u contains ".xml"
+          or u contains "/feed"
+          or u == "/feed.json"
+          or u contains "/assets/"
+          or u == "/404.html"
+          or u == "/robots.txt" -%}
       <url>
-        <loc>{{ p.url | absolute_url }}</loc>
+        <loc>{{ u | absolute_url }}</loc>
         {%- if p.last_modified_at or p.date -%}
           <lastmod>{{ p.last_modified_at | default: p.date | date_to_xmlschema }}</lastmod>
         {%- endif -%}
+        {%- if u == "/about/" -%}<changefreq>yearly</changefreq>{%- endif -%}
       </url>
     {%- endunless -%}
   {%- endfor -%}
 
-  {%- comment -%}
-  Logs collection
-  {%- endcomment -%}
+  <!-- Logs -->
   {%- if site.logs -%}
     {%- for item in site.logs -%}
       {%- unless item.sitemap == false -%}
       <url>
         <loc>{{ item.url | absolute_url }}</loc>
         <lastmod>{{ item.last_modified_at | default: item.date | date_to_xmlschema }}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
       </url>
       {%- endunless -%}
     {%- endfor -%}
   {%- endif -%}
 
-  {%- comment -%}
-  Field Notes collection
-  {%- endcomment -%}
+  <!-- Field Notes -->
   {%- assign fn = site["field-notes"] -%}
   {%- if fn -%}
     {%- for item in fn -%}
@@ -56,23 +64,23 @@ permalink: /sitemap.xml
       <url>
         <loc>{{ item.url | absolute_url }}</loc>
         <lastmod>{{ item.last_modified_at | default: item.date | date_to_xmlschema }}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.5</priority>
       </url>
       {%- endunless -%}
     {%- endfor -%}
   {%- endif -%}
 
-  {%- comment -%}
-  (Optional) blog posts if you ever add _posts/
-  {%- endcomment -%}
+  <!-- Optional: classic blog posts if ever used -->
   {%- if site.posts -%}
     {%- for post in site.posts -%}
       {%- unless post.sitemap == false -%}
       <url>
         <loc>{{ post.url | absolute_url }}</loc>
         <lastmod>{{ post.last_modified_at | default: post.date | date_to_xmlschema }}</lastmod>
+        <changefreq>monthly</changefreq>
       </url>
       {%- endunless -%}
     {%- endfor -%}
   {%- endif -%}
-
 </urlset>
