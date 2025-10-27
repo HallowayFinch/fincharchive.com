@@ -32,10 +32,7 @@
 :root { accent-color: var(--accent); }
 
 /* Subtle text selection that fits both themes */
-::selection {
-  background: rgba(122, 58, 58, 0.28);
-  color: inherit;
-}
+::selection { background: rgba(122, 58, 58, 0.28); color: inherit; }
 
 /* Anchors scrolled into view won’t hide under sticky header */
 :target { scroll-margin-top: 78px; } /* adjust if header height changes */
@@ -170,7 +167,7 @@ header.site{
 }
 
 /* ======================================
-   Theme toggle (SVG swap; Safari-safe)
+   Theme toggle (SVG swap; Safari/Firefox-safe)
    ====================================== */
 .theme-toggle{
   display:inline-flex;align-items:center;justify-content:center;
@@ -182,9 +179,14 @@ header.site{
 }
 .theme-toggle:hover{opacity:1;transform:translateY(-1px);border-color:var(--accent)}
 .theme-toggle .icon { display:none; }
+
 /* Show the icon for the action (switch to the other theme) */
 :root[data-theme="light"] .theme-toggle .icon-moon { display:inline-block; }
 :root[data-theme="dark"]  .theme-toggle .icon-sun  { display:inline-block; }
+
+/* Make sure currentColor is always visible against bg */
+.theme-toggle{ color: var(--fg); }
+:root[data-theme="light"] .theme-toggle{ color: var(--fg); } /* explicit */
 
 /* ======================================
    Page header (consistent)
@@ -201,10 +203,7 @@ main .rule:first-child{ display:none; }
 /* ======================================
    Homepage: Featured + list
    ====================================== */
-.feature-card{
-  border-bottom:1px dashed rgba(122,58,58,.35);
-  padding-bottom:18px; margin-bottom:10px;
-}
+.feature-card{ border-bottom:1px dashed rgba(122,58,58,.35); padding-bottom:18px; margin-bottom:10px; }
 .feature-link{ display:grid; gap:18px; grid-template-columns:1fr; }
 .feature-thumb{
   width:100%; aspect-ratio:16/9; object-fit:cover;
@@ -217,13 +216,8 @@ main .rule:first-child{ display:none; }
   font-size:clamp(22px,2.6vw,34px);
   line-height:1.2; margin:0 0 .35rem; letter-spacing:.01em;
 }
-.feature-sub{
-  color:var(--muted); font-size:.95rem;
-  display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;
-}
-.feature-excerpt{
-  color:#cfcfcf; margin:.55rem 0 0; line-height:1.6; max-width:38ch;
-}
+.feature-sub{ color:var(--muted); font-size:.95rem; display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
+.feature-excerpt{ color:#cfcfcf; margin:.55rem 0 0; line-height:1.6; max-width:38ch; }
 
 @media (min-width:980px){
   .feature-link{ grid-template-columns:55% 1fr; align-items:start; column-gap:22px; }
@@ -234,10 +228,7 @@ main .rule:first-child{ display:none; }
    Logs lists (home + /logs/)
    ====================================== */
 .log-list{ list-style:none; margin:0; padding:0; display:grid; gap:12px; }
-.log-card{
-  display:flex; gap:12px; align-items:flex-start;
-  padding:10px 0; border-bottom:1px dashed rgba(122,58,58,.35);
-}
+.log-card{ display:flex; gap:12px; align-items:flex-start; padding:10px 0; border-bottom:1px dashed rgba(122,58,58,.35); }
 .log-link{ display:flex; gap:12px; align-items:flex-start; border:0 }
 .log-thumb{
   width:clamp(88px,30vw,160px); aspect-ratio:3/2; object-fit:cover;
@@ -441,9 +432,7 @@ a:focus-visible,.btn:focus-visible,.log-link:focus-visible,.theme-toggle:focus-v
 .pager-kicker{ font-size:.8rem; color:var(--muted); letter-spacing:.02em; }
 .pager-title{ font-family:var(--serif); font-size:1rem; line-height:1.35; color:var(--fg); }
 
-.pager .is-disabled{
-  opacity:.45; pointer-events:none;
-}
+.pager .is-disabled{ opacity:.45; pointer-events:none; }
 
 @media (max-width:640px){
   .pager{ flex-direction:column; }
@@ -451,9 +440,7 @@ a:focus-visible,.btn:focus-visible,.log-link:focus-visible,.theme-toggle:focus-v
 
 /* ===== Print (clean archives) ===== */
 @media print {
-  :root {
-    --bg:#fff; --fg:#000; --muted:#333; --line:#ddd;
-  }
+  :root { --bg:#fff; --fg:#000; --muted:#333; --line:#ddd; }
   html, body { background:#fff !important; color:#000 !important; }
   header.site, footer.site, .theme-toggle { display:none !important; }
   .container, .wrap, .archive, .fieldnote, .fn-archive { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
@@ -466,68 +453,21 @@ a:focus-visible,.btn:focus-visible,.log-link:focus-visible,.theme-toggle:focus-v
 html { scroll-behavior: smooth; }
 
 /* Footer badges (unified look) */
-.footer-flex {
-  align-items: center;
-  justify-content: space-between;
-}
-
-.badges {
-  list-style: none;
-  display: flex;
-  gap: 0.75rem;
-  margin: 0;
-  padding: 0;
-}
-
+.footer-flex { align-items: center; justify-content: space-between; }
+.badges { list-style: none; display: flex; gap: 0.75rem; margin: 0; padding: 0; }
 .badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  text-decoration: none;
-  opacity: 0.75;
-  transition: opacity 0.2s ease, color 0.2s ease;
-  font-size: 0.85rem;
+  display: inline-flex; align-items: center; gap: 0.25rem; text-decoration: none;
+  opacity: 0.75; transition: opacity 0.2s ease, color 0.2s ease; font-size: 0.85rem;
 }
-
-.badge-icon {
-  fill: currentColor;
-}
-
-.badge-label {
-  font-family: inherit;
-  letter-spacing: 0.02em;
-}
-
+.badge-icon { fill: currentColor; }
+.badge-label { font-family: inherit; letter-spacing: 0.02em; }
 /* Default color treatment */
-[data-theme="dark"] .badge {
-  color: rgba(255, 255, 255, 0.65);
-}
-
-[data-theme="light"] .badge {
-  color: #333;
-}
-
+[data-theme="dark"] .badge { color: rgba(255, 255, 255, 0.65); }
+[data-theme="light"] .badge { color: #333; }
 /* Hover interactions */
-.badge:hover {
-  opacity: 1;
-  color: var(--accent-color, #fff);
-}
-
+.badge:hover { opacity: 1; color: var(--accent-color, #fff); }
 /* Optional: subtle differentiation */
-.badge-cc .badge-icon circle {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.5;
-}
-
-.badge-github:hover {
-  color: #9bd1ff;
-}
-
-.badge-feed:hover {
-  color: #ffb347; /* warm orange hint for RSS */
-}
-
-.badge-human:hover {
-  color: #9effc1; /* soft green tone for humanity/organic */
-}
+.badge-cc .badge-icon circle { fill: none; stroke: currentColor; stroke-width: 1.5; }
+.badge-github:hover { color: #9bd1ff; }
+.badge-feed:hover { color: #ffb347; }
+.badge-human:hover { color: #9effc1; }
