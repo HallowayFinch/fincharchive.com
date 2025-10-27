@@ -2,10 +2,9 @@
 layout: default
 ---
 
-<main class="fieldnote container">
+<main class="fieldnote container" style="max-width: 640px;">
   <header class="fieldnote-header">
     <h1 class="fieldnote-title">{{ page.title }}</h1>
-
     <p class="fieldnote-meta">
       <time datetime="{{ page.date | date_to_xmlschema }}">
         {% include date-local.html dt=page.date %}
@@ -14,17 +13,14 @@ layout: default
     </p>
   </header>
 
-  {%- if page.hero_image %}
+  {%- if page.hero_image -%}
   <figure class="log-figure">
-    <img
-      class="log-hero"
-      src="{{ page.hero_image | relative_url }}"
-      alt="{{ page.hero_alt | default: page.title | escape }}"
-      decoding="async"
-      loading="eager"
-      fetchpriority="high">
+    <img class="log-hero"
+         src="{{ page.hero_image | relative_url }}"
+         alt="{{ page.hero_alt | default: page.title | escape }}"
+         decoding="async" loading="eager" fetchpriority="high">
   </figure>
-  {%- endif %}
+  {%- endif -%}
 
   <article class="fieldnote-body">
     {{ content }}
