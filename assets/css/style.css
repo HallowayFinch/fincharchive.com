@@ -178,15 +178,14 @@ header.site{
   -webkit-appearance:none; appearance:none; background-image:none;
 }
 .theme-toggle:hover{opacity:1;transform:translateY(-1px);border-color:var(--accent)}
-.theme-toggle .icon { display:none; }
 
-/* Show the icon for the action (switch to the other theme) */
+/* Fallback: show sun by default so an icon is always visible */
+.theme-toggle .icon-sun  { display:inline-block; }
+.theme-toggle .icon-moon { display:none; }
+
+/* Swap when light theme is active (offer moon button) */
+:root[data-theme="light"] .theme-toggle .icon-sun  { display:none; }
 :root[data-theme="light"] .theme-toggle .icon-moon { display:inline-block; }
-:root[data-theme="dark"]  .theme-toggle .icon-sun  { display:inline-block; }
-
-/* Make sure currentColor is always visible against bg */
-.theme-toggle{ color: var(--fg); }
-:root[data-theme="light"] .theme-toggle{ color: var(--fg); } /* explicit */
 
 /* ======================================
    Page header (consistent)
