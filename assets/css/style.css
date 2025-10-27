@@ -25,25 +25,23 @@
   --badge-border: rgba(122,58,58,.45);
 }
 
-/* Let form controls & built-ins style themselves for each theme */
+/* Built-ins honor theme */
 :root { color-scheme: dark light; }
-
-/* Align native highlight color with Finch red family */
 :root { accent-color: var(--accent); }
 
-/* Subtle text selection that fits both themes */
-::selection { background: rgba(122, 58, 58, 0.28); color: inherit; }
+/* Subtle selection */
+::selection { background: rgba(122,58,58,.28); color: inherit; }
 
 /* Anchors scrolled into view won’t hide under sticky header */
-:target { scroll-margin-top: 78px; } /* adjust if header height changes */
+:target { scroll-margin-top: 78px; }
 
-/* Light theme: Parchment / aged ivory */
+/* Light theme */
 :root[data-theme="light"]{
-  --bg:#f6f2e7;       /* paper / ivory */
-  --fg:#2e2b27;       /* dark ink tone */
-  --muted:#6f655b;    /* aged sepia-gray */
-  --accent:#7A3A3A;   /* Finch red */
-  --line:#d9cfc0;     /* faint paper fiber divider */
+  --bg:#f6f2e7;
+  --fg:#2e2b27;
+  --muted:#6f655b;
+  --accent:#7A3A3A;
+  --line:#d9cfc0;
 
   --header-bg: rgba(246,242,231,.9);
   --badge-bg: #f4efe4;
@@ -98,7 +96,7 @@ header.site{
   border-bottom:1px solid var(--line);
 }
 
-/* Header grid (brand + actions row, nav row on small screens) */
+/* Header grid */
 .header-bar{
   display:grid;
   grid-template-columns: 1fr auto;
@@ -113,7 +111,7 @@ header.site{
 .brand a{font-family:var(--serif);font-size:1.1rem}
 .header-actions{display:flex;align-items:center;gap:8px}
 
-/* Primary nav (gets its own line on narrow screens) */
+/* Primary nav */
 .primary-nav{
   display:flex;gap:18px;align-items:center;
   overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;
@@ -121,7 +119,7 @@ header.site{
 }
 .primary-nav::-webkit-scrollbar{display:none}
 
-/* NAV — fade-in underline for active/hover */
+/* NAV underline */
 .primary-nav a{
   position:relative;
   padding-bottom:6px;
@@ -167,7 +165,7 @@ header.site{
 }
 
 /* ======================================
-   Theme toggle (SVG swap; Safari/Firefox-safe)
+   Theme toggle (single source of truth)
    ====================================== */
 .theme-toggle{
   display:inline-flex;align-items:center;justify-content:center;
@@ -175,20 +173,20 @@ header.site{
   border:1px solid var(--badge-border);background:var(--badge-bg);color:var(--fg);
   cursor:pointer;margin-left:10px;
   transition:opacity .15s ease,transform .08s ease,border-color .15s ease;
-  -webkit-appearance:none; appearance:none; background-image:none;
+  -webkit-appearance:none;appearance:none;background-image:none;
 }
 .theme-toggle:hover{opacity:1;transform:translateY(-1px);border-color:var(--accent)}
 
-/* Fallback: show sun by default so an icon is always visible */
+/* Default: show sun so an icon is always visible */
 .theme-toggle .icon-sun  { display:inline-block; }
 .theme-toggle .icon-moon { display:none; }
 
-/* Swap when light theme is active (offer moon button) */
+/* When light theme is active, offer moon */
 :root[data-theme="light"] .theme-toggle .icon-sun  { display:none; }
 :root[data-theme="light"] .theme-toggle .icon-moon { display:inline-block; }
 
 /* ======================================
-   Page header (consistent)
+   Page header
    ====================================== */
 .page-header{ margin:1.75rem 0 1.25rem }
 .page-header .page-title{
@@ -224,7 +222,7 @@ main .rule:first-child{ display:none; }
 }
 
 /* ======================================
-   Logs lists (home + /logs/)
+   Logs lists
    ====================================== */
 .log-list{ list-style:none; margin:0; padding:0; display:grid; gap:12px; }
 .log-card{ display:flex; gap:12px; align-items:flex-start; padding:10px 0; border-bottom:1px dashed rgba(122,58,58,.35); }
@@ -245,7 +243,7 @@ main .rule:first-child{ display:none; }
 }
 
 /* ======================================
-   Single Log (entry)
+   Single Log
    ====================================== */
 .content img{border:1px solid rgba(255,255,255,.07)}
 :root[data-theme="light"] .content img{border-color: rgba(0,0,0,.07)}
@@ -303,7 +301,7 @@ main .rule:first-child{ display:none; }
 .fn-item-excerpt{color:#ccc;line-height:1.6;margin:0}
 
 /* ======================================
-   Pager (logs pagination)
+   Pager
    ====================================== */
 .pager { margin: 1.75rem 0 0; }
 .pager-inner{
@@ -446,7 +444,6 @@ a:focus-visible,.btn:focus-visible,.log-link:focus-visible,.theme-toggle:focus-v
   .log-hero, .feature-thumb, .log-thumb { border-color:#ccc !important; }
   a { color:#000 !important; text-decoration: underline; }
   a[href^="http"]:after { content:" (" attr(href) ")"; font-size: .9em; }
-  .pager { display:none !important; }
 }
 
 html { scroll-behavior: smooth; }
@@ -460,12 +457,9 @@ html { scroll-behavior: smooth; }
 }
 .badge-icon { fill: currentColor; }
 .badge-label { font-family: inherit; letter-spacing: 0.02em; }
-/* Default color treatment */
 [data-theme="dark"] .badge { color: rgba(255, 255, 255, 0.65); }
 [data-theme="light"] .badge { color: #333; }
-/* Hover interactions */
 .badge:hover { opacity: 1; color: var(--accent-color, #fff); }
-/* Optional: subtle differentiation */
 .badge-cc .badge-icon circle { fill: none; stroke: currentColor; stroke-width: 1.5; }
 .badge-github:hover { color: #9bd1ff; }
 .badge-feed:hover { color: #ffb347; }
