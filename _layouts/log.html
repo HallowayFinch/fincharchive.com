@@ -4,25 +4,21 @@ layout: default
 
 <main class="container">
   <header class="log-header">
-    <h1>{{ page.title }}</h1>
-
+    <h1 class="log-title">{{ page.title }}</h1>
     <div class="meta">
       {% include date-local.html dt=page.date %}
       {% include share.html %}
     </div>
   </header>
 
-  {%- if page.hero_image %}
+  {%- if page.hero_image -%}
   <figure class="log-figure">
-    <img
-      class="log-hero"
-      src="{{ page.hero_image | relative_url }}"
-      alt="{{ page.hero_alt | default: page.title | escape }}"
-      decoding="async"
-      loading="eager"
-      fetchpriority="high">
+    <img class="log-hero"
+         src="{{ page.hero_image | relative_url }}"
+         alt="{{ page.hero_alt | default: page.title | escape }}"
+         decoding="async" loading="eager" fetchpriority="high">
   </figure>
-  {%- endif %}
+  {%- endif -%}
 
   <article class="log-content">
     {{ content }}
@@ -30,14 +26,14 @@ layout: default
 
   {% include prev_next.html %}
 
-  {%- if page.artifacts and page.artifacts.size > 0 %}
-  <section class="log-artifacts">
-    <h2>Artifacts</h2>
-    <ul class="artifact-list">
-      {%- for a in page.artifacts -%}
-        <li><a class="btn" href="{{ a.path | relative_url }}">{{ a.label | default: "Artifact" }}</a></li>
-      {%- endfor -%}
-    </ul>
-  </section>
-  {%- endif %}
+  {%- if page.artifacts and page.artifacts.size > 0 -%}
+    <section class="log-artifacts">
+      <h2>Artifacts</h2>
+      <ul class="artifact-list">
+        {%- for a in page.artifacts -%}
+          <li><a class="btn" href="{{ a.path | relative_url }}">{{ a.label | default: "Artifact" }}</a></li>
+        {%- endfor -%}
+      </ul>
+    </section>
+  {%- endif -%}
 </main>
