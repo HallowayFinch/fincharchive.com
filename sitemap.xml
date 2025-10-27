@@ -5,8 +5,6 @@ permalink: /sitemap.xml
 
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  {%- assign ABS = site.url | default: site.github.url -%}
-
   <!-- Home -->
   <url>
     <loc>{{ "/" | absolute_url }}</loc>
@@ -15,14 +13,7 @@ permalink: /sitemap.xml
     <lastmod>{{ site.time | date_to_xmlschema }}</lastmod>
   </url>
 
-  {%- comment -%}
-  Regular pages
-  Skip:
-  - XML/feeds (RSS + JSON)
-  - Assets
-  - 404, robots
-  - Anything setting `sitemap: false`
-  {%- endcomment -%}
+  <!-- Pages (excludes feeds, assets, 404, robots, and anything with sitemap:false) -->
   {%- for p in site.pages -%}
     {%- assign u = p.url -%}
     {%- unless p.sitemap == false
@@ -41,6 +32,7 @@ permalink: /sitemap.xml
       </url>
     {%- endunless -%}
   {%- endfor -%}
+  <!-- /Pages -->
 
   <!-- Logs -->
   {%- if site.logs -%}
@@ -55,6 +47,7 @@ permalink: /sitemap.xml
       {%- endunless -%}
     {%- endfor -%}
   {%- endif -%}
+  <!-- /Logs -->
 
   <!-- Field Notes -->
   {%- assign fn = site["field-notes"] -%}
@@ -70,6 +63,7 @@ permalink: /sitemap.xml
       {%- endunless -%}
     {%- endfor -%}
   {%- endif -%}
+  <!-- /Field Notes -->
 
   <!-- Optional: classic blog posts if ever used -->
   {%- if site.posts -%}
@@ -83,4 +77,5 @@ permalink: /sitemap.xml
       {%- endunless -%}
     {%- endfor -%}
   {%- endif -%}
+  <!-- /Optional posts -->
 </urlset>
