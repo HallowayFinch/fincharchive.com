@@ -1,10 +1,12 @@
 ---
 layout: null
 permalink: /sitemap.xml
+published: true
 ---
 
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {% raw %}{%- assign space = "  " -%}{% endraw %}
   <!-- Home -->
   <url>
     <loc>{{ "/" | absolute_url }}</loc>
@@ -13,7 +15,7 @@ permalink: /sitemap.xml
     <lastmod>{{ site.time | date_to_xmlschema }}</lastmod>
   </url>
 
-  <!-- Pages (excludes feeds, assets, 404, robots, and anything with sitemap:false) -->
+  <!-- Pages -->
   {%- for p in site.pages -%}
     {%- assign u = p.url -%}
     {%- unless p.sitemap == false
@@ -23,59 +25,45 @@ permalink: /sitemap.xml
           or u contains "/assets/"
           or u == "/404.html"
           or u == "/robots.txt" -%}
-      <url>
-        <loc>{{ u | absolute_url }}</loc>
-        {%- if p.last_modified_at or p.date -%}
-          <lastmod>{{ p.last_modified_at | default: p.date | date_to_xmlschema }}</lastmod>
-        {%- endif -%}
-        {%- if u == "/about/" -%}<changefreq>yearly</changefreq>{%- endif -%}
-      </url>
+{{ space }}<url>
+{{ space }}  <loc>{{ u | absolute_url }}</loc>
+      {%- if p.last_modified_at or p.date -%}
+{{ space }}  <lastmod>{{ p.last_modified_at | default: p.date | date_to_xmlschema }}</lastmod>
+      {%- endif -%}
+{{ space }}</url>
     {%- endunless -%}
   {%- endfor -%}
   <!-- /Pages -->
 
   <!-- Logs -->
-  {%- if site.logs -%}
-    {%- for item in site.logs -%}
-      {%- unless item.sitemap == false -%}
-      <url>
-        <loc>{{ item.url | absolute_url }}</loc>
-        <lastmod>{{ item.last_modified_at | default: item.date | date_to_xmlschema }}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
-      </url>
-      {%- endunless -%}
-    {%- endfor -%}
-  {%- endif -%}
+  {%- for item in site.logs -%}
+{{ space }}<url>
+{{ space }}  <loc>{{ item.url | absolute_url }}</loc>
+{{ space }}  <lastmod>{{ item.last_modified_at | default: item.date | date_to_xmlschema }}</lastmod>
+{{ space }}  <changefreq>monthly</changefreq>
+{{ space }}  <priority>0.6</priority>
+{{ space }}</url>
+  {%- endfor -%}
   <!-- /Logs -->
 
   <!-- Field Notes -->
-  {%- assign fn = site["field-notes"] -%}
-  {%- if fn -%}
-    {%- for item in fn -%}
-      {%- unless item.sitemap == false -%}
-      <url>
-        <loc>{{ item.url | absolute_url }}</loc>
-        <lastmod>{{ item.last_modified_at | default: item.date | date_to_xmlschema }}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.5</priority>
-      </url>
-      {%- endunless -%}
-    {%- endfor -%}
-  {%- endif -%}
+  {%- for item in site["field-notes"] -%}
+{{ space }}<url>
+{{ space }}  <loc>{{ item.url | absolute_url }}</loc>
+{{ space }}  <lastmod>{{ item.last_modified_at | default: item.date | date_to_xmlschema }}</lastmod>
+{{ space }}  <changefreq>monthly</changefreq>
+{{ space }}  <priority>0.5</priority>
+{{ space }}</url>
+  {%- endfor -%}
   <!-- /Field Notes -->
 
-  <!-- Optional: classic blog posts if ever used -->
-  {%- if site.posts -%}
-    {%- for post in site.posts -%}
-      {%- unless post.sitemap == false -%}
-      <url>
-        <loc>{{ post.url | absolute_url }}</loc>
-        <lastmod>{{ post.last_modified_at | default: post.date | date_to_xmlschema }}</lastmod>
-        <changefreq>monthly</changefreq>
-      </url>
-      {%- endunless -%}
-    {%- endfor -%}
-  {%- endif -%}
+  <!-- Optional: classic blog posts -->
+  {%- for post in site.posts -%}
+{{ space }}<url>
+{{ space }}  <loc>{{ post.url | absolute_url }}</loc>
+{{ space }}  <lastmod>{{ post.last_modified_at | default: post.date | date_to_xmlschema }}</lastmod>
+{{ space }}  <changefreq>monthly</changefreq>
+{{ space }}</url>
+  {%- endfor -%}
   <!-- /Optional posts -->
 </urlset>
