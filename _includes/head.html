@@ -7,9 +7,9 @@
   try {
     var key   = 'fa-theme';
     var saved = localStorage.getItem(key);
-    var theme = (saved === 'light' || saved === 'dark') ? saved : 'dark'; // default dark
+    var theme = (saved === 'light' || saved === 'dark') ? saved : 'dark';
     document.documentElement.setAttribute('data-theme', theme);
-  } catch (e) { /* ignore */ }
+  } catch (e) {}
 })();
 </script>
 
@@ -26,6 +26,9 @@
 
 <link rel="canonical" href="{% if page.canonical_url %}{{ page.canonical_url }}{% else %}{{ og_url }}{% endif %}"/>
 
+<!-- Advertise humans.txt -->
+<link rel="author" href="{{ '/humans.txt' | absolute_url }}">
+
 <!-- Open Graph / Twitter -->
 <meta property="og:type" content="article">
 <meta property="og:title" content="{{ og_title }}">
@@ -39,7 +42,7 @@
 <meta name="twitter:image" content="{{ og_img }}">
 
 <!-- Feeds (uniform) -->
-<link rel="alternate" type="application/rss+xml"  title="{{ site.title }} — All"          href="{{ '/feed' | absolute_url }}">
+<link rel="alternate" type="application/rss+xml"  title="{{ site.title }} — All"          href="{{ '/feed/' | absolute_url }}">
 <link rel="alternate" type="application/rss+xml"  title="{{ site.title }} — Logs"        href="{{ '/logs/feed.xml' | absolute_url }}">
 <link rel="alternate" type="application/rss+xml"  title="{{ site.title }} — Field Notes" href="{{ '/field-notes/feed.xml' | absolute_url }}">
 <link rel="alternate" type="application/feed+json" title="{{ site.title }} — JSON Feed"  href="{{ '/feed.json' | absolute_url }}">
@@ -49,9 +52,6 @@
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f2e7">
 <meta name="color-scheme" content="dark light">
 
-{%- comment -%}
-Preload homepage featured image (newest log’s hero) to speed LCP.
-{%- endcomment -%}
 {%- if page.url == "/" -%}
   {%- assign feat = site.logs | sort: "date" | reverse | first -%}
   {%- if feat and feat.hero_image -%}
@@ -59,19 +59,14 @@ Preload homepage featured image (newest log’s hero) to speed LCP.
   {%- endif -%}
 {%- endif -%}
 
-{%- comment -%} Structured data {%- endcomment -%}
 {% include seo.html %}
 
-{%- comment -%}
-Rel prev/next for single entries (Logs and Field Notes).
-{%- endcomment -%}
 {%- assign coll = nil -%}
 {%- if page.collection == 'logs' -%}
   {%- assign coll = site.logs | sort: 'date' -%}
 {%- elsif page.collection == 'field-notes' -%}
   {%- assign coll = site["field-notes"] | sort: 'date' -%}
 {%- endif -%}
-
 {%- if coll and coll.size > 0 -%}
   {%- assign idx = nil -%}
   {%- for doc in coll -%}
@@ -80,11 +75,7 @@ Rel prev/next for single entries (Logs and Field Notes).
   {%- if idx != nil -%}
     {%- assign prev_idx = idx | minus: 1 -%}
     {%- assign next_idx = idx | plus: 1 -%}
-    {%- if prev_idx >= 0 -%}
-      <link rel="prev" href="{{ coll[prev_idx].url | absolute_url }}">
-    {%- endif -%}
-    {%- if next_idx < coll.size -%}
-      <link rel="next" href="{{ coll[next_idx].url | absolute_url }}">
-    {%- endif -%}
+    {%- if prev_idx >= 0 -%}<link rel="prev" href="{{ coll[prev_idx].url | absolute_url }}">{%- endif -%}
+    {%- if next_idx < coll.size -%}<link rel="next" href="{{ coll[next_idx].url | absolute_url }}">{%- endif -%}
   {%- endif -%}
 {%- endif -%}
