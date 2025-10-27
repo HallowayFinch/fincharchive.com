@@ -8,6 +8,7 @@ Site: Finch Archive
 Curator: Halloway Finch
 Home: {{ '/' | absolute_url }}
 Feeds: {{ '/feeds/' | absolute_url }}
+Pretty version: {{ '/humans/' | absolute_url }}
 Repo:  https://github.com/HallowayFinch/fincharchive.com
 
 /* COL·OPHON */
@@ -17,7 +18,7 @@ Design: Type-led, dark-first with a respectful light theme
 Fonts: System monospace + Georgia
 Tracking: none (no analytics, pixels, or cookies)
 Accessibility: skip link, keyboard focus styles, reduced-motion friendly, alt text, color-scheme toggle
-Feeds: site feed ({{ '/feed/' | absolute_url }}), JSON Feed ({{ '/feed.json' | absolute_url }}), logs ({{ '/logs/feed.xml' | absolute_url }}), field notes ({{ '/field-notes/feed.xml' | absolute_url }})
+Feeds: site ({{ '/feed/' | absolute_url }}), JSON ({{ '/feed.json' | absolute_url }}), logs ({{ '/logs/feed.xml' | absolute_url }}), field notes ({{ '/field-notes/feed.xml' | absolute_url }})
 
 /* PRINCIPLES */
 Plain text first. No popups. No paywalls. No surveillance.
