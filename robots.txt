@@ -4,29 +4,17 @@ permalink: /robots.txt
 ---
 
 # Finch Archive — robots.txt
-# ---------------------------
-# Allow full indexing (the archive and all collections).
 User-agent: *
 Allow: /
 
-# Optional, gentle crawl delay
+# Optional gentle crawl delay
 Crawl-delay: 5
 
-# ---------------------------
-# Discovery
-# ---------------------------
-
+# Sitemap
 Sitemap: {{ '/sitemap.xml' | absolute_url }}
-Sitemap: {{ '/logs.xml' | absolute_url }}
-Sitemap: {{ '/field-notes/feed.xml' | absolute_url }}
 
-# Feeds
-Feed: {{ '/feed.json' | absolute_url }}
-Feed: {{ '/logs.xml' | absolute_url }}
+# Feeds (canonical)
+Feed: {{ '/feed' | absolute_url }}
+Feed: {{ '/logs/feed.xml' | absolute_url }}
 Feed: {{ '/field-notes/feed.xml' | absolute_url }}
-
-# ---------------------------
-# Notes
-# ---------------------------
-# The Finch Archive encourages indexing for archival discovery.
-# No restricted directories or hidden paths exist.
+Feed: {{ '/feed.json' | absolute_url }}
