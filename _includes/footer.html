@@ -66,4 +66,30 @@
   fill: currentColor;
   font-weight: 600;
 }
+
+/* Ensure CC text stays visible in both light & dark themes */
+.badge-cc .badge-icon text {
+  fill: currentColor;
+  font-weight: 600;
+}
+
+/* Unified hover accent across all footer badges */
+.badge {
+  color: inherit;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.badge:hover,
+.badge:focus-visible {
+  color: #7A3A3A; /* Finch muted red accent */
+  opacity: 1;
+}
+
+.badge-icon {
+  vertical-align: middle;
+}
+
+.badge-label {
+  margin-left: 0.25em;
+}
 </style>
