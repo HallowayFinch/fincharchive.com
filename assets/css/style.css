@@ -464,3 +464,70 @@ a:focus-visible,.btn:focus-visible,.log-link:focus-visible,.theme-toggle:focus-v
 }
 
 html { scroll-behavior: smooth; }
+
+/* Footer badges (unified look) */
+.footer-flex {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.badges {
+  list-style: none;
+  display: flex;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  text-decoration: none;
+  opacity: 0.75;
+  transition: opacity 0.2s ease, color 0.2s ease;
+  font-size: 0.85rem;
+}
+
+.badge-icon {
+  fill: currentColor;
+}
+
+.badge-label {
+  font-family: inherit;
+  letter-spacing: 0.02em;
+}
+
+/* Default color treatment */
+[data-theme="dark"] .badge {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+[data-theme="light"] .badge {
+  color: #333;
+}
+
+/* Hover interactions */
+.badge:hover {
+  opacity: 1;
+  color: var(--accent-color, #fff);
+}
+
+/* Optional: subtle differentiation */
+.badge-cc .badge-icon circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.badge-github:hover {
+  color: #9bd1ff;
+}
+
+.badge-feed:hover {
+  color: #ffb347; /* warm orange hint for RSS */
+}
+
+.badge-human:hover {
+  color: #9effc1; /* soft green tone for humanity/organic */
+}
