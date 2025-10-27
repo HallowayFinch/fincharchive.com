@@ -12,6 +12,12 @@ future: true
 markdown: kramdown
 theme: null
 
+# Public folders that must be published (feeds live here)
+include:
+  - logs
+  - field-notes
+  # (Root-level "feed" has front matter, so Jekyll builds it automatically.)
+
 # --- Collections ---
 collections:
   logs:
@@ -39,13 +45,9 @@ sass:
   style: compressed
 
 plugins:
-  - jekyll-feed
   - jekyll-sitemap
   - jekyll-redirect-from
-
-# --- Feed ---
-feed:
-  path: feed.xml
+  # (Removed jekyll-feed since you now hand-roll feeds at /feed, /logs/feed.xml, /field-notes/feed.xml)
 
 # --- Site-wide artifact references (used by homepage links) ---
 artifacts:
