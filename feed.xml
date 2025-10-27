@@ -1,27 +1,34 @@
 ---
 layout: null
-permalink: /feed.xml
+permalink: /feed
 ---
+
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
-<channel>
-  <title>{{ site.title }}</title>
-  <link>{{ site.url }}{{ site.baseurl }}</link>
-  <description>{{ site.description }}</description>
+  <channel>
+    <title>{{ site.title }} — All</title>
+    <link>{{ site.url | default: site.github.url }}</link>
+    <description>{{ site.description | xml_escape }}</description>
+    <lastBuildDate>{{ site.time | date_to_rfc822 }}</lastBuildDate>
+    <generator>Jekyll</generator>
 
-  {%- assign logs = site.logs | default: empty -%}
-  {%- assign notes = site["field-notes"] | default: empty -%}
-  {%- assign all = logs | concat: notes -%}
-  {%- assign items = all | sort: "date" | reverse -%}
+    {%- assign EMPTY = '' | split: '' -%}
+    {%- assign logs  = site.logs           | default: EMPTY -%}
+    {%- assign notes = site["field-notes"] | default: EMPTY -%}
+    {%- assign items = EMPTY | concat: logs | concat: notes | sort:'date' | reverse -%}
 
-  {%- for item in items limit: 30 -%}
+    {%- for p in items limit: 20 -%}
     <item>
-      <title>{{ item.title | xml_escape }}</title>
-      <link>{{ item.url | absolute_url }}</link>
-      <pubDate>{{ item.date | date_to_rfc822 }}</pubDate>
-      <guid>{{ item.url | absolute_url }}</guid>
-      <description><![CDATA[{{ item.content }}]]></description>
+      <title>{{ p.title | xml_escape }}</title>
+      <link>{{ p.url | absolute_url }}</link>
+      <guid isPermaLink="true">{{ p.url | absolute_url }}</guid>
+      <pubDate>{{ p.date | date_to_rfc822 }}</pubDate>
+      <description>{{ p.excerpt | strip_html | strip_newlines | xml_escape }}</description>
+      {%- assign img = p.og_image | default: p.hero_image -%}
+      {%- if img -%}
+      <enclosure url="{{ img | absolute_url }}" type="image/jpeg" />
+      {%- endif -%}
     </item>
-  {%- endfor -%}
-</channel>
+    {%- endfor -%}
+  </channel>
 </rss>
