@@ -66,3 +66,9 @@ artifacts:
 
 # --- Permalink defaults for everything else ---
 permalink: /:categories/:slug/
+
+# Global fallback image for social unfurls (must be publicly accessible)
+social_image: /assets/og/og-default.png
+
+# Optional: used for twitter:site meta
+twitter_username: hallowayfinch
