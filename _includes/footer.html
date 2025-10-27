@@ -37,8 +37,8 @@
            rel="license noopener noreferrer"
            title="Creative Commons BY-NC-ND 4.0 license">
           <svg class="badge-icon" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="12" r="10"></circle>
-            <text x="12" y="16" text-anchor="middle" font-size="10" class="badge-text">CC</text>
+            <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="12" y="16" text-anchor="middle" font-size="10" fill="currentColor" style="font-family: system-ui, sans-serif;">CC</text>
           </svg>
           <span class="badge-label">BY-NC-ND 4.0</span>
         </a>
@@ -59,3 +59,11 @@
     </ul>
   </div>
 </footer>
+
+<style>
+/* Ensure CC text stays visible in both light & dark themes */
+.badge-cc .badge-icon text {
+  fill: currentColor;
+  font-weight: 600;
+}
+</style>
