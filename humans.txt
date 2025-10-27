@@ -1,18 +1,23 @@
+---
+layout: null
+permalink: /humans.txt
+---
+
 /* HUMAN BEHIND THE ARCHIVE */
 Site: Finch Archive
 Curator: Halloway Finch
-Home: https://fincharchive.com
-Feeds: /feeds/
+Home: {{ '/' | absolute_url }}
+Feeds: {{ '/feeds/' | absolute_url }}
 Repo:  https://github.com/HallowayFinch/fincharchive.com
 
-/* COL•OPHON */
+/* COL·OPHON */
 Generator: Jekyll · GitHub Pages
 Code: HTML, CSS (no frameworks), a pinch of JS
-Design: Type-led, dark-first with respectful light theme
+Design: Type-led, dark-first with a respectful light theme
 Fonts: System monospace + Georgia
 Tracking: none (no analytics, pixels, or cookies)
 Accessibility: skip link, keyboard focus styles, reduced-motion friendly, alt text, color-scheme toggle
-Feeds: site feed (/feed), JSON Feed (/feed.json), logs (/logs/feed.xml), field notes (/field-notes/feed.xml)
+Feeds: site feed ({{ '/feed/' | absolute_url }}), JSON Feed ({{ '/feed.json' | absolute_url }}), logs ({{ '/logs/feed.xml' | absolute_url }}), field notes ({{ '/field-notes/feed.xml' | absolute_url }})
 
 /* PRINCIPLES */
 Plain text first. No popups. No paywalls. No surveillance.
