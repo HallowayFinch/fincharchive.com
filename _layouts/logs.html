@@ -33,17 +33,23 @@ per_page  → items per page
         <li class="log-card">
           <a class="log-link" href="{{ item.url | relative_url }}">
             {%- if item.hero_image -%}
+              {%- assign _thumb_src  = item.hero_image | relative_url -%}
+              {%- assign _thumb_alt  = item.hero_alt | default: item.title -%}
+              {%- assign _thumb_w    = item.hero_w | default: 1600 -%}
+              {%- assign _thumb_h    = item.hero_h | default: 900 -%}
+
               {% include img.html
-                 src=item.hero_image
-                 src2x=item.hero_image_2x
-                 alt=item.hero_alt
-                 fallback=item.title
-                 class="log-thumb"
-                 sizes="(min-width:700px) 18vw, 30vw"
-                 loading="lazy"
-                 decoding="async"
+                src=_thumb_src
+                alt=_thumb_alt
+                w=_thumb_w
+                h=_thumb_h
+                class="log-thumb"
+                sizes="(min-width:700px) 18vw, 30vw"
+                loading="lazy"
+                fetch="low"
               %}
             {%- endif -%}
+
             <div class="log-meta">
               <h2 class="log-title">{{ item.title }}</h2>
               <div class="log-sub">
