@@ -442,3 +442,9 @@ html{ scroll-behavior:smooth; }
 .badge-github:hover{ color:#9bd1ff; }
 .badge-feed:hover{ color:#ffb347; }
 .badge-human:hover{ color:#9effc1; }
+
+/* Moon rendering fix (WebKit/Firefox) */
+.theme-toggle .icon-moon path{
+  fill-rule:evenodd; 
+  clip-rule:evenodd;
+}
