@@ -222,13 +222,43 @@ main .rule:first-child{ display:none; }
 /* ======================================
    Single Log
    ====================================== */
+/* Global content image border */
 .content img{ border:1px solid rgba(255,255,255,.07); }
 :root[data-theme="light"] .content img{ border-color:rgba(0,0,0,.07); }
-.log-hero{ width:100%; max-height:50vh; object-fit:cover; border:1px solid rgba(255,255,255,.07); margin:1rem 0; }
+
+/* --- CLS-safe hero: reserve space and keep your current styling --- */
+.log-figure{
+  margin:1.25rem 0 1rem;
+  border-radius:var(--radius);
+  overflow:hidden;
+  background:var(--badge-bg);
+  aspect-ratio:16/9;              /* safety even if width/height missing */
+}
+.log-hero{
+  display:block;
+  width:100%;
+  height:100%;                    /* fill the reserved frame */
+  object-fit:cover;
+  border:1px solid rgba(255,255,255,.07);
+}
 :root[data-theme="light"] .log-hero{ border-color:rgba(0,0,0,.07); }
+
+/* Header + content */
 .log-header{ margin-bottom:1.25rem; }
-.log-figure{ margin:1.25rem 0; }
 .log-content{ font-size:1.05rem; line-height:1.7; }
+
+/* Restore big serif H1 on single logs (without touching global h1) */
+.log-header .log-title{
+  font-family:var(--serif);
+  font-weight:700;
+  line-height:1.1;
+  letter-spacing:-0.01em;
+  font-size:clamp(2rem, 6vw, 3.25rem);
+  margin:.5rem 0 .35rem;
+  color:var(--fg);
+}
+
+/* Artifacts */
 .log-artifacts{ margin-top:2rem; border-top:1px solid var(--line); padding-top:1rem; }
 .log-artifacts h2{ margin:0 0 .75rem; font-family:var(--serif); font-size:1.25rem; color:var(--fg); }
 .artifact-list{ list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.75rem; }
@@ -275,7 +305,7 @@ main .rule:first-child{ display:none; }
   background:var(--badge-bg);
   color:var(--fg);
   text-decoration:none;
-  box-shadow: inset 0 1px rgba(255,255,255,0.08), 0 2px 6px rgba(0,0,0,0.10);
+  box-shadow:inset 0 1px rgba(255,255,255,0.08), 0 2px 6px rgba(0,0,0,0.10);
   transition:background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
 
