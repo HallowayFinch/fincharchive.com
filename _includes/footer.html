@@ -71,39 +71,3 @@
   .badge-icon{ vertical-align:middle; }
   .badge-label{ margin-left:.25em; }
 </style>
-
-<!-- Theme persistence + system-preference fallback -->
-<script>
-(() => {
-  const root = document.documentElement;
-  const btn  = document.getElementById('theme-toggle');
-  if (!btn) return;
-
-  const PREF_KEY = 'finch.theme';
-  const mq = window.matchMedia('(prefers-color-scheme: dark)');
-
-  function apply(theme){
-    const t = (theme === 'light') ? 'light' : 'dark';
-    root.setAttribute('data-theme', t);
-    btn.setAttribute('aria-pressed', t === 'light' ? 'true' : 'false');
-    // Optional: keep the title helpful for a11y tooltips
-    btn.title = (t === 'light') ? 'Use dark theme' : 'Use light theme';
-  }
-
-  // 1) Honor saved preference, else system default (dark if prefers-dark)
-  const stored = localStorage.getItem(PREF_KEY);
-  apply(stored || (mq.matches ? 'dark' : 'light'));
-
-  // 2) Toggle + persist
-  btn.addEventListener('click', () => {
-    const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    localStorage.setItem(PREF_KEY, next);
-    apply(next);
-  });
-
-  // 3) If user hasn't set a preference, follow OS changes live
-  mq.addEventListener?.('change', e => {
-    if (!localStorage.getItem(PREF_KEY)) apply(e.matches ? 'dark' : 'light');
-  });
-})();
-</script>
