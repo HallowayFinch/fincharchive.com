@@ -9,13 +9,12 @@
 
     <div class="header-actions">
       <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false" title="Toggle color scheme">
-        <!-- Inline SVGs (no <use>) so they render everywhere -->
-        <!-- SUN -->
+        <!-- INLINE SUN (default visible) -->
         <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path fill="currentColor" d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Zm0 4a1 1 0 0 1-1-1v-1.5a1 1 0 1 1 2 0V21a1 1 0 0 1-1 1Zm0-20a1 1 0 0 1 1 1v1.5a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1Zm9 9a1 1 0 0 1-1 1h-1.5a1 1 0 1 1 0-2H20a1 1 0 0 1 1 1ZM5.5 12a1 1 0 0 1-1 1H3a1 1 0 1 1 0-2h1.5a1 1 0 0 1 1 1Zm12.02 6.02a1 1 0 0 1 0-1.42l1.06-1.06a1 1 0 1 1 1.41 1.41l-1.06 1.07a1 1 0 0 1-1.41 0ZM4 6.93A1 1 0 0 1 5.41 5.5l1.06 1.06A1 1 0 0 1 5.06 8L4 6.93Zm13.59-1.43A1 1 0 1 1 19 6.93L17.94 8a1 1 0 0 1-1.41-1.41l1.06-1.07ZM6.47 17.53a1 1 0 0 1 1.06-1.06l1.06 1.06A1 1 0 1 1 7.18 19L6.47 18.29a1 1 0 0 1 0-1.41Z"/>
         </svg>
 
-        <!-- MOON -->
+        <!-- INLINE MOON (shown when page is in LIGHT mode) -->
         <svg class="icon icon-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path fill="currentColor" d="M21.752 15.002A9 9 0 0 1 9.002 2.252a7 7 0 1 0 12.75 12.75Z"/>
         </svg>
@@ -39,7 +38,8 @@
         Field Notes
       </a>
 
-      <a href="{{ '/about/' | relative_url }}" {% if here == '/about/' %}aria-current="page"{% endif %}>About</a>
+      <a href="{{ '/about/' | relative_url }}"
+         {% if here == '/about/' %}aria-current="page"{% endif %}>About</a>
     </nav>
   </div>
 </header>
