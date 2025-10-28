@@ -9,11 +9,16 @@ layout: null
     {% include social-meta.html %}
 
     <!-- Site stylesheet (cache-busted) -->
-    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}?v={{ site.time | date: '%s' }}" />
+
+    <!-- Preload key assets -->
+    <link rel="preload" href="{{ '/assets/css/style.css' | relative_url }}" as="style" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   </head>
 
   <body>
-    <!-- Inline icon sprite for shared icons ONLY (no sun/moon here) -->
+    <!-- Inline icon sprite (shared icons only; no theme glyphs here) -->
     <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden">
       <symbol id="icon-external" viewBox="0 0 24 24">
         <path fill="currentColor" d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42 9.3-9.29H14V3z"/>
@@ -30,6 +35,7 @@ layout: null
 
     {% include header.html %}
 
+    <!-- Main content wrapper -->
     <main id="main" class="container" role="main">
       {{ content }}
     </main>
@@ -38,20 +44,24 @@ layout: null
 
     <!-- Theme toggle logic -->
     <script>
-      (function () {
-        var key='fa-theme', root=document.documentElement, btn=document.getElementById('theme-toggle');
+      (function(){
+        const key='fa-theme';
+        const root=document.documentElement;
+        const btn=document.getElementById('theme-toggle');
         if(!btn) return;
-        var saved=localStorage.getItem(key);
-        var initial=(saved==='light'||saved==='dark')?saved:'dark';
-        root.setAttribute('data-theme', initial);
+        const saved=localStorage.getItem(key);
+        const initial=(saved==='light'||saved==='dark')?saved:'dark';
+        root.dataset.theme=initial;
         btn.setAttribute('aria-pressed', String(initial==='dark'));
-        btn.addEventListener('click', function(){
-          var next=root.getAttribute('data-theme')==='dark'?'light':'dark';
-          root.setAttribute('data-theme', next);
-          localStorage.setItem(key, next);
+        btn.addEventListener('click', ()=>{
+          const next=root.dataset.theme==='dark'?'light':'dark';
+          root.dataset.theme=next;
+          localStorage.setItem(key,next);
           btn.setAttribute('aria-pressed', String(next==='dark'));
         });
       })();
     </script>
+
+    <!-- Optional: defer any large scripts below -->
   </body>
 </html>
