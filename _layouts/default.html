@@ -3,54 +3,22 @@ layout: null
 ---
 
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en">
   <head>
     {% include head.html %}
     {% include social-meta.html %}
 
-    <!-- Set initial theme before CSS to avoid icon FOUC -->
-    <script>
-      (function () {
-        try {
-          var saved = localStorage.getItem('fa-theme');
-          var theme = (saved === 'light' || saved === 'dark') ? saved : 'dark';
-          document.documentElement.setAttribute('data-theme', theme);
-        } catch (e) {
-          document.documentElement.setAttribute('data-theme', 'dark');
-        }
-      })();
-    </script>
-
-    <!-- Site stylesheet -->
-    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}?v={{ site.time | date: '%s' }}&x=1">
+    <!-- Site stylesheet (cache-busted) -->
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}?v={{ site.time | date: '%s' }}">
   </head>
 
   <body>
-    <!-- Finch Archive: inline icon sprite (load BEFORE header so <use> works everywhere) -->
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      style="position:absolute;width:0;height:0;overflow:hidden"
-      aria-hidden="true"
-      focusable="false">
-
-      <!-- Sun -->
-      <symbol id="icon-sun" viewBox="0 0 24 24">
-        <path fill="currentColor" d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Zm0 4a1 1 0 0 1-1-1v-1.5a1 1 0 1 1 2 0V21a1 1 0 0 1-1 1Zm0-20a1 1 0 0 1 1 1v1.5a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1Zm9 9a1 1 0 0 1-1 1h-1.5a1 1 0 1 1 0-2H20a1 1 0 0 1 1 1ZM5.5 12a1 1 0 0 1-1 1H3a1 1 0 1 1 0-2h1.5a1 1 0 0 1 1 1Zm12.02 6.02a1 1 0 0 1 0-1.42l1.06-1.06a1 1 0 1 1 1.41 1.41l-1.06 1.07a1 1 0 0 1-1.41 0ZM4 6.93A1 1 0 0 1 5.41 5.5l1.06 1.06A1 1 0 0 1 5.06 8L4 6.93Zm13.59-1.43A1 1 0 1 1 19 6.93L17.94 8a1 1 0 0 1-1.41-1.41l1.06-1.07ZM6.47 17.53a1 1 0 0 1 1.06-1.06l1.06 1.06A1 1 0 1 1 7.18 19L6.47 18.29a1 1 0 0 1 0-1.41Z"/>
-      </symbol>
-
-      <!-- Moon -->
-      <symbol id="icon-moon" viewBox="0 0 24 24">
-        <path fill="currentColor" d="M21.752 15.002A9 9 0 0 1 9.002 2.252a7 7 0 1 0 12.75 12.75Z"/>
-      </symbol>
-
-      <!-- External link -->
+    <!-- Inline icon sprite for shared icons ONLY (no sun/moon here) -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden">
       <symbol id="icon-external" viewBox="0 0 24 24">
         <path fill="currentColor" d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42 9.3-9.29H14V3z"/>
         <path fill="currentColor" d="M5 5h7v2H7v10h10v-5h2v7H5z"/>
       </symbol>
-
-      <!-- Share -->
       <symbol id="icon-share" viewBox="0 0 24 24">
         <path fill="currentColor" d="M18 8a3 3 0 1 0-2.83-4A3 3 0 0 0 18 8Zm0 8a3 3 0 1 0 3 3a3 3 0 0 0-3-3ZM6 10a3 3 0 1 0-3-3a3 3 0 0 0 3 3Zm2.1-2.4 7.3 3.65m-7.3 1.5 7.3 3.65"
               stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
@@ -68,22 +36,20 @@ layout: null
 
     {% include footer.html %}
 
-    <!-- Theme toggle -->
+    <!-- Theme toggle logic -->
     <script>
       (function () {
-        const key = 'fa-theme';
-        const root = document.documentElement;
-        const btn = document.getElementById('theme-toggle');
-        if (!btn) return;
-
-        // Keep aria-pressed in sync
-        btn.setAttribute('aria-pressed', String(root.getAttribute('data-theme') === 'dark'));
-
-        btn.addEventListener('click', () => {
-          const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        var key='fa-theme', root=document.documentElement, btn=document.getElementById('theme-toggle');
+        if(!btn) return;
+        var saved=localStorage.getItem(key);
+        var initial=(saved==='light'||saved==='dark')?saved:'dark';
+        root.setAttribute('data-theme', initial);
+        btn.setAttribute('aria-pressed', String(initial==='dark'));
+        btn.addEventListener('click', function(){
+          var next=root.getAttribute('data-theme')==='dark'?'light':'dark';
           root.setAttribute('data-theme', next);
-          try { localStorage.setItem(key, next); } catch(e){}
-          btn.setAttribute('aria-pressed', String(next === 'dark'));
+          localStorage.setItem(key, next);
+          btn.setAttribute('aria-pressed', String(next==='dark'));
         });
       })();
     </script>
