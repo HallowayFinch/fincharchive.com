@@ -464,3 +464,9 @@ html { scroll-behavior: smooth; }
 .badge-github:hover { color: #9bd1ff; }
 .badge-feed:hover { color: #ffb347; }
 .badge-human:hover { color: #9effc1; }
+
+/* === THEME TOGGLE ICON HOTFIX (place at very end of style.css) === */
+.theme-toggle .icon        { display: inline-block !important; } /* ensure icons can render */
+.theme-toggle .icon-moon   { display: none !important; }         /* default = show sun */
+:root[data-theme="light"] .theme-toggle .icon-sun  { display: none !important; }
+:root[data-theme="light"] .theme-toggle .icon-moon { display: inline-block !important; }
