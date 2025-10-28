@@ -164,9 +164,7 @@ header.site{
   .header-actions{ position:absolute; right:20px; top:12px; }
 }
 
-/* ======================================
-   Theme toggle (inline SVG; bulletproof)
-   ====================================== */
+/* Theme toggle (inline SVG; bulletproof) */
 .theme-toggle{
   display:inline-flex; align-items:center; justify-content:center;
   width:36px; height:36px; border-radius:6px;
@@ -175,17 +173,17 @@ header.site{
   transition:opacity .15s ease, transform .08s ease, border-color .15s ease;
   -webkit-appearance:none; appearance:none; background-image:none;
 }
-.theme-toggle:hover{ opacity:1; transform:translateY(-1px); border-color:var(--accent); }
+.theme-toggle:hover{ opacity:1; transform:translateY(-1px); border-color:var(--accent) }
 
+/* All icons off by default */
 .theme-toggle .icon{ width:18px; height:18px; fill:currentColor; display:none; }
 
-/* Default state: site boots in dark, show SUN (action = go light) */
-:root[data-theme="dark"]  .theme-toggle .icon-sun  { display:inline-block; }
-:root[data-theme="dark"]  .theme-toggle .icon-moon { display:none; }
+/* Base: show SUN so there’s always an icon before JS runs */
+.theme-toggle .icon-sun{ display:inline-block; }
 
-/* When light is active, show MOON (action = go dark) */
-:root[data-theme="light"] .theme-toggle .icon-sun  { display:none; }
-:root[data-theme="light"] .theme-toggle .icon-moon { display:inline-block; }
+/* When page is light, show MOON instead */
+:root[data-theme="light"] .theme-toggle .icon-sun  { display:none !important; }
+:root[data-theme="light"] .theme-toggle .icon-moon { display:inline-block !important; }
 
 /* ======================================
    Page header
