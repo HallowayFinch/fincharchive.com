@@ -14,9 +14,29 @@ title: Field Notes
   <div class="fn-archive-list">
     {%- for note in notes -%}
       <article class="fn-item">
+        {%- if note.hero_image -%}
+          {%- assign _thumb_src  = note.hero_image | relative_url -%}
+          {%- assign _thumb_alt  = note.hero_alt | default: note.title -%}
+          {%- assign _thumb_w    = note.hero_w | default: 1600 -%}
+          {%- assign _thumb_h    = note.hero_h | default: 900 -%}
+          <a href="{{ note.url | relative_url }}" class="fn-item-thumb">
+            {% include img.html
+              src=_thumb_src
+              alt=_thumb_alt
+              w=_thumb_w
+              h=_thumb_h
+              class="fn-thumb"
+              sizes="(min-width:980px) 480px, 100vw"
+              loading="lazy"
+              fetch="low"
+            %}
+          </a>
+        {%- endif -%}
+
         <h2 class="fn-item-title">
           <a href="{{ note.url | relative_url }}">{{ note.title }}</a>
         </h2>
+
         <p class="fn-item-meta">
           <time datetime="{{ note.date | date_to_xmlschema }}">
             {% include date-local.html dt=note.date %}
@@ -27,6 +47,7 @@ title: Field Notes
             </span>
           {%- endif -%}
         </p>
+
         {%- if note.excerpt -%}
           <p class="fn-item-excerpt">{{ note.excerpt | strip_html | truncate: 200 }}</p>
         {%- endif -%}
