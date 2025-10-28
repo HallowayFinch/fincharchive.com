@@ -1,3 +1,4 @@
+<!-- _includes/img.html -->
 {%- comment -%}
 Reusable image include
 Params:
@@ -9,7 +10,7 @@ Params:
   class   (optional)
   sizes   (optional) – e.g. "(min-width:980px) 720px, 100vw"
   loading (optional) – lazy|eager (default lazy)
-  fetch   (optional) – high|low|auto
+  fetch   (optional) – high|low|auto (default auto)
 {%- endcomment -%}
 
 {%- assign _src   = include.src -%}
@@ -22,9 +23,9 @@ Params:
 {%- assign _load  = include.loading | default: "lazy" -%}
 {%- assign _prio  = include.fetch | default: "auto" -%}
 
-{%- capture _ratio_style -%}
-{%- if _w and _h -%}aspect-ratio: {{ _w }}/{{ _h }};{%- endif -%}
-{%- endcapture -%}
+{%- if _w and _h -%}
+  {%- assign _ratio_style = 'aspect-ratio: ' | append: _w | append: '/' | append: _h | append: ';' -%}
+{%- endif -%}
 
 <img
   src="{{ _src }}"
@@ -33,7 +34,7 @@ Params:
   class="{{ _cls }}"
   sizes="{{ _sizes }}"
   {%- if _w and _h %} width="{{ _w }}" height="{{ _h }}"{% endif -%}
-  style="{{ _ratio_style | strip }}"
+  {%- if _ratio_style %} style="{{ _ratio_style }}"{% endif -%}
   loading="{{ _load }}"
   decoding="async"
   fetchpriority="{{ _prio }}"
