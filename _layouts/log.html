@@ -5,15 +5,16 @@ layout: default
 <main class="container">
   {%- if page.hero_image -%}
   <figure class="log-figure">
-    <img
+    {% include img.html
+      src=page.hero_image | relative_url
+      alt=page.hero_alt | default: page.title
+      w=page.hero_w | default: 1600
+      h=page.hero_h | default: 900
       class="log-hero"
-      src="{{ page.hero_image | relative_url }}"
-      alt="{{ page.hero_alt | default: page.title | escape }}"
-      width="{{ page.hero_w | default: 1600 }}"
-      height="{{ page.hero_h | default: 900 }}"
-      decoding="async"
+      sizes="(min-width:980px) 1100px, 100vw"
       loading="eager"
-      fetchpriority="high">
+      fetch="high"
+    %}
   </figure>
   {%- endif -%}
 
