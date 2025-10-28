@@ -17,8 +17,21 @@
   --serif:Georgia,"Times New Roman",serif;
 
   --header-bg: rgba(0,0,0,.85);
-  --badge-bg: #0b0b0b;
+
+  /* Badge/card base */
+  --badge-bg:#0b0b0b;
   --badge-border: rgba(122,58,58,.45);
+
+  /* Components: cards/buttons */
+  --radius:12px;
+  --radius-sm:8px;
+  --card-bg: rgba(255,255,255,0.03);
+  --card-bg-hover: rgba(255,255,255,0.06);
+  --shadow-soft: 0 1px 0 var(--line), 0 4px 12px rgba(0,0,0,.10);
+  --shadow: 0 1px 0 var(--line), 0 8px 24px rgba(0,0,0,.15);
+
+  /* Accent-on-fill contrast */
+  --on-accent:#fff;
 
   /* micro-motion */
   --dur-fast:.15s; --dur-med:.25s;
@@ -33,7 +46,12 @@
 :root[data-theme="light"]{
   --bg:#f6f2e7; --fg:#2e2b27; --muted:#6f655b; --line:#d9cfc0;
   --header-bg: rgba(246,242,231,.9);
-  --badge-bg:#f4efe4; --badge-border:rgba(122,58,58,.35);
+
+  --badge-bg:#f4efe4;
+  --badge-border:rgba(122,58,58,.35);
+
+  --card-bg: rgba(0,0,0,0.02);
+  --card-bg-hover: rgba(0,0,0,0.05);
 }
 
 /* ----------------
@@ -231,32 +249,7 @@ main .rule:first-child{ display:none; }
 .archive-item-excerpt{ color:#ccc; line-height:1.6; margin:0; }
 
 /* ======================================
-   Field Notes (single + archive)
-   ====================================== */
-.fieldnote{ max-width:640px; margin:4rem auto; padding:0 1rem; color:var(--fg); font-size:1rem; line-height:1.75; }
-.fieldnote-header{ margin-bottom:2rem; }
-.fieldnote-title{ font-family:var(--serif); font-size:1.6rem; font-weight:500; margin:0 0 .5rem; color:var(--fg); }
-.fieldnote-meta{ font-size:.9rem; color:var(--muted); }
-.fieldnote-meta a{ color:var(--muted); text-decoration:none; }
-.fieldnote-meta a:hover{ color:#000; text-decoration:underline; }
-:root[data-theme="dark"] .fieldnote-meta a:hover{ color:#fff; }
-.fieldnote-body p{ margin:1.25rem 0; color:#ccc; }
-.fieldnote-body em{ color:#ddd; }
-.fieldnote-body strong{ color:#000; } :root[data-theme="dark"] .fieldnote-body strong{ color:#fff; }
-
-.fn-archive{ max-width:720px; margin:3rem auto; padding:0 1rem; }
-.fn-archive-header{ margin-bottom:2.5rem; border-bottom:1px solid var(--line); padding-bottom:1rem; }
-.fn-archive-title{ font-family:var(--serif); font-size:2rem; margin:0 0 .25rem; color:var(--fg); }
-.fn-archive-subtitle{ font-size:.9rem; color:var(--muted); margin:0; }
-.fn-archive-list{ display:flex; flex-direction:column; gap:2rem; }
-.fn-item-title{ margin:0 0 .25rem; font-family:var(--serif); font-weight:600; }
-.fn-item-title a{ color:var(--fg); text-decoration:none; }
-.fn-item-title a:hover{ text-decoration:underline; }
-.fn-item-meta{ color:#888; font-size:.9rem; margin:0 0 .75rem; }
-.fn-item-excerpt{ color:#ccc; line-height:1.6; margin:0; }
-
-/* ======================================
-   Pager
+   Pager / Prev–Next Cards (restored)
    ====================================== */
 .pager{ margin:1.75rem 0 0; }
 .pager-inner{
@@ -264,46 +257,115 @@ main .rule:first-child{ display:none; }
   border-top:1px solid var(--line); padding-top:1rem;
 }
 .pager-status{ color:var(--muted); font-size:.95rem; }
-.pager-link{
-  display:inline-flex; align-items:center; gap:.4rem;
-  padding:.4rem .65rem; border:1px solid var(--badge-border); border-radius:6px;
-  background:var(--badge-bg); color:var(--fg); text-decoration:none;
-  opacity:.95; transition:opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
-  white-space:nowrap;
+
+/* Old inline pill links upgraded to card buttons */
+.pager-link,
+.prev_next a, .prev-next a, .pager a, .nav-cards a{
+  display:block;
+  padding:16px 18px;
+  border:1px solid var(--badge-border);
+  border-radius:var(--radius);
+  background:var(--card-bg);
+  color:var(--fg);
+  text-decoration:none;
+  line-height:1.35;
+  box-shadow:var(--shadow-soft);
+  transition:background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
-.pager-link:hover{ opacity:1; transform:translateY(-1px); border-color:var(--accent); }
+
+/* Grid layout for two-link prev/next includes */
+.prev_next, .prev-next, .nav-cards{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin:2.25rem 0 0;
+}
+
+/* Hover: subtle lift + accent FILL */
+.pager-link:hover,
+.prev_next a:hover, .prev-next a:hover, .pager a:hover, .nav-cards a:hover{
+  transform:translateY(-1px);
+  background:var(--accent);
+  border-color:var(--accent);
+  color:var(--on-accent);
+  box-shadow:var(--shadow);
+}
+.pager-link:active,
+.prev_next a:active, .prev-next a:active, .pager a:active, .nav-cards a:active{
+  transform:translateY(0);
+}
 .pager-link.is-disabled{ opacity:.45; pointer-events:none; }
+
+/* Align previous left / next right */
+.prev_next a:first-child, .prev-next a:first-child, .nav-cards a:first-child{ text-align:left; }
+.prev_next a:last-child, .prev-next a:last-child, .nav-cards a:last-child{ text-align:right; }
+
+/* Optional label styling inside links (e.g., “Previous”, “Next”) */
+.prev_next a small, .prev-next a small, .pager a small, .nav-cards a small{
+  display:block; font-size:.85rem; color:var(--muted); margin-bottom:4px; letter-spacing:.02em;
+}
+/* On hover, keep labels readable on accent fill */
+.prev_next a:hover small, .prev-next a:hover small, .pager a:hover small, .nav-cards a:hover small{
+  color:rgba(255,255,255,.9);
+}
+
+/* Mobile wrapping for the pager status row */
 @media (max-width:640px){
   .pager-inner{ flex-wrap:wrap; gap:.5rem 1rem; }
   .pager-status{ order:3; width:100%; text-align:center; }
 }
 
 /* ======================================
-   Footer & badges
+   Footer & badges (restored as buttons)
    ====================================== */
 footer.site{ border-top:1px solid var(--line); margin-top:3rem; padding:1.25rem 0; color:var(--muted); font-size:.95rem; }
 .footer-flex{ display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; }
 .footer-left{ color:var(--muted); font-size:.95rem; white-space:nowrap; }
-.badges{ display:flex; gap:.5rem; list-style:none; margin:0; padding:0; align-items:center; flex-wrap:wrap; }
+
+.badges{ display:flex; gap:12px; list-style:none; margin:0; padding:0; align-items:center; flex-wrap:wrap; }
+.badges li{ margin:0; }
+
 .badge{
-  display:inline-flex; align-items:center; gap:.25rem; text-decoration:none;
-  opacity:.75; transition:opacity var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
-  font-size:.85rem;
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 12px;
+  border:1px solid var(--badge-border);
+  border-radius:var(--radius-sm);
+  background:var(--card-bg);
+  color:var(--fg);
+  text-decoration:none;
+  font-size:.95rem; line-height:1;
+  box-shadow:var(--shadow-soft);
+  transition:background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
-.badge:hover{ opacity:1; color:var(--accent-color,#fff); }
-.badge-icon{ width:16px; height:16px; fill:currentColor; }
-.badge-label{ letter-spacing:.02em; }
-[data-theme="dark"] .badge{ color:rgba(255,255,255,.65); }
-[data-theme="light"] .badge{ color:#333; }
+.badge:hover{
+  transform:translateY(-1px);
+  background:var(--accent);
+  border-color:var(--accent);
+  color:var(--on-accent);
+  box-shadow:var(--shadow);
+}
+
+.badge-icon,
+a.badge svg{
+  width:1.05em; height:1.05em; flex:0 0 auto;
+  fill:currentColor; stroke:currentColor;
+}
+
+/* Icon-specific soft hues on hover (slightly tinted toward accent fill) */
+.badge-github:hover{ color:#fff; }
+.badge-feed:hover{ color:#fff; }
+.badge-human:hover{ color:#fff; }
 .badge-cc .badge-icon circle{ fill:none; stroke:currentColor; stroke-width:1.5; }
-.badge-github:hover{ color:#9bd1ff; }
-.badge-feed:hover{ color:#ffb347; }
-.badge-human:hover{ color:#9effc1; }
+
+/* Light/Dark default text colors for non-hover */
+[data-theme="dark"] .badge{ color:rgba(255,255,255,.82); }
+[data-theme="light"] .badge{ color:#2e2b27; }
 
 /* ======================================
    Enhancements & Utilities
    ====================================== */
-a:focus-visible,.btn:focus-visible,.log-link:focus-visible,.theme-toggle:focus-visible{
+a:focus-visible,.btn:focus-visible,.log-link:focus-visible,.theme-toggle:focus-visible,
+.pager-link:focus-visible,.badge:focus-visible,.prev_next a:focus-visible,.prev-next a:focus-visible,.nav-cards a:focus-visible{
   outline:2px dashed var(--accent); outline-offset:2px;
 }
 @media (prefers-reduced-motion:reduce){
@@ -319,7 +381,13 @@ a:focus-visible,.btn:focus-visible,.log-link:focus-visible,.theme-toggle:focus-v
   transition:opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
   will-change:transform;
 }
-.btn:hover{ opacity:1; transform:translateY(-1px); border-color:var(--accent); }
+.btn:hover{
+  opacity:1; transform:translateY(-1px);
+  border-color:var(--accent);
+  background:var(--accent);
+  color:var(--on-accent);
+  box-shadow:var(--shadow);
+}
 .btn:active{ transform:translateY(0) scale(.98); }
 .btn .icon{ width:16px; height:16px; }
 
