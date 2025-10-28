@@ -448,3 +448,9 @@ html{ scroll-behavior:smooth; }
   fill-rule:evenodd; 
   clip-rule:evenodd;
 }
+
+/* Theme toggle icon guard */
+.theme-toggle .icon        { display:inline-block !important; }
+.theme-toggle .icon-moon   { display:none !important; }
+:root[data-theme="light"] .theme-toggle .icon-sun  { display:none !important; }
+:root[data-theme="light"] .theme-toggle .icon-moon { display:inline-block !important; }
