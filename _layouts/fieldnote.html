@@ -3,6 +3,26 @@ layout: default
 ---
 
 <main class="fieldnote container" style="max-width: 640px;">
+  {%- if page.hero_image -%}
+  {%- assign _hero_src  = page.hero_image | relative_url -%}
+  {%- assign _hero_alt  = page.hero_alt | default: page.title -%}
+  {%- assign _hero_w    = page.hero_w | default: 1600 -%}
+  {%- assign _hero_h    = page.hero_h | default: 900 -%}
+
+  <figure class="log-figure">
+    {% include img.html
+      src=_hero_src
+      alt=_hero_alt
+      w=_hero_w
+      h=_hero_h
+      class="log-hero"
+      sizes="(min-width:980px) 640px, 100vw"
+      loading="eager"
+      fetch="high"
+    %}
+  </figure>
+  {%- endif -%}
+
   <header class="fieldnote-header">
     <h1 class="fieldnote-title">{{ page.title }}</h1>
     <p class="fieldnote-meta">
@@ -12,15 +32,6 @@ layout: default
       {% include share.html %}
     </p>
   </header>
-
-  {%- if page.hero_image -%}
-  <figure class="log-figure">
-    <img class="log-hero"
-         src="{{ page.hero_image | relative_url }}"
-         alt="{{ page.hero_alt | default: page.title | escape }}"
-         decoding="async" loading="eager" fetchpriority="high">
-  </figure>
-  {%- endif -%}
 
   <article class="fieldnote-body">
     {{ content }}
