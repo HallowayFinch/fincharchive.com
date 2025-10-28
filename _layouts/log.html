@@ -4,12 +4,17 @@ layout: default
 
 <main class="container">
   {%- if page.hero_image -%}
+  {%- assign _hero_src  = page.hero_image | relative_url -%}
+  {%- assign _hero_alt  = page.hero_alt | default: page.title -%}
+  {%- assign _hero_w    = page.hero_w | default: 1600 -%}
+  {%- assign _hero_h    = page.hero_h | default: 900 -%}
+
   <figure class="log-figure">
     {% include img.html
-      src=page.hero_image | relative_url
-      alt=page.hero_alt | default: page.title
-      w=page.hero_w | default: 1600
-      h=page.hero_h | default: 900
+      src=_hero_src
+      alt=_hero_alt
+      w=_hero_w
+      h=_hero_h
       class="log-hero"
       sizes="(min-width:980px) 1100px, 100vw"
       loading="eager"
