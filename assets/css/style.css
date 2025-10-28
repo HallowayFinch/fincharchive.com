@@ -165,23 +165,25 @@ header.site{
 }
 
 /* ======================================
-   Theme toggle (single source of truth)
+   Theme toggle (inline SVG; bulletproof)
    ====================================== */
 .theme-toggle{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:36px;height:36px;border-radius:6px;
-  border:1px solid var(--badge-border);background:var(--badge-bg);color:var(--fg);
-  cursor:pointer;margin-left:10px;
-  transition:opacity .15s ease,transform .08s ease,border-color .15s ease;
-  -webkit-appearance:none;appearance:none;background-image:none;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:36px; height:36px; border-radius:6px;
+  border:1px solid var(--badge-border); background:var(--badge-bg); color:var(--fg);
+  cursor:pointer; margin-left:10px;
+  transition:opacity .15s ease, transform .08s ease, border-color .15s ease;
+  -webkit-appearance:none; appearance:none; background-image:none;
 }
-.theme-toggle:hover{opacity:1;transform:translateY(-1px);border-color:var(--accent)}
+.theme-toggle:hover{ opacity:1; transform:translateY(-1px); border-color:var(--accent); }
 
-/* Default: show sun so an icon is always visible */
-.theme-toggle .icon-sun  { display:inline-block; }
-.theme-toggle .icon-moon { display:none; }
+.theme-toggle .icon{ width:18px; height:18px; fill:currentColor; display:none; }
 
-/* When light theme is active, offer moon */
+/* Default state: site boots in dark, show SUN (action = go light) */
+:root[data-theme="dark"]  .theme-toggle .icon-sun  { display:inline-block; }
+:root[data-theme="dark"]  .theme-toggle .icon-moon { display:none; }
+
+/* When light is active, show MOON (action = go dark) */
 :root[data-theme="light"] .theme-toggle .icon-sun  { display:none; }
 :root[data-theme="light"] .theme-toggle .icon-moon { display:inline-block; }
 
