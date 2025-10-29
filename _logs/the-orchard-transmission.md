@@ -1,10 +1,10 @@
 ---
 layout: log
 title: "The Orchard Transmission"
-log_id: "1022C"
+log_id: "1022D"
 date: "2025-10-25T03:22:19+00:00"
 source_url: "https://www.hallowayfinch.com/p/the-orchard-transmission"
-guid: "https://www.hallowayfinch.com/p/the-orchard-transmission"
+guid: "/p/the-orchard-transmission"
 permalink: "/logs/the-orchard-transmission/"
 hero_image: "https://substack-post-media.s3.amazonaws.com/public/images/087d99bc-f3da-43ae-a755-a0244d9a7fbe_1280x720.png"
 ---
