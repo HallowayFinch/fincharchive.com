@@ -25,7 +25,7 @@ The Finch Archive repo is built on a set of coordinated GitHub Actions that auto
 - On manual trigger (`Run workflow`).
 
 **What it does:**
-1. Fetches the RSS feed from Substack (`https://hallowayfinch.substack.com/feed`).
+1. Fetches the RSS feed from Substack (`https://www.hallowayfinch.com/feed`).
 2. Converts new posts into `_logs/{slug}.md` files.
 3. Generates matching `/logs/{slug}/` pages for the site.
 4. Creates folders under `/artifacts/{slug}/` for attachments or sidecar files.
@@ -72,7 +72,7 @@ The Finch Archive repo is built on a set of coordinated GitHub Actions that auto
 
 | Secret | Description | Example |
 |--------|--------------|----------|
-| `SUBSTACK_RSS_URL` | Full RSS feed URL | `https://hallowayfinch.substack.com/feed` |
+| `SUBSTACK_RSS_URL` | Full RSS feed URL | `https://www.hallowayfinch.com/feed` |
 | `RSS_PROXY_URL` | Optional proxy or caching endpoint | `https://rss.fincharchive.com` |
 
 Secrets are stored under:  
