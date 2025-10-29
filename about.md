@@ -8,9 +8,9 @@ permalink: /about/
 
 # About the Finch Archive
 
-The Finch Archive collects recovered notes from incomplete transmissions.  
-This project preserves the fragments, with minimal intervention, and presents them
-in a consistent, navigable form.
+The Finch Archive collects recovered notes from incomplete transmissions.
+
+This project preserves the fragments, with minimal intervention, and presents them in a consistent, navigable form.
 
 <div class="rule"></div>
 
