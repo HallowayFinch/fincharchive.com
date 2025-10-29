@@ -295,45 +295,55 @@ a:hover .fn-thumb {
 .artifact-list{ list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.75rem; }
 
 /* ======================================
-   Logs Archive layout
+   Pager / Prev–Next Cards
    ====================================== */
-.archive{ max-width:700px; margin:3rem auto; padding:0 1rem; }
-.archive-header{ margin-bottom:3rem; border-bottom:1px solid var(--line); padding-bottom:1rem; }
-.archive-title{ font-family:var(--serif); font-size:2rem; margin:0 0 .25rem; color:var(--fg); }
-.archive-subtitle{ font-size:.9rem; color:var(--muted); margin:0; }
-.archive-list{ display:flex; flex-direction:column; gap:2.5rem; }
-.archive-item-title{ margin-bottom:.25rem; font-family:var(--serif); font-weight:600; }
-.archive-item-title a{ color:var(--fg); text-decoration:none; }
-.archive-item-title a:hover{ text-decoration:underline; }
-.archive-item-meta{ color:#777; font-size:.85rem; margin:0 0 1rem; }
-.archive-item-id{ margin-left:.5rem; color:#555; }
-.archive-item-excerpt{ color:#ccc; line-height:1.6; margin:0; }
 
-/* === Pager overrides: guaranteed spacing + equal heights === */
+/* Layout + spacing for the two tiles */
 nav.pager,
 .pager{
-  display:grid !important;
+  display:grid;
   grid-template-columns:1fr;
-  row-gap:24px !important;      /* vertical space between the two tiles (mobile) */
-  column-gap:24px !important;
-  margin-top:2.25rem;           /* keep existing top margin */
+  row-gap:24px;            /* vertical space between tiles on mobile */
+  column-gap:24px;
+  margin:2.25rem 0 0;
 }
 
-/* Hard fallback if grid gap is ignored by any rule/browser */
-.pager > * + *{ margin-top:24px !important; }
-
-/* Cards: same height for links and “None” tiles */
-.pager-link{
-  width:100%;
-  min-height:84px;              /* match linked tile visual height */
-  margin:0 !important;          /* kill any inherited margins that collapse the gap */
+/* Card look (shared with other “card-like” anchors) */
+.pager-link,
+.prev_next a, .prev-next a, .pager a, .nav-cards a{
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
+  text-align:center;
+  font-family:var(--mono);
+  font-size:.95rem;
+  line-height:1.4;
+  padding:18px 22px;
+  border:1px solid var(--badge-border);
+  border-radius:12px;
+  background:var(--card-bg);
+  color:var(--fg);
+  text-decoration:none;
+  box-shadow:inset 0 1px rgba(255,255,255,0.08), 0 2px 6px rgba(0,0,0,0.10);
+  transition:background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  min-height:var(--tile-min);      /* equal height for link + “None” */
+  margin:0;                        /* ensure gap is driven by grid, not margins */
 }
 
-/* Disabled card: keep full size, just a touch muted */
+/* Hover/active */
+.pager-link:hover,
+.prev_next a:hover, .prev-next a:hover, .pager a:hover, .nav-cards a:hover{
+  transform:translateY(-1px);
+  background:var(--accent);
+  border-color:var(--accent);
+  color:var(--on-accent);
+  box-shadow:0 3px 10px rgba(0,0,0,0.20);
+}
+.pager-link:active,
+.prev_next a:active, .prev-next a:active, .pager a:active, .nav-cards a:active{ transform:translateY(0); }
+
+/* Disabled “None” tile: same size, just muted + non-interactive */
 .pager-link.is-disabled{
   opacity:.62;
   pointer-events:none;
@@ -342,15 +352,19 @@ nav.pager,
   filter:saturate(.9);
 }
 
-/* Two columns on wider screens with clean gap between them */
+/* Two columns on wider screens with a clean gap */
 @media (min-width:760px){
   nav.pager,
   .pager{
     grid-template-columns:1fr 1fr;
-    row-gap:28px !important;
-    column-gap:32px !important; /* horizontal space between previous/next */
+    column-gap:32px;
+    row-gap:28px;
   }
-  .pager > * + *{ margin-top:0 !important; } /* rely on grid gap at this width */
+}
+
+/* Small label lines within cards (if used) */
+.prev_next a small, .prev-next a small, .pager a small, .nav-cards a small{
+  display:block; font-size:.85rem; opacity:.7; margin-bottom:4px; letter-spacing:.02em;
 }
 
 /* ======================================
