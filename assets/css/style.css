@@ -295,28 +295,28 @@ a:hover .fn-thumb {
 .artifact-list{ list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.75rem; }
 
 /* ======================================
-   Pager / Prev–Next Cards
+   Pager / Prev–Next Cards (tighter gap)
    ====================================== */
 
-/* Wrapper: grid with a reliable gap between tiles */
+/* Wrapper: grid with a tighter vertical gap */
 .prev_next,
 .prev-next,
 .nav-cards{
   display:grid !important;
   grid-template-columns:1fr;
-  gap:22px;                       /* vertical space between the two tiles */
+  gap:11px;                      /* reduced from 22px */
   margin:2.25rem 0 0;
   justify-items:stretch;
 }
 
-/* Fallback margin if some rule kills gap (belt + suspenders) */
+/* Fallback margin if gap is ignored */
 .prev_next > * + *,
 .prev-next > * + *,
 .nav-cards > * + *{
-  margin-top:22px !important;
+  margin-top:11px !important;    /* match new gap */
 }
 
-/* Card — applies to anchor links AND the disabled <span class="pager-link"> */
+/* Card styling (same as working version) */
 .prev_next a,
 .prev-next a,
 .nav-cards a,
@@ -363,7 +363,7 @@ a:hover .fn-thumb {
 .prev-next a:active,
 .nav-cards a:active{ transform:translateY(0); }
 
-/* Label line (the small “← Previous” / “Next →”) */
+/* Label line */
 .prev_next a small,
 .prev-next a small,
 .nav-cards a small,
@@ -375,7 +375,7 @@ a:hover .fn-thumb {
   letter-spacing:.02em;
 }
 
-/* Disabled “None” tile — same size/box, muted, no pointer */
+/* Disabled “None” tile */
 .pager-link.is-disabled{
   pointer-events:none;
   opacity:.62;
@@ -385,18 +385,18 @@ a:hover .fn-thumb {
   filter:saturate(.9);
 }
 
-/* Two columns on wider screens (if both tiles on one row) */
+/* Two columns on wider screens */
 @media (min-width:760px){
   .prev_next,
   .prev-next,
   .nav-cards{
     grid-template-columns:1fr 1fr;
-    gap:26px;
+    gap:13px;                    /* reduced from 26px */
   }
   .prev_next > * + *,
   .prev-next > * + *,
   .nav-cards > * + *{
-    margin-top:0 !important;      /* grid gap takes over */
+    margin-top:0 !important;
   }
 }
 
