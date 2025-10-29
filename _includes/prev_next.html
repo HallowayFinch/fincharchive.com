@@ -1,8 +1,7 @@
 <!-- _includes/prev_next.html -->
 {%- comment -%}
 Prev/Next navigation for single entries in a collection.
-Stops wrapping around so first/last entries show “None”.
-Now rendered inside a .nav-cards grid for spacing.
+Now ensures equal card sizing for “None” placeholders.
 {%- endcomment -%}
 
 {%- assign coll = site[page.collection] | sort: "date" -%}
@@ -25,31 +24,36 @@ Now rendered inside a .nav-cards grid for spacing.
   {%- endif -%}
 
   <nav class="pager" aria-label="Post navigation">
-    <!-- Use the existing .nav-cards grid so cards have gap & responsive 2-col -->
     <div class="nav-cards nav-cards--pager" role="list">
-      {%- if prev_doc -%}
-        <a class="pager-link pager-prev" role="listitem" href="{{ prev_doc.url | relative_url }}">
-          <small class="pager-kicker" aria-hidden="true">← Previous</small>
-          <span class="pager-title">{{ prev_doc.title }}</span>
-        </a>
-      {%- else -%}
-        <span class="pager-link pager-prev is-disabled" role="listitem" aria-disabled="true">
-          <small class="pager-kicker">← Previous</small>
-          <span class="pager-title">None</span>
-        </span>
-      {%- endif -%}
+      <!-- Previous -->
+      <div class="pager-item" role="listitem">
+        {%- if prev_doc -%}
+          <a class="pager-link pager-prev" href="{{ prev_doc.url | relative_url }}">
+            <small class="pager-kicker" aria-hidden="true">← Previous</small>
+            <span class="pager-title">{{ prev_doc.title }}</span>
+          </a>
+        {%- else -%}
+          <span class="pager-link pager-prev is-disabled" aria-disabled="true">
+            <small class="pager-kicker">← Previous</small>
+            <span class="pager-title">None</span>
+          </span>
+        {%- endif -%}
+      </div>
 
-      {%- if next_doc -%}
-        <a class="pager-link pager-next" role="listitem" href="{{ next_doc.url | relative_url }}">
-          <small class="pager-kicker" aria-hidden="true">Next →</small>
-          <span class="pager-title">{{ next_doc.title }}</span>
-        </a>
-      {%- else -%}
-        <span class="pager-link pager-next is-disabled" role="listitem" aria-disabled="true">
-          <small class="pager-kicker">Next →</small>
-          <span class="pager-title">None</span>
-        </span>
-      {%- endif -%}
+      <!-- Next -->
+      <div class="pager-item" role="listitem">
+        {%- if next_doc -%}
+          <a class="pager-link pager-next" href="{{ next_doc.url | relative_url }}">
+            <small class="pager-kicker" aria-hidden="true">Next →</small>
+            <span class="pager-title">{{ next_doc.title }}</span>
+          </a>
+        {%- else -%}
+          <span class="pager-link pager-next is-disabled" aria-disabled="true">
+            <small class="pager-kicker">Next →</small>
+            <span class="pager-title">None</span>
+          </span>
+        {%- endif -%}
+      </div>
     </div>
   </nav>
 {%- endif -%}
