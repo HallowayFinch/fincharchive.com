@@ -42,6 +42,53 @@ layout: null
 
     {% include footer.html %}
 
+    <!-- Smart sticky header: hide on scroll down, show on scroll up -->
+    <script>
+      (function () {
+        var header = document.querySelector('header.site');
+        if (!header) return;
+
+        // Reserve space to prevent CLS
+        function setHeaderPad() {
+          document.body.style.setProperty('--header-h', header.offsetHeight + 'px');
+          document.body.classList.add('has-sticky-padding');
+        }
+        setHeaderPad();
+        window.addEventListener('resize', setHeaderPad);
+
+        var lastY = window.scrollY || 0;
+        var ticking = false;
+        var threshold = 80;
+
+        function onScroll() {
+          var y = window.scrollY || 0;
+          var goingDown = y > lastY;
+
+          if (y > 4) header.classList.add('header--elevated');
+          else header.classList.remove('header--elevated');
+
+          if (y > threshold && goingDown) {
+            header.classList.add('header--hidden');
+            header.classList.remove('header--compact');
+          } else {
+            header.classList.remove('header--hidden');
+            if (y > 4) header.classList.add('header--compact');
+            else header.classList.remove('header--compact');
+          }
+
+          lastY = y;
+          ticking = false;
+        }
+
+        window.addEventListener('scroll', function () {
+          if (!ticking) {
+            requestAnimationFrame(onScroll);
+            ticking = true;
+          }
+        }, { passive: true });
+      })();
+    </script>
+
     <!-- Theme toggle logic -->
     <script>
       (function(){
