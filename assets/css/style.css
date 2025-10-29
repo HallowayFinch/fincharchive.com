@@ -299,91 +299,91 @@ a:hover .fn-thumb {
    ====================================== */
 
 /* container */
-nav.pager,
-.pager{
-  display:grid !important;
-  grid-template-columns:1fr;
-  row-gap:22px;                 /* vertical space between tiles (mobile) */
-  column-gap:22px;
-  margin:2.25rem 0 0;
-}
+.pager{ margin:1.75rem 0 0; }
 
-/* hard fallback in case any rule overrides display:grid */
-nav.pager > * + *,
-.pager > * + *{
-  margin-top:22px !important;   /* ensures visible gap even without grid */
-}
-
-/* two-up on wider screens */
-@media (min-width:760px){
-  nav.pager,
-  .pager{
-    grid-template-columns:1fr 1fr;
-    row-gap:26px;
-    column-gap:28px;
-  }
-  /* remove the fallback margin when grid is active in 2-col */
-  nav.pager > * + *,
-  .pager > * + *{ margin-top:0 !important; }
-}
-
-/* base card — applies to BOTH <a> and <span> */
-.pager .pager-link{
-  display:flex; flex-direction:column; justify-content:center; align-items:center;
-  text-align:center; font-family:var(--mono); font-size:.95rem; line-height:1.4;
-
-  width:100%;
-  min-height:clamp(96px, 16vw, 132px);
+/* Card look (reuse your existing card styles selector) */
+.pager-link,
+.prev_next a, .prev-next a, .pager a, .nav-cards a{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  font-family:var(--mono);
+  font-size:.95rem;
+  line-height:1.4;
   padding:18px 22px;
-  margin:0 !important;          /* neutralize stray margins */
-
   border:1px solid var(--badge-border);
   border-radius:12px;
   background:var(--card-bg);
   color:var(--fg);
-  box-shadow:inset 0 1px rgba(255,255,255,0.08), 0 2px 6px rgba(0,0,0,0.10);
   text-decoration:none;
-  transition:
-    background var(--dur-fast) var(--ease),
-    border-color var(--dur-fast) var(--ease),
-    transform var(--dur-fast) var(--ease),
-    box-shadow var(--dur-fast) var(--ease),
-    color var(--dur-fast) var(--ease);
+  box-shadow:inset 0 1px rgba(255,255,255,0.08), 0 2px 6px rgba(0,0,0,0.10);
+  transition:background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  width:100%;                 /* make both tiles equal width */
+  min-height:clamp(96px,16vw,132px);
 }
 
-/* hover/active only for anchors */
-.pager a.pager-link:hover{
+/* hover/active */
+.pager-link:hover,
+.prev_next a:hover, .prev-next a:hover, .pager a:hover, .nav-cards a:hover{
   transform:translateY(-1px);
   background:var(--accent);
   border-color:var(--accent);
   color:var(--on-accent);
   box-shadow:0 3px 10px rgba(0,0,0,0.20);
 }
-.pager a.pager-link:active{ transform:translateY(0); }
+.pager-link:active,
+.prev_next a:active, .prev-next a:active, .pager a:active, .nav-cards a:active{ transform:translateY(0); }
 
-/* disabled “None” tile: full size, slightly muted */
-.pager .pager-link.is-disabled{
-  opacity:.60;
+.prev_next a small, .prev-next a small, .pager a small, .nav-cards a small{
+  display:block; font-size:.85rem; opacity:.7; margin-bottom:4px; letter-spacing:.02em;
+}
+
+/* -------- Spacing between the two tiles (robust no matter the HTML) -------- */
+/* If the tiles are direct siblings inside the container element */
+.prev_next > * + *,
+.prev-next > * + *,
+nav.pager > * + *,
+.pager > * + *{
+  margin-top:20px !important;
+}
+
+/* If the tiles themselves are direct <a> siblings with no wrapper */
+.prev_next a + a,
+.prev-next a + a,
+nav.pager a + a,
+.pager a + a{
+  margin-top:20px !important;
+}
+
+/* Muted “None” tile keeps same size */
+.pager-link.is-disabled{
+  opacity:.62;
   pointer-events:none;
   background:var(--badge-bg);
   border-color:rgba(122,58,58,.30);
-  color:var(--muted);
   filter:saturate(.9);
 }
 
-/* small kicker line above the title */
-.pager .pager-kicker{
-  display:block;
-  font-size:.9rem;
-  opacity:.75;
-  margin-bottom:6px;
-  letter-spacing:.02em;
-}
-
-/* focus ring */
-.pager .pager-link:focus-visible{
-  outline:2px dashed var(--accent);
-  outline-offset:2px;
+/* Two columns on wider screens (keeps a clean gap) */
+@media (min-width:760px){
+  .prev_next, .prev-next, nav.pager, .pager{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:24px;
+  }
+  /* Remove the mobile margin once grid gap takes over */
+  .prev_next > * + *,
+  .prev-next > * + *,
+  nav.pager > * + *,
+  .pager > * + *,
+  .prev_next a + a,
+  .prev-next a + a,
+  nav.pager a + a,
+  .pager a + a{
+    margin-top:0 !important;
+  }
 }
 
 /* ======================================
