@@ -296,68 +296,41 @@ a:hover .fn-thumb {
 
 /* ======================================
    Pager / Prev–Next Cards
-   (now includes .pager container so gap applies)
    ====================================== */
-.pager{ margin:1.75rem 0 0; }
-
-/* Containers become a grid with gaps */
-.prev_next, .prev-next, .nav-cards, .pager{
-  display:grid;
+.pager{
+  display:grid !important;
   grid-template-columns:1fr;
-  gap:18px;                 /* vertical spacing between stacked tiles */
-  margin:2.25rem 0 0;
-  justify-items:center;
+  row-gap:24px;             /* vertical space between tiles (mobile) */
+  column-gap:24px;
+  margin-top:2.25rem;
 }
-@media (min-width:760px){
-  .prev_next, .prev-next, .nav-cards, .pager{
-    grid-template-columns:1fr 1fr;
-  }
+.pager > *{
+  /* force grid items (link or span) to stretch full width */
+  justify-self:stretch;
+  width:100% !important;
 }
-
-/* Card appearance */
-.pager-link,
-.prev_next a, .prev-next a, .pager a, .nav-cards a{
+.pager-link{
+  width:100% !important;
+  min-height:var(--tile-min);
+  margin:0;
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  text-align:center;
-  font-family:var(--mono);
-  font-size:.95rem;
-  line-height:1.4;
-  padding:18px 22px;
-  border:1px solid var(--badge-border);
-  border-radius:12px;
-  background:var(--card-bg);
-  color:var(--fg);
-  text-decoration:none;
-  box-shadow:inset 0 1px rgba(255,255,255,0.08), 0 2px 6px rgba(0,0,0,0.10);
-  transition:background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
-  width:100%;
-  min-height:var(--tile-min);   /* equal height whether link or disabled */
 }
-.pager-link:hover,
-.prev_next a:hover, .prev-next a:hover, .pager a:hover, .nav-cards a:hover{
-  transform:translateY(-1px);
-  background:var(--accent);
-  border-color:var(--accent);
-  color:var(--on-accent);
-  box-shadow:0 3px 10px rgba(0,0,0,0.20);
-}
-.pager-link:active,
-.prev_next a:active, .prev-next a:active, .pager a:active, .nav-cards a:active{ transform:translateY(0); }
-
-/* Disabled tile stays same size, just muted */
 .pager-link.is-disabled{
-  opacity:.6;
+  opacity:.62;
   pointer-events:none;
   background:var(--badge-bg);
   border-color:rgba(122,58,58,.30);
+  filter:saturate(.9);
 }
-
-/* Small kicker line inside cards */
-.prev_next a small, .prev-next a small, .pager a small, .nav-cards a small{
-  display:block; font-size:.85rem; opacity:.7; margin-bottom:4px; letter-spacing:.02em;
+@media (min-width:760px){
+  .pager{
+    grid-template-columns:1fr 1fr; /* two equal columns */
+    row-gap:28px;
+    column-gap:32px;
+  }
 }
 
 /* ======================================
