@@ -301,11 +301,17 @@ a:hover .fn-thumb {
 /* container */
 nav.pager,
 .pager{
-  display:grid;
+  display:grid !important;
   grid-template-columns:1fr;
   row-gap:22px;                 /* vertical space between tiles (mobile) */
   column-gap:22px;
   margin:2.25rem 0 0;
+}
+
+/* hard fallback in case any rule overrides display:grid */
+nav.pager > * + *,
+.pager > * + *{
+  margin-top:22px !important;   /* ensures visible gap even without grid */
 }
 
 /* two-up on wider screens */
@@ -314,25 +320,22 @@ nav.pager,
   .pager{
     grid-template-columns:1fr 1fr;
     row-gap:26px;
-    column-gap:28px;            /* horizontal space between previous/next */
+    column-gap:28px;
   }
+  /* remove the fallback margin when grid is active in 2-col */
+  nav.pager > * + *,
+  .pager > * + *{ margin-top:0 !important; }
 }
 
 /* base card — applies to BOTH <a> and <span> */
 .pager .pager-link{
-  /* card visuals (match your site cards) */
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-  font-family:var(--mono);
-  font-size:.95rem;
-  line-height:1.4;
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  text-align:center; font-family:var(--mono); font-size:.95rem; line-height:1.4;
 
-  padding:18px 22px;
-  min-height:clamp(96px, 16vw, 132px);
   width:100%;
+  min-height:clamp(96px, 16vw, 132px);
+  padding:18px 22px;
+  margin:0 !important;          /* neutralize stray margins */
 
   border:1px solid var(--badge-border);
   border-radius:12px;
@@ -358,7 +361,7 @@ nav.pager,
 }
 .pager a.pager-link:active{ transform:translateY(0); }
 
-/* disabled “None” tile keeps full size, just muted */
+/* disabled “None” tile: full size, slightly muted */
 .pager .pager-link.is-disabled{
   opacity:.60;
   pointer-events:none;
@@ -377,7 +380,7 @@ nav.pager,
   letter-spacing:.02em;
 }
 
-/* focus */
+/* focus ring */
 .pager .pager-link:focus-visible{
   outline:2px dashed var(--accent);
   outline-offset:2px;
