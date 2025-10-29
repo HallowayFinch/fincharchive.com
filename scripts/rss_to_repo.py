@@ -7,17 +7,17 @@ def log(*args): print("[rss-sync]", *args, flush=True)
 
 # ----- ENV & paths -----------------------------------------------------------
 ROOT = Path(__file__).resolve().parents[1]
-STATE_FILE   = ROOT / ".finch" / "state.json"
-COLL_DIR     = ROOT / "_logs"          # Jekyll source collection (truth)
-ARTIFACTS_DIR= ROOT / "artifacts"      # sidecar files live under /artifacts/:slug/
+STATE_FILE    = ROOT / ".finch" / "state.json"
+COLL_DIR      = ROOT / "_logs"          # Jekyll source collection (truth)
+ARTIFACTS_DIR = ROOT / "artifacts"      # sidecar files live under /artifacts/:slug/
 
 for p in (STATE_FILE.parent, COLL_DIR, ARTIFACTS_DIR):
     p.mkdir(parents=True, exist_ok=True)
 
-SUBSTACK_RSS_URL     = os.environ.get("SUBSTACK_RSS_URL", "").strip()
-IMPORT_LATEST_ONLY   = os.environ.get("IMPORT_LATEST_ONLY", "1") == "1"
-IMPORT_DEBUG         = os.environ.get("IMPORT_DEBUG", "0") == "1"
-RSS_PROXY_URL        = os.environ.get("RSS_PROXY_URL", "").strip()
+SUBSTACK_RSS_URL   = os.environ.get("SUBSTACK_RSS_URL", "").strip()
+IMPORT_LATEST_ONLY = os.environ.get("IMPORT_LATEST_ONLY", "1") == "1"
+IMPORT_DEBUG       = os.environ.get("IMPORT_DEBUG", "0") == "1"
+RSS_PROXY_URL      = os.environ.get("RSS_PROXY_URL", "").strip()
 
 # File types we’ll surface on the page (if present under /artifacts/:slug/)
 ARTIFACT_EXTS = [
@@ -47,14 +47,32 @@ def proxied(url: str) -> str:
     if not RSS_PROXY_URL: return raw
     return f"{RSS_PROXY_URL}?url={urllib.parse.quote(raw, safe='')}"
 
+# ----- Canonical keys (domain-agnostic) --------------------------------------
+def canonical_path(u: str) -> str:
+    """Return only the URL path without trailing slashes for stable IDs."""
+    try:
+        p = urllib.parse.urlparse(unproxy_url(u))
+        path = (p.path or "/").rstrip("/")
+        return path or "/"
+    except Exception:
+        return u or "/"
+
+def guid_key(entry) -> str:
+    """Stable key that survives host/domain changes."""
+    src = entry.get("id") or entry.get("guid") or entry.get("link") or ""
+    return canonical_path(src)
+
 # ----- HTTP fetch ------------------------------------------------------------
 def fetch_url(url: str, timeout=30) -> str:
+    # choose a sensible Referer based on the unproxied URL host
+    unp = urllib.parse.urlparse(unproxy_url(url))
+    ref = f"{unp.scheme}://{unp.netloc}/" if unp.netloc else "https://substack.com/"
     headers = {
         "User-Agent": ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
                        "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"),
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "en-US,en;q=0.9",
-        "Referer": "https://substack.com/",
+        "Referer": ref,
         "Connection": "keep-alive",
     }
     req = urllib.request.Request(url, headers=headers)
@@ -71,8 +89,7 @@ def readability_extract(html_text: str) -> str:
 def strip_chrome(html_text: str) -> str:
     """
     Remove Substack header/title/author/share/comments etc.
-    Then, keep from the **first <p>** onward so we never keep
-    the duplicate title/date line before the story.
+    Then keep from the first <p> onward so we never keep duplicate title/date.
     """
     t = html_text
     t = re.sub(r"(?is)<header[^>]*>.*?</header>", "", t)
@@ -119,7 +136,7 @@ def safe_filename(s: str) -> str:
     return s or "log"
 
 def extract_slug_from_url(url: str) -> str:
-    path = urllib.parse.urlparse(url).path.strip("/")
+    path = urllib.parse.urlparse(unproxy_url(url)).path.strip("/")
     if not path: return "log"
     return safe_filename(path.split("/")[-1]) or "log"
 
@@ -127,7 +144,6 @@ def ensure_artifacts_folder(slug: str):
     """Create /artifacts/<slug>/ and ensure Git will track it with a README if empty."""
     folder = ARTIFACTS_DIR / slug
     folder.mkdir(parents=True, exist_ok=True)
-    # If empty (or only hidden files), add a tiny README so the folder is committed.
     visible = [p for p in folder.iterdir() if not p.name.startswith(".")]
     if not visible:
         (folder / "README.md").write_text(
@@ -156,17 +172,17 @@ def primary_image_from_entry(entry) -> str:
             for enc in entry.enclosures:
                 url = enc.get("url")
                 if url and re.search(r"\.(png|jpe?g|gif|webp)(\?.*)?$", url, re.I):
-                    return url
+                    return unproxy_url(url)
         if entry.get("media_content"):
             for m in entry.media_content:
                 url = m.get("url")
                 if url and re.search(r"\.(png|jpe?g|gif|webp)(\?.*)?$", url, re.I):
-                    return url
+                    return unproxy_url(url)
         if entry.get("media_thumbnail"):
             for m in entry.media_thumbnail:
                 url = m.get("url")
                 if url and re.search(r"\.(png|jpe?g|gif|webp)(\?.*)?$", url, re.I):
-                    return url
+                    return unproxy_url(url)
     except Exception:
         pass
     return ""
@@ -240,7 +256,7 @@ def write_text_if_changed(path: Path, content: str) -> bool:
     path.write_text(content, encoding="utf-8")
     return True
 
-def build_front_matter(*, title, date_iso, slug, log_id, url, guid, hero_image, artifacts):
+def build_front_matter(*, title, date_iso, slug, log_id, url, guid_path, hero_image, artifacts):
     esc_title = title.replace('"', '\\"')
     lines = [
         "---",
@@ -249,7 +265,7 @@ def build_front_matter(*, title, date_iso, slug, log_id, url, guid, hero_image, 
         f'log_id: "{log_id}"',
         f'date: "{date_iso}"',
         f'source_url: "{url}"',
-        f'guid: "{guid}"',
+        f'guid: "{guid_path}"',                 # domain-agnostic, readable
         f'permalink: "/logs/{slug}/"',
     ]
     if hero_image:
@@ -265,9 +281,14 @@ def build_front_matter(*, title, date_iso, slug, log_id, url, guid, hero_image, 
 # ----- Import one -------------------------------------------------------------
 def import_post(entry, state):
     title = clean_title(entry.get("title"))
-    guid  = entry.get("id") or entry.get("guid") or entry.get("link")
-    url   = entry.get("link")
-    if not url: raise RuntimeError("Entry missing URL")
+    # canonical key & canonical GUID path (hostless)
+    key = guid_key(entry)
+
+    # prefer clean, unproxied link for front matter
+    link_url = unproxy_url(entry.get("link") or "")
+
+    if not link_url:
+        raise RuntimeError("Entry missing URL")
 
     # ISO-8601 w/ local timezone
     if entry.get("published_parsed"):
@@ -277,12 +298,12 @@ def import_post(entry, state):
     else:
         date_iso = dt.datetime.now().astimezone().isoformat()
 
-    # slug from Substack URL
-    slug = state["guid_to_slug"].get(guid) or extract_slug_from_url(url)
-    state["guid_to_slug"][guid] = slug
+    # slug (stable per canonical key)
+    slug = state["guid_to_slug"].get(key) or extract_slug_from_url(link_url)
+    state["guid_to_slug"][key] = slug
 
-    # log id (stable)
-    log_id = state["guid_to_log_id"].get(guid)
+    # log id (stable per canonical key)
+    log_id = state["guid_to_log_id"].get(key)
     if not log_id:
         n = state["next_seq"]
         s = ""
@@ -291,7 +312,7 @@ def import_post(entry, state):
             s = chr(65+r) + s
         log_id = f"1022{s}"
         state["next_seq"] += 1
-        state["guid_to_log_id"][guid] = log_id
+        state["guid_to_log_id"][key] = log_id
 
     # Prefer RSS content:encoded; fallback to fetched page
     content_html = ""
@@ -301,32 +322,37 @@ def import_post(entry, state):
     except Exception:
         pass
     if not content_html:
-        raw_html = fetch_url(proxied(url))
+        raw_html = fetch_url(proxied(link_url))
         content_html = readability_extract(raw_html)
 
-    # Clean and keep from the first paragraph
     content_html = strip_chrome(content_html)
     body_md = html_to_markdown_simple(content_html)
     body_md = tidy_markdown(body_md, title)
 
-    # hero image (enclosure/media)
+    # hero image
     hero = primary_image_from_entry(entry)
 
-    # ensure artifacts folder exists AND is committed
+    # artifacts
     ensure_artifacts_folder(slug)
     artifacts = find_artifacts_for_slug(slug)
 
     fm = build_front_matter(
-        title=title, date_iso=date_iso, slug=slug, log_id=log_id,
-        url=url, guid=guid, hero_image=hero, artifacts=artifacts
+        title=title,
+        date_iso=date_iso,
+        slug=slug,
+        log_id=log_id,
+        url=link_url,
+        guid_path=canonical_path(link_url),
+        hero_image=hero,
+        artifacts=artifacts
     )
 
     md_path = COLL_DIR / f"{slug}.md"
     changed = write_text_if_changed(md_path, fm + body_md + "\n")
     log(("Wrote" if changed else "No change") + f": {md_path}")
 
-    if guid not in state["seen_guids"]:
-        state["seen_guids"].append(guid)
+    if key not in state["seen_guids"]:
+        state["seen_guids"].append(key)
 
 # ----- Main -------------------------------------------------------------------
 def main():
