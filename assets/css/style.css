@@ -35,7 +35,10 @@
 
   /* micro-motion */
   --dur-fast:.15s; --dur-med:.25s;
-  --ease: cubic-bezier(.4,0,.2,1);
+  --ease:cubic-bezier(.4,0,.2,1);
+
+  /* Tile min height for prev/next */
+  --tile-min:84px;
 }
 
 :root{ color-scheme:dark light; accent-color:var(--accent); }
@@ -102,7 +105,7 @@ header.site{
 /* Tighten brand padding slightly (affects space above/below logo) */
 .brand{
   display:flex; align-items:center; gap:.6rem;
-  padding:10px 0;                  /* was 12px 0 */
+  padding:10px 0;
   white-space:nowrap;
 }
 .brand .dot{ width:8px; height:8px; border-radius:999px; background:var(--accent); }
@@ -114,7 +117,7 @@ header.site{
 .primary-nav{
   display:flex; gap:18px; align-items:center;
   overflow-x:auto; white-space:nowrap; -webkit-overflow-scrolling:touch;
-  padding:8px 0;                   /* was 10px 0 → tighter just above nav */
+  padding:8px 0;
 }
 .primary-nav::-webkit-scrollbar{ display:none; }
 .primary-nav a{
@@ -132,21 +135,21 @@ header.site{
 
 /* Mobile/desktop header tweaks */
 @media (max-width:720px){
-  .header-bar{ grid-template-columns:1fr auto; grid-template-rows:auto auto; row-gap:4px; } /* was 6px */
-  .brand{ padding:6px 0; }          /* was 8px 0 in this breakpoint */
+  .header-bar{ grid-template-columns:1fr auto; grid-template-rows:auto auto; row-gap:4px; }
+  .brand{ padding:6px 0; }
   .primary-nav{
     grid-column:1 / -1;
-    padding:4px 0 6px;              /* was 6px 0 8px */
+    padding:4px 0 6px;
     gap:14px;
   }
 }
 @media (min-width:980px){
   header.site .wrap{ position:relative; }
   .header-bar{ display:flex; flex-direction:column; align-items:center; gap:6px; }
-  .brand{ padding:10px 0 4px; }     /* top 10px, bottom 4px to tuck nav closer */
+  .brand{ padding:10px 0 4px; }
   .primary-nav{
-    padding-top:2px;                /* was 0; small nudge closer to brand */
-    gap:18px;                       /* keep visual rhythm */
+    padding-top:2px;
+    gap:18px;
   }
   .header-actions{ position:absolute; right:20px; top:12px; }
 }
@@ -217,32 +220,29 @@ main .rule:first-child{ display:none; }
 .feature-thumb,
 .log-thumb,
 .fn-thumb {
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  width: 100%;
-  height: auto;
-  border: 1px solid rgba(122,58,58,.35);
-  border-radius: 8px;
-  background: var(--badge-bg);
-  display: block;
-  margin-bottom: 0.75rem;
-  overflow: hidden;
+  aspect-ratio:16/9;
+  object-fit:cover;
+  width:100%;
+  height:auto;
+  border:1px solid rgba(122,58,58,.35);
+  border-radius:8px;
+  background:var(--badge-bg);
+  display:block;
+  margin-bottom:.75rem;
+  overflow:hidden;
 }
 .feature-thumb,
-.log-thumb { filter: grayscale(10%); }
-.fn-thumb { filter: grayscale(15%); }
+.log-thumb { filter:grayscale(10%); }
+.fn-thumb { filter:grayscale(15%); }
 :root[data-theme="light"] .feature-thumb,
 :root[data-theme="light"] .log-thumb,
-:root[data-theme="light"] .fn-thumb {
-  border-color: rgba(0,0,0,.15);
-}
+:root[data-theme="light"] .fn-thumb { border-color:rgba(0,0,0,.15); }
 a:hover .feature-thumb,
 a:hover .log-thumb,
 a:hover .fn-thumb {
-  filter: grayscale(0%);
-  transform: translateY(-1px);
-  transition: transform var(--dur-fast) var(--ease),
-              filter var(--dur-fast) var(--ease);
+  filter:grayscale(0%);
+  transform:translateY(-1px);
+  transition:transform var(--dur-fast) var(--ease), filter var(--dur-fast) var(--ease);
 }
 
 /* ======================================
@@ -274,10 +274,7 @@ a:hover .fn-thumb {
   aspect-ratio:16/9;
 }
 .log-hero{
-  display:block;
-  width:100%;
-  height:100%;
-  object-fit:cover;
+  display:block; width:100%; height:100%; object-fit:cover;
   border:1px solid rgba(255,255,255,.07);
 }
 :root[data-theme="light"] .log-hero{ border-color:rgba(0,0,0,.07); }
@@ -317,14 +314,25 @@ a:hover .fn-thumb {
    Pager / Prev–Next Cards
    ====================================== */
 .pager{ margin:1.75rem 0 0; }
-.pager-inner{
-  display:flex; justify-content:space-between; align-items:center; gap:.75rem;
-  border-top:1px solid var(--line); padding-top:1rem;
+
+/* grid for prev/next/nav cards */
+.prev_next, .prev-next, .nav-cards{
+  display:grid;
+  grid-template-columns:1fr;
+  /* Equal-height rows; each row becomes the height of its tallest item */
+  grid-auto-rows:1fr;
+  align-items:stretch;
+  gap:14px;
+  margin:2.25rem 0 0;
+  justify-items:center;
 }
-.pager-status{ color:var(--muted); font-size:.95rem; }
+@media (min-width:760px){
+  .prev_next, .prev-next, .nav-cards{ grid-template-columns:1fr 1fr; }
+}
 
 .pager-link,
-.prev_next a, .prev-next a, .pager a, .nav-cards a{
+.prev_next a, .prev-next a, .pager a, .nav-cards a,
+.prev_next .pager-link, .prev-next .pager-link, .nav-cards .pager-link{
   display:flex;
   flex-direction:column;
   justify-content:center;
@@ -341,17 +349,12 @@ a:hover .fn-thumb {
   text-decoration:none;
   box-shadow:inset 0 1px rgba(255,255,255,0.08), 0 2px 6px rgba(0,0,0,0.10);
   transition:background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  /* critical: ensure both link and span fill the grid track */
+  width:100%;
+  height:100%;
+  min-height:var(--tile-min);
 }
-.prev_next, .prev-next, .nav-cards{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:14px;
-  margin:2.25rem 0 0;
-  justify-items:center;
-}
-@media (min-width:760px){
-  .prev_next, .prev-next, .nav-cards{ grid-template-columns:1fr 1fr; }
-}
+
 .pager-link:hover,
 .prev_next a:hover, .prev-next a:hover, .pager a:hover, .nav-cards a:hover{
   transform:translateY(-1px);
@@ -360,39 +363,21 @@ a:hover .fn-thumb {
   color:var(--on-accent);
   box-shadow:0 3px 10px rgba(0,0,0,0.20);
 }
+
 .pager-link:active,
 .prev_next a:active, .prev-next a:active, .pager a:active, .nav-cards a:active{ transform:translateY(0); }
-.pager-link.is-disabled{ opacity:.45; pointer-events:none; }
+
+/* Disabled “None” state — same size, subtly faded */
+.pager-link.is-disabled{
+  opacity:.6;
+  pointer-events:none;
+  filter:saturate(.85);
+  background:var(--badge-bg);
+  border-color:rgba(122,58,58,.30);
+}
 
 .prev_next a small, .prev-next a small, .pager a small, .nav-cards a small{
   display:block; font-size:.85rem; opacity:.7; margin-bottom:4px; letter-spacing:.02em;
-}
-
-/* Equal height for prev/next tiles */
-.nav-cards--pager {
-  gap: 18px;
-}
-
-.pager-item {
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
-}
-
-.pager-item .pager-link {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Keep same visual size for disabled “None” cards */
-.pager-link.is-disabled {
-  opacity: .55;
-  pointer-events: none;
-  min-height: 70px; /* matches normal tile padding height */
 }
 
 /* ======================================
