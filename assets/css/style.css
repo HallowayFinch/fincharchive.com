@@ -298,36 +298,39 @@ a:hover .fn-thumb {
    Pager / Prev–Next Cards
    ====================================== */
 
-/* Wrapper: use grid so tiles line up, and enforce spacing */
+/* Wrapper: grid with a reliable gap between tiles */
 .prev_next,
 .prev-next,
 .nav-cards{
   display:grid !important;
   grid-template-columns:1fr;
-  gap:22px;                      /* desired space between tiles */
+  gap:22px;                       /* vertical space between the two tiles */
   margin:2.25rem 0 0;
   justify-items:stretch;
 }
 
-/* Absolute fallback in case some rule/browser kills the gap */
+/* Fallback margin if some rule kills gap (belt + suspenders) */
 .prev_next > * + *,
 .prev-next > * + *,
 .nav-cards > * + *{
   margin-top:22px !important;
 }
 
-/* Card (link and non-link) */
+/* Card — applies to anchor links AND the disabled <span class="pager-link"> */
 .prev_next a,
 .prev-next a,
-.nav-cards a{
+.nav-cards a,
+.pager-link{
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
   text-align:center;
+
   width:100%;
   min-height:clamp(96px,16vw,132px);
   padding:18px 22px;
+
   font-family:var(--mono);
   font-size:.95rem;
   line-height:1.4;
@@ -360,10 +363,11 @@ a:hover .fn-thumb {
 .prev-next a:active,
 .nav-cards a:active{ transform:translateY(0); }
 
-/* Small label on first line (↔ “Previous” / “Next”) */
+/* Label line (the small “← Previous” / “Next →”) */
 .prev_next a small,
 .prev-next a small,
-.nav-cards a small{
+.nav-cards a small,
+.pager-link small{
   display:block;
   font-size:.85rem;
   opacity:.7;
@@ -371,10 +375,8 @@ a:hover .fn-thumb {
   letter-spacing:.02em;
 }
 
-/* Disabled “None” tile — same size, gently muted, no pointer */
-.prev_next a.is-disabled,
-.prev-next a.is-disabled,
-.nav-cards a.is-disabled{
+/* Disabled “None” tile — same size/box, muted, no pointer */
+.pager-link.is-disabled{
   pointer-events:none;
   opacity:.62;
   background:var(--badge-bg);
@@ -383,7 +385,7 @@ a:hover .fn-thumb {
   filter:saturate(.9);
 }
 
-/* Two columns on wider screens (if/when you show both on one row) */
+/* Two columns on wider screens (if both tiles on one row) */
 @media (min-width:760px){
   .prev_next,
   .prev-next,
@@ -394,7 +396,7 @@ a:hover .fn-thumb {
   .prev_next > * + *,
   .prev-next > * + *,
   .nav-cards > * + *{
-    margin-top:0 !important;     /* grid gap takes over */
+    margin-top:0 !important;      /* grid gap takes over */
   }
 }
 
