@@ -45,10 +45,10 @@ _config.yml           # Jekyll configuration (collections, meta, plugins)
 - Ensures an **empty folder** exists at `artifacts/<slug>/` for sidecar files.
 
 **Secrets used**
-- `SUBSTACK_RSS_URL` (e.g. `https://hallowayfinch.substack.com/feed`)
+- `SUBSTACK_RSS_URL` (e.g. `https://www.hallowayfinch.com/feed`)
 - `RSS_PROXY_URL` (optional; e.g. `https://rss.fincharchive.com`)
 
-Runs automatically every 30 minutes and also supports manual “Run workflow”.
+Runs automatically every hour at 22 minutes past and also supports manual “Run workflow”.
 
 ---
 
@@ -123,8 +123,8 @@ layout: log
 title: "The Voice in the Static"
 log_id: "1022A"
 date: "2025-10-23T03:22:15-05:00"
-source_url: "https://hallowayfinch.substack.com/p/the-voice-in-the-static"
-guid: "https://hallowayfinch.substack.com/p/the-voice-in-the-static"
+source_url: "https://www.hallowayfinch.com/p/the-voice-in-the-static"
+guid: "https://www.hallowayfinch.com/p/the-voice-in-the-static"
 permalink: "/logs/the-voice-in-the-static/"
 hero_image: "https://.../header.png"
 artifacts:
@@ -147,7 +147,7 @@ bundle exec jekyll serve
 To test the importer manually:
 
 ```bash
-SUBSTACK_RSS_URL="https://hallowayfinch.substack.com/feed" python scripts/rss_to_repo.py
+SUBSTACK_RSS_URL="https://www.hallowayfinch.com/feed" python scripts/rss_to_repo.py
 ```
 
 ---
