@@ -313,23 +313,26 @@ a:hover .fn-thumb {
    Pager / Prev–Next Cards
    ====================================== */
 .pager{
-  /* Turn the nav itself into the grid (this was missing) */
   display:grid;
   grid-template-columns:1fr;
   grid-auto-rows:minmax(var(--tile-min), auto);
   align-items:stretch;
-  gap:14px;
-  margin:1.75rem 0 0;
   justify-items:center;
-}
-@media (min-width:760px){
-  .pager{ grid-template-columns:1fr 1fr; }
+  gap:24px; /* increased from 14px for breathing room */
+  margin:2.5rem 0 0; /* slightly more top margin for visual separation */
 }
 
-/* Make every tile (links and disabled spans) identical boxes */
+@media (min-width:760px){
+  .pager{
+    grid-template-columns:1fr 1fr;
+    gap:32px; /* more space between tiles on desktop */
+  }
+}
+
+/* Pager link cards */
 .pager-link,
-.prev_next a, .prev-next a, .pager a, .nav-cards a,
-.prev_next .pager-link, .prev-next .pager-link, .nav-cards .pager-link{
+.pager a,
+.pager .pager-link{
   display:flex;
   flex-direction:column;
   justify-content:center;
@@ -338,21 +341,26 @@ a:hover .fn-thumb {
   font-family:var(--mono);
   font-size:.95rem;
   line-height:1.4;
-  padding:18px 22px;
+  padding:20px 26px;
   border:1px solid var(--badge-border);
   border-radius:12px;
   background:var(--card-bg);
   color:var(--fg);
-  text-decoration:none;
-  box-shadow:inset 0 1px rgba(255,255,255,0.08), 0 2px 6px rgba(0,0,0,0.10);
-  transition:background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
   width:100%;
   height:100%;
   min-height:var(--tile-min);
+  text-decoration:none;
+  box-shadow:inset 0 1px rgba(255,255,255,0.08), 0 2px 6px rgba(0,0,0,0.10);
+  transition:
+    background var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    transform var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
 }
 
 .pager-link:hover,
-.prev_next a:hover, .prev-next a:hover, .pager a:hover, .nav-cards a:hover{
+.pager a:hover{
   transform:translateY(-1px);
   background:var(--accent);
   border-color:var(--accent);
@@ -360,10 +368,7 @@ a:hover .fn-thumb {
   box-shadow:0 3px 10px rgba(0,0,0,0.20);
 }
 
-.pager-link:active,
-.prev_next a:active, .prev-next a:active, .pager a:active, .nav-cards a:active{ transform:translateY(0); }
-
-/* Disabled “None” — same size, subtle fade */
+/* Disabled “None” card — equal height + subtle fade */
 .pager-link.is-disabled{
   opacity:.6;
   pointer-events:none;
@@ -372,8 +377,13 @@ a:hover .fn-thumb {
   border-color:rgba(122,58,58,.30);
 }
 
-.prev_next a small, .prev-next a small, .pager a small, .nav-cards a small{
-  display:block; font-size:.85rem; opacity:.7; margin-bottom:4px; letter-spacing:.02em;
+.pager a small,
+.pager-link small{
+  display:block;
+  font-size:.85rem;
+  opacity:.7;
+  margin-bottom:4px;
+  letter-spacing:.02em;
 }
 
 /* ======================================
