@@ -295,29 +295,39 @@ a:hover .fn-thumb {
 .artifact-list{ list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.75rem; }
 
 /* ======================================
-   Pager / Prev–Next Cards
+   Logs Archive layout
    ====================================== */
+.archive{ max-width:700px; margin:3rem auto; padding:0 1rem; }
+.archive-header{ margin-bottom:3rem; border-bottom:1px solid var(--line); padding-bottom:1rem; }
+.archive-title{ font-family:var(--serif); font-size:2rem; margin:0 0 .25rem; color:var(--fg); }
+.archive-subtitle{ font-size:.9rem; color:var(--muted); margin:0; }
+.archive-list{ display:flex; flex-direction:column; gap:2.5rem; }
+.archive-item-title{ margin-bottom:.25rem; font-family:var(--serif); font-weight:600; }
+.archive-item-title a{ color:var(--fg); text-decoration:none; }
+.archive-item-title a:hover{ text-decoration:underline; }
+.archive-item-meta{ color:#777; font-size:.85rem; margin:0 0 1rem; }
+.archive-item-id{ margin-left:.5rem; color:#555; }
+.archive-item-excerpt{ color:#ccc; line-height:1.6; margin:0; }
 
-/* Force grid layout + controlled spacing, override anything else */
-nav.pager,
-.pager{
-  display:grid !important;
+/* ======================================
+   Pager / Prev–Next Cards  (fixed)
+   ====================================== */
+.pager{                 /* the <nav class="pager"> wrapper */
+  margin-top:1.75rem;
+  display:grid;
   grid-template-columns:1fr;
-  gap:28px !important;                 /* vertical space between tiles (mobile) */
-  margin:2.25rem 0 0;
+  gap:22px;            /* vertical space between cards on mobile */
+  justify-items:stretch;
 }
 
-/* Make sure children don't collapse the gap with margins */
-.pager > *{ margin:0 !important; width:100%; }
-
-/* Tile: identical dimensions for link and “None” */
-.pager > a.pager-link,
-.pager > span.pager-link{
-  display:flex !important;
-  align-items:center;
+/* Card look (applies to both <a> and <span> with .pager-link) */
+.pager-link,
+.prev_next a, .prev-next a, .pager a, .nav-cards a{
+  display:flex;
+  flex-direction:column;
   justify-content:center;
+  align-items:center;
   text-align:center;
-  min-height:var(--tile-min) !important; /* equal height guarantee */
   font-family:var(--mono);
   font-size:.95rem;
   line-height:1.4;
@@ -329,37 +339,37 @@ nav.pager,
   text-decoration:none;
   box-shadow:inset 0 1px rgba(255,255,255,0.08), 0 2px 6px rgba(0,0,0,0.10);
   transition:background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  min-height:var(--tile-min);     /* equal height for link + disabled tiles */
 }
 
 /* Hover/active */
-.pager > a.pager-link:hover{
+.pager-link:hover,
+.prev_next a:hover, .prev-next a:hover, .pager a:hover, .nav-cards a:hover{
   transform:translateY(-1px);
   background:var(--accent);
   border-color:var(--accent);
   color:var(--on-accent);
   box-shadow:0 3px 10px rgba(0,0,0,0.20);
 }
-.pager > a.pager-link:active{ transform:translateY(0); }
+.pager-link:active,
+.prev_next a:active, .prev-next a:active, .pager a:active, .nav-cards a:active{ transform:translateY(0); }
 
-/* Disabled “None” tile: same size, muted, non-interactive */
-.pager > span.pager-link.is-disabled{
-  opacity:.62;
+/* Disabled tile should keep full size; just mute it */
+.pager-link.is-disabled{
+  opacity:.55;
   pointer-events:none;
   background:var(--badge-bg);
   border-color:rgba(122,58,58,.30);
-  filter:saturate(.9);
+  color:var(--muted);
 }
 
-/* Two columns on wider screens with clean horizontal gap */
+/* Two tiles side-by-side on wider screens with a clear gap */
 @media (min-width:760px){
-  nav.pager, .pager{
-    grid-template-columns:1fr 1fr;
-    gap:32px !important;              /* single source of truth for spacing */
-  }
+  .pager{ grid-template-columns:1fr 1fr; gap:26px; }
 }
 
-/* Optional small label lines inside cards */
-.pager a small, .pager span small{
+/* Small “kicker” (if used inside the link) */
+.prev_next a small, .prev-next a small, .pager a small, .nav-cards a small{
   display:block; font-size:.85rem; opacity:.7; margin-bottom:4px; letter-spacing:.02em;
 }
 
@@ -419,8 +429,7 @@ a.badge svg{
    Enhancements & Utilities
    ====================================== */
 a:focus-visible,.btn:focus-visible,.log-link:focus-visible,.theme-toggle:focus-visible,
-.pager > a.pager-link:focus-visible,.pager > span.pager-link:focus-visible,
-.badge:focus-visible{
+.pager-link:focus-visible,.badge:focus-visible,.prev_next a:focus-visible,.prev-next a:focus-visible,.nav-cards a:focus-visible{
   outline:2px dashed var(--accent); outline-offset:2px;
 }
 @media (prefers-reduced-motion:reduce){
