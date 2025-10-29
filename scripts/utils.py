@@ -50,7 +50,7 @@ def extract_slug_from_url(url: str) -> str:
     last meaningful path segment (host-agnostic).
 
     Examples:
-      https://hallowayfinch.com/p/the-voice-in-the-static       -> the-voice-in-the-static
+      https://www.hallowayfinch.com/p/the-voice-in-the-static       -> the-voice-in-the-static
       https://hallowayfinch.substack.com/p/the-orchard-transmission -> the-orchard-transmission
       https://substack.com/@hallowayfinch/p/the-orchard-transmission -> the-orchard-transmission
     """
