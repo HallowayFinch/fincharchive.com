@@ -309,89 +309,48 @@ a:hover .fn-thumb {
 .archive-item-id{ margin-left:.5rem; color:#555; }
 .archive-item-excerpt{ color:#ccc; line-height:1.6; margin:0; }
 
-/* ======================================
-   Pager / Prev–Next Cards  (REPLACE THIS SECTION)
-   ====================================== */
-
-/* Grid + guaranteed spacing (with a sibling fallback) */
+/* === Pager overrides: guaranteed spacing + equal heights === */
 nav.pager,
 .pager{
-  display:grid;
+  display:grid !important;
   grid-template-columns:1fr;
-  row-gap:24px;              /* vertical space between tiles (mobile) */
-  column-gap:24px;
-  margin:2.25rem 0 0;
+  row-gap:24px !important;      /* vertical space between the two tiles (mobile) */
+  column-gap:24px !important;
+  margin-top:2.25rem;           /* keep existing top margin */
 }
 
-/* Fallback gap in case an older rule wins somewhere */
-.pager > * + *{ margin-top:24px; }
+/* Hard fallback if grid gap is ignored by any rule/browser */
+.pager > * + *{ margin-top:24px !important; }
 
-/* Side-by-side on wider screens */
-@media (min-width:760px){
-  nav.pager,
-  .pager{
-    grid-template-columns:1fr 1fr;
-    row-gap:28px;
-    column-gap:32px;         /* horizontal space between tiles (desktop) */
-  }
-  .pager > * + *{ margin-top:0; } /* cancel the fallback when in two columns */
-}
-
-/* Card base (anchors AND disabled spans share the same class) */
-.pager-link,
-.pager a,
-.pager .pager-link{
+/* Cards: same height for links and “None” tiles */
+.pager-link{
+  width:100%;
+  min-height:84px;              /* match linked tile visual height */
+  margin:0 !important;          /* kill any inherited margins that collapse the gap */
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  text-align:center;
-  font-family:var(--mono);
-  font-size:.95rem;
-  line-height:1.4;
-  padding:20px 26px;
-  border:1px solid var(--badge-border);
-  border-radius:12px;
-  background:var(--card-bg);
-  color:var(--fg);
-  width:100%;
-  height:100%;
-  min-height:84px;           /* keeps “None” the same height as linked tiles */
-  text-decoration:none;
-  box-shadow:inset 0 1px rgba(255,255,255,0.08), 0 2px 6px rgba(0,0,0,0.10);
-  transition:
-    background var(--dur-fast) var(--ease),
-    border-color var(--dur-fast) var(--ease),
-    transform var(--dur-fast) var(--ease),
-    box-shadow var(--dur-fast) var(--ease),
-    color var(--dur-fast) var(--ease);
 }
 
-.pager-link:hover,
-.pager a:hover{
-  transform:translateY(-1px);
-  background:var(--accent);
-  border-color:var(--accent);
-  color:var(--on-accent);
-  box-shadow:0 3px 10px rgba(0,0,0,0.20);
-}
-
-/* Disabled “None” card — same size, just a touch muted */
+/* Disabled card: keep full size, just a touch muted */
 .pager-link.is-disabled{
-  opacity:.6;
+  opacity:.62;
   pointer-events:none;
-  filter:saturate(.85);
   background:var(--badge-bg);
   border-color:rgba(122,58,58,.30);
+  filter:saturate(.9);
 }
 
-.pager a small,
-.pager-link small{
-  display:block;
-  font-size:.85rem;
-  opacity:.7;
-  margin-bottom:4px;
-  letter-spacing:.02em;
+/* Two columns on wider screens with clean gap between them */
+@media (min-width:760px){
+  nav.pager,
+  .pager{
+    grid-template-columns:1fr 1fr;
+    row-gap:28px !important;
+    column-gap:32px !important; /* horizontal space between previous/next */
+  }
+  .pager > * + *{ margin-top:0 !important; } /* rely on grid gap at this width */
 }
 
 /* ======================================
