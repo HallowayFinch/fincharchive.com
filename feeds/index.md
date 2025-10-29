@@ -29,6 +29,6 @@ If you run into issues with a reader, let us know.
 
 ### System reference
 
-For metadata, authorship, and system details, consult  
-[`humans.txt`]({{ '/humans.txt' | absolute_url }}).  
+For metadata, authorship, and system details, consult  [`humans.txt`]({{ '/humans.txt' | absolute_url }}).  
+
 Recovered records indicate it was last updated automatically during each archive build.
