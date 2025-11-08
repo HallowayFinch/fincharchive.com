@@ -32,7 +32,7 @@ permalink: /status/
 
     <div class="card">
       <h3>Heartbeat</h3>
-      <p><strong>Updated (UTC):</strong> <code id="hb-ts">—</code></p>
+      <p><strong>Updated (Central):</strong> <code id="hb-ts">—</code></p>
       <p><strong>Env (declared):</strong> <code>status.json</code></p>
     </div>
 
@@ -68,8 +68,8 @@ permalink: /status/
 
     <div class="card">
       <h3>Feeds</h3>
-      <p><strong>Checked (UTC):</strong> <code id="feeds-ts">—</code></p>
-      <div id="feeds-list" class="chip-list"></div>
+      <p><strong>Checked (Central):</strong> <code id="feeds-ts">—</code></p>
+      <div id="feeds-list" class="chip-grid"></div>
     </div>
   </div>
 
@@ -102,77 +102,81 @@ permalink: /status/
   --chip-fg:       #222;
 }
 
-.chip-list{display:flex;flex-wrap:wrap;gap:.5rem;}
+/* Two-column grid to keep the card short */
+.chip-grid{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap:.5rem;
+}
+@media (max-width: 500px){
+  .chip-grid{ grid-template-columns: 1fr; }
+}
+
 .chip{
-  display:flex;align-items:center;gap:.5rem;
-  padding:.45rem .6rem;border-radius:.4rem;text-decoration:none;
+  display:flex;align-items:center;justify-content:space-between;gap:.5rem;
+  padding:.35rem .5rem;border-radius:.4rem;text-decoration:none;
   border:1px solid var(--chip-ok-bd); background:var(--chip-ok-bg); color:var(--chip-fg);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: .92rem;   /* compact */
+  line-height: 1.2;    /* compact */
 }
 .chip.bad{ border-color:var(--chip-bad-bd); background:var(--chip-bad-bg); }
-.chip .label{white-space:nowrap;}
-.chip .badge{
-  margin-left:.25rem; font-size:.85em; opacity:.82;
-  padding:.05rem .35rem; border-radius:.25rem; background:var(--chip-code-bg);
-}
+.chip .label{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .chip .code{
-  margin-left:.35rem; padding:.12rem .4rem; border-radius:.25rem;
-  background:var(--chip-code-bg);
+  margin-left:.35rem; padding:.05rem .32rem; border-radius:.25rem;
+  background:var(--chip-code-bg); font-size:.85em; opacity:.9;
 }
 </style>
 
 <script>
-(async () => {
-  // Heartbeat: read updated_utc from /status/status.json
-  try {
-    const hbRes = await fetch('{{ "/status/status.json" | relative_url }}', { cache: 'no-store' });
-    const hb = await hbRes.json();
-    document.getElementById('hb-ts').textContent = hb.updated_utc || '—';
-  } catch(_) {
-    document.getElementById('hb-ts').textContent = '—';
-  }
+(function(){
+  const centralFmt = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Chicago',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    hour12: false, timeZoneName: 'short' // CST/CDT
+  });
+  const toCentral = (iso) => {
+    try { return centralFmt.format(new Date(iso)); } catch { return '—'; }
+  };
 
-  // Feeds list
-  try {
-    const res  = await fetch('{{ "/status/feeds.json" | relative_url }}', { cache: 'no-store' });
-    const data = await res.json();
-    document.getElementById('feeds-ts').textContent = data.updated_utc || '—';
+  // Heartbeat timestamp
+  fetch('{{ "/status/status.json" | relative_url }}', { cache: 'no-store' })
+    .then(r => r.json())
+    .then(hb => { document.getElementById('hb-ts').textContent = hb.updated_utc ? toCentral(hb.updated_utc) : '—'; })
+    .catch(() => { document.getElementById('hb-ts').textContent = '—'; });
 
-    const box = document.getElementById('feeds-list');
-    box.innerHTML = '';
+  // Feeds grid
+  fetch('{{ "/status/feeds.json" | relative_url }}', { cache: 'no-store' })
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('feeds-ts').textContent = data.updated_utc ? toCentral(data.updated_utc) : '—';
 
-    (data.endpoints || []).forEach(ep => {
-      const ok = Number(ep.status) === 200;
+      const grid = document.getElementById('feeds-list');
+      grid.innerHTML = '';
 
-      // trim "(external)" so the chip doesn't overflow
-      const cleanName = (ep.name || 'Feed').replace(/\s*\(external\)\s*/i, '');
+      (data.endpoints || []).forEach(ep => {
+        const ok = Number(ep.status) === 200;
+        const name = (ep.name || 'Feed').replace(/\s*\(external\)\s*/i, '');
 
-      const a = document.createElement('a');
-      a.className = 'chip' + (ok ? '' : ' bad');
-      a.href = ep.url; a.target = '_blank'; a.rel = 'noopener';
+        const a = document.createElement('a');
+        a.className = 'chip' + (ok ? '' : ' bad');
+        a.href = ep.url; a.target = '_blank'; a.rel = 'noopener';
+        a.title = (ep.name || name); // keep “external” hint in tooltip
 
-      const name = document.createElement('span');
-      name.className = 'label';
-      name.textContent = cleanName;
+        const label = document.createElement('span');
+        label.className = 'label';
+        label.textContent = name;
 
-      if (ep.via) {
-        const via = document.createElement('span');
-        via.className = 'badge';
-        via.textContent = `via ${ep.via}`;
-        name.appendChild(document.createTextNode(' '));
-        name.appendChild(via);
-      }
+        const code = document.createElement('span');
+        code.className = 'code';
+        code.textContent = String(ep.status ?? '—');
 
-      const code = document.createElement('span');
-      code.className = 'code';
-      code.textContent = String(ep.status ?? '—');
-
-      a.appendChild(name);
-      a.appendChild(code);
-      box.appendChild(a);
-    });
-  } catch (e) {
-    console.error('feeds.json load failed', e);
-  }
+        a.appendChild(label);
+        a.appendChild(code);
+        grid.appendChild(a);
+      });
+    })
+    .catch(() => { document.getElementById('feeds-ts').textContent = '—'; });
 })();
 </script>
