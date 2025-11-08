@@ -2,7 +2,7 @@ name: Import Field Notes from Substack
 
 on:
   schedule:
-    - cron: "*/30 * * * *"   # check every 30 minutes
+    - cron: "*/30 * * * *"
   workflow_dispatch: {}
 
 permissions:
@@ -15,21 +15,26 @@ concurrency:
 jobs:
   import-field-notes:
     runs-on: ubuntu-latest
+    env:
+      GIT_AUTHOR_NAME:  "HallowayFinch"
+      GIT_AUTHOR_EMAIL: ${{ secrets.HF_NOREPLY_EMAIL }}
 
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: false  # we'll push with PAT
+          persist-credentials: false  # push with PAT
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "pip"
 
       - name: Install deps
         run: |
+          set -euo pipefail
           python -m pip install --upgrade pip
           pip install feedparser python-frontmatter markdownify python-slugify
 
@@ -38,22 +43,18 @@ jobs:
           SUBSTACK_NOTES_RSS: ${{ secrets.SUBSTACK_NOTES_RSS }}
           TZ_OFFSET: "-0500"
         run: |
+          set -euo pipefail
           python scripts/import_field_notes.py
 
       - name: Commit & push changes (if any) as HallowayFinch
         run: |
-          set -e
-          # Stage only what this workflow is responsible for
+          set -euo pipefail
           git add _field-notes/*.md .fieldnote-import-ledger.json || true
-
-          # Bail if nothing changed
           if git diff --cached --quiet; then
             echo "No new field notes to commit."
             exit 0
           fi
-
-          # Commit as the Finch identity and push via PAT
-          git config user.name  "HallowayFinch"
-          git config user.email "${{ secrets.HF_NOREPLY_EMAIL }}"
+          git config user.name  "${GIT_AUTHOR_NAME}"
+          git config user.email "${GIT_AUTHOR_EMAIL}"
           git commit -m "chore(field-notes): import new Field Notes from Substack"
           git push "https://x-access-token:${{ secrets.HF_PAT }}@github.com/${{ github.repository }}.git" HEAD:main
