@@ -2,14 +2,13 @@ name: RSS → Repo (Substack sync)
 
 on:
   schedule:
-    # Every hour at :22 past, brand-consistent cadence
-    - cron: "22 * * * *"
+    - cron: "22 * * * *"   # hourly at :22 past
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
-# Avoid overlapping imports that could race on state.json
+# Prevent overlapping imports
 concurrency:
   group: finch-rss-sync
   cancel-in-progress: true
@@ -36,6 +35,10 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Mark workspace safe for Git
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -45,28 +48,26 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install feedparser
+          pip install "feedparser>=6,<7"
 
       - name: Import RSS → _logs + ensure /artifacts/{slug}/
         run: |
           set -euo pipefail
-          python scripts/rss_to_repo.py
+          python -u scripts/rss_to_repo.py
 
       - name: Hash artifacts (metadata.json)
         run: |
-          python scripts/hash_artifacts.py || true
+          python -u scripts/hash_artifacts.py || true
 
       - name: Validate site
         run: |
-          python scripts/validate_site.py || true
+          python -u scripts/validate_site.py || true
 
       - id: commit
         name: Commit (if changes)
         run: |
           set -euo pipefail
-          EMAIL="${GIT_USER_EMAIL:-}"
-          if [ -z "$EMAIL" ]; then EMAIL="$FALLBACK_EMAIL"; fi
-
+          EMAIL="${GIT_USER_EMAIL:-}"; if [ -z "$EMAIL" ]; then EMAIL="$FALLBACK_EMAIL"; fi
           git config user.name  "${GIT_USER_NAME}"
           git config user.email "${EMAIL}"
 
