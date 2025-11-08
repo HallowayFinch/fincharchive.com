@@ -341,8 +341,31 @@ a:hover .fn-thumb{
 /* Two columns on wider screens */
 @media (min-width:760px){
   .prev_next, .prev-next, .nav-cards{ grid-template-columns:1fr 1fr; gap:13px; }
-  .prev_next > * + *, .prev-next > * + *, .nav-cards > * + *{ margin-top:0 !important; }
+  .prev_next > * + *, .prev-next > * + *,.nav-cards > * + *{ margin-top:0 !important; }
 }
+
+/* ======================================
+   Status
+   ====================================== */
+.status-grid{
+  display:grid;
+  gap:1rem;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+}
+.status-grid .card{
+  border:1px solid var(--badge-border);
+  border-radius:var(--radius-sm);
+  background:var(--card-bg);
+  padding:1rem 1.2rem;
+  box-shadow:var(--shadow-soft);
+}
+.status-grid .card h3{
+  margin:.1rem 0 .5rem;
+  font-family:var(--serif);
+  font-size:1.05rem;
+}
+.status-grid .card p{ margin:.35rem 0; color:var(--fg); }
+.status-grid code{ background:rgba(255,255,255,.06); padding:.05rem .35rem; border-radius:4px; }
 
 /* ======================================
    Footer & badges (buttons)
