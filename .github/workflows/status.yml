@@ -1,11 +1,9 @@
 name: Status / Heartbeat
 
 on:
-  # run every 6 hours at :12
   schedule:
-    - cron: "12 */6 * * *"
+    - cron: "12 */6 * * *"   # every 6 hours at :12
   workflow_dispatch: {}
-  # allow edits to this workflow to test immediately
   push:
     paths:
       - ".github/workflows/status.yml"
@@ -14,9 +12,10 @@ permissions:
   contents: write
 
 env:
-  AUTHOR_NAME: "HallowayFinch"
-  AUTHOR_EMAIL: "${{ secrets.HF_NOREPLY_EMAIL }}"   # set in repo secrets
+  AUTHOR_NAME:  "HallowayFinch"
+  AUTHOR_EMAIL: ${{ secrets.HF_NOREPLY_EMAIL }}
   BRANCH: "main"
+  HF_PAT: ${{ secrets.HF_PAT }}
 
 jobs:
   heartbeat:
@@ -25,19 +24,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # keep credentials so fallback push with GITHUB_TOKEN works
+          persist-credentials: true
 
       - name: Generate status payloads
         id: gen
         run: |
           set -euo pipefail
 
-          # Tiny helper: ISO8601 UTC timestamp
           NOW_UTC="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
-          # Count logs and field-notes (by files in collections)
           LOG_COUNT=$(ls -1 _logs/*.md 2>/dev/null | wc -l | tr -d ' ')
           NOTE_COUNT=$(ls -1 "_field-notes"/*.md 2>/dev/null | wc -l | tr -d ' ')
-          # Count artifacts as number of files within /artifacts
           ART_COUNT=$(find artifacts -type f 2>/dev/null | wc -l | tr -d ' ')
 
           mkdir -p status _data
@@ -54,27 +54,26 @@ jobs:
           }
           JSON
 
-          # Jekyll-readable copy
           cp status/status.json _data/status.json
 
-      - name: Commit changes (as HallowayFinch if PAT present)
+      - name: Commit changes (as HallowayFinch)
         run: |
           set -euo pipefail
           git config user.name  "${AUTHOR_NAME}"
           git config user.email "${AUTHOR_EMAIL:-actions@users.noreply.github.com}"
-
           git add status/status.json _data/status.json || true
-
           if git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0
           fi
-
           git commit -m "chore(status): heartbeat @ $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
-          if [ -n "${{ secrets.HF_PAT || '' }}" ]; then
-            git push "https://x-access-token:${{ secrets.HF_PAT }}@github.com/${{ github.repository }}.git" "HEAD:${BRANCH}"
+      - name: Push (prefer PAT; fallback to GITHUB_TOKEN)
+        run: |
+          set -euo pipefail
+          if [ -n "${HF_PAT:-}" ]; then
+            git push "https://x-access-token:${HF_PAT}@github.com/${{ github.repository }}.git" "HEAD:${BRANCH}"
           else
-            echo "HF_PAT not set; using GITHUB_TOKEN (commit will show as github-actions[bot])."
+            echo "HF_PAT not set; using GITHUB_TOKEN."
             git push
           fi
