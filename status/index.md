@@ -32,23 +32,17 @@ permalink: /status/
       <p><strong>Env:</strong> {{ jekyll.environment | default: "development" }}</p>
     </div>
 
-    <!-- Heartbeat (from status.json) -->
+    <!-- Heartbeat (from status/status.json file mtime) -->
     <div class="card">
       <h3>Heartbeat</h3>
-      <p>
-        <strong>Updated (UTC):</strong><br>
-        {%- assign hb = site.static_files | where: "path", "/status/status.json" | first -%}
-        {%- if hb -%}
-          {%- capture hb_json -%}{%- include_relative status/status.json -%}{%- endcapture -%}
-          {%- assign hb_doc = hb_json | jsonify | replace: '\"', '"' -%}{% comment %} no-op to keep Liquid happy {% endcomment %}
-          <!-- Render the raw json timestamp (viewer can click JSON below for details) -->
-          {{ hb.modified_time | default: site.time | date: "%Y-%m-%dT%H:%M:%SZ" }}
-        {%- else -%}
-          Pending (no status.json yet)
-        {%- endif -%}
-      </p>
-      <p><strong>Env (declared):</strong> production</p>
-      <p><code>status.json</code></p>
+      {%- assign hb = site.static_files | where: "path", "/status/status.json" | first -%}
+      {%- if hb -%}
+        <p><strong>Updated (UTC):</strong><br>{{ hb.modified_time | date: "%Y-%m-%dT%H:%M:%SZ" }}</p>
+        <p><strong>Env (declared):</strong> production</p>
+        <p><code>status.json</code></p>
+      {%- else -%}
+        <p>Pending (no <code>status.json</code> yet)</p>
+      {%- endif -%}
     </div>
 
     <!-- Inventory -->
@@ -84,7 +78,7 @@ permalink: /status/
       {%- endif -%}
     </div>
 
-    <!-- Feeds status -->
+    <!-- Feeds status (from _data/feeds-status.json written by feeds-check.yml) -->
     <div class="card">
       <h3>Feeds</h3>
       {%- assign fs = site.data["feeds-status"] -%}
@@ -92,8 +86,6 @@ permalink: /status/
         <p><strong>Checked (UTC):</strong> {{ fs.updated_utc }}</p>
         <ul style="list-style:none;padding:0;margin:.5rem 0 0;display:grid;gap:.35rem">
           {%- for ep in fs.endpoints -%}
-            {%- assign code = ep.status | plus: 0 -%}
-            {%- assign ok = code | divided_by: 100 -%}{% comment %} 2xx/3xx => ok {% endcomment %}
             <li style="display:flex;justify-content:space-between;gap:.5rem;align-items:baseline;border:1px solid var(--badge-border);border-radius:8px;padding:.4rem .6rem;background:var(--card-bg)">
               <a href="{{ ep.url }}" rel="nofollow">{{ ep.name }}</a>
               <code style="opacity:.9">{{ ep.status }}</code>
