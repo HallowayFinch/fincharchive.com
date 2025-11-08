@@ -3,6 +3,7 @@ name: Feeds Check & Publish
 on:
   workflow_dispatch: {}
   schedule:
+    # run at :12 past each hour
     - cron: "12 * * * *"
 
 permissions:
@@ -19,23 +20,26 @@ jobs:
       SITE_BASE: "https://fincharchive.com"
       RSS_PROXY_URL: ${{ secrets.RSS_PROXY_URL }}
       UA: "FinchFeedsCheck (GitHub Actions; +https://fincharchive.com/status/)"
+      GIT_AUTHOR_NAME: "HallowayFinch"
+      GIT_AUTHOR_EMAIL: ${{ secrets.HF_NOREPLY_EMAIL }}
+
     steps:
-      - name: Checkout (keep credentials)
+      - name: Checkout (keep credentials; use GITHUB_TOKEN to push)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: true
 
+      - name: Ensure jq present
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v jq >/dev/null || { sudo apt-get update -y && sudo apt-get install -y jq; }
+
       - name: Probe feeds and write /status/feeds.json (no heredocs)
         shell: bash
         run: |
           set -euo pipefail
-
-          # Ensure jq is available (usually preinstalled on runners)
-          if ! command -v jq >/dev/null 2>&1; then
-            sudo apt-get update -y
-            sudo apt-get install -y jq
-          fi
 
           url_encode () {
             python3 -c "import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1],safe=''))" "$1"
@@ -73,36 +77,30 @@ jobs:
           NOTES_RSS="${SITE_BASE}/field-notes/feed.xml"
           SUBSTACK_FN="https://substack.com/api/v1/notes/rss?publication_id=6660929"
 
-          # Build item JSON objects one per line into a temp file (avoids any heredoc usage)
           tmp="$(mktemp)"
           add_item () {
             local name="$1" url="$2"
             read -r code via < <(probe "$url")
-            # Build one JSON object line using jq to ensure safe quoting
             jq -n --arg n "$name" --arg u "$url" --argjson s "${code:-0}" '{name:$n,url:$u,status:$s}' >> "$tmp"
           }
 
-          add_item "ALL (RSS)"                         "$ALL_RSS"
-          add_item "ALL (JSON)"                        "$ALL_JSON"
-          add_item "Logs (RSS)"                        "$LOGS_RSS"
-          add_item "Field Notes (RSS)"                 "$NOTES_RSS"
-          add_item "Substack Field Notes (external)"   "$SUBSTACK_FN"
+          add_item "ALL (RSS)"               "$ALL_RSS"
+          add_item "ALL (JSON)"              "$ALL_JSON"
+          add_item "Logs (RSS)"              "$LOGS_RSS"
+          add_item "Field Notes (RSS)"       "$NOTES_RSS"
+          add_item "Substack Field Notes"    "$SUBSTACK_FN"
 
           updated="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
           mkdir -p status
-
-          # Slurp the per-line JSON objects as an array and wrap with the root object
           jq -n --arg u "$updated" --slurpfile e "$tmp" '{updated_utc:$u, endpoints:$e}' > status/feeds.json
           rm -f "$tmp"
 
-      - name: Commit & push feeds.json (GITHUB_TOKEN)
-        env:
-          GIT_AUTHOR_NAME:       HallowayFinch
-          GIT_AUTHOR_EMAIL:      ${{ github.actor }}@users.noreply.github.com
-          GIT_COMMITTER_NAME:    HallowayFinch
-          GIT_COMMITTER_EMAIL:   ${{ github.actor }}@users.noreply.github.com
+      - name: Commit & push feeds.json
+        shell: bash
         run: |
-          set -e
+          set -euo pipefail
+          git config user.name  "${GIT_AUTHOR_NAME}"
+          git config user.email "${GIT_AUTHOR_EMAIL}"
           git add status/feeds.json
           if git diff --cached --quiet; then
             echo "No change in status/feeds.json"
