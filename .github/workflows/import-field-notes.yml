@@ -2,15 +2,11 @@ name: Import Field Notes from Substack
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
-  workflow_dispatch: {}
+    - cron: "*/30 * * * *"   # every 30 minutes
+  workflow_dispatch:
 
 permissions:
   contents: write
-
-concurrency:
-  group: finch-fieldnotes
-  cancel-in-progress: true
 
 jobs:
   import-field-notes:
@@ -21,32 +17,60 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: false
+
+      - name: Preflight Notes RSS
+        id: check
+        env:
+          URL: ${{ secrets.SUBSTACK_NOTES_RSS }}
+        run: |
+          set -euo pipefail
+          if [ -z "${URL:-}" ]; then
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::notice ::SUBSTACK_NOTES_RSS not set — skipping."
+            exit 0
+          fi
+
+          # HEAD probe (fail fast on non-200)
+          code=$(curl -sS -o /dev/null -w "%{http_code}" -I "$URL" || echo "000")
+          ctype=$(curl -sS -I "$URL" | awk -F': ' 'tolower($1)=="content-type"{print tolower($2)}' | tr -d '\r')
+
+          if [ "$code" = "200" ] && echo "$ctype" | grep -q "xml"; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+            echo "Notes feed reachable (200, $ctype)."
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::notice ::Notes feed unavailable (code=$code, ctype=${ctype:-unknown}) — skipping."
+          fi
 
       - name: Set up Python
+        if: steps.check.outputs.ok == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.x"
 
       - name: Install deps
+        if: steps.check.outputs.ok == 'true'
         run: |
           python -m pip install --upgrade pip
           pip install feedparser python-frontmatter markdownify python-slugify
 
       - name: Run importer
+        if: steps.check.outputs.ok == 'true'
         env:
           SUBSTACK_NOTES_RSS: ${{ secrets.SUBSTACK_NOTES_RSS }}
           TZ_OFFSET: "-0500"
-        run: python scripts/import_field_notes.py
+        run: |
+          python scripts/import_field_notes.py
 
       - name: Commit & push changes (if any)
+        if: steps.check.outputs.ok == 'true'
         run: |
-          git config user.name  "HallowayFinch"
-          git config user.email "${{ secrets.HF_NOREPLY_EMAIL }}"
-          git add _field-notes/*.md .fieldnote-import-ledger.json 2>/dev/null || true
-          if git diff --cached --quiet; then
-            echo "No new notes to commit."
-          else
+          git config user.name "finch-bot"
+          git config user.email "actions@users.noreply.github.com"
+          if [ -n "$(git status --porcelain)" ]; then
+            git add _field-notes/*.md .fieldnote-import-ledger.json
             git commit -m "auto: import new Field Notes from Substack"
-            git push "https://x-access-token:${{ secrets.HF_PAT }}@github.com/${{ github.repository }}.git" HEAD:main
+            git push
+          else
+            echo "No new notes to commit."
           fi
