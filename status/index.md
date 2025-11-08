@@ -21,23 +21,21 @@ permalink: /status/
     {%- endif -%}
   {%- endfor -%}
 
-  <div class="status-grid" style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));align-items:start">
-    <!-- Build -->
+  <div class="status-grid">
     <div class="card">
       <h3>Build</h3>
       <p><strong>Built:</strong> {{ site.time | date: "%Y-%m-%d %H:%M:%S %Z" }}</p>
       {%- if site.github.build_revision -%}
-        <p><strong>Commit:</strong> <code>{{ site.github.build_revision | slice: 0, 12 }}</code></p>
+      <p><strong>Commit:</strong> <code>{{ site.github.build_revision | slice: 0, 12 }}</code></p>
       {%- endif -%}
       <p><strong>Env:</strong> {{ jekyll.environment | default: "development" }}</p>
     </div>
 
-    <!-- Heartbeat (from status/status.json file mtime) -->
     <div class="card">
       <h3>Heartbeat</h3>
       {%- assign hb = site.static_files | where: "path", "/status/status.json" | first -%}
       {%- if hb -%}
-        <p><strong>Updated (UTC):</strong><br>{{ hb.modified_time | date: "%Y-%m-%dT%H:%M:%SZ" }}</p>
+        <p><strong>Updated (UTC):</strong> {{ hb.modified_time | date: "%Y-%m-%dT%H:%M:%SZ" }}</p>
         <p><strong>Env (declared):</strong> production</p>
         <p><code>status.json</code></p>
       {%- else -%}
@@ -45,7 +43,6 @@ permalink: /status/
       {%- endif -%}
     </div>
 
-    <!-- Inventory -->
     <div class="card">
       <h3>Inventory</h3>
       <p><strong>Logs:</strong> {{ logs | size }}</p>
@@ -53,7 +50,6 @@ permalink: /status/
       <p><strong>Artifacts (files):</strong> {{ art_count }}</p>
     </div>
 
-    <!-- Latest Log -->
     <div class="card">
       <h3>Latest Log</h3>
       {%- if logs and logs.size > 0 -%}
@@ -66,7 +62,6 @@ permalink: /status/
       {%- endif -%}
     </div>
 
-    <!-- Latest Field Note -->
     <div class="card">
       <h3>Latest Field Note</h3>
       {%- if notes and notes.size > 0 -%}
@@ -78,17 +73,19 @@ permalink: /status/
       {%- endif -%}
     </div>
 
-    <!-- Feeds status (from _data/feeds-status.json written by feeds-check.yml) -->
     <div class="card">
       <h3>Feeds</h3>
       {%- assign fs = site.data["feeds-status"] -%}
       {%- if fs and fs.endpoints -%}
         <p><strong>Checked (UTC):</strong> {{ fs.updated_utc }}</p>
-        <ul style="list-style:none;padding:0;margin:.5rem 0 0;display:grid;gap:.35rem">
+        <ul class="feed-list">
           {%- for ep in fs.endpoints -%}
-            <li style="display:flex;justify-content:space-between;gap:.5rem;align-items:baseline;border:1px solid var(--badge-border);border-radius:8px;padding:.4rem .6rem;background:var(--card-bg)">
-              <a href="{{ ep.url }}" rel="nofollow">{{ ep.name }}</a>
-              <code style="opacity:.9">{{ ep.status }}</code>
+            {%- assign ok = ep.status | plus: 0 -%}
+            <li>
+              <a href="{{ ep.url }}">{{ ep.name }}</a>
+              <code class="feed-code {% if ok >= 200 and ok < 300 %}is-ok{% else %}is-bad{% endif %}">
+                {{ ep.status }}{% if ok >= 200 and ok < 300 %} ✓{% endif %}
+              </code>
             </li>
           {%- endfor -%}
         </ul>
@@ -115,3 +112,42 @@ permalink: /status/
     <a href="{{ '/healthz.txt' | relative_url }}">healthz</a>
   </p>
 </section>
+
+<style>
+  /* status-specific layout polish (scoped to this page) */
+  .status-grid{
+    display:grid;
+    gap:14px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 960px){
+    .status-grid{ grid-template-columns: 1fr 1fr; }
+  }
+  .card{
+    border:1px solid var(--badge-border);
+    background:var(--card-bg);
+    border-radius:12px;
+    padding:14px 16px;
+    box-shadow: var(--shadow-soft);
+  }
+  .feed-list{
+    list-style:none; padding:0; margin:.6rem 0 0;
+    display:grid; gap:.45rem;
+  }
+  .feed-list li{
+    display:flex; justify-content:space-between; align-items:center; gap:.6rem;
+    border:1px solid var(--badge-border); border-radius:8px;
+    padding:.45rem .6rem; background:var(--badge-bg);
+  }
+  .feed-code{ opacity:.95; }
+  .feed-code.is-ok{
+    border:1px solid rgba(60,160,90,.5);
+    padding:.1rem .35rem; border-radius:6px;
+    background:rgba(60,160,90,.12);
+  }
+  .feed-code.is-bad{
+    border:1px solid rgba(160,60,60,.5);
+    padding:.1rem .35rem; border-radius:6px;
+    background:rgba(160,60,60,.10);
+  }
+</style>
