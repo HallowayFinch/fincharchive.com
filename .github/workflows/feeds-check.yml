@@ -1,4 +1,4 @@
-name: Feeds · Check & Publish
+name: Feeds Check & Publish
 
 on:
   workflow_dispatch: {}
