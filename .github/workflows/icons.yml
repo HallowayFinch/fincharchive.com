@@ -18,19 +18,20 @@ concurrency:
 jobs:
   build-icons:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: false   # we'll push with PAT
+          persist-credentials: false
 
-      - name: Install rasterizers (librsvg + ImageMagick)
+      - name: Install rasterizers (librsvg + ImageMagick 6)
         run: |
           sudo apt-get update
           sudo apt-get install -y librsvg2-bin imagemagick
           rsvg-convert --version
-          magick -version
+          convert -version
 
       - name: Generate PNGs + ICO from SVG
         working-directory: assets/icons
@@ -39,10 +40,9 @@ jobs:
         run: |
           set -euo pipefail
 
-          # sizes commonly consumed by platforms/browsers
+          # raster sizes used by browsers / platforms
           SIZES=(16 32 48 180 192 256 384 512)
 
-          # Use rsvg-convert for crisp vector → raster, then let IM handle ICO
           for S in "${SIZES[@]}"; do
             rsvg-convert -w "$S" -h "$S" "$SRC" -o "favicon-${S}.png"
           done
@@ -52,8 +52,8 @@ jobs:
           cp favicon-192.png android-chrome-192x192.png
           cp favicon-512.png android-chrome-512x512.png
 
-          # Multi-size ICO (classic)
-          magick favicon-16.png favicon-32.png favicon-48.png favicon.ico
+          # Multi-size ICO (IM6 uses `convert`, not `magick`)
+          convert favicon-16.png favicon-32.png favicon-48.png favicon.ico
 
       - name: Write site.webmanifest
         run: |
@@ -83,7 +83,6 @@ jobs:
           HF_EMAIL: ${{ secrets.HF_NOREPLY_EMAIL }}
         run: |
           set -e
-
           git config user.name  "HallowayFinch"
           git config user.email "${HF_EMAIL}"
 
@@ -96,9 +95,12 @@ jobs:
             assets/icons/favicon-48.png \
             assets/icons/favicon-180.png \
             assets/icons/favicon-192.png \
-            assets/icons/favicon-256.png || true
-          git add assets/icons/favicon-384.png assets/icons/favicon-512.png assets/icons/favicon.ico || true
-          git add site.webmanifest favicon.ico || true
+            assets/icons/favicon-256.png \
+            assets/icons/favicon-384.png \
+            assets/icons/favicon-512.png \
+            assets/icons/favicon.ico \
+            site.webmanifest \
+            favicon.ico || true
 
           if git diff --cached --quiet; then
             echo "No icon/manifest changes to commit."
