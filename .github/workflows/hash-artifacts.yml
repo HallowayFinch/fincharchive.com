@@ -4,7 +4,7 @@ on:
   workflow_dispatch: {}
   push:
     paths:
-      - "artifacts/**/*.{wav,flac,mp3,mp4,mov,png,jpg,jpeg,gif,webp,tif,tiff,pdf,txt}"
+      - "artifacts/**/*.{wav,flac,mp3,m4a,aiff,mp4,mov,png,jpg,jpeg,gif,webp,tif,tiff,pdf,txt}"
 
 permissions:
   contents: write
@@ -16,19 +16,31 @@ concurrency:
 jobs:
   hash:
     runs-on: ubuntu-latest
+    env:
+      GIT_AUTHOR_NAME:  "HallowayFinch"
+      GIT_AUTHOR_EMAIL: ${{ secrets.HF_NOREPLY_EMAIL }}
+
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: false
+          persist-credentials: false  # we'll push with PAT
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
       - name: Compute hashes & metadata (idempotent)
-        run: python scripts/hash_artifacts.py
+        run: |
+          set -euo pipefail
+          python scripts/hash_artifacts.py
 
       - name: Commit & push if changed
         run: |
-          git config user.name  "HallowayFinch"
-          git config user.email "${{ secrets.HF_NOREPLY_EMAIL }}"
+          set -euo pipefail
+          git config user.name  "${GIT_AUTHOR_NAME}"
+          git config user.email "${GIT_AUTHOR_EMAIL}"
           git add artifacts/**/metadata.json artifacts/**/SHA256SUMS.txt 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "No artifact metadata changes to commit."
