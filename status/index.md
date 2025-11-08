@@ -13,7 +13,7 @@ permalink: /status/
   {%- assign logs  = site.logs | sort: "date" | reverse -%}
   {%- assign notes = site.field-notes | sort: "date" | reverse -%}
 
-  {%- comment -%} Live artifact file count as a fallback {%- endcomment -%}
+  {%- comment -%} Count artifacts by scanning /artifacts/ static files {%- endcomment -%}
   {%- assign art_count = 0 -%}
   {%- for f in site.static_files -%}
     {%- if f.path contains '/artifacts/' -%}
@@ -21,37 +21,45 @@ permalink: /status/
     {%- endif -%}
   {%- endfor -%}
 
-  {%- assign heartbeat = site.data.status -%}
-  {%- assign hb_updated = heartbeat.updated_utc | default: site.time | date: "%Y-%m-%dT%H:%M:%SZ" -%}
-  {%- assign hb_env     = heartbeat.environment | default: "production" -%}
-  {%- assign hb_logs    = heartbeat.counts.logs | default: logs.size -%}
-  {%- assign hb_notes   = heartbeat.counts.field_notes | default: site["field-notes"].size -%}
-  {%- assign hb_files   = heartbeat.counts.artifacts | default: art_count -%}
-
-  <div class="status-grid" style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));">
+  <div class="status-grid" style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));align-items:start">
+    <!-- Build -->
     <div class="card">
       <h3>Build</h3>
       <p><strong>Built:</strong> {{ site.time | date: "%Y-%m-%d %H:%M:%S %Z" }}</p>
       {%- if site.github.build_revision -%}
-      <p><strong>Commit:</strong> <code>{{ site.github.build_revision | slice: 0, 12 }}</code></p>
+        <p><strong>Commit:</strong> <code>{{ site.github.build_revision | slice: 0, 12 }}</code></p>
       {%- endif -%}
       <p><strong>Env:</strong> {{ jekyll.environment | default: "development" }}</p>
     </div>
 
+    <!-- Heartbeat (from status.json) -->
     <div class="card">
       <h3>Heartbeat</h3>
-      <p><strong>Updated (UTC):</strong> {{ hb_updated }}</p>
-      <p><strong>Env (declared):</strong> {{ hb_env }}</p>
-      <p><a href="{{ '/status/status.json' | relative_url }}">status.json</a></p>
+      <p>
+        <strong>Updated (UTC):</strong><br>
+        {%- assign hb = site.static_files | where: "path", "/status/status.json" | first -%}
+        {%- if hb -%}
+          {%- capture hb_json -%}{%- include_relative status/status.json -%}{%- endcapture -%}
+          {%- assign hb_doc = hb_json | jsonify | replace: '\"', '"' -%}{% comment %} no-op to keep Liquid happy {% endcomment %}
+          <!-- Render the raw json timestamp (viewer can click JSON below for details) -->
+          {{ hb.modified_time | default: site.time | date: "%Y-%m-%dT%H:%M:%SZ" }}
+        {%- else -%}
+          Pending (no status.json yet)
+        {%- endif -%}
+      </p>
+      <p><strong>Env (declared):</strong> production</p>
+      <p><code>status.json</code></p>
     </div>
 
+    <!-- Inventory -->
     <div class="card">
       <h3>Inventory</h3>
-      <p><strong>Logs:</strong> {{ hb_logs }}</p>
-      <p><strong>Field Notes:</strong> {{ hb_notes }}</p>
-      <p><strong>Artifacts (files):</strong> {{ hb_files }}</p>
+      <p><strong>Logs:</strong> {{ logs | size }}</p>
+      <p><strong>Field Notes:</strong> {{ notes | size }}</p>
+      <p><strong>Artifacts (files):</strong> {{ art_count }}</p>
     </div>
 
+    <!-- Latest Log -->
     <div class="card">
       <h3>Latest Log</h3>
       {%- if logs and logs.size > 0 -%}
@@ -64,15 +72,43 @@ permalink: /status/
       {%- endif -%}
     </div>
 
+    <!-- Latest Field Note -->
     <div class="card">
       <h3>Latest Field Note</h3>
-      {%- assign notes_all = site["field-notes"] | sort: "date" | reverse -%}
-      {%- if notes_all and notes_all.size > 0 -%}
-        {%- assign N = notes_all | first -%}
+      {%- if notes and notes.size > 0 -%}
+        {%- assign N = notes | first -%}
         <p><a href="{{ N.url | relative_url }}">{{ N.title }}</a></p>
         <p><time datetime="{{ N.date | date_to_xmlschema }}">{{ N.date | date: "%b %-d, %Y %H:%M" }}</time></p>
       {%- else -%}
         <p>No field notes found.</p>
+      {%- endif -%}
+    </div>
+
+    <!-- Feeds status -->
+    <div class="card">
+      <h3>Feeds</h3>
+      {%- assign fs = site.data["feeds-status"] -%}
+      {%- if fs and fs.endpoints -%}
+        <p><strong>Checked (UTC):</strong> {{ fs.updated_utc }}</p>
+        <ul style="list-style:none;padding:0;margin:.5rem 0 0;display:grid;gap:.35rem">
+          {%- for ep in fs.endpoints -%}
+            {%- assign code = ep.status | plus: 0 -%}
+            {%- assign ok = code | divided_by: 100 -%}{% comment %} 2xx/3xx => ok {% endcomment %}
+            <li style="display:flex;justify-content:space-between;gap:.5rem;align-items:baseline;border:1px solid var(--badge-border);border-radius:8px;padding:.4rem .6rem;background:var(--card-bg)">
+              <a href="{{ ep.url }}" rel="nofollow">{{ ep.name }}</a>
+              <code style="opacity:.9">{{ ep.status }}</code>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- else -%}
+        <p>Status file not generated yet.</p>
+        <ul>
+          <li><a href="{{ '/feed/' | relative_url }}">All (RSS)</a></li>
+          <li><a href="{{ '/feed.json' | relative_url }}">All (JSON)</a></li>
+          <li><a href="{{ '/logs/feed.xml' | relative_url }}">Logs (RSS)</a></li>
+          <li><a href="{{ '/field-notes/feed.xml' | relative_url }}">Field Notes (RSS)</a></li>
+          <li><a href="https://substack.com/api/v1/notes/rss?publication_id=6660929">Substack Field Notes (external)</a></li>
+        </ul>
       {%- endif -%}
     </div>
   </div>
@@ -83,6 +119,7 @@ permalink: /status/
     <a href="{{ '/logs/' | relative_url }}">Logs</a> ·
     <a href="{{ '/feeds/' | relative_url }}">Feeds</a> ·
     <a href="{{ '/status/status.json' | relative_url }}">Status JSON</a> ·
+    <a href="{{ '/status/feeds.json' | relative_url }}">Feeds JSON</a> ·
     <a href="{{ '/healthz.txt' | relative_url }}">healthz</a>
   </p>
 </section>
