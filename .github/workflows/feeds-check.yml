@@ -1,0 +1,81 @@
+name: Feeds Check
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"   # every 6 hours at :17
+  workflow_dispatch: {}
+  push:
+    paths:
+      - ".github/workflows/feeds-check.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build feeds status JSON
+        run: |
+          set -euo pipefail
+
+          # Site base (public) — update if the domain ever changes
+          BASE="https://fincharchive.com"
+
+          # Endpoints to check (name|url)
+          FEEDS=()
+          FEEDS+=("All (RSS)|${BASE}/feed/")
+          FEEDS+=("All (JSON)|${BASE}/feed.json")
+          FEEDS+=("Logs (RSS)|${BASE}/logs/feed.xml")
+          FEEDS+=("Field Notes (RSS)|${BASE}/field-notes/feed.xml")
+          # External (Substack Notes RSS) — currently not working, but we track it here
+          FEEDS+=("Substack Field Notes (external)|https://substack.com/api/v1/notes/rss?publication_id=6660929")
+
+          now="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+          # Helper to curl with short timeout; returns status code or 000
+          curl_code () {
+            url="$1"
+            code="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 10 "$url" || true)"
+            [ -z "$code" ] && code="000"
+            printf "%s" "$code"
+          }
+
+          # Build JSON payload
+          tmp="$(mktemp)"
+          {
+            echo '{'
+            echo "  \"updated_utc\": \"${now}\","
+            echo "  \"endpoints\": ["
+            for i in "${!FEEDS[@]}"; do
+              IFS="|" read -r NAME URL <<<"${FEEDS[$i]}"
+              CODE="$(curl_code "$URL")"
+              SEP=","
+              [ "$i" -eq "$(( ${#FEEDS[@]} - 1 ))" ] && SEP=""
+              printf '    { "name": %q, "url": %q, "status": %q }%s\n' "$NAME" "$URL" "$CODE" "$SEP"
+            done
+            echo "  ]"
+            echo "}"
+          } > "$tmp"
+
+          mkdir -p status _data
+          cp "$tmp" status/feeds.json
+          cp "$tmp" _data/feeds-status.json
+          echo "Wrote status/feeds.json and _data/feeds-status.json:"
+          cat "$tmp"
+
+      - name: Commit changes (if any)
+        run: |
+          set -euo pipefail
+          git config user.name  "HallowayFinch"
+          git config user.email "${{ secrets.HF_NOREPLY_EMAIL }}"
+          git add status/feeds.json _data/feeds-status.json || true
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(status): update feeds status JSON"
+            git push "https://x-access-token:${{ secrets.HF_PAT }}@github.com/${{ github.repository }}.git" HEAD:main
+          else
+            echo "No feeds status changes to commit."
+          fi
