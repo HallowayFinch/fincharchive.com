@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Single-color mask (Safari paints with provided color) -->
+  <path fill="#000" d="M160 196c0-20 16-36 36-36h632c20 0 36 16 36 36v632c0 20-16 36-36 36H196c-20 0-36-16-36-36V196zm352 64c-159 0-288 129-288 288s129 288 288 288 288-129 288-288S671 260 512 260zm0 120c93 0 168 75 168 168s-75 168-168 168-168-75-168-168 75-168 168-168z"/>
+</svg>
