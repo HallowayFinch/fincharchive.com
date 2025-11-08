@@ -1,0 +1,58 @@
+name: Status / Heartbeat
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"   # every 6 hours at :17
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: finch-status
+  cancel-in-progress: true
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false  # we'll push with PAT
+
+      - name: Ensure status directories exist
+        run: |
+          mkdir -p status _data
+
+      - name: Write status JSON (heartbeat)
+        run: |
+          set -e
+          NOW_UTC="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          cat > status/status.json <<'JSON'
+          {
+            "source": "heartbeat",
+            "note_feed_ok": false,
+            "details": "Substack Notes RSS unavailable; tracking heartbeat only.",
+            "updated_utc": "__STAMP__"
+          }
+          JSON
+          sed -i "s/__STAMP__/${NOW_UTC}/" status/status.json
+          # Mirror into _data for Jekyll templates if desired
+          cp status/status.json _data/status.json
+
+      - name: Commit & push changes as HallowayFinch
+        run: |
+          set -e
+          git add status/status.json _data/status.json || true
+
+          if git diff --cached --quiet; then
+            echo "No status changes."
+            exit 0
+          fi
+
+          git config user.name  "HallowayFinch"
+          git config user.email "${{ secrets.HF_NOREPLY_EMAIL }}"
+          git commit -m "chore(status): update heartbeat"
+          git push "https://x-access-token:${{ secrets.HF_PAT }}@github.com/${{ github.repository }}.git" HEAD:main
