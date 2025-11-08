@@ -3,7 +3,6 @@ name: github-pages
 on:
   push:
     branches: [ main ]
-    # Rebuild Pages when status JSONs (and other content) change
     paths:
       - "**/*.md"
       - "**/*.html"
@@ -39,6 +38,7 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./_site
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
