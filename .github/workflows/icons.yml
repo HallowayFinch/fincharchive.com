@@ -18,6 +18,9 @@ concurrency:
 jobs:
   build-icons:
     runs-on: ubuntu-latest
+    env:
+      GIT_AUTHOR_NAME:  "HallowayFinch"
+      GIT_AUTHOR_EMAIL: ${{ secrets.HF_NOREPLY_EMAIL }}
 
     steps:
       - name: Checkout
@@ -28,6 +31,7 @@ jobs:
 
       - name: Install rasterizers (librsvg + ImageMagick 6)
         run: |
+          set -euo pipefail
           sudo apt-get update
           sudo apt-get install -y librsvg2-bin imagemagick
           rsvg-convert --version
@@ -39,24 +43,18 @@ jobs:
           SRC: finch.svg
         run: |
           set -euo pipefail
-
-          # raster sizes used by browsers / platforms
           SIZES=(16 32 48 180 192 256 384 512)
-
           for S in "${SIZES[@]}"; do
             rsvg-convert -w "$S" -h "$S" "$SRC" -o "favicon-${S}.png"
           done
-
-          # Friendly filenames expected by various UAs
           cp favicon-180.png apple-touch-icon.png
           cp favicon-192.png android-chrome-192x192.png
           cp favicon-512.png android-chrome-512x512.png
-
-          # Multi-size ICO (IM6 uses `convert`, not `magick`)
           convert favicon-16.png favicon-32.png favicon-48.png favicon.ico
 
       - name: Write site.webmanifest
         run: |
+          set -euo pipefail
           cat > site.webmanifest <<'JSON'
           {
             "name": "Finch Archive",
@@ -74,18 +72,14 @@ jobs:
 
       - name: Ensure root favicon.ico (legacy/edge cases)
         run: |
+          set -euo pipefail
           cp -f assets/icons/favicon.ico ./favicon.ico
 
       - name: Commit & push generated icons/manifest
-        env:
-          GH_REPO: ${{ github.repository }}
-          HF_PAT: ${{ secrets.HF_PAT }}
-          HF_EMAIL: ${{ secrets.HF_NOREPLY_EMAIL }}
         run: |
-          set -e
-          git config user.name  "HallowayFinch"
-          git config user.email "${HF_EMAIL}"
-
+          set -euo pipefail
+          git config user.name  "${GIT_AUTHOR_NAME}"
+          git config user.email "${GIT_AUTHOR_EMAIL}"
           git add \
             assets/icons/apple-touch-icon.png \
             assets/icons/android-chrome-192x192.png \
@@ -101,11 +95,9 @@ jobs:
             assets/icons/favicon.ico \
             site.webmanifest \
             favicon.ico || true
-
           if git diff --cached --quiet; then
             echo "No icon/manifest changes to commit."
             exit 0
           fi
-
           git commit -m "chore(icons): regenerate favicons & webmanifest from finch.svg"
-          git push "https://x-access-token:${HF_PAT}@github.com/${GH_REPO}.git" HEAD:main
+          git push "https://x-access-token:${{ secrets.HF_PAT }}@github.com/${{ github.repository }}.git" HEAD:main
