@@ -1,5 +1,5 @@
 {
-  "updated_utc": "2025-11-08T22:34:59Z",
+  "updated_utc": "2025-11-08T22:36:29Z",
   "endpoints": [
     { "name": "ALL (RSS)", "url": "https://fincharchive.com/feed/", "status": 200 },
     { "name": "ALL (JSON)", "url": "https://fincharchive.com/feed.json", "status": 200 },
