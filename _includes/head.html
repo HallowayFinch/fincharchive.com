@@ -1,8 +1,8 @@
 <!-- /_includes/head.html -->
 <!-- build: {{ site.time | date: "%Y-%m-%d %H:%M:%S %Z" }} / rev: {{ site.github.build_revision | slice: 0,7 }} -->
-{% comment %} Global head include for base meta & previews (no image tags here) {% endcomment %}
+{% comment %} Global head include for base meta & previews (images handled in social-meta.html) {% endcomment %}
 
-<!-- Finch Archive: prevent theme flash (set before paint) -->
+<!-- Prevent theme flash (run before first paint) -->
 <script>
 (function () {
   try {
@@ -17,28 +17,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-{%- assign meta_title = page.seo_title | default: page.title | default: site.title -%}
-{%- assign meta_desc  = page.seo_description | default: page.description | default: page.excerpt | default: site.description -%}
+{%- assign meta_title = page.seo_title | default: page.title | default: site.title | default: "Finch Archive" -%}
+{%- assign meta_desc  = page.seo_description | default: page.description | default: page.excerpt | default: site.description | default: "Recovered notes from incomplete transmissions." -%}
 {%- assign meta_desc  = meta_desc | strip_html | strip_newlines | truncate: 160 -%}
 {%- assign meta_url   = page.canonical_url | default: page.url | absolute_url -%}
 {%- assign og_type    = page.collection | default: nil -%}
 
 <title>{{ meta_title }}</title>
 <meta name="description" content="{{ meta_desc }}">
-
 <link rel="canonical" href="{{ meta_url }}"/>
 
-<!-- Advertise humans.txt -->
+<!-- humans.txt (authorship / system reference) -->
 <link rel="author" href="{{ '/humans.txt' | absolute_url }}">
 
-<!-- Open Graph (no image here; added by social-meta.html in layout) -->
+<!-- Open Graph (image added in social-meta.html) -->
 <meta property="og:type" content="{% if og_type %}article{% else %}website{% endif %}">
-<meta property="og:site_name" content="{{ site.title }}">
+<meta property="og:site_name" content="{{ site.title | default: 'Finch Archive' }}">
 <meta property="og:title" content="{{ meta_title }}">
 <meta property="og:description" content="{{ meta_desc }}">
 <meta property="og:url" content="{{ meta_url }}">
 
-<!-- Twitter (no image here; added by social-meta.html in layout) -->
+<!-- Twitter (image added in social-meta.html) -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ meta_title }}">
 <meta name="twitter:description" content="{{ meta_desc }}">
@@ -46,18 +45,28 @@
 <meta name="twitter:site" content="@{{ site.twitter_username | replace:'@','' }}">
 {%- endif -%}
 
-<!-- Feeds (uniform) -->
-<link rel="alternate" type="application/rss+xml"   title="{{ site.title }} — All"          href="{{ '/feed/' | absolute_url }}">
-<link rel="alternate" type="application/rss+xml"   title="{{ site.title }} — Logs"        href="{{ '/logs/feed.xml' | absolute_url }}">
-<link rel="alternate" type="application/rss+xml"   title="{{ site.title }} — Field Notes" href="{{ '/field-notes/feed.xml' | absolute_url }}">
-<link rel="alternate" type="application/feed+json" title="{{ site.title }} — JSON Feed"   href="{{ '/feed.json' | absolute_url }}">
+<!-- Feeds -->
+<link rel="alternate" type="application/rss+xml"   title="{{ site.title | default: 'Finch Archive' }} — All"          href="{{ '/feed/' | absolute_url }}">
+<link rel="alternate" type="application/rss+xml"   title="{{ site.title | default: 'Finch Archive' }} — Logs"        href="{{ '/logs/feed.xml' | absolute_url }}">
+<link rel="alternate" type="application/rss+xml"   title="{{ site.title | default: 'Finch Archive' }} — Field Notes" href="{{ '/field-notes/feed.xml' | absolute_url }}">
+<link rel="alternate" type="application/feed+json" title="{{ site.title | default: 'Finch Archive' }} — JSON Feed"   href="{{ '/feed.json' | absolute_url }}">
+
+<!-- Favicons & App Manifest -->
+<link rel="icon" href="{{ '/assets/icons/finch.svg' | relative_url }}" type="image/svg+xml">
+<link rel="icon" href="{{ '/assets/icons/favicon-32.png' | relative_url }}"  sizes="32x32"  type="image/png">
+<link rel="icon" href="{{ '/assets/icons/favicon-192.png' | relative_url }}" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="{{ '/assets/icons/apple-touch-icon.png' | relative_url }}" sizes="180x180">
+<link rel="mask-icon" href="{{ '/assets/icons/safari-pinned-tab.svg' | relative_url }}" color="#7A3A3A">
+<link rel="manifest" href="{{ '/site.webmanifest' | relative_url }}">
 
 <!-- Browser UI tint -->
 <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="#000000">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f2e7">
 <meta name="color-scheme" content="dark light">
 
-{%- comment -%} Preload latest log hero on homepage {%- endcomment -%}
+<!-- Performance hints -->
+<link rel="preconnect" href="https://substack-post-media.s3.amazonaws.com" crossorigin>
+<link rel="preconnect" href="https://images.unsplash.com" crossorigin>
 {%- if page.url == "/" -%}
   {%- assign feat = site.logs | sort: "date" | reverse | first -%}
   {%- if feat and feat.hero_image -%}
@@ -65,7 +74,7 @@
   {%- endif -%}
 {%- endif -%}
 
-{%- comment -%} Prev/Next discovery for collections (helps readers & some crawlers) {%- endcomment -%}
+{%- comment -%} Prev/Next discovery within collections {%- endcomment -%}
 {%- assign coll = nil -%}
 {%- if page.collection == 'logs' -%}
   {%- assign coll = site.logs | sort: 'date' -%}
