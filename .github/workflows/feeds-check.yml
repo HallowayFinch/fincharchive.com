@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: finch-feeds-check
+  cancel-in-progress: true
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -16,11 +20,11 @@ jobs:
       RSS_PROXY_URL: ${{ secrets.RSS_PROXY_URL }}
       UA: "FinchFeedsCheck (GitHub Actions; +https://fincharchive.com/status/)"
     steps:
-      - name: Checkout
+      - name: Checkout (keep credentials)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: false
+          persist-credentials: true  # <-- allow git push with GITHUB_TOKEN
 
       - name: Probe feeds and write /status/feeds.json
         id: probe
@@ -30,18 +34,15 @@ jobs:
 
           probe () {
             local url="$1"
-            # prefer RSS/Atom types; keep short timeouts, follow redirects
             local http_code
             http_code="$(curl -sS -L \
               -A "$UA" \
               -H "Accept: application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.1" \
               --max-time 20 --retry 2 --retry-delay 1 \
               -o /dev/null -w "%{http_code}" "$url" || true)"
-
-            # if 403 (or 000) and we have a proxy, retry via proxy
             local via="origin"
+
             if [[ ( "$http_code" == "403" || "$http_code" == "000" ) && -n "${RSS_PROXY_URL:-}" ]]; then
-              # urlencode the target
               pyenc="$(python - <<'PY'
 import urllib.parse, sys
 print(urllib.parse.quote(sys.argv[1], safe=""))
@@ -84,7 +85,6 @@ EOF
           updated="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
           mkdir -p status
 
-          # Write JSON (quote heredoc so YAML/runner vars don't get expanded by the shell)
           cat > status/feeds.json <<'JSON'
           {
             "updated_utc": "__UPDATED__",
@@ -98,7 +98,6 @@ EOF
           }
           JSON
 
-          # Replace placeholders safely
           sed -i \
             -e "s|__UPDATED__|${updated}|g" \
             -e "s|__ALL_RSS__|${MAP["ALL (RSS)|url"]}|g" \
@@ -113,15 +112,18 @@ EOF
             -e "s|__SUBSTACK_FN_STATUS__|${MAP["Substack Field Notes (external)|status"]}|g" \
             status/feeds.json
 
-      - name: Commit & push feeds.json (actor email)
+      - name: Commit & push feeds.json (GITHUB_TOKEN)
+        env:
+          GIT_AUTHOR_NAME:  HallowayFinch
+          GIT_AUTHOR_EMAIL: ${{ github.actor }}@users.noreply.github.com
+          GIT_COMMITTER_NAME:  HallowayFinch
+          GIT_COMMITTER_EMAIL: ${{ github.actor }}@users.noreply.github.com
         run: |
           set -e
-          git config user.name  "${{ github.actor }}"
-          git config user.email "${{ github.actor }}@users.noreply.github.com"
           git add status/feeds.json
           if git diff --cached --quiet; then
             echo "No change in status/feeds.json"
           else
             git commit -m "chore(status): refresh feeds.json"
-            git push
+            git push   # uses GITHUB_TOKEN because checkout kept credentials
           fi
