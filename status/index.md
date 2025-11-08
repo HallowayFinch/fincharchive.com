@@ -10,7 +10,7 @@ permalink: /status/
     <p class="page-lead">Build, imports, and archive inventory.</p>
   </header>
 
-  {%- assign logs = site.logs | sort: "date" | reverse -%}
+  {%- assign logs  = site.logs | sort: "date" | reverse -%}
   {%- assign notes = site.field-notes | sort: "date" | reverse -%}
 
   {%- assign art_count = 0 -%}
@@ -72,8 +72,8 @@ permalink: /status/
 
     <div class="card">
       <h3>Feeds</h3>
-      <p><strong>Checked (UTC):</strong> <code id="feeds-ts">…</code></p>
-      <div id="feeds-list" class="feeds-list" style="display:grid;gap:.5rem;"></div>
+      <p><strong>Checked (UTC):</strong> <code id="feeds-ts">—</code></p>
+      <div id="feeds-list" class="chip-list"></div>
     </div>
   </div>
 
@@ -87,47 +87,90 @@ permalink: /status/
   </p>
 </section>
 
+<style>
+/* Theme-aware chip colors (works in both dark & light) */
+:root{
+  --chip-ok-bg:    rgba( 46,120, 86,.14);
+  --chip-ok-bd:    rgba( 46,120, 86,.45);
+  --chip-bad-bg:   rgba(160, 60, 60,.14);
+  --chip-bad-bd:   rgba(160, 60, 60,.45);
+  --chip-code-bg:  rgba(255,255,255,.08);
+  --chip-fg:       currentColor;
+}
+[data-theme="light"],
+:root.light {
+  --chip-ok-bg:    rgba( 26,120, 86,.16);
+  --chip-ok-bd:    rgba( 26,120, 86,.40);
+  --chip-bad-bg:   rgba(200, 70, 70,.16);
+  --chip-bad-bd:   rgba(200, 70, 70,.38);
+  --chip-code-bg:  rgba(0,0,0,.06);
+  --chip-fg:       #222;
+}
+
+.chip-list{display:flex;flex-wrap:wrap;gap:.5rem;}
+.chip{
+  display:flex;align-items:center;gap:.5rem;
+  padding:.45rem .6rem;border-radius:.4rem;text-decoration:none;
+  border:1px solid var(--chip-ok-bd); background:var(--chip-ok-bg); color:var(--chip-fg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+.chip.bad{ border-color:var(--chip-bad-bd); background:var(--chip-bad-bg); }
+.chip .label{white-space:nowrap;}
+.chip .badge{
+  margin-left:.25rem; font-size:.85em; opacity:.82;
+  padding:.05rem .35rem; border-radius:.25rem; background:var(--chip-code-bg);
+}
+.chip .code{
+  margin-left:.35rem; padding:.12rem .4rem; border-radius:.25rem;
+  background:var(--chip-code-bg);
+}
+</style>
+
 <script>
 (async () => {
   try {
-    const res = await fetch('{{ "/status/feeds.json" | relative_url }}', { cache: 'no-store' });
+    const res  = await fetch('{{ "/status/feeds.json" | relative_url }}', { cache: 'no-store' });
     const data = await res.json();
 
+    // timestamp
     document.getElementById('feeds-ts').textContent = data.updated_utc || '—';
 
-    const wrap = document.getElementById('feeds-list');
-    wrap.innerHTML = '';
+    // list
+    const box = document.getElementById('feeds-list');
+    box.innerHTML = '';
 
     (data.endpoints || []).forEach(ep => {
       const ok = Number(ep.status) === 200;
-      const a  = document.createElement('a');
-      a.href   = ep.url;            // absolute URL, no relative_url here
-      a.target = "_blank";
-      a.rel    = "noopener";
 
-      a.textContent = ep.name;
-      a.className = 'btn';
-      a.style = `
-        display:flex; justify-content:space-between; align-items:center;
-        padding:.5rem .6rem; border-radius:.4rem; text-decoration:none;
-        border:1px solid ${ok ? 'rgba(120,200,160,.45)' : 'rgba(200,120,120,.45)'};
-        background: ${ok ? 'rgba(60,120,90,.15)' : 'rgba(120,60,60,.15)'};
-        color:#e6e6e6; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      `;
+      const a = document.createElement('a');
+      a.className = 'chip' + (ok ? '' : ' bad');
+      a.href = ep.url; a.target = '_blank'; a.rel = 'noopener';
 
-      const badge = document.createElement('code');
-      badge.textContent = ep.status ?? '—';
-      badge.style = `
-        padding:.1rem .4rem; border-radius:.3rem; font-size:.85em;
-        border:1px solid ${ok ? 'rgba(120,200,160,.5)' : 'rgba(200,120,120,.5)'};
-        background:${ok ? 'rgba(60,120,90,.25)' : 'rgba(120,60,60,.25)'};
-      `;
+      // single label (no duplication)
+      const name = document.createElement('span');
+      name.className = 'label';
+      name.textContent = ep.name || 'Feed';
 
-      a.appendChild(document.createElement('span')).textContent = ep.name;
-      a.appendChild(badge);
-      wrap.appendChild(a);
+      // optional “via …” badge
+      if (ep.via) {
+        const via = document.createElement('span');
+        via.className = 'badge';
+        via.textContent = `via ${ep.via}`;
+        name.appendChild(document.createTextNode(' '));
+        name.appendChild(via);
+      }
+
+      // status code pill
+      const code = document.createElement('span');
+      code.className = 'code';
+      code.textContent = String(ep.status ?? '—');
+
+      a.appendChild(name);
+      a.appendChild(code);
+      box.appendChild(a);
     });
   } catch (e) {
+    document.getElementById('feeds-ts').textContent = 'error';
     console.error('feeds.json load failed', e);
   }
 })();
