@@ -1,37 +1,10 @@
 {
-  "updated_utc": "2025-11-08T21:10:49Z",
+  "updated_utc": "2025-11-08T21:14:29Z",
   "endpoints": [
-    {
-      "name": "All (RSS)",
-      "path": "/feed/",
-      "status": 403,
-      "source": "custom",
-      "primary": "https://fincharchive.com/feed/",
-      "fallback": "https://HallowayFinch.github.io/fincharchive.com/feed/"
-    },
-    {
-      "name": "All (JSON)",
-      "path": "/feed.json",
-      "status": 403,
-      "source": "custom",
-      "primary": "https://fincharchive.com/feed.json",
-      "fallback": "https://HallowayFinch.github.io/fincharchive.com/feed.json"
-    },
-    {
-      "name": "Logs (RSS)",
-      "path": "/logs/feed.xml",
-      "status": 403,
-      "source": "custom",
-      "primary": "https://fincharchive.com/logs/feed.xml",
-      "fallback": "https://HallowayFinch.github.io/fincharchive.com/logs/feed.xml"
-    },
-    {
-      "name": "Field Notes (RSS)",
-      "path": "/field-notes/feed.xml",
-      "status": 403,
-      "source": "custom",
-      "primary": "https://fincharchive.com/field-notes/feed.xml",
-      "fallback": "https://HallowayFinch.github.io/fincharchive.com/field-notes/feed.xml"
-    }
+    { "name": "ALL (RSS)",          "url": "https://fincharchive.com/feed/",        "status": 403  },
+    { "name": "ALL (JSON)",         "url": "https://fincharchive.com/feed.json",       "status": 200 },
+    { "name": "Logs (RSS)",         "url": "https://fincharchive.com/logs/feed.xml",       "status": 200 },
+    { "name": "Field Notes (RSS)",  "url": "https://fincharchive.com/field-notes/feed.xml",      "status": 200 },
+    { "name": "Substack Field Notes (external)", "url": "https://substack.com/api/v1/notes/rss?publication_id=6660929", "status": 403 }
   ]
 }
