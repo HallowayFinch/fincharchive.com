@@ -1,10 +1,30 @@
 {
-  "updated_utc": "2025-11-08T22:36:29Z",
+  "updated_utc": "2025-11-08T22:54:29Z",
   "endpoints": [
-    { "name": "ALL (RSS)", "url": "https://fincharchive.com/feed/", "status": 200 },
-    { "name": "ALL (JSON)", "url": "https://fincharchive.com/feed.json", "status": 200 },
-    { "name": "Logs (RSS)", "url": "https://fincharchive.com/logs/feed.xml", "status": 200 },
-    { "name": "Field Notes (RSS)", "url": "https://fincharchive.com/field-notes/feed.xml", "status": 200 },
-    { "name": "Substack Field Notes (external)", "url": "https://substack.com/api/v1/notes/rss?publication_id=6660929", "status": 403 }
+    {
+      "name": "ALL (RSS)",
+      "url": "https://fincharchive.com/feed/",
+      "status": 200
+    },
+    {
+      "name": "ALL (JSON)",
+      "url": "https://fincharchive.com/feed.json",
+      "status": 200
+    },
+    {
+      "name": "Logs (RSS)",
+      "url": "https://fincharchive.com/logs/feed.xml",
+      "status": 200
+    },
+    {
+      "name": "Field Notes (RSS)",
+      "url": "https://fincharchive.com/field-notes/feed.xml",
+      "status": 200
+    },
+    {
+      "name": "Substack Field Notes (external)",
+      "url": "https://substack.com/api/v1/notes/rss?publication_id=6660929",
+      "status": 404
+    }
   ]
 }
