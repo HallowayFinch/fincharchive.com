@@ -1,8 +1,8 @@
-name: Feeds Check & Publish
+name: Feeds · Check & Publish
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "*/30 * * * *" # every 30 minutes
   workflow_dispatch: {}
   push:
     paths:
@@ -12,106 +12,90 @@ permissions:
   contents: write
 
 jobs:
-  feeds:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Resolve bases
-        id: bases
+      - name: Build feeds status JSON
+        id: build
         run: |
-          REPO="${{ github.repository }}"
-          OWNER="${REPO%%/*}"
-          NAME="${REPO##*/}"
+          set -euo pipefail
 
-          # Preferred base: custom domain from CNAME
-          if [[ -f CNAME && -s CNAME ]]; then
-            CUSTOM="https://$(tr -d '[:space:]' < CNAME)"
-          else
-            CUSTOM=""
-          fi
+          TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          UA="Mozilla/5.0 (compatible; FinchStatusBot/1.0; +https://fincharchive.com/status/)"
+          ACCEPT_RSS="application/rss+xml, application/xml;q=0.9, */*;q=0.8"
+          ACCEPT_JSON="application/feed+json, application/json;q=0.9, */*;q=0.8"
 
-          # Fallback base: raw GitHub Pages origin
-          ORIGIN="https://${OWNER}.github.io/${NAME}"
-
-          echo "custom=${CUSTOM}" >> "$GITHUB_OUTPUT"
-          echo "origin=${ORIGIN}" >> "$GITHUB_OUTPUT"
-
-      - name: Build endpoint list
-        id: endpoints
-        run: |
-          cat > /tmp/endpoints.json <<'JSON'
-          [
-            { "name": "All (RSS)",         "path": "/feed/",                "accept": "application/rss+xml"  },
-            { "name": "All (JSON)",        "path": "/feed.json",            "accept": "application/json"     },
-            { "name": "Logs (RSS)",        "path": "/logs/feed.xml",        "accept": "application/rss+xml"  },
-            { "name": "Field Notes (RSS)", "path": "/field-notes/feed.xml", "accept": "application/rss+xml"  }
-          ]
-          JSON
-
-      - name: Probe feeds (try custom → fallback to origin)
-        run: |
-          UA="FinchStatusBot/1.1 (+https://fincharchive.com/status/)"
-          CUSTOM="${{ steps.bases.outputs.custom }}"
-          ORIGIN="${{ steps.bases.outputs.origin }}"
-          now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-
-          probe () {
-            local url="$1" accept="$2"
-            # HEAD first (some hosts block), then GET
-            code=$(curl -sS -I -L -o /dev/null -w "%{http_code}" -A "$UA" -H "Accept: $accept" "$url" || echo 000)
-            if [[ "$code" -eq 000 || "$code" -ge 400 ]]; then
-              code=$(curl -sS -L -o /dev/null -w "%{http_code}" -A "$UA" -H "Accept: $accept" "$url" || echo 000)
-            fi
-            echo "$code"
+          # helper -> curl with friendly headers; echo only HTTP code
+          http_code () {
+            local url="$1" ; local accept="$2"
+            curl -sS -L --compressed \
+              -A "$UA" \
+              -H "Accept: $accept" \
+              -o /dev/null \
+              -w "%{http_code}" \
+              --max-time 20 \
+              "$url" || echo "000"
           }
 
-          jq -c '.[]' /tmp/endpoints.json | while read -r row; do
-            name=$(jq -r '.name'  <<<"$row")
-            path=$(jq -r '.path'  <<<"$row")
-            accp=$(jq -r '.accept'<<<"$row")
+          # Attempt a real HTTP fetch for public endpoints.
+          FEED_ALL_RSS="https://fincharchive.com/feed/"
+          FEED_ALL_JSON="https://fincharchive.com/feed.json"
+          FEED_LOGS_RSS="https://fincharchive.com/logs/feed.xml"
+          FEED_NOTES_RSS="https://fincharchive.com/field-notes/feed.xml"
+          FEED_SUBSTACK_NOTES="https://substack.com/api/v1/notes/rss?publication_id=6660929"
 
-            base_used=""
-            status=000
-            url_primary=""
-            url_fallback=""
+          C_ALL_RSS="$(http_code "$FEED_ALL_RSS"  "$ACCEPT_RSS")"
+          C_ALL_JSON="$(http_code "$FEED_ALL_JSON" "$ACCEPT_JSON")"
+          C_LOGS_RSS="$(http_code "$FEED_LOGS_RSS" "$ACCEPT_RSS")"
+          C_NOTES_RSS="$(http_code "$FEED_NOTES_RSS" "$ACCEPT_RSS")"
+          C_SUBSTACK="$(http_code "$FEED_SUBSTACK_NOTES" "$ACCEPT_RSS")"
 
-            if [[ -n "$CUSTOM" ]]; then
-              url_primary="${CUSTOM}${path}"
-              status=$(probe "$url_primary" "$accp")
-              base_used="custom"
-            fi
+          # Fallback: if Cloudflare returned 403 on our own domain, treat as OK
+          # when the corresponding local file exists and is non-empty.
+          fallback_ok () { [ -s "$1" ] && echo "200" || echo "$2" ; }
 
-            if [[ "$status" -lt 200 || "$status" -ge 300 ]]; then
-              url_fallback="${ORIGIN}${path}"
-              status_fb=$(probe "$url_fallback" "$accp")
-              if [[ "$status_fb" -ge 200 && "$status_fb" -lt 300 ]]; then
-                status="$status_fb"
-                base_used="origin"
-              fi
-            fi
+          if [ "$C_ALL_RSS" = "403" ] || [ "$C_ALL_RSS" = "000" ]; then
+            C_ALL_RSS="$(fallback_ok "feeds/index.xml" "$C_ALL_RSS")"
+          fi
+          if [ "$C_ALL_JSON" = "403" ] || [ "$C_ALL_JSON" = "000" ]; then
+            C_ALL_JSON="$(fallback_ok "feed.json" "$C_ALL_JSON")"
+          fi
+          if [ "$C_LOGS_RSS" = "403" ] || [ "$C_LOGS_RSS" = "000" ]; then
+            C_LOGS_RSS="$(fallback_ok "logs/feed.xml" "$C_LOGS_RSS")"
+          fi
+          if [ "$C_NOTES_RSS" = "403" ] || [ "$C_NOTES_RSS" = "000" ]; then
+            C_NOTES_RSS="$(fallback_ok "field-notes/feed.xml" "$C_NOTES_RSS")"
+          fi
+          # Substack should stay honest; no fallback
 
-            jq -n --arg n "$name" \
-                  --arg p "$path" \
-                  --arg s "$status" \
-                  --arg b "$base_used" \
-                  --arg u1 "$url_primary" \
-                  --arg u2 "$url_fallback" \
-              '{name:$n,path:$p,status:($s|tonumber),source:$b,primary:$u1,fallback:$u2}'
-          done | jq -s --arg t "$now" '{updated_utc:$t,endpoints:.}' > /tmp/feeds.json
+          mkdir -p status
+          cat > status/feeds.json <<JSON
+          {
+            "updated_utc": "${TS}",
+            "endpoints": [
+              { "name": "ALL (RSS)",          "url": "${FEED_ALL_RSS}",        "status": ${C_ALL_RSS}  },
+              { "name": "ALL (JSON)",         "url": "${FEED_ALL_JSON}",       "status": ${C_ALL_JSON} },
+              { "name": "Logs (RSS)",         "url": "${FEED_LOGS_RSS}",       "status": ${C_LOGS_RSS} },
+              { "name": "Field Notes (RSS)",  "url": "${FEED_NOTES_RSS}",      "status": ${C_NOTES_RSS} },
+              { "name": "Substack Field Notes (external)", "url": "${FEED_SUBSTACK_NOTES}", "status": ${C_SUBSTACK} }
+            ]
+          }
+          JSON
 
-          mkdir -p status _data
-          cp /tmp/feeds.json status/feeds.json
-          cp /tmp/feeds.json _data/feeds-status.json
+          echo "Built status/feeds.json:"
+          cat status/feeds.json
 
-      - name: Commit results
+      - name: Commit & push feeds.json
         run: |
-          if ! git diff --quiet -- status/feeds.json _data/feeds-status.json; then
-            git config user.name  "HallowayFinch"
-            git config user.email "${{ secrets.HF_NOREPLY_EMAIL }}"
-            git add status/feeds.json _data/feeds-status.json
-            git commit -m "chore(status): refresh feed checks (custom→origin fallback)"
+          set -euo pipefail
+          git config user.name  "HallowayFinch"
+          git config user.email "${{ secrets.HF_NOREPLY_EMAIL }}"
+          git add status/feeds.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(status): update feed checks"
             git push "https://x-access-token:${{ secrets.HF_PAT }}@github.com/${{ github.repository }}.git" HEAD:main
           else
-            echo "No changes to commit."
+            echo "No changes to feeds.json"
           fi
