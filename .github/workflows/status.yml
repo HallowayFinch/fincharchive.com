@@ -1,58 +1,80 @@
 name: Status / Heartbeat
 
 on:
+  # run every 6 hours at :12
   schedule:
-    - cron: "17 */6 * * *"   # every 6 hours at :17
+    - cron: "12 */6 * * *"
   workflow_dispatch: {}
+  # allow edits to this workflow to test immediately
+  push:
+    paths:
+      - ".github/workflows/status.yml"
 
 permissions:
   contents: write
 
-concurrency:
-  group: finch-status
-  cancel-in-progress: true
+env:
+  AUTHOR_NAME: "HallowayFinch"
+  AUTHOR_EMAIL: "${{ secrets.HF_NOREPLY_EMAIL }}"   # set in repo secrets
+  BRANCH: "main"
 
 jobs:
   heartbeat:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          persist-credentials: false  # we'll push with PAT
 
-      - name: Ensure status directories exist
+      - name: Generate status payloads
+        id: gen
         run: |
+          set -euo pipefail
+
+          # Tiny helper: ISO8601 UTC timestamp
+          NOW_UTC="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+          # Count logs and field-notes (by files in collections)
+          LOG_COUNT=$(ls -1 _logs/*.md 2>/dev/null | wc -l | tr -d ' ')
+          NOTE_COUNT=$(ls -1 "_field-notes"/*.md 2>/dev/null | wc -l | tr -d ' ')
+          # Count artifacts as number of files within /artifacts
+          ART_COUNT=$(find artifacts -type f 2>/dev/null | wc -l | tr -d ' ')
+
           mkdir -p status _data
 
-      - name: Write status JSON (heartbeat)
-        run: |
-          set -e
-          NOW_UTC="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-          cat > status/status.json <<'JSON'
+          cat > status/status.json <<JSON
           {
-            "source": "heartbeat",
-            "note_feed_ok": false,
-            "details": "Substack Notes RSS unavailable; tracking heartbeat only.",
-            "updated_utc": "__STAMP__"
+            "updated_utc": "${NOW_UTC}",
+            "environment": "production",
+            "counts": {
+              "logs": ${LOG_COUNT:-0},
+              "field_notes": ${NOTE_COUNT:-0},
+              "artifacts": ${ART_COUNT:-0}
+            }
           }
           JSON
-          sed -i "s/__STAMP__/${NOW_UTC}/" status/status.json
-          # Mirror into _data for Jekyll templates if desired
+
+          # Jekyll-readable copy
           cp status/status.json _data/status.json
 
-      - name: Commit & push changes as HallowayFinch
+      - name: Commit changes (as HallowayFinch if PAT present)
         run: |
-          set -e
+          set -euo pipefail
+          git config user.name  "${AUTHOR_NAME}"
+          git config user.email "${AUTHOR_EMAIL:-actions@users.noreply.github.com}"
+
           git add status/status.json _data/status.json || true
 
           if git diff --cached --quiet; then
-            echo "No status changes."
+            echo "No changes to commit."
             exit 0
           fi
 
-          git config user.name  "HallowayFinch"
-          git config user.email "${{ secrets.HF_NOREPLY_EMAIL }}"
-          git commit -m "chore(status): update heartbeat"
-          git push "https://x-access-token:${{ secrets.HF_PAT }}@github.com/${{ github.repository }}.git" HEAD:main
+          git commit -m "chore(status): heartbeat @ $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+          if [ -n "${{ secrets.HF_PAT || '' }}" ]; then
+            git push "https://x-access-token:${{ secrets.HF_PAT }}@github.com/${{ github.repository }}.git" "HEAD:${BRANCH}"
+          else
+            echo "HF_PAT not set; using GITHUB_TOKEN (commit will show as github-actions[bot])."
+            git push
+          fi
