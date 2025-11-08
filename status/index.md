@@ -10,18 +10,23 @@ permalink: /status/
     <p class="page-lead">Build, imports, and archive inventory.</p>
   </header>
 
-  {%- assign logs = site.logs | sort: "date" | reverse -%}
+  {%- assign logs  = site.logs | sort: "date" | reverse -%}
   {%- assign notes = site.field-notes | sort: "date" | reverse -%}
 
-  {%- comment -%}
-  Count artifacts by scanning static files under /artifacts/
-  {%- endcomment -%}
+  {%- comment -%} Live artifact file count as a fallback {%- endcomment -%}
   {%- assign art_count = 0 -%}
   {%- for f in site.static_files -%}
     {%- if f.path contains '/artifacts/' -%}
       {%- assign art_count = art_count | plus: 1 -%}
     {%- endif -%}
   {%- endfor -%}
+
+  {%- assign heartbeat = site.data.status -%}
+  {%- assign hb_updated = heartbeat.updated_utc | default: site.time | date: "%Y-%m-%dT%H:%M:%SZ" -%}
+  {%- assign hb_env     = heartbeat.environment | default: "production" -%}
+  {%- assign hb_logs    = heartbeat.counts.logs | default: logs.size -%}
+  {%- assign hb_notes   = heartbeat.counts.field_notes | default: site["field-notes"].size -%}
+  {%- assign hb_files   = heartbeat.counts.artifacts | default: art_count -%}
 
   <div class="status-grid" style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));">
     <div class="card">
@@ -34,10 +39,17 @@ permalink: /status/
     </div>
 
     <div class="card">
+      <h3>Heartbeat</h3>
+      <p><strong>Updated (UTC):</strong> {{ hb_updated }}</p>
+      <p><strong>Env (declared):</strong> {{ hb_env }}</p>
+      <p><a href="{{ '/status/status.json' | relative_url }}">status.json</a></p>
+    </div>
+
+    <div class="card">
       <h3>Inventory</h3>
-      <p><strong>Logs:</strong> {{ logs | size }}</p>
-      <p><strong>Field Notes:</strong> {{ notes | size }}</p>
-      <p><strong>Artifacts (files):</strong> {{ art_count }}</p>
+      <p><strong>Logs:</strong> {{ hb_logs }}</p>
+      <p><strong>Field Notes:</strong> {{ hb_notes }}</p>
+      <p><strong>Artifacts (files):</strong> {{ hb_files }}</p>
     </div>
 
     <div class="card">
@@ -54,8 +66,9 @@ permalink: /status/
 
     <div class="card">
       <h3>Latest Field Note</h3>
-      {%- if notes and notes.size > 0 -%}
-        {%- assign N = notes | first -%}
+      {%- assign notes_all = site["field-notes"] | sort: "date" | reverse -%}
+      {%- if notes_all and notes_all.size > 0 -%}
+        {%- assign N = notes_all | first -%}
         <p><a href="{{ N.url | relative_url }}">{{ N.title }}</a></p>
         <p><time datetime="{{ N.date | date_to_xmlschema }}">{{ N.date | date: "%b %-d, %Y %H:%M" }}</time></p>
       {%- else -%}
