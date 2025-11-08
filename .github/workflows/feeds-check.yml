@@ -1,8 +1,8 @@
-name: Feeds Check & Publish
+name: Feeds · Check & Publish
 
 on:
   schedule:
-    - cron: "*/30 * * * *"    # every 30 minutes
+    - cron: "*/30 * * * *"
   workflow_dispatch: {}
   push:
     paths:
@@ -17,67 +17,91 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Resolve base URL
-        id: base
+      - name: Resolve bases
+        id: bases
         run: |
+          REPO="${{ github.repository }}"
+          OWNER="${REPO%%/*}"
+          NAME="${REPO##*/}"
+
+          # Preferred base: custom domain from CNAME
           if [[ -f CNAME && -s CNAME ]]; then
-            BASE="https://$(cat CNAME | tr -d '[:space:]')"
+            CUSTOM="https://$(tr -d '[:space:]' < CNAME)"
           else
-            # Fallback to GitHub Pages user/org site path
-            REPO="${{ github.repository }}"
-            OWNER="${REPO%%/*}"
-            NAME="${REPO##*/}"
-            BASE="https://${OWNER}.github.io/${NAME}"
+            CUSTOM=""
           fi
-          echo "base=${BASE}" >> "$GITHUB_OUTPUT"
+
+          # Fallback base: raw GitHub Pages origin
+          ORIGIN="https://${OWNER}.github.io/${NAME}"
+
+          echo "custom=${CUSTOM}" >> "$GITHUB_OUTPUT"
+          echo "origin=${ORIGIN}" >> "$GITHUB_OUTPUT"
 
       - name: Build endpoint list
         id: endpoints
         run: |
-          BASE="${{ steps.base.outputs.base }}"
           cat > /tmp/endpoints.json <<'JSON'
           [
-            { "name": "All (RSS)",        "path": "/feed/"               },
-            { "name": "All (JSON)",       "path": "/feed.json"           },
-            { "name": "Logs (RSS)",       "path": "/logs/feed.xml"       },
-            { "name": "Field Notes (RSS)","path": "/field-notes/feed.xml"}
+            { "name": "All (RSS)",         "path": "/feed/",                "accept": "application/rss+xml"  },
+            { "name": "All (JSON)",        "path": "/feed.json",            "accept": "application/json"     },
+            { "name": "Logs (RSS)",        "path": "/logs/feed.xml",        "accept": "application/rss+xml"  },
+            { "name": "Field Notes (RSS)", "path": "/field-notes/feed.xml", "accept": "application/rss+xml"  }
           ]
           JSON
 
-          # External Substack Notes feed (expected to fail until Substack enables it)
-          SUBSTACK="https://substack.com/api/v1/notes/rss?publication_id=6660929"
-
-          jq --arg base "$BASE" --arg sub "$SUBSTACK" '
-            . as $e |
-            ($e | map(. + { url: ($base + .path) })) +
-            [ { "name": "Substack Field Notes (external)", "url": $sub } ]
-          ' /tmp/endpoints.json > /tmp/endpoints-final.json
-
-      - name: Probe endpoints (curl with UA)
+      - name: Probe feeds (try custom → fallback to origin)
         run: |
-          UA="FinchStatusBot/1.0 (+https://fincharchive.com/status/)"
+          UA="FinchStatusBot/1.1 (+https://fincharchive.com/status/)"
+          CUSTOM="${{ steps.bases.outputs.custom }}"
+          ORIGIN="${{ steps.bases.outputs.origin }}"
           now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-          echo '{ "updated_utc": "'$now'", "endpoints": [] }' > /tmp/feeds.json
-
-          jq -c '.[]' /tmp/endpoints-final.json | while read -r row; do
-            name=$(jq -r '.name' <<<"$row")
-            url=$(jq -r '.url' <<<"$row")
-
-            # Try HEAD first, fall back to GET (some hosts block HEAD)
-            code=$(curl -sS -I -L -o /dev/null -w "%{http_code}" -A "$UA" "$url")
+          probe () {
+            local url="$1" accept="$2"
+            # HEAD first (some hosts block), then GET
+            code=$(curl -sS -I -L -o /dev/null -w "%{http_code}" -A "$UA" -H "Accept: $accept" "$url" || echo 000)
             if [[ "$code" -eq 000 || "$code" -ge 400 ]]; then
-              code=$(curl -sS -L -o /dev/null -w "%{http_code}" -A "$UA" "$url")
+              code=$(curl -sS -L -o /dev/null -w "%{http_code}" -A "$UA" -H "Accept: $accept" "$url" || echo 000)
+            fi
+            echo "$code"
+          }
+
+          jq -c '.[]' /tmp/endpoints.json | while read -r row; do
+            name=$(jq -r '.name'  <<<"$row")
+            path=$(jq -r '.path'  <<<"$row")
+            accp=$(jq -r '.accept'<<<"$row")
+
+            base_used=""
+            status=000
+            url_primary=""
+            url_fallback=""
+
+            if [[ -n "$CUSTOM" ]]; then
+              url_primary="${CUSTOM}${path}"
+              status=$(probe "$url_primary" "$accp")
+              base_used="custom"
             fi
 
-            jq --arg n "$name" --arg u "$url" --arg c "$code" \
-               '.endpoints += [ { "name": $n, "url": $u, "status": ($c|tonumber) } ]' \
-               /tmp/feeds.json > /tmp/feeds.json.tmp && mv /tmp/feeds.json.tmp /tmp/feeds.json
-          done
+            if [[ "$status" -lt 200 || "$status" -ge 300 ]]; then
+              url_fallback="${ORIGIN}${path}"
+              status_fb=$(probe "$url_fallback" "$accp")
+              if [[ "$status_fb" -ge 200 && "$status_fb" -lt 300 ]]; then
+                status="$status_fb"
+                base_used="origin"
+              fi
+            fi
+
+            jq -n --arg n "$name" \
+                  --arg p "$path" \
+                  --arg s "$status" \
+                  --arg b "$base_used" \
+                  --arg u1 "$url_primary" \
+                  --arg u2 "$url_fallback" \
+              '{name:$n,path:$p,status:($s|tonumber),source:$b,primary:$u1,fallback:$u2}'
+          done | jq -s --arg t "$now" '{updated_utc:$t,endpoints:.}' > /tmp/feeds.json
 
           mkdir -p status _data
           cp /tmp/feeds.json status/feeds.json
-          # also publish an easy-to-consume copy for Jekyll templates
           cp /tmp/feeds.json _data/feeds-status.json
 
       - name: Commit results
@@ -86,7 +110,7 @@ jobs:
             git config user.name  "HallowayFinch"
             git config user.email "${{ secrets.HF_NOREPLY_EMAIL }}"
             git add status/feeds.json _data/feeds-status.json
-            git commit -m "chore(status): update feeds.json (+ _data/feeds-status.json)"
+            git commit -m "chore(status): refresh feed checks (custom→origin fallback)"
             git push "https://x-access-token:${{ secrets.HF_PAT }}@github.com/${{ github.repository }}.git" HEAD:main
           else
             echo "No changes to commit."
