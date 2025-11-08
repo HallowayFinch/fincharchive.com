@@ -1,14 +1,12 @@
 {
   "name": "Finch Archive",
-  "short_name": "Finch Archive",
-  "description": "Recovered notes from incomplete transmissions.",
+  "short_name": "Finch",
   "start_url": "/",
-  "scope": "/",
   "display": "minimal-ui",
   "background_color": "#000000",
   "theme_color": "#000000",
   "icons": [
-    { "src": "/assets/icons/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/assets/icons/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "/assets/icons/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icons/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
   ]
 }
