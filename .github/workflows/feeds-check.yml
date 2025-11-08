@@ -2,72 +2,105 @@ name: Feeds Check & Publish
 
 on:
   schedule:
-    - cron: "*/30 * * * *" # every 30 minutes
+    - cron: "49 * * * *"   # hourly at :49
+  workflow_dispatch: {}
   push:
     paths:
       - ".github/workflows/feeds-check.yml"
-      - "status/feeds.json"
-  workflow_dispatch: {}
 
 permissions:
   contents: write
 
+concurrency:
+  group: finch-feeds-check
+  cancel-in-progress: true
+
 jobs:
   check:
     runs-on: ubuntu-latest
+    env:
+      GIT_USER_NAME:  "HallowayFinch"
+      GIT_USER_EMAIL: ${{ secrets.HF_NOREPLY_EMAIL }}
+      FALLBACK_EMAIL: ${{ github.actor }}@users.noreply.github.com
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
-      - name: Probe feeds (friendly UA)
+      - name: Mark workspace safe for Git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Probe feeds and write /status/feeds.json
         id: probe
+        shell: bash
         run: |
           set -euo pipefail
 
-          UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
-          accept="application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.8"
-
-          probe () {
-            url="$1"
-            code=$(curl -sS -L \
-              -A "$UA" \
-              -H "Accept: $accept" \
+          probe() {
+            local url="$1"
+            curl -sS -L \
+              -H "User-Agent: FinchStatusBot/1.0 (+https://fincharchive.com/)" \
+              -H "Accept: application/rss+xml, application/atom+xml, application/json, text/xml;q=0.9, */*;q=0.8" \
               --max-time 20 --retry 2 --retry-delay 1 \
               -o /dev/null -w "%{http_code}" \
-              "$url" || true)
-            printf '%s' "$code"
+              "$url"
           }
 
-          updated="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          updated="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 
-          all_rss_code="$(probe "https://fincharchive.com/feed/")"
-          all_json_code="$(probe "https://fincharchive.com/feed.json")"
-          logs_rss_code="$(probe "https://fincharchive.com/logs/feed.xml")"
-          fn_rss_code="$(probe "https://fincharchive.com/field-notes/feed.xml")"
-          substack_fn_code="$(probe "https://substack.com/api/v1/notes/rss?publication_id=6660929")"
+          all_rss_code="$(probe 'https://fincharchive.com/feed/')"
+          all_json_code="$(probe 'https://fincharchive.com/feed.json')"
+          logs_rss_code="$(probe 'https://fincharchive.com/logs/feed.xml')"
+          fn_rss_code="$(probe 'https://fincharchive.com/field-notes/feed.xml')"
+          substack_fn_code="$(probe 'https://substack.com/api/v1/notes/rss?publication_id=6660929')"
 
           mkdir -p status
-          cat > status/feeds.json <<JSON
-{
-  "updated_utc": "${updated}",
-  "endpoints": [
-    { "name": "ALL (RSS)",                 "url": "https://fincharchive.com/feed/",                   "status": ${all_rss_code} },
-    { "name": "ALL (JSON)",                "url": "https://fincharchive.com/feed.json",               "status": ${all_json_code} },
-    { "name": "Logs (RSS)",                "url": "https://fincharchive.com/logs/feed.xml",           "status": ${logs_rss_code} },
-    { "name": "Field Notes (RSS)",         "url": "https://fincharchive.com/field-notes/feed.xml",    "status": ${fn_rss_code} },
-    { "name": "Substack Field Notes (external)", "url": "https://substack.com/api/v1/notes/rss?publication_id=6660929", "status": ${substack_fn_code} }
-  ]
-}
-JSON
 
-      - name: Commit & push feeds.json (actor email)
+          # Quoted heredoc prevents any interpolation by the shell or Actions parser
+          cat > status/feeds.json <<'JSON'
+          {
+            "updated_utc": "__UPDATED__",
+            "endpoints": [
+              { "name": "ALL (RSS)",                 "url": "https://fincharchive.com/feed/",            "status": __ALL_RSS__ },
+              { "name": "ALL (JSON)",                "url": "https://fincharchive.com/feed.json",        "status": __ALL_JSON__ },
+              { "name": "Logs (RSS)",                "url": "https://fincharchive.com/logs/feed.xml",    "status": __LOGS_RSS__ },
+              { "name": "Field Notes (RSS)",         "url": "https://fincharchive.com/field-notes/feed.xml", "status": __FN_RSS__ },
+              { "name": "Substack Field Notes (external)", "url": "https://substack.com/api/v1/notes/rss?publication_id=6660929", "status": __SUBSTACK_FN__ }
+            ]
+          }
+          JSON
+
+          # Substitute placeholders with the real values safely
+          sed -i \
+            -e "s#__UPDATED__#${updated}#g" \
+            -e "s#__ALL_RSS__#${all_rss_code}#g" \
+            -e "s#__ALL_JSON__#${all_json_code}#g" \
+            -e "s#__LOGS_RSS__#${logs_rss_code}#g" \
+            -e "s#__FN_RSS__#${fn_rss_code}#g" \
+            -e "s#__SUBSTACK_FN__#${substack_fn_code}#g" \
+            status/feeds.json
+
+      - id: commit
+        name: Commit (if changed)
+        shell: bash
         run: |
-          set -e
-          git config user.name  "${{ github.actor }}"
-          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          set -euo pipefail
+          EMAIL="${GIT_USER_EMAIL:-}"; if [ -z "$EMAIL" ]; then EMAIL="$FALLBACK_EMAIL"; fi
+          git config user.name  "${GIT_USER_NAME}"
+          git config user.email "${EMAIL}"
+
           git add status/feeds.json
-          if ! git diff --cached --quiet; then
-            git commit -m "chore(status): refresh feeds.json"
-            git push
-          else
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No change in status/feeds.json"
+          else
+            git commit -m "chore(status): refresh feeds.json"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Push (if committed) with PAT
+        if: steps.commit.outputs.changed == 'true'
+        run: |
+          git push "https://x-access-token:${{ secrets.HF_PAT }}@github.com/${{ github.repository }}.git" HEAD:main
