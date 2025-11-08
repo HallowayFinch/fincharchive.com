@@ -1,9 +1,10 @@
 name: Feeds Check & Publish
 
 on:
-  schedule:
-    - cron: "*/30 * * * *" # every 30 minutes
+  # run manually when you want, and also hourly at :21
   workflow_dispatch: {}
+  schedule:
+    - cron: "21 * * * *"
 
 permissions:
   contents: write
@@ -16,10 +17,12 @@ jobs:
   check:
     runs-on: ubuntu-latest
     env:
+      # Optional: proxy that accepts ?url=<encoded>
+      RSS_PROXY_URL: ${{ secrets.RSS_PROXY_URL }}
       GIT_USER_NAME:  "HallowayFinch"
       GIT_USER_EMAIL: ${{ secrets.HF_NOREPLY_EMAIL }}
       HF_PAT:         ${{ secrets.HF_PAT }}
-      RSS_PROXY_URL:  ${{ secrets.RSS_PROXY_URL }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,39 +30,37 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Probe feeds (with CF fallback)
+      - name: Probe feeds & write status/feeds.json
         id: probe
         shell: bash
         run: |
           set -euo pipefail
 
-          ua="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36"
+          ua="FinchArchiveFeedCheck/1.0 (+https://fincharchive.com/status/)"
           accept="application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.8"
 
-          probe_one () {
+          probe() {
             local url="$1"
-            # first try direct
-            local code
-            code=$(curl -sS -o /dev/null -w "%{http_code}" \
-                    -m 20 --retry 2 --retry-delay 1 --compressed --http2 \
-                    -H "User-Agent: ${ua}" -H "Accept: ${accept}" \
-                    -e "https://fincharchive.com/status/" \
-                    "$url" || true)
+            local target="$url"
 
-            # if CF blocks (403/429) and we have a proxy, try proxy
-            if [[ "${code}" =~ ^(403|429)$ ]] && [[ -n "${RSS_PROXY_URL:-}" ]]; then
-              proxied="${RSS_PROXY_URL}?url=$(python3 -c 'import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1], safe=""))' "$url")"
-              code=$(curl -sS -o /dev/null -w "%{http_code}" \
-                      -m 20 --retry 2 --retry-delay 1 --compressed --http2 \
-                      -H "User-Agent: ${ua}" -H "Accept: ${accept}" \
-                      -e "https://fincharchive.com/status/" \
-                      "$proxied" || true)
+            # If a proxy is configured, route the check through it
+            if [ -n "${RSS_PROXY_URL:-}" ]; then
+              enc="$(printf '%s' "$url" | jq -s -R -r @uri)"
+              target="${RSS_PROXY_URL}?url=${enc}"
             fi
 
-            printf '%s' "${code}"
+            code="$(curl -sS -L \
+              -H "User-Agent: ${ua}" \
+              -H "Accept: ${accept}" \
+              -H "Referer: https://fincharchive.com/status/" \
+              --retry 2 --retry-delay 1 --max-time 20 \
+              -o /dev/null -w "%{http_code}" \
+              "$target" || echo 000)"
+
+            printf '%s' "$code"
           }
 
-          updated="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          updated="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
           all_rss="https://fincharchive.com/feed/"
           all_json="https://fincharchive.com/feed.json"
@@ -67,56 +68,36 @@ jobs:
           fn_rss="https://fincharchive.com/field-notes/feed.xml"
           substack_fn="https://substack.com/api/v1/notes/rss?publication_id=6660929"
 
-          all_rss_code="$(probe_one "${all_rss}")"
-          all_json_code="$(probe_one "${all_json}")"
-          logs_rss_code="$(probe_one "${logs_rss}")"
-          fn_rss_code="$(probe_one "${fn_rss}")"
-          substack_fn_code="$(probe_one "${substack_fn}")"
+          all_rss_code="$(probe "$all_rss")"
+          all_json_code="$(probe "$all_json")"
+          logs_rss_code="$(probe "$logs_rss")"
+          fn_rss_code="$(probe "$fn_rss")"
+          substack_fn_code="$(probe "$substack_fn")"
 
           mkdir -p status
-          # Use a SINGLE-QUOTED heredoc tag so GitHub expressions aren’t parsed here.
-          cat > status/feeds.json <<'JSON_EOF'
+          cat > status/feeds.json <<JSON
           {
-            "updated_utc": "__UPDATED__",
+            "updated_utc": "${updated}",
             "endpoints": [
-              { "name": "ALL (RSS)",  "url": "__ALL_RSS__",  "status": __ALL_RSS_CODE__ },
-              { "name": "ALL (JSON)", "url": "__ALL_JSON__", "status": __ALL_JSON_CODE__ },
-              { "name": "Logs (RSS)", "url": "__LOGS_RSS__", "status": __LOGS_RSS_CODE__ },
-              { "name": "Field Notes (RSS)", "url": "__FN_RSS__", "status": __FN_RSS_CODE__ },
-              { "name": "Substack Field Notes (external)", "url": "__SUBSTACK_FN__", "status": __SUBSTACK_FN_CODE__ }
+              { "name": "ALL (RSS)",                 "url": "${all_rss}",     "status": ${all_rss_code} },
+              { "name": "ALL (JSON)",                "url": "${all_json}",    "status": ${all_json_code} },
+              { "name": "Logs (RSS)",                "url": "${logs_rss}",    "status": ${logs_rss_code} },
+              { "name": "Field Notes (RSS)",         "url": "${fn_rss}",      "status": ${fn_rss_code} },
+              { "name": "Substack Field Notes (external)", "url": "${substack_fn}", "status": ${substack_fn_code} }
             ]
           }
-          JSON_EOF
+          JSON
 
-          # Now substitute the placeholders safely
-          sed -i \
-            -e "s|__UPDATED__|${updated}|g" \
-            -e "s|__ALL_RSS__|${all_rss}|g" \
-            -e "s|__ALL_JSON__|${all_json}|g" \
-            -e "s|__LOGS_RSS__|${logs_rss}|g" \
-            -e "s|__FN_RSS__|${fn_rss}|g" \
-            -e "s|__SUBSTACK_FN__|${substack_fn}|g" \
-            -e "s|__ALL_RSS_CODE__|${all_rss_code}|g" \
-            -e "s|__ALL_JSON_CODE__|${all_json_code}|g" \
-            -e "s|__LOGS_RSS_CODE__|${logs_rss_code}|g" \
-            -e "s|__FN_RSS_CODE__|${fn_rss_code}|g" \
-            -e "s|__SUBSTACK_FN_CODE__|${substack_fn_code}|g" \
-            status/feeds.json
-
-          echo "Feeds status written:"
-          cat status/feeds.json
-
-      - name: Commit (as HallowayFinch) if changed
+      - name: Commit feeds.json (if changed)
         id: commit
-        shell: bash
         run: |
           set -euo pipefail
           git config user.name  "${GIT_USER_NAME}"
-          git config user.email "${GIT_USER_EMAIL}"
+          git config user.email "${GIT_USER_EMAIL:-${{ github.actor }}@users.noreply.github.com}"
           git add status/feeds.json
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "No changes to commit."
+            echo "No change in status/feeds.json"
           else
             git commit -m "chore(status): refresh feeds.json"
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -124,6 +105,5 @@ jobs:
 
       - name: Push (if committed) with PAT
         if: steps.commit.outputs.changed == 'true'
-        shell: bash
         run: |
           git push "https://x-access-token:${HF_PAT}@github.com/${{ github.repository }}.git" HEAD:main
