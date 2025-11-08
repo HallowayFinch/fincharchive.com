@@ -24,31 +24,33 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: true  # <-- allow git push with GITHUB_TOKEN
+          persist-credentials: true
 
       - name: Probe feeds and write /status/feeds.json
-        id: probe
         shell: bash
         run: |
           set -euo pipefail
 
+          url_encode () {
+            python3 - "$1" <<'PY'
+import urllib.parse, sys
+print(urllib.parse.quote(sys.argv[1], safe=""))
+PY
+          }
+
           probe () {
             local url="$1"
-            local http_code
+            local http_code via="origin"
+
             http_code="$(curl -sS -L \
               -A "$UA" \
               -H "Accept: application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.1" \
               --max-time 20 --retry 2 --retry-delay 1 \
               -o /dev/null -w "%{http_code}" "$url" || true)"
-            local via="origin"
 
             if [[ ( "$http_code" == "403" || "$http_code" == "000" ) && -n "${RSS_PROXY_URL:-}" ]]; then
-              pyenc="$(python - <<'PY'
-import urllib.parse, sys
-print(urllib.parse.quote(sys.argv[1], safe=""))
-PY
-"$url")"
-              prox="${RSS_PROXY_URL}?url=${pyenc}"
+              enc="$(url_encode "$url")"
+              prox="${RSS_PROXY_URL}?url=${enc}"
               pcode="$(curl -sS -L \
                 -A "$UA" \
                 -H "Accept: application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.1" \
@@ -96,7 +98,7 @@ EOF
               { "name": "Substack Field Notes (external)", "url": "__SUBSTACK_FN__", "status": __SUBSTACK_FN_STATUS__ }
             ]
           }
-          JSON
+JSON
 
           sed -i \
             -e "s|__UPDATED__|${updated}|g" \
@@ -125,5 +127,5 @@ EOF
             echo "No change in status/feeds.json"
           else
             git commit -m "chore(status): refresh feeds.json"
-            git push   # uses GITHUB_TOKEN because checkout kept credentials
+            git push
           fi
