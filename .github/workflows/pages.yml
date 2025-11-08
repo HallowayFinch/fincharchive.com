@@ -44,7 +44,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     outputs:
       site_changed: ${{ steps.compute.outputs.site }}
 
@@ -52,10 +51,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # Ensure we have commit history for diffing on workflow_run
-          fetch-depth: 0
+          fetch-depth: 0   # needed for diffing on workflow_run
 
-      # --- PATH FILTERS -------------------------------------------------------
       # On push: normal paths-filter against the pushed changes
       - name: Filter for site changes (push)
         id: filter_push
@@ -85,15 +82,13 @@ jobs:
               - 'site.webmanifest'
               - 'CNAME'
 
-      # On workflow_run: compare ONLY the upstream run's head commit vs its parent.
-      # If the importer made no commit (no changes), this diff will be empty, so we skip.
+      # On workflow_run: diff upstream head vs parent; skip if nothing changed
       - name: Determine diff refs (workflow_run)
         id: refs
         if: github.event_name == 'workflow_run'
         run: |
           SHA="${{ github.event.workflow_run.head_sha }}"
           echo "head_sha=$SHA" >> "$GITHUB_OUTPUT"
-          # Parent of head (may be merge commit; first parent is fine here)
           PARENT="$(git rev-parse "${SHA}^")"
           echo "base_sha=$PARENT" >> "$GITHUB_OUTPUT"
           echo "Upstream head: $SHA"
@@ -129,31 +124,35 @@ jobs:
               - 'site.webmanifest'
               - 'CNAME'
 
-      # --- BUILD GATE ---------------------------------------------------------
+      # Build gate
       - name: Decide build gate
         id: compute
         run: |
-          if [ "${{ github.event_name }}" = "workflow_run" ]; then
-            if [ "${{ github.event.workflow_run.conclusion }}" != "success" ]; then
-              echo "site=false" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
-            if [ "${{ steps.filter_wr.outputs.site }}" = "true" ]; then
+          case "${{ github.event_name }}" in
+            workflow_dispatch)
+              echo "Manual run → force rebuild"
               echo "site=true" >> "$GITHUB_OUTPUT"
-            else
-              echo "No site-relevant changes in upstream run; skipping."
+              ;;
+            workflow_run)
+              if [ "${{ github.event.workflow_run.conclusion }}" = "success" ] && [ "${{ steps.filter_wr.outputs.site }}" = "true" ]; then
+                echo "site=true" >> "$GITHUB_OUTPUT"
+              else
+                echo "site=false" >> "$GITHUB_OUTPUT"
+              fi
+              ;;
+            push)
+              if [ "${{ steps.filter_push.outputs.site }}" = "true" ]; then
+                echo "site=true" >> "$GITHUB_OUTPUT"
+              else
+                echo "site=false" >> "$GITHUB_OUTPUT"
+              fi
+              ;;
+            *)
               echo "site=false" >> "$GITHUB_OUTPUT"
-            fi
-          else
-            if [ "${{ steps.filter_push.outputs.site }}" = "true" ]; then
-              echo "site=true" >> "$GITHUB_OUTPUT"
-            else
-              echo "No site-relevant changes in push; skipping."
-              echo "site=false" >> "$GITHUB_OUTPUT"
-            fi
-          fi
+              ;;
+          esac
 
-      # --- VALIDATE & BUILD ---------------------------------------------------
+      # Validate front matter
       - name: Validate front matter
         if: steps.compute.outputs.site == 'true'
         run: |
@@ -189,6 +188,7 @@ jobs:
           sys.exit(0 if ok else 1)
           PY
 
+      # Generate paginated /logs/page/N/ before Jekyll build
       - name: Setup Python (for pagination generator)
         if: steps.compute.outputs.site == 'true'
         uses: actions/setup-python@v5
