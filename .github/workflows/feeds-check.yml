@@ -2,7 +2,7 @@ name: Feeds Check & Publish
 
 on:
   schedule:
-    - cron: "19 * * * *"  # hourly, slightly offset from other jobs
+    - cron: "19 * * * *"   # hourly, offset from other jobs
   workflow_dispatch: {}
 
 permissions:
@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SITE_BASE: "https://fincharchive.com"
+      RSS_PROXY_URL: ${{ secrets.RSS_PROXY_URL }}   # optional, used only on 403/000
       GIT_USER_NAME: "HallowayFinch"
       GIT_USER_EMAIL: ${{ secrets.HF_NOREPLY_EMAIL }}
       HF_PAT: ${{ secrets.HF_PAT }}
@@ -37,7 +38,8 @@ jobs:
           ua="FinchFeedsCheck/1.0 (+https://fincharchive.com/status/)"
           accept="application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.8"
 
-          probe() {
+          # curl that returns an HTTP code or 000 on failure
+          hit () {
             local url="$1"
             curl -sS -L \
               -A "$ua" \
@@ -47,33 +49,70 @@ jobs:
               "$url" || echo "000"
           }
 
+          # try URL, and if blocked (403/000) optionally retry via RSS proxy
+          check () {
+            local name="$1" url="$2"
+            local code via="origin"
+            code="$(hit "$url")"
+            if [[ ("$code" = "403" || "$code" = "000") && -n "${RSS_PROXY_URL:-}" ]]; then
+              # proxy expects ?url=<encoded>
+              enc="$(python - <<PY
+import urllib.parse, sys
+print(urllib.parse.quote(sys.argv[1], safe=""))
+PY
+"${url}")"
+              purl="${RSS_PROXY_URL}?url=${enc}"
+              pcode="$(hit "$purl")"
+              if [[ "$pcode" =~ ^[0-9]{3}$ && "$pcode" != "000" ]]; then
+                code="$pcode"; via="proxy"
+              fi
+            fi
+            printf '%s|%s|%s\n' "$name" "$url" "$code" >> /tmp/FEED_RESULTS
+            printf '%s=%s\n' "${name// /_}_VIA" "$via" >> /tmp/FEED_VIA.env
+          }
+
           ALL_RSS="${SITE_BASE}/feed/"
           ALL_JSON="${SITE_BASE}/feed.json"
           LOGS_RSS="${SITE_BASE}/logs/feed.xml"
           NOTES_RSS="${SITE_BASE}/field-notes/feed.xml"
           SUBSTACK_FN="https://substack.com/api/v1/notes/rss?publication_id=6660929"
 
-          all_rss_code="$(probe "$ALL_RSS")"
-          all_json_code="$(probe "$ALL_JSON")"
-          logs_rss_code="$(probe "$LOGS_RSS")"
-          fn_rss_code="$(probe "$NOTES_RSS")"
-          substack_fn_code="$(probe "$SUBSTACK_FN")"
+          : > /tmp/FEED_RESULTS
+          : > /tmp/FEED_VIA.env
+
+          check "ALL (RSS)" "$ALL_RSS"
+          check "ALL (JSON)" "$ALL_JSON"
+          check "Logs (RSS)" "$LOGS_RSS"
+          check "Field Notes (RSS)" "$NOTES_RSS"
+          check "Substack Field Notes (external)" "$SUBSTACK_FN"
+
+          # shellcheck disable=SC1091
+          source /tmp/FEED_VIA.env || true
 
           updated_utc="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-
           mkdir -p status
-          cat > status/feeds.json <<JSON
+
+          # Build JSON from results
           {
-            "updated_utc": "${updated_utc}",
-            "endpoints": [
-              { "name": "ALL (RSS)", "url": "${ALL_RSS}", "status": ${all_rss_code} },
-              { "name": "ALL (JSON)", "url": "${ALL_JSON}", "status": ${all_json_code} },
-              { "name": "Logs (RSS)", "url": "${LOGS_RSS}", "status": ${logs_rss_code} },
-              { "name": "Field Notes (RSS)", "url": "${NOTES_RSS}", "status": ${fn_rss_code} },
-              { "name": "Substack Field Notes (external)", "url": "${SUBSTACK_FN}", "status": ${substack_fn_code} }
-            ]
-          }
-          JSON
+            echo '{'
+            echo "  \"updated_utc\": \"${updated_utc}\","
+            echo '  "endpoints": ['
+            i=0; total=$(wc -l < /tmp/FEED_RESULTS)
+            while IFS='|' read -r name url code; do
+              i=$((i+1))
+              key="${name// /_}"
+              via_var="${key}_VIA"
+              via="${!via_var:-origin}"
+              printf '    { "name": %s, "url": %s, "status": %s, "via": %s }%s\n' \
+                "$(jq -Rn --arg s "$name" '$s')" \
+                "$(jq -Rn --arg s "$url" '$s')" \
+                "$code" \
+                "$(jq -Rn --arg s "$via" '$s')" \
+                "$( [[ $i -lt $total ]] && echo ',' )"
+            done < /tmp/FEED_RESULTS
+            echo '  ]'
+            echo '}'
+          } > status/feeds.json
 
       - name: Commit (if changes)
         id: commit
