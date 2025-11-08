@@ -1,12 +1,13 @@
-name: Feeds · Check & Publish
+name: Feeds Check & Publish
 
 on:
   schedule:
     - cron: "*/30 * * * *" # every 30 minutes
-  workflow_dispatch: {}
   push:
     paths:
       - ".github/workflows/feeds-check.yml"
+      - "status/feeds.json"
+  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -17,85 +18,56 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build feeds status JSON
-        id: build
+      - name: Probe feeds (friendly UA)
+        id: probe
         run: |
           set -euo pipefail
 
-          TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          UA="Mozilla/5.0 (compatible; FinchStatusBot/1.0; +https://fincharchive.com/status/)"
-          ACCEPT_RSS="application/rss+xml, application/xml;q=0.9, */*;q=0.8"
-          ACCEPT_JSON="application/feed+json, application/json;q=0.9, */*;q=0.8"
+          UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+          accept="application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.8"
 
-          # helper -> curl with friendly headers; echo only HTTP code
-          http_code () {
-            local url="$1" ; local accept="$2"
-            curl -sS -L --compressed \
+          probe () {
+            url="$1"
+            code=$(curl -sS -L \
               -A "$UA" \
               -H "Accept: $accept" \
-              -o /dev/null \
-              -w "%{http_code}" \
-              --max-time 20 \
-              "$url" || echo "000"
+              --max-time 20 --retry 2 --retry-delay 1 \
+              -o /dev/null -w "%{http_code}" \
+              "$url" || true)
+            printf '%s' "$code"
           }
 
-          # Attempt a real HTTP fetch for public endpoints.
-          FEED_ALL_RSS="https://fincharchive.com/feed/"
-          FEED_ALL_JSON="https://fincharchive.com/feed.json"
-          FEED_LOGS_RSS="https://fincharchive.com/logs/feed.xml"
-          FEED_NOTES_RSS="https://fincharchive.com/field-notes/feed.xml"
-          FEED_SUBSTACK_NOTES="https://substack.com/api/v1/notes/rss?publication_id=6660929"
+          updated="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-          C_ALL_RSS="$(http_code "$FEED_ALL_RSS"  "$ACCEPT_RSS")"
-          C_ALL_JSON="$(http_code "$FEED_ALL_JSON" "$ACCEPT_JSON")"
-          C_LOGS_RSS="$(http_code "$FEED_LOGS_RSS" "$ACCEPT_RSS")"
-          C_NOTES_RSS="$(http_code "$FEED_NOTES_RSS" "$ACCEPT_RSS")"
-          C_SUBSTACK="$(http_code "$FEED_SUBSTACK_NOTES" "$ACCEPT_RSS")"
-
-          # Fallback: if Cloudflare returned 403 on our own domain, treat as OK
-          # when the corresponding local file exists and is non-empty.
-          fallback_ok () { [ -s "$1" ] && echo "200" || echo "$2" ; }
-
-          if [ "$C_ALL_RSS" = "403" ] || [ "$C_ALL_RSS" = "000" ]; then
-            C_ALL_RSS="$(fallback_ok "feeds/index.xml" "$C_ALL_RSS")"
-          fi
-          if [ "$C_ALL_JSON" = "403" ] || [ "$C_ALL_JSON" = "000" ]; then
-            C_ALL_JSON="$(fallback_ok "feed.json" "$C_ALL_JSON")"
-          fi
-          if [ "$C_LOGS_RSS" = "403" ] || [ "$C_LOGS_RSS" = "000" ]; then
-            C_LOGS_RSS="$(fallback_ok "logs/feed.xml" "$C_LOGS_RSS")"
-          fi
-          if [ "$C_NOTES_RSS" = "403" ] || [ "$C_NOTES_RSS" = "000" ]; then
-            C_NOTES_RSS="$(fallback_ok "field-notes/feed.xml" "$C_NOTES_RSS")"
-          fi
-          # Substack should stay honest; no fallback
+          all_rss_code="$(probe "https://fincharchive.com/feed/")"
+          all_json_code="$(probe "https://fincharchive.com/feed.json")"
+          logs_rss_code="$(probe "https://fincharchive.com/logs/feed.xml")"
+          fn_rss_code="$(probe "https://fincharchive.com/field-notes/feed.xml")"
+          substack_fn_code="$(probe "https://substack.com/api/v1/notes/rss?publication_id=6660929")"
 
           mkdir -p status
           cat > status/feeds.json <<JSON
-          {
-            "updated_utc": "${TS}",
-            "endpoints": [
-              { "name": "ALL (RSS)",          "url": "${FEED_ALL_RSS}",        "status": ${C_ALL_RSS}  },
-              { "name": "ALL (JSON)",         "url": "${FEED_ALL_JSON}",       "status": ${C_ALL_JSON} },
-              { "name": "Logs (RSS)",         "url": "${FEED_LOGS_RSS}",       "status": ${C_LOGS_RSS} },
-              { "name": "Field Notes (RSS)",  "url": "${FEED_NOTES_RSS}",      "status": ${C_NOTES_RSS} },
-              { "name": "Substack Field Notes (external)", "url": "${FEED_SUBSTACK_NOTES}", "status": ${C_SUBSTACK} }
-            ]
-          }
-          JSON
+{
+  "updated_utc": "${updated}",
+  "endpoints": [
+    { "name": "ALL (RSS)",                 "url": "https://fincharchive.com/feed/",                   "status": ${all_rss_code} },
+    { "name": "ALL (JSON)",                "url": "https://fincharchive.com/feed.json",               "status": ${all_json_code} },
+    { "name": "Logs (RSS)",                "url": "https://fincharchive.com/logs/feed.xml",           "status": ${logs_rss_code} },
+    { "name": "Field Notes (RSS)",         "url": "https://fincharchive.com/field-notes/feed.xml",    "status": ${fn_rss_code} },
+    { "name": "Substack Field Notes (external)", "url": "https://substack.com/api/v1/notes/rss?publication_id=6660929", "status": ${substack_fn_code} }
+  ]
+}
+JSON
 
-          echo "Built status/feeds.json:"
-          cat status/feeds.json
-
-      - name: Commit & push feeds.json
+      - name: Commit & push feeds.json (actor email)
         run: |
-          set -euo pipefail
-          git config user.name  "HallowayFinch"
-          git config user.email "${{ secrets.HF_NOREPLY_EMAIL }}"
+          set -e
+          git config user.name  "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
           git add status/feeds.json
           if ! git diff --cached --quiet; then
-            git commit -m "chore(status): update feed checks"
-            git push "https://x-access-token:${{ secrets.HF_PAT }}@github.com/${{ github.repository }}.git" HEAD:main
+            git commit -m "chore(status): refresh feeds.json"
+            git push
           else
-            echo "No changes to feeds.json"
+            echo "No change in status/feeds.json"
           fi
