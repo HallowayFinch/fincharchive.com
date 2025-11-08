@@ -1,9 +1,9 @@
 name: Feeds Check & Publish
 
 on:
-  workflow_dispatch: {}
   schedule:
-    - cron: "17 * * * *" # light hourly cadence, offset from other jobs
+    - cron: "19 * * * *" # hourly, slightly offset from other jobs
+  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -16,11 +16,12 @@ jobs:
   check:
     runs-on: ubuntu-latest
     env:
-      # Optional proxy (e.g., Cloudflare Worker) that fetches a target URL server-side.
-      # Expected shape: https://rss-proxy.example.com/fetch?u=<urlencoded>
-      RSS_PROXY_URL: ${{ secrets.RSS_PROXY_URL }}
-      GIT_USER_NAME:  "HallowayFinch"
+      SITE_BASE: "https://fincharchive.com"
+      RSS_PROXY_URL: ${{ secrets.RSS_PROXY_URL }} # optional; if set, we'll probe via proxy
+      GIT_USER_NAME: "HallowayFinch"
       GIT_USER_EMAIL: ${{ secrets.HF_NOREPLY_EMAIL }}
+      HF_PAT: ${{ secrets.HF_PAT }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,99 +29,85 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Probe feeds and write status/feeds.json
+      - name: Probe feeds and write /status/feeds.json
         id: probe
         shell: bash
         run: |
           set -euo pipefail
 
-          ua="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+          ua="FinchFeedsCheck/1.0 (+https://fincharchive.com/status/)"
           accept="application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.8"
 
-          # url-encode helper (jq is available on runners)
-          urlencode () { printf '%s' "$1" | jq -sRr @uri; }
+          # Helper: run curl and print only HTTP status code
+          probe_raw() {
+            local url="$1"
+            curl -sS -L \
+              -A "$ua" \
+              -H "Accept: $accept" \
+              --max-time 20 --retry 2 --retry-delay 1 \
+              -o /dev/null -w "%{http_code}" \
+              "$url" || echo "000"
+          }
 
-          # Build a resolver that prefers proxy when provided
-          probe_url () {
-            local raw="$1"
+          # If a proxy is configured, wrap the target URL for probing.
+          # Expected worker format:  ${RSS_PROXY_URL}?url=<encoded>
+          probe() {
+            local target="$1"
             if [[ -n "${RSS_PROXY_URL:-}" ]]; then
-              echo "${RSS_PROXY_URL%/}/fetch?u=$(urlencode "$raw")"
+              local enc
+              enc="$(python3 -c 'import sys,urllib.parse as u; print(u.quote(sys.argv[1], safe=""))' "$target")"
+              probe_raw "${RSS_PROXY_URL}?url=${enc}"
             else
-              echo "$raw"
+              probe_raw "$target"
             fi
           }
 
-          # Single probe with retries
-          probe () {
-            local target="$1"
-            local code
-            code="$(curl -sS -L -o /dev/null -w '%{http_code}' \
-              -A "$ua" -H "Accept: $accept" \
-              --connect-timeout 10 --max-time 25 \
-              --retry 2 --retry-delay 1 \
-              --retry-all-errors \
-              "$(probe_url "$target")" || true)"
-            printf '%s' "$code"
-          }
+          ALL_RSS="${SITE_BASE}/feed/"
+          ALL_JSON="${SITE_BASE}/feed.json"
+          LOGS_RSS="${SITE_BASE}/logs/feed.xml"
+          NOTES_RSS="${SITE_BASE}/field-notes/feed.xml"
+          SUBSTACK_FN="https://substack.com/api/v1/notes/rss?publication_id=6660929"
 
-          ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          all_rss_code="$(probe "$ALL_RSS")"
+          all_json_code="$(probe "$ALL_JSON")"
+          logs_rss_code="$(probe "$LOGS_RSS")"
+          fn_rss_code="$(probe "$NOTES_RSS")"
+          substack_fn_code="$(probe "$SUBSTACK_FN")"
 
-          all_rss="https://fincharchive.com/feed/"
-          all_json="https://fincharchive.com/feed.json"
-          logs_rss="https://fincharchive.com/logs/feed.xml"
-          fn_rss="https://fincharchive.com/field-notes/feed.xml"
-          substack_fn="https://substack.com/api/v1/notes/rss?publication_id=6660929"
-
-          all_rss_code="$(probe "$all_rss")"
-          all_json_code="$(probe "$all_json")"
-          logs_rss_code="$(probe "$logs_rss")"
-          fn_rss_code="$(probe "$fn_rss")"
-          substack_fn_code="$(probe "$substack_fn")"
+          updated_utc="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 
           mkdir -p status
-          cat > status/feeds.json <<'JSON'
+          cat > status/feeds.json <<JSON
           {
-            "updated_utc": "__TS__",
+            "updated_utc": "${updated_utc}",
             "endpoints": [
-              { "name": "ALL (RSS)",     "url": "__ALL_RSS__",   "status": __ALL_RSS_CODE__ },
-              { "name": "ALL (JSON)",    "url": "__ALL_JSON__",  "status": __ALL_JSON_CODE__ },
-              { "name": "Logs (RSS)",    "url": "__LOGS_RSS__",  "status": __LOGS_RSS_CODE__ },
-              { "name": "Field Notes (RSS)", "url": "__FN_RSS__", "status": __FN_RSS_CODE__ },
-              { "name": "Substack Field Notes (external)", "url": "__SUBSTACK_FN__", "status": __SUBSTACK_FN_CODE__ }
+              { "name": "ALL (RSS)",                 "url": "${ALL_RSS}",     "status": ${all_rss_code} },
+              { "name": "ALL (JSON)",                "url": "${ALL_JSON}",    "status": ${all_json_code} },
+              { "name": "Logs (RSS)",                "url": "${LOGS_RSS}",   "status": ${logs_rss_code} },
+              { "name": "Field Notes (RSS)",         "url": "${NOTES_RSS}",  "status": ${fn_rss_code} },
+              { "name": "Substack Field Notes (external)", "url": "${SUBSTACK_FN}", "status": ${substack_fn_code} }
             ]
           }
           JSON
 
-          # Inject values safely
-          sed -i \
-            -e "s|__TS__|$ts|g" \
-            -e "s|__ALL_RSS__|$(printf '%s' "$all_rss" | sed 's|[&/]|\\&|g')|g" \
-            -e "s|__ALL_JSON__|$(printf '%s' "$all_json" | sed 's|[&/]|\\&|g')|g" \
-            -e "s|__LOGS_RSS__|$(printf '%s' "$logs_rss" | sed 's|[&/]|\\&|g')|g" \
-            -e "s|__FN_RSS__|$(printf '%s' "$fn_rss" | sed 's|[&/]|\\&|g')|g" \
-            -e "s|__SUBSTACK_FN__|$(printf '%s' "$substack_fn" | sed 's|[&/]|\\&|g')|g" \
-            -e "s|__ALL_RSS_CODE__|$all_rss_code|g" \
-            -e "s|__ALL_JSON_CODE__|$all_json_code|g" \
-            -e "s|__LOGS_RSS_CODE__|$logs_rss_code|g" \
-            -e "s|__FN_RSS_CODE__|$fn_rss_code|g" \
-            -e "s|__SUBSTACK_FN_CODE__|$substack_fn_code|g" \
-            status/feeds.json
-
-          echo "feeds_json=status/feeds.json" >> "$GITHUB_OUTPUT"
-
-      - name: Commit & push feeds.json (HallowayFinch)
-        env:
-          HF_PAT: ${{ secrets.HF_PAT }}
+      - name: Commit (if changes)
+        id: commit
+        shell: bash
         run: |
           set -euo pipefail
+          email="${GIT_USER_EMAIL:-${GITHUB_ACTOR}@users.noreply.github.com}"
           git config user.name  "${GIT_USER_NAME}"
-          git config user.email "${GIT_USER_EMAIL}"
+          git config user.email "${email}"
           git add status/feeds.json
-
           if git diff --cached --quiet; then
-            echo "No change in status/feeds.json"
-            exit 0
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No changes to commit."
+          else
+            git commit -m "chore(status): refresh feeds.json"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-          git commit -m "chore(status): refresh feeds.json"
+      - name: Push (if committed)
+        if: steps.commit.outputs.changed == 'true'
+        run: |
           git push "https://x-access-token:${HF_PAT}@github.com/${{ github.repository }}.git" HEAD:main
