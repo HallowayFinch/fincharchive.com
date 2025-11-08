@@ -26,12 +26,17 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Probe feeds and write /status/feeds.json
+      - name: Probe feeds and write /status/feeds.json (no heredocs)
         shell: bash
         run: |
           set -euo pipefail
 
-          # Simple URL encoder (no heredoc!)
+          # Ensure jq is available (usually preinstalled on runners)
+          if ! command -v jq >/dev/null 2>&1; then
+            sudo apt-get update -y
+            sudo apt-get install -y jq
+          fi
+
           url_encode () {
             python3 -c "import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1],safe=''))" "$1"
           }
@@ -39,6 +44,7 @@ jobs:
           probe () {
             local url="$1"
             local http_code via="origin"
+
             http_code="$(curl -sS -L \
               -A "$UA" \
               -H "Accept: application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.1" \
@@ -67,42 +73,34 @@ jobs:
           NOTES_RSS="${SITE_BASE}/field-notes/feed.xml"
           SUBSTACK_FN="https://substack.com/api/v1/notes/rss?publication_id=6660929"
 
-          declare -A MAP
-          while read -r name url; do
+          # Build item JSON objects one per line into a temp file (avoids any heredoc usage)
+          tmp="$(mktemp)"
+          add_item () {
+            local name="$1" url="$2"
             read -r code via < <(probe "$url")
-            MAP["$name|url"]="$url"
-            MAP["$name|status"]="$code"
-            MAP["$name|via"]="$via"
-          done <<EOF
-ALL (RSS)        $ALL_RSS
-ALL (JSON)       $ALL_JSON
-Logs (RSS)       $LOGS_RSS
-Field Notes (RSS) $NOTES_RSS
-Substack Field Notes (external) $SUBSTACK_FN
-EOF
+            # Build one JSON object line using jq to ensure safe quoting
+            jq -n --arg n "$name" --arg u "$url" --argjson s "${code:-0}" '{name:$n,url:$u,status:$s}' >> "$tmp"
+          }
+
+          add_item "ALL (RSS)"                         "$ALL_RSS"
+          add_item "ALL (JSON)"                        "$ALL_JSON"
+          add_item "Logs (RSS)"                        "$LOGS_RSS"
+          add_item "Field Notes (RSS)"                 "$NOTES_RSS"
+          add_item "Substack Field Notes (external)"   "$SUBSTACK_FN"
 
           updated="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
           mkdir -p status
 
-          cat > status/feeds.json <<JSON
-{
-  "updated_utc": "${updated}",
-  "endpoints": [
-    { "name": "ALL (RSS)", "url": "${MAP["ALL (RSS)|url"]}", "status": ${MAP["ALL (RSS)|status"]} },
-    { "name": "ALL (JSON)", "url": "${MAP["ALL (JSON)|url"]}", "status": ${MAP["ALL (JSON)|status"]} },
-    { "name": "Logs (RSS)", "url": "${MAP["Logs (RSS)|url"]}", "status": ${MAP["Logs (RSS)|status"]} },
-    { "name": "Field Notes (RSS)", "url": "${MAP["Field Notes (RSS)|url"]}", "status": ${MAP["Field Notes (RSS)|status"]} },
-    { "name": "Substack Field Notes (external)", "url": "${MAP["Substack Field Notes (external)|url"]}", "status": ${MAP["Substack Field Notes (external)|status"]} }
-  ]
-}
-JSON
+          # Slurp the per-line JSON objects as an array and wrap with the root object
+          jq -n --arg u "$updated" --slurpfile e "$tmp" '{updated_utc:$u, endpoints:$e}' > status/feeds.json
+          rm -f "$tmp"
 
       - name: Commit & push feeds.json (GITHUB_TOKEN)
         env:
-          GIT_AUTHOR_NAME:  HallowayFinch
-          GIT_AUTHOR_EMAIL: ${{ github.actor }}@users.noreply.github.com
-          GIT_COMMITTER_NAME:  HallowayFinch
-          GIT_COMMITTER_EMAIL: ${{ github.actor }}@users.noreply.github.com
+          GIT_AUTHOR_NAME:       HallowayFinch
+          GIT_AUTHOR_EMAIL:      ${{ github.actor }}@users.noreply.github.com
+          GIT_COMMITTER_NAME:    HallowayFinch
+          GIT_COMMITTER_EMAIL:   ${{ github.actor }}@users.noreply.github.com
         run: |
           set -e
           git add status/feeds.json
