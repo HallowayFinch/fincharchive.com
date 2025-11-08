@@ -18,6 +18,13 @@ Subscribe to new transmissions in whatever format you prefer.
 
 ---
 
+### System & mirrors
+- **Status JSON:** <a href="{{ '/status/status.json' | absolute_url }}">/status/status.json</a>  
+- **Health Probe:** <a href="{{ '/healthz.txt' | absolute_url }}">/healthz.txt</a>  
+- **Substack RSS (canonical):** <a href="https://www.hallowayfinch.com/feed">https://www.hallowayfinch.com/feed</a>
+
+---
+
 ### What’s the difference?
 
 - **RSS** works in any feed reader.  
