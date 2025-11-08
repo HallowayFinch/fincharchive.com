@@ -3,7 +3,7 @@ name: github-pages
 on:
   push:
     branches: [ "main" ]
-    # Rebuild when site-relevant files change (now includes JSON/TXT, CNAME)
+    # Rebuild only when site-relevant files change
     paths:
       - "_config.yml"
       - "_data/**"
@@ -25,12 +25,6 @@ on:
       - "site.webmanifest"
       - "CNAME"
   workflow_dispatch: {}
-  # Also rebuild when the ingest workflows complete (so GITHUB_TOKEN pushes publish)
-  workflow_run:
-    workflows:
-      - "RSS → Repo (Substack sync)"
-      - "Import Field Notes from Substack"
-    types: [completed]
 
 permissions:
   contents: read
@@ -50,13 +44,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0   # needed for diffing on workflow_run
 
-      # On push: normal paths-filter against the pushed changes
-      - name: Filter for site changes (push)
+      # Gate builds to only site-affecting changes (or manual runs)
+      - name: Filter for site changes
         id: filter_push
-        if: github.event_name == 'push'
         uses: dorny/paths-filter@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -82,77 +73,18 @@ jobs:
               - 'site.webmanifest'
               - 'CNAME'
 
-      # On workflow_run: diff upstream head vs parent; skip if nothing changed
-      - name: Determine diff refs (workflow_run)
-        id: refs
-        if: github.event_name == 'workflow_run'
-        run: |
-          SHA="${{ github.event.workflow_run.head_sha }}"
-          echo "head_sha=$SHA" >> "$GITHUB_OUTPUT"
-          PARENT="$(git rev-parse "${SHA}^")"
-          echo "base_sha=$PARENT" >> "$GITHUB_OUTPUT"
-          echo "Upstream head: $SHA"
-          echo "Upstream base: $PARENT"
-
-      - name: Filter for site changes (workflow_run)
-        id: filter_wr
-        if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
-        uses: dorny/paths-filter@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: ${{ steps.refs.outputs.base_sha }}
-          ref:  ${{ steps.refs.outputs.head_sha }}
-          filters: |
-            site:
-              - '_config.yml'
-              - '_data/**'
-              - '_includes/**'
-              - '_layouts/**'
-              - '_logs/**'
-              - '_field-notes/**'
-              - '_posts/**'
-              - 'artifacts/**'
-              - 'assets/**'
-              - '**/*.html'
-              - '**/*.md'
-              - '**/*.css'
-              - '**/*.js'
-              - '**/*.json'
-              - '**/*.txt'
-              - 'feed.json'
-              - 'robots.txt'
-              - 'site.webmanifest'
-              - 'CNAME'
-
-      # Build gate
       - name: Decide build gate
         id: compute
         run: |
-          case "${{ github.event_name }}" in
-            workflow_dispatch)
-              echo "Manual run → force rebuild"
-              echo "site=true" >> "$GITHUB_OUTPUT"
-              ;;
-            workflow_run)
-              if [ "${{ github.event.workflow_run.conclusion }}" = "success" ] && [ "${{ steps.filter_wr.outputs.site }}" = "true" ]; then
-                echo "site=true" >> "$GITHUB_OUTPUT"
-              else
-                echo "site=false" >> "$GITHUB_OUTPUT"
-              fi
-              ;;
-            push)
-              if [ "${{ steps.filter_push.outputs.site }}" = "true" ]; then
-                echo "site=true" >> "$GITHUB_OUTPUT"
-              else
-                echo "site=false" >> "$GITHUB_OUTPUT"
-              fi
-              ;;
-            *)
-              echo "site=false" >> "$GITHUB_OUTPUT"
-              ;;
-          esac
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "site=true" >> "$GITHUB_OUTPUT"
+          elif [ "${{ steps.filter_push.outputs.site }}" = "true" ]; then
+            echo "site=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "site=false" >> "$GITHUB_OUTPUT"
+          fi
 
-      # Validate front matter
+      # Validate front matter in content collections
       - name: Validate front matter
         if: steps.compute.outputs.site == 'true'
         run: |
@@ -188,7 +120,7 @@ jobs:
           sys.exit(0 if ok else 1)
           PY
 
-      # Generate paginated /logs/page/N/ before Jekyll build
+      # Generate /logs/page/N/ (manual pagination) before Jekyll build
       - name: Setup Python (for pagination generator)
         if: steps.compute.outputs.site == 'true'
         uses: actions/setup-python@v5
@@ -206,10 +138,12 @@ jobs:
           LOG_DIR = ROOT / "_logs"
           PAGES_ROOT = ROOT / "logs" / "page"
           PER_PAGE = int(os.environ.get("LOGS_PER_PAGE", "12"))
+
           def count_logs():
               if not LOG_DIR.exists():
                   return 0
               return sum(1 for p in LOG_DIR.iterdir() if p.is_file() and p.suffix.lower() in {".md", ".markdown"})
+
           def write_page(n: int):
               d = PAGES_ROOT / str(n)
               d.mkdir(parents=True, exist_ok=True)
@@ -223,6 +157,7 @@ jobs:
           ---
           """
               out.write_text(fm, encoding="utf-8")
+
           def cleanup_extra(from_n_plus_one: int):
               if not PAGES_ROOT.exists():
                   return
@@ -234,6 +169,7 @@ jobs:
                           continue
                       if pn >= from_n_plus_one:
                           shutil.rmtree(child, ignore_errors=True)
+
           total_logs = count_logs()
           total_pages = math.ceil(total_logs / PER_PAGE) if total_logs else 1
           for n in range(2, total_pages + 1):
