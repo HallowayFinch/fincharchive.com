@@ -1,27 +1,20 @@
 name: Feeds Check & Publish
 
 on:
-  schedule:
-    - cron: "19 * * * *"   # hourly, offset from other jobs
   workflow_dispatch: {}
+  schedule:
+    - cron: "12 * * * *"   # every hour at :12
 
 permissions:
   contents: write
-
-concurrency:
-  group: finch-feeds-check
-  cancel-in-progress: true
 
 jobs:
   check:
     runs-on: ubuntu-latest
     env:
       SITE_BASE: "https://fincharchive.com"
-      RSS_PROXY_URL: ${{ secrets.RSS_PROXY_URL }}   # optional, used only on 403/000
-      GIT_USER_NAME: "HallowayFinch"
-      GIT_USER_EMAIL: ${{ secrets.HF_NOREPLY_EMAIL }}
-      HF_PAT: ${{ secrets.HF_PAT }}
-
+      RSS_PROXY_URL: ${{ secrets.RSS_PROXY_URL }}
+      UA: "FinchFeedsCheck (GitHub Actions; +https://fincharchive.com/status/)"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,40 +28,37 @@ jobs:
         run: |
           set -euo pipefail
 
-          ua="FinchFeedsCheck/1.0 (+https://fincharchive.com/status/)"
-          accept="application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.8"
-
-          # curl that returns an HTTP code or 000 on failure
-          hit () {
+          probe () {
             local url="$1"
-            curl -sS -L \
-              -A "$ua" \
-              -H "Accept: $accept" \
+            # prefer RSS/Atom types; keep short timeouts, follow redirects
+            local http_code
+            http_code="$(curl -sS -L \
+              -A "$UA" \
+              -H "Accept: application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.1" \
               --max-time 20 --retry 2 --retry-delay 1 \
-              -o /dev/null -w "%{http_code}" \
-              "$url" || echo "000"
-          }
+              -o /dev/null -w "%{http_code}" "$url" || true)"
 
-          # try URL, and if blocked (403/000) optionally retry via RSS proxy
-          check () {
-            local name="$1" url="$2"
-            local code via="origin"
-            code="$(hit "$url")"
-            if [[ ("$code" = "403" || "$code" = "000") && -n "${RSS_PROXY_URL:-}" ]]; then
-              # proxy expects ?url=<encoded>
-              enc="$(python - <<PY
+            # if 403 (or 000) and we have a proxy, retry via proxy
+            local via="origin"
+            if [[ ( "$http_code" == "403" || "$http_code" == "000" ) && -n "${RSS_PROXY_URL:-}" ]]; then
+              # urlencode the target
+              pyenc="$(python - <<'PY'
 import urllib.parse, sys
 print(urllib.parse.quote(sys.argv[1], safe=""))
 PY
-"${url}")"
-              purl="${RSS_PROXY_URL}?url=${enc}"
-              pcode="$(hit "$purl")"
+"$url")"
+              prox="${RSS_PROXY_URL}?url=${pyenc}"
+              pcode="$(curl -sS -L \
+                -A "$UA" \
+                -H "Accept: application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.1" \
+                --max-time 20 --retry 2 --retry-delay 1 \
+                -o /dev/null -w "%{http_code}" "$prox" || true)"
               if [[ "$pcode" =~ ^[0-9]{3}$ && "$pcode" != "000" ]]; then
-                code="$pcode"; via="proxy"
+                http_code="$pcode"; via="proxy"
               fi
             fi
-            printf '%s|%s|%s\n' "$name" "$url" "$code" >> /tmp/FEED_RESULTS
-            printf '%s=%s\n' "${name// /_}_VIA" "$via" >> /tmp/FEED_VIA.env
+
+            printf '%s\t%s\n' "$http_code" "$via"
           }
 
           ALL_RSS="${SITE_BASE}/feed/"
@@ -77,61 +67,61 @@ PY
           NOTES_RSS="${SITE_BASE}/field-notes/feed.xml"
           SUBSTACK_FN="https://substack.com/api/v1/notes/rss?publication_id=6660929"
 
-          : > /tmp/FEED_RESULTS
-          : > /tmp/FEED_VIA.env
+          declare -A MAP
+          while read -r name url; do
+            read -r code via < <(probe "$url")
+            MAP["$name|url"]="$url"
+            MAP["$name|status"]="$code"
+            MAP["$name|via"]="$via"
+          done <<EOF
+ALL (RSS)        $ALL_RSS
+ALL (JSON)       $ALL_JSON
+Logs (RSS)       $LOGS_RSS
+Field Notes (RSS) $NOTES_RSS
+Substack Field Notes (external) $SUBSTACK_FN
+EOF
 
-          check "ALL (RSS)" "$ALL_RSS"
-          check "ALL (JSON)" "$ALL_JSON"
-          check "Logs (RSS)" "$LOGS_RSS"
-          check "Field Notes (RSS)" "$NOTES_RSS"
-          check "Substack Field Notes (external)" "$SUBSTACK_FN"
-
-          # shellcheck disable=SC1091
-          source /tmp/FEED_VIA.env || true
-
-          updated_utc="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          updated="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
           mkdir -p status
 
-          # Build JSON from results
+          # Write JSON (quote heredoc so YAML/runner vars don't get expanded by the shell)
+          cat > status/feeds.json <<'JSON'
           {
-            echo '{'
-            echo "  \"updated_utc\": \"${updated_utc}\","
-            echo '  "endpoints": ['
-            i=0; total=$(wc -l < /tmp/FEED_RESULTS)
-            while IFS='|' read -r name url code; do
-              i=$((i+1))
-              key="${name// /_}"
-              via_var="${key}_VIA"
-              via="${!via_var:-origin}"
-              printf '    { "name": %s, "url": %s, "status": %s, "via": %s }%s\n' \
-                "$(jq -Rn --arg s "$name" '$s')" \
-                "$(jq -Rn --arg s "$url" '$s')" \
-                "$code" \
-                "$(jq -Rn --arg s "$via" '$s')" \
-                "$( [[ $i -lt $total ]] && echo ',' )"
-            done < /tmp/FEED_RESULTS
-            echo '  ]'
-            echo '}'
-          } > status/feeds.json
+            "updated_utc": "__UPDATED__",
+            "endpoints": [
+              { "name": "ALL (RSS)", "url": "__ALL_RSS__", "status": __ALL_RSS_STATUS__ },
+              { "name": "ALL (JSON)", "url": "__ALL_JSON__", "status": __ALL_JSON_STATUS__ },
+              { "name": "Logs (RSS)", "url": "__LOGS_RSS__", "status": __LOGS_RSS_STATUS__ },
+              { "name": "Field Notes (RSS)", "url": "__NOTES_RSS__", "status": __NOTES_RSS_STATUS__ },
+              { "name": "Substack Field Notes (external)", "url": "__SUBSTACK_FN__", "status": __SUBSTACK_FN_STATUS__ }
+            ]
+          }
+          JSON
 
-      - name: Commit (if changes)
-        id: commit
-        shell: bash
+          # Replace placeholders safely
+          sed -i \
+            -e "s|__UPDATED__|${updated}|g" \
+            -e "s|__ALL_RSS__|${MAP["ALL (RSS)|url"]}|g" \
+            -e "s|__ALL_JSON__|${MAP["ALL (JSON)|url"]}|g" \
+            -e "s|__LOGS_RSS__|${MAP["Logs (RSS)|url"]}|g" \
+            -e "s|__NOTES_RSS__|${MAP["Field Notes (RSS)|url"]}|g" \
+            -e "s|__SUBSTACK_FN__|${MAP["Substack Field Notes (external)|url"]}|g" \
+            -e "s|__ALL_RSS_STATUS__|${MAP["ALL (RSS)|status"]}|g" \
+            -e "s|__ALL_JSON_STATUS__|${MAP["ALL (JSON)|status"]}|g" \
+            -e "s|__LOGS_RSS_STATUS__|${MAP["Logs (RSS)|status"]}|g" \
+            -e "s|__NOTES_RSS_STATUS__|${MAP["Field Notes (RSS)|status"]}|g" \
+            -e "s|__SUBSTACK_FN_STATUS__|${MAP["Substack Field Notes (external)|status"]}|g" \
+            status/feeds.json
+
+      - name: Commit & push feeds.json (actor email)
         run: |
-          set -euo pipefail
-          email="${GIT_USER_EMAIL:-${GITHUB_ACTOR}@users.noreply.github.com}"
-          git config user.name  "${GIT_USER_NAME}"
-          git config user.email "${email}"
+          set -e
+          git config user.name  "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
           git add status/feeds.json
           if git diff --cached --quiet; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "No changes to commit."
+            echo "No change in status/feeds.json"
           else
             git commit -m "chore(status): refresh feeds.json"
-            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git push
           fi
-
-      - name: Push (if committed)
-        if: steps.commit.outputs.changed == 'true'
-        run: |
-          git push "https://x-access-token:${HF_PAT}@github.com/${{ github.repository }}.git" HEAD:main
