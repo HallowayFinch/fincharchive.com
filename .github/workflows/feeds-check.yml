@@ -2,7 +2,7 @@ name: Feeds Check & Publish
 
 on:
   schedule:
-    - cron: "19 * * * *" # hourly, slightly offset from other jobs
+    - cron: "19 * * * *"  # hourly, slightly offset from other jobs
   workflow_dispatch: {}
 
 permissions:
@@ -17,7 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SITE_BASE: "https://fincharchive.com"
-      RSS_PROXY_URL: ${{ secrets.RSS_PROXY_URL }} # optional; if set, we'll probe via proxy
       GIT_USER_NAME: "HallowayFinch"
       GIT_USER_EMAIL: ${{ secrets.HF_NOREPLY_EMAIL }}
       HF_PAT: ${{ secrets.HF_PAT }}
@@ -38,8 +37,7 @@ jobs:
           ua="FinchFeedsCheck/1.0 (+https://fincharchive.com/status/)"
           accept="application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.8"
 
-          # Helper: run curl and print only HTTP status code
-          probe_raw() {
+          probe() {
             local url="$1"
             curl -sS -L \
               -A "$ua" \
@@ -47,19 +45,6 @@ jobs:
               --max-time 20 --retry 2 --retry-delay 1 \
               -o /dev/null -w "%{http_code}" \
               "$url" || echo "000"
-          }
-
-          # If a proxy is configured, wrap the target URL for probing.
-          # Expected worker format:  ${RSS_PROXY_URL}?url=<encoded>
-          probe() {
-            local target="$1"
-            if [[ -n "${RSS_PROXY_URL:-}" ]]; then
-              local enc
-              enc="$(python3 -c 'import sys,urllib.parse as u; print(u.quote(sys.argv[1], safe=""))' "$target")"
-              probe_raw "${RSS_PROXY_URL}?url=${enc}"
-            else
-              probe_raw "$target"
-            fi
           }
 
           ALL_RSS="${SITE_BASE}/feed/"
@@ -81,10 +66,10 @@ jobs:
           {
             "updated_utc": "${updated_utc}",
             "endpoints": [
-              { "name": "ALL (RSS)",                 "url": "${ALL_RSS}",     "status": ${all_rss_code} },
-              { "name": "ALL (JSON)",                "url": "${ALL_JSON}",    "status": ${all_json_code} },
-              { "name": "Logs (RSS)",                "url": "${LOGS_RSS}",   "status": ${logs_rss_code} },
-              { "name": "Field Notes (RSS)",         "url": "${NOTES_RSS}",  "status": ${fn_rss_code} },
+              { "name": "ALL (RSS)", "url": "${ALL_RSS}", "status": ${all_rss_code} },
+              { "name": "ALL (JSON)", "url": "${ALL_JSON}", "status": ${all_json_code} },
+              { "name": "Logs (RSS)", "url": "${LOGS_RSS}", "status": ${logs_rss_code} },
+              { "name": "Field Notes (RSS)", "url": "${NOTES_RSS}", "status": ${fn_rss_code} },
               { "name": "Substack Field Notes (external)", "url": "${SUBSTACK_FN}", "status": ${substack_fn_code} }
             ]
           }
