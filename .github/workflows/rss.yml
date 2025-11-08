@@ -5,7 +5,7 @@ on:
     - cron: "22 * * * *"   # every hour at :22 past
   workflow_dispatch: {}     # manual run button
 
-# required so the job can push commits
+# (Not strictly needed when pushing with PAT, but harmless to keep.)
 permissions:
   contents: write
 
@@ -17,14 +17,17 @@ jobs:
   import:
     runs-on: ubuntu-latest
     env:
-      SUBSTACK_RSS_URL: ${{ secrets.SUBSTACK_RSS_URL }}
-      RSS_PROXY_URL:   ${{ secrets.RSS_PROXY_URL }}
-      IMPORT_LATEST_ONLY: "1"
-      IMPORT_DEBUG:       "0"
+      SUBSTACK_RSS_URL:     ${{ secrets.SUBSTACK_RSS_URL }}
+      RSS_PROXY_URL:        ${{ secrets.RSS_PROXY_URL }}
+      IMPORT_LATEST_ONLY:   "1"
+      IMPORT_DEBUG:         "0"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false   # don't write GITHUB_TOKEN to origin
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -41,7 +44,6 @@ jobs:
           set -euo pipefail
           python scripts/rss_to_repo.py
 
-      # Optional hardening; keep if you have these scripts
       - name: Hash artifacts (metadata.json)
         run: |
           python scripts/hash_artifacts.py || true
@@ -50,15 +52,22 @@ jobs:
         run: |
           python scripts/validate_site.py || true
 
-      - name: Commit changes (if any)
+      - name: Commit (if changes)
+        id: commit
         run: |
-          git config user.name  "actions-user"
-          git config user.email "actions@users.noreply.github.com"
-          git add -A
-          git diff --staged --quiet || git commit -m "chore: import RSS, hash artifacts, validate site"
+          git config user.name  "HallowayFinch"
+          git config user.email "${{ secrets.HF_NOREPLY_EMAIL }}"
 
-      - name: Push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          git add -A
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No changes to commit."
+          else
+            git commit -m "chore: import RSS, hash artifacts, validate site"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Push (if committed) with PAT
+        if: steps.commit.outputs.changed == 'true'
         run: |
-          git push
+          git push "https://x-access-token:${{ secrets.HF_PAT }}@github.com/${{ github.repository }}.git" HEAD:main
