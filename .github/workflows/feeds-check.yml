@@ -3,7 +3,7 @@ name: Feeds Check & Publish
 on:
   workflow_dispatch: {}
   schedule:
-    - cron: "12 * * * *"   # every hour at :12
+    - cron: "12 * * * *"
 
 permissions:
   contents: write
@@ -31,17 +31,14 @@ jobs:
         run: |
           set -euo pipefail
 
+          # Simple URL encoder (no heredoc!)
           url_encode () {
-            python3 - "$1" <<'PY'
-import urllib.parse, sys
-print(urllib.parse.quote(sys.argv[1], safe=""))
-PY
+            python3 -c "import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1],safe=''))" "$1"
           }
 
           probe () {
             local url="$1"
             local http_code via="origin"
-
             http_code="$(curl -sS -L \
               -A "$UA" \
               -H "Accept: application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.1" \
@@ -87,32 +84,18 @@ EOF
           updated="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
           mkdir -p status
 
-          cat > status/feeds.json <<'JSON'
-          {
-            "updated_utc": "__UPDATED__",
-            "endpoints": [
-              { "name": "ALL (RSS)", "url": "__ALL_RSS__", "status": __ALL_RSS_STATUS__ },
-              { "name": "ALL (JSON)", "url": "__ALL_JSON__", "status": __ALL_JSON_STATUS__ },
-              { "name": "Logs (RSS)", "url": "__LOGS_RSS__", "status": __LOGS_RSS_STATUS__ },
-              { "name": "Field Notes (RSS)", "url": "__NOTES_RSS__", "status": __NOTES_RSS_STATUS__ },
-              { "name": "Substack Field Notes (external)", "url": "__SUBSTACK_FN__", "status": __SUBSTACK_FN_STATUS__ }
-            ]
-          }
+          cat > status/feeds.json <<JSON
+{
+  "updated_utc": "${updated}",
+  "endpoints": [
+    { "name": "ALL (RSS)", "url": "${MAP["ALL (RSS)|url"]}", "status": ${MAP["ALL (RSS)|status"]} },
+    { "name": "ALL (JSON)", "url": "${MAP["ALL (JSON)|url"]}", "status": ${MAP["ALL (JSON)|status"]} },
+    { "name": "Logs (RSS)", "url": "${MAP["Logs (RSS)|url"]}", "status": ${MAP["Logs (RSS)|status"]} },
+    { "name": "Field Notes (RSS)", "url": "${MAP["Field Notes (RSS)|url"]}", "status": ${MAP["Field Notes (RSS)|status"]} },
+    { "name": "Substack Field Notes (external)", "url": "${MAP["Substack Field Notes (external)|url"]}", "status": ${MAP["Substack Field Notes (external)|status"]} }
+  ]
+}
 JSON
-
-          sed -i \
-            -e "s|__UPDATED__|${updated}|g" \
-            -e "s|__ALL_RSS__|${MAP["ALL (RSS)|url"]}|g" \
-            -e "s|__ALL_JSON__|${MAP["ALL (JSON)|url"]}|g" \
-            -e "s|__LOGS_RSS__|${MAP["Logs (RSS)|url"]}|g" \
-            -e "s|__NOTES_RSS__|${MAP["Field Notes (RSS)|url"]}|g" \
-            -e "s|__SUBSTACK_FN__|${MAP["Substack Field Notes (external)|url"]}|g" \
-            -e "s|__ALL_RSS_STATUS__|${MAP["ALL (RSS)|status"]}|g" \
-            -e "s|__ALL_JSON_STATUS__|${MAP["ALL (JSON)|status"]}|g" \
-            -e "s|__LOGS_RSS_STATUS__|${MAP["Logs (RSS)|status"]}|g" \
-            -e "s|__NOTES_RSS_STATUS__|${MAP["Field Notes (RSS)|status"]}|g" \
-            -e "s|__SUBSTACK_FN_STATUS__|${MAP["Substack Field Notes (external)|status"]}|g" \
-            status/feeds.json
 
       - name: Commit & push feeds.json (GITHUB_TOKEN)
         env:
