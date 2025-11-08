@@ -1,0 +1,58 @@
+name: Build Icons
+
+on:
+  push:
+    paths:
+      - "assets/icons/finch.svg"
+      - ".github/workflows/icons.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build-icons:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ensure ImageMagick
+        run: |
+          magick -version || sudo apt-get update && sudo apt-get install -y imagemagick
+
+      - name: Generate PNGs + ICO from SVG
+        working-directory: assets/icons
+        run: |
+          set -euo pipefail
+          SRC="finch.svg"
+          # PNG sizes
+          for S in 16 32 48 180 192 512; do
+            magick -background none -density 1024 "$SRC" -resize ${S}x${S} "favicon-${S}.png"
+          done
+          # Friendly filenames expected by browsers/platforms
+          cp favicon-180.png apple-touch-icon.png
+          cp favicon-192.png android-chrome-192x192.png
+          cp favicon-512.png android-chrome-512x512.png
+          # Multi-size ICO (16,32,48)
+          magick favicon-16.png favicon-32.png favicon-48.png favicon.ico
+
+      - name: Commit & push generated icons
+        run: |
+          git config user.name  "HallowayFinch"
+          git config user.email "${{ secrets.HF_NOREPLY_EMAIL }}"
+          git add assets/icons/apple-touch-icon.png \
+                 assets/icons/android-chrome-192x192.png \
+                 assets/icons/android-chrome-512x512.png \
+                 assets/icons/favicon-16.png \
+                 assets/icons/favicon-32.png \
+                 assets/icons/favicon-48.png \
+                 assets/icons/favicon-180.png \
+                 assets/icons/favicon-192.png \
+                 assets/icons/favicon-512.png \
+                 assets/icons/favicon.ico
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(icons): regenerate raster icons from finch.svg"
+            git push "https://x-access-token:${{ secrets.HF_PAT }}@github.com/${{ github.repository }}.git" HEAD:main
+          else
+            echo "No icon changes."
+          fi
