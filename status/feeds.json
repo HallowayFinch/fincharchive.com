@@ -1,10 +1,30 @@
 {
-  "updated_utc": "2025-11-08T20:49:36Z",
+  "updated_utc": "2025-11-08T21:02:39Z",
   "endpoints": [
-    { "name": All\ \(RSS\), "url": https://fincharchive.com/feed/, "status": 403 },
-    { "name": All\ \(JSON\), "url": https://fincharchive.com/feed.json, "status": 403 },
-    { "name": Logs\ \(RSS\), "url": https://fincharchive.com/logs/feed.xml, "status": 403 },
-    { "name": Field\ Notes\ \(RSS\), "url": https://fincharchive.com/field-notes/feed.xml, "status": 403 },
-    { "name": Substack\ Field\ Notes\ \(external\), "url": https://substack.com/api/v1/notes/rss\?publication_id=6660929, "status": 403 }
+    {
+      "name": "All (RSS)",
+      "url": "https://fincharchive.com/feed/",
+      "status": 403
+    },
+    {
+      "name": "All (JSON)",
+      "url": "https://fincharchive.com/feed.json",
+      "status": 403
+    },
+    {
+      "name": "Logs (RSS)",
+      "url": "https://fincharchive.com/logs/feed.xml",
+      "status": 403
+    },
+    {
+      "name": "Field Notes (RSS)",
+      "url": "https://fincharchive.com/field-notes/feed.xml",
+      "status": 403
+    },
+    {
+      "name": "Substack Field Notes (external)",
+      "url": "https://substack.com/api/v1/notes/rss?publication_id=6660929",
+      "status": 403
+    }
   ]
 }
