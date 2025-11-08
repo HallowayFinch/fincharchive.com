@@ -32,11 +32,7 @@ permalink: /status/
 
     <div class="card">
       <h3>Heartbeat</h3>
-      <p><strong>Updated (UTC):</strong>
-        {%- capture hb -%}{%- include_relative status.json -%}{%- endcapture -%}
-        {%- assign hb_json = hb | jsonify | replace:'\"','"' -%}
-        <code id="hb-ts">{{ hb_json | split: '"updated_utc":"' | last | split: '"' | first }}</code>
-      </p>
+      <p><strong>Updated (UTC):</strong> <code id="hb-ts">—</code></p>
       <p><strong>Env (declared):</strong> <code>status.json</code></p>
     </div>
 
@@ -88,7 +84,6 @@ permalink: /status/
 </section>
 
 <style>
-/* Theme-aware chip colors (works in both dark & light) */
 :root{
   --chip-ok-bg:    rgba( 46,120, 86,.14);
   --chip-ok-bd:    rgba( 46,120, 86,.45);
@@ -128,30 +123,38 @@ permalink: /status/
 
 <script>
 (async () => {
+  // Heartbeat: read updated_utc from /status/status.json
+  try {
+    const hbRes = await fetch('{{ "/status/status.json" | relative_url }}', { cache: 'no-store' });
+    const hb = await hbRes.json();
+    document.getElementById('hb-ts').textContent = hb.updated_utc || '—';
+  } catch(_) {
+    document.getElementById('hb-ts').textContent = '—';
+  }
+
+  // Feeds list
   try {
     const res  = await fetch('{{ "/status/feeds.json" | relative_url }}', { cache: 'no-store' });
     const data = await res.json();
-
-    // timestamp
     document.getElementById('feeds-ts').textContent = data.updated_utc || '—';
 
-    // list
     const box = document.getElementById('feeds-list');
     box.innerHTML = '';
 
     (data.endpoints || []).forEach(ep => {
       const ok = Number(ep.status) === 200;
 
+      // trim "(external)" so the chip doesn't overflow
+      const cleanName = (ep.name || 'Feed').replace(/\s*\(external\)\s*/i, '');
+
       const a = document.createElement('a');
       a.className = 'chip' + (ok ? '' : ' bad');
       a.href = ep.url; a.target = '_blank'; a.rel = 'noopener';
 
-      // single label (no duplication)
       const name = document.createElement('span');
       name.className = 'label';
-      name.textContent = ep.name || 'Feed';
+      name.textContent = cleanName;
 
-      // optional “via …” badge
       if (ep.via) {
         const via = document.createElement('span');
         via.className = 'badge';
@@ -160,7 +163,6 @@ permalink: /status/
         name.appendChild(via);
       }
 
-      // status code pill
       const code = document.createElement('span');
       code.className = 'code';
       code.textContent = String(ep.status ?? '—');
@@ -170,7 +172,6 @@ permalink: /status/
       box.appendChild(a);
     });
   } catch (e) {
-    document.getElementById('feeds-ts').textContent = 'error';
     console.error('feeds.json load failed', e);
   }
 })();
