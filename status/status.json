@@ -1,0 +1,31 @@
+---
+layout: null
+permalink: /status/status.json
+---
+
+{
+  "name": "fincharchive",
+  "built_at": "{{ site.time | date_to_xmlschema }}",
+  {% if site.github.build_revision %}
+  "commit": "{{ site.github.build_revision }}",
+  {% endif %}
+  "environment": "{{ jekyll.environment | default: 'production' }}",
+  "counts": {
+    "logs": {{ site.logs | size }},
+    "field_notes": {{ site.field-notes | size }},
+    "artifacts_files": {% assign c = 0 %}{% for f in site.static_files %}{% if f.path contains '/artifacts/' %}{% assign c = c | plus: 1 %}{% endif %}{% endfor %}{{ c }}
+  },
+  "latest": {
+    "log": {% assign logs = site.logs | sort: "date" | reverse %}{% if logs and logs.size > 0 %}{% assign L = logs | first %}{
+      "title": {{ L.title | jsonify }},
+      "url": {{ (L.url | relative_url) | jsonify }},
+      "date": "{{ L.date | date_to_xmlschema }}",
+      "log_id": {{ L.log_id | jsonify }}
+    }{% else %}null{% endif %},
+    "field_note": {% assign notes = site.field-notes | sort: "date" | reverse %}{% if notes and notes.size > 0 %}{% assign N = notes | first %}{
+      "title": {{ N.title | jsonify }},
+      "url": {{ (N.url | relative_url) | jsonify }},
+      "date": "{{ N.date | date_to_xmlschema }}"
+    }{% else %}null{% endif %}
+  }
+}
