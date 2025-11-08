@@ -1,0 +1,6 @@
+---
+layout: null
+permalink: /healthz.txt
+---
+
+ok {{ site.time | date: "%Y-%m-%dT%H:%M:%S%z" }} {{ site.github.build_revision | slice: 0, 12 }}
