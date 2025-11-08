@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Finch Archive mark: muted red glyph on dark circle -->
+  <defs>
+    <style>
+      :root { color-scheme: dark light; }
+    </style>
+  </defs>
+  <rect width="1024" height="1024" rx="180" ry="180" fill="#000000"/>
+  <!-- Accent glyph -->
+  <g fill="#7A3A3A">
+    <!-- minimal, abstract ‘finch / transmission’ sigil -->
+    <path d="M512 210c-140 0-254 114-254 254s114 254 254 254 254-114 254-254-114-254-254-254zm0 62c106 0 192 86 192 192s-86 192-192 192-192-86-192-192 86-192 192-192z"/>
+    <path d="M512 300a164 164 0 1 0 0 328 164 164 0 0 0 0-328zm0 96a68 68 0 1 1 0 136 68 68 0 0 1 0-136z"/>
+  </g>
+</svg>
