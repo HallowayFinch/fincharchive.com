@@ -2,28 +2,22 @@ name: github-pages
 
 on:
   push:
-    branches: [ "main" ]
-    # Rebuild only when site-relevant files change
+    branches: [ main ]
+    # Rebuild Pages when status JSONs (and other content) change
     paths:
-      - "_config.yml"
-      - "_data/**"
-      - "_includes/**"
-      - "_layouts/**"
+      - "**/*.md"
+      - "**/*.html"
+      - "**/*.xml"
+      - "**/*.json"
+      - "status/**"
       - "_logs/**"
       - "_field-notes/**"
-      - "_posts/**"
-      - "artifacts/**"
       - "assets/**"
-      - "**/*.html"
-      - "**/*.md"
-      - "**/*.css"
-      - "**/*.js"
-      - "**/*.json"        # feed.json, site.webmanifest, etc.
-      - "**/*.txt"         # robots.txt, humans.txt, etc.
-      - "feed.json"
-      - "robots.txt"
-      - "site.webmanifest"
+      - "_includes/**"
+      - "_layouts/**"
+      - "feed*"
       - "CNAME"
+      - "_config.yml"
   workflow_dispatch: {}
 
 permissions:
@@ -38,172 +32,19 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs:
-      site_changed: ${{ steps.compute.outputs.site }}
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      # Gate builds to only site-affecting changes (or manual runs)
-      - name: Filter for site changes
-        id: filter_push
-        uses: dorny/paths-filter@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          filters: |
-            site:
-              - '_config.yml'
-              - '_data/**'
-              - '_includes/**'
-              - '_layouts/**'
-              - '_logs/**'
-              - '_field-notes/**'
-              - '_posts/**'
-              - 'artifacts/**'
-              - 'assets/**'
-              - '**/*.html'
-              - '**/*.md'
-              - '**/*.css'
-              - '**/*.js'
-              - '**/*.json'
-              - '**/*.txt'
-              - 'feed.json'
-              - 'robots.txt'
-              - 'site.webmanifest'
-              - 'CNAME'
-
-      - name: Decide build gate
-        id: compute
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "site=true" >> "$GITHUB_OUTPUT"
-          elif [ "${{ steps.filter_push.outputs.site }}" = "true" ]; then
-            echo "site=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "site=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      # Validate front matter in content collections
-      - name: Validate front matter
-        if: steps.compute.outputs.site == 'true'
-        run: |
-          python3 -m pip install --quiet PyYAML
-          python3 - << 'PY'
-          import os, re, sys, yaml
-          REQUIRED = {"title", "date"}
-          ok = True
-          for folder in ["_logs", "_field-notes", "_posts"]:
-              if not os.path.isdir(folder):
-                  continue
-              for fn in os.listdir(folder):
-                  if not fn.endswith((".md", ".markdown")):
-                      continue
-                  path = os.path.join(folder, fn)
-                  with open(path, "r", encoding="utf-8") as f:
-                      text = f.read()
-                  m = re.match(r"^---\n(.*?)\n---", text, re.S)
-                  if not m:
-                      print(f"[x] Missing front matter: {path}")
-                      ok = False
-                      continue
-                  try:
-                      data = yaml.safe_load(m.group(1)) or {}
-                  except Exception as e:
-                      print(f"[x] YAML error in {path}: {e}")
-                      ok = False
-                      continue
-                  missing = REQUIRED - set(data.keys())
-                  if missing:
-                      print(f"[x] {path} missing: {', '.join(sorted(missing))}")
-                      ok = False
-          sys.exit(0 if ok else 1)
-          PY
-
-      # Generate /logs/page/N/ (manual pagination) before Jekyll build
-      - name: Setup Python (for pagination generator)
-        if: steps.compute.outputs.site == 'true'
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Generate paginated log pages (no commit)
-        if: steps.compute.outputs.site == 'true'
-        env:
-          LOGS_PER_PAGE: "12"
-        run: |
-          python - << 'PY'
-          import os, math, pathlib, shutil
-          ROOT = pathlib.Path('.').resolve()
-          LOG_DIR = ROOT / "_logs"
-          PAGES_ROOT = ROOT / "logs" / "page"
-          PER_PAGE = int(os.environ.get("LOGS_PER_PAGE", "12"))
-
-          def count_logs():
-              if not LOG_DIR.exists():
-                  return 0
-              return sum(1 for p in LOG_DIR.iterdir() if p.is_file() and p.suffix.lower() in {".md", ".markdown"})
-
-          def write_page(n: int):
-              d = PAGES_ROOT / str(n)
-              d.mkdir(parents=True, exist_ok=True)
-              out = d / "index.md"
-              fm = f"""---
-          layout: logs
-          title: Logs · Page {n}
-          permalink: /logs/page/{n}/
-          page_num: {n}
-          per_page: {PER_PAGE}
-          ---
-          """
-              out.write_text(fm, encoding="utf-8")
-
-          def cleanup_extra(from_n_plus_one: int):
-              if not PAGES_ROOT.exists():
-                  return
-              for child in PAGES_ROOT.iterdir():
-                  if child.is_dir():
-                      try:
-                          pn = int(child.name)
-                      except ValueError:
-                          continue
-                      if pn >= from_n_plus_one:
-                          shutil.rmtree(child, ignore_errors=True)
-
-          total_logs = count_logs()
-          total_pages = math.ceil(total_logs / PER_PAGE) if total_logs else 1
-          for n in range(2, total_pages + 1):
-              write_page(n)
-          cleanup_extra(total_pages + 1)
-          print(f"[gen_log_pages] logs={total_logs}, per_page={PER_PAGE}, pages={total_pages}")
-          PY
-
-      - name: Setup Pages
-        if: steps.compute.outputs.site == 'true'
-        uses: actions/configure-pages@v5
-
-      - name: Build with Jekyll
-        if: steps.compute.outputs.site == 'true'
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./
-          destination: ./_site
-        env:
-          JEKYLL_ENV: production
-
-      - name: Upload artifact
-        if: steps.compute.outputs.site == 'true'
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/jekyll-build-pages@v1
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: ./_site
-
   deploy:
     needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    if: needs.build.outputs.site_changed == 'true'
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
