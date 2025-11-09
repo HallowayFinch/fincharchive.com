@@ -2,7 +2,8 @@ name: RSS → Repo (Substack sync)
 
 on:
   schedule:
-    - cron: "22 * * * *"   # hourly at :22
+    # Align with 10:22 posts but give buffer → :25
+    - cron: "25 * * * *"
   workflow_dispatch: {}
 
 permissions:
@@ -21,10 +22,10 @@ jobs:
       RSS_PROXY_URL:      ${{ secrets.RSS_PROXY_URL }}
       IMPORT_LATEST_ONLY: "1"
       IMPORT_DEBUG:       "0"
-
       GIT_USER_NAME:      "HallowayFinch"
       GIT_USER_EMAIL:     ${{ secrets.HF_NOREPLY_EMAIL }}
       FALLBACK_EMAIL:     ${{ github.actor }}@users.noreply.github.com
+      HF_PAT:             ${{ secrets.HF_PAT }}
 
     steps:
       - name: Checkout
@@ -78,8 +79,18 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Push (if committed) with PAT (triggers Pages)
+      - name: Safe push (rebase + retry) with PAT
         if: steps.commit.outputs.changed == 'true'
         run: |
           set -euo pipefail
-          git push "https://x-access-token:${{ secrets.HF_PAT }}@github.com/${{ github.repository }}.git" HEAD:main
+          git fetch origin main
+          for n in 1 2 3; do
+            git pull --rebase origin main || true
+            if git push "https://x-access-token:${HF_PAT}@github.com/${{ github.repository }}.git" HEAD:main; then
+              exit 0
+            fi
+            echo "Push attempt $n failed; retrying..."
+            sleep 2
+          done
+          echo "Push failed after retries" >&2
+          exit 1
