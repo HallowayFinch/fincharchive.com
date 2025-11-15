@@ -1,12 +1,13 @@
 {
-  "next_seq": 7,
+  "next_seq": 8,
   "guid_to_slug": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "the-voice-in-the-static",
     "https://hallowayfinch.substack.com/p/the-orchard-transmission": "the-orchard-transmission",
     "https://www.hallowayfinch.com/p/the-orchard-transmission": "the-orchard-transmission",
     "/p/the-orchard-transmission": "the-orchard-transmission",
     "/p/the-lamplight-study": "the-lamplight-study",
-    "/p/the-house-at-bell-orchard": "the-house-at-bell-orchard"
+    "/p/the-house-at-bell-orchard": "the-house-at-bell-orchard",
+    "/p/the-person-in-the-corner-of-the-tape": "the-person-in-the-corner-of-the-tape"
   },
   "guid_to_log_id": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "1022A",
@@ -14,7 +15,8 @@
     "https://www.hallowayfinch.com/p/the-orchard-transmission": "1022D",
     "/p/the-orchard-transmission": "1022D",
     "/p/the-lamplight-study": "1022E",
-    "/p/the-house-at-bell-orchard": "1022F"
+    "/p/the-house-at-bell-orchard": "1022F",
+    "/p/the-person-in-the-corner-of-the-tape": "1022G"
   },
   "seen_guids": [
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static",
@@ -22,6 +24,7 @@
     "https://www.hallowayfinch.com/p/the-orchard-transmission",
     "/p/the-orchard-transmission",
     "/p/the-lamplight-study",
-    "/p/the-house-at-bell-orchard"
+    "/p/the-house-at-bell-orchard",
+    "/p/the-person-in-the-corner-of-the-tape"
   ]
 }
