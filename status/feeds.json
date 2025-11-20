@@ -1,5 +1,5 @@
 {
-  "updated_utc": "2025-11-20T14:41:54Z",
+  "updated_utc": "2025-11-20T15:44:04Z",
   "endpoints": [
     {
       "name": "ALL (RSS)",
@@ -24,7 +24,7 @@
     {
       "name": "Substack Field Notes",
       "url": "https://substack.com/api/v1/notes/rss?publication_id=6660929",
-      "status": 403
+      "status": 404
     }
   ]
 }
