@@ -3,7 +3,8 @@ import os, sys, json, time, feedparser, datetime as dt
 from pathlib import Path
 import re, html, urllib.request, urllib.parse
 
-def log(*args): print("[rss-sync]", *args, flush=True)
+def log(*args): 
+    print("[rss-sync]", *args, flush=True)
 
 # ----- ENV & paths -----------------------------------------------------------
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,7 +29,8 @@ ARTIFACT_EXTS = [
 
 # ----- Proxy helpers ---------------------------------------------------------
 def _proxy_host() -> str:
-    if not RSS_PROXY_URL: return ""
+    if not RSS_PROXY_URL:
+        return ""
     return urllib.parse.urlparse(RSS_PROXY_URL).netloc
 
 def unproxy_url(url: str) -> str:
@@ -44,7 +46,8 @@ def unproxy_url(url: str) -> str:
 
 def proxied(url: str) -> str:
     raw = unproxy_url(url)
-    if not RSS_PROXY_URL: return raw
+    if not RSS_PROXY_URL:
+        return raw
     return f"{RSS_PROXY_URL}?url={urllib.parse.quote(raw, safe='')}"
 
 # ----- Canonical keys (domain-agnostic) --------------------------------------
@@ -68,8 +71,10 @@ def fetch_url(url: str, timeout=30) -> str:
     unp = urllib.parse.urlparse(unproxy_url(url))
     ref = f"{unp.scheme}://{unp.netloc}/" if unp.netloc else "https://substack.com/"
     headers = {
-        "User-Agent": ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                       "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"),
+        "User-Agent": (
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+            "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
+        ),
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "en-US,en;q=0.9",
         "Referer": ref,
@@ -82,7 +87,8 @@ def fetch_url(url: str, timeout=30) -> str:
 # ----- Minimal readability & HTML→MD -----------------------------------------
 def readability_extract(html_text: str) -> str:
     m = re.search(r"(?is)<article[^>]*>(.*?)</article>", html_text)
-    if m: return m.group(1)
+    if m:
+        return m.group(1)
     m = re.search(r"(?is)<body[^>]*>(.*?)</body>", html_text)
     return m.group(1) if m else html_text
 
@@ -99,29 +105,64 @@ def strip_chrome(html_text: str) -> str:
     t = re.sub(r'(?is)<a[^>]+href="https?://[^"]*substack\.com/@[^"]*".*?</a>', "", t)
     t = re.sub(r'(?is)>(\s*Share\s*)<', "><", t)
     m = re.search(r"(?is)<p[^>]*>.*", t)
-    if m: t = m.group(0)
+    if m:
+        t = m.group(0)
     return t
 
 def html_to_markdown_simple(html_text: str) -> str:
+    """
+    Convert a subset of Substack HTML to markdown, preserving:
+      - Links as [text](url)
+      - Blockquotes as markdown `> ` lines
+
+    Everything else is reduced to paragraphs and line breaks.
+    """
+    # Strip script/style entirely.
     text = re.sub(r"(?is)<script.*?</script>", "", html_text)
     text = re.sub(r"(?is)<style.*?</style>", "", text)
-    text = re.sub(r"(?is)</p>", "\n\n", text)
-    text = re.sub(r"(?is)<br\s*/?>", "\n", text)
 
+    # Convert links to markdown first, so they survive later tag stripping.
     def _a(m):
         href = m.group(1)
         inner = re.sub(r"(?is)<.*?>", "", m.group(2))
         return f"[{inner}]({href})"
 
     text = re.sub(r'(?is)<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>', _a, text)
+
+    # Preserve blockquotes by turning them into markdown-style `> ` lines.
+    def _bq(m):
+        inner = m.group(1)
+        # Treat paragraph and <br> structure as newlines inside the quote.
+        inner = re.sub(r"(?is)</p>", "\n\n", inner)
+        inner = re.sub(r"(?is)<br\s*/?>", "\n", inner)
+        # Strip remaining tags while keeping any markdown we already injected.
+        inner_plain = re.sub(r"(?is)<.*?>", "", inner)
+        lines = [ln.strip() for ln in inner_plain.splitlines() if ln.strip()]
+        if not lines:
+            return ""
+        return "\n".join(f"> {ln}" for ln in lines) + "\n\n"
+
+    text = re.sub(r"(?is)<blockquote[^>]*>(.*?)</blockquote>", _bq, text)
+
+    # Now handle remaining paragraphs and <br> tags outside of blockquotes.
+    text = re.sub(r"(?is)</p>", "\n\n", text)
+    text = re.sub(r"(?is)<br\s*/?>", "\n", text)
+
+    # Strip any other tags.
     text = re.sub(r"(?is)<.*?>", "", text)
+
+    # Decode HTML entities (so &gt; becomes >, which Jekyll will treat as markdown).
     return html.unescape(text).strip()
 
 def tidy_markdown(md: str, title: str) -> str:
     out = md
+    # Drop any stray title line that matches exactly.
     out = re.sub(rf"(?im)^\s*{re.escape(title)}\s*$\n?", "", out)
+    # Remove naked []() artifacts.
     out = re.sub(r"\[\s*\]\([^)]+\)", "", out)
+    # Remove bare "Share" lines.
     out = re.sub(r"(?m)^\s*Share\s*$", "", out)
+    # Collapse excessive blank lines.
     out = re.sub(r"\n{3,}", "\n\n", out)
     return out.strip() + "\n"
 
@@ -137,7 +178,8 @@ def safe_filename(s: str) -> str:
 
 def extract_slug_from_url(url: str) -> str:
     path = urllib.parse.urlparse(unproxy_url(url)).path.strip("/")
-    if not path: return "log"
+    if not path:
+        return "log"
     return safe_filename(path.split("/")[-1]) or "log"
 
 def ensure_artifacts_folder(slug: str):
@@ -149,11 +191,11 @@ def ensure_artifacts_folder(slug: str):
         (folder / "README.md").write_text(
             f"# Artifacts for `{slug}`\n\n"
             "Drop audio/images/PDFs here. This placeholder ensures the folder is tracked.\n",
-            encoding="utf-8"
+            encoding="utf-8",
         )
 
 def nice_label_from_path(p: Path) -> str:
-    base = p.stem.replace("_"," ").replace("-"," ").strip() or "Artifact"
+    base = p.stem.replace("_", " ").replace("-", " ").strip() or "Artifact"
     ext = p.suffix.upper().lstrip(".")
     return f"{base} ({ext})"
 
@@ -163,7 +205,12 @@ def find_artifacts_for_slug(slug: str):
     if folder.exists():
         for ext in ARTIFACT_EXTS:
             for p in sorted(folder.glob(f"*{ext}"), key=lambda x: x.name.lower()):
-                items.append({"path": f"/artifacts/{slug}/{p.name}", "label": nice_label_from_path(p)})
+                items.append(
+                    {
+                        "path": f"/artifacts/{slug}/{p.name}",
+                        "label": nice_label_from_path(p),
+                    }
+                )
     return items
 
 def primary_image_from_entry(entry) -> str:
@@ -187,12 +234,12 @@ def primary_image_from_entry(entry) -> str:
         pass
     return ""
 
-# ----- State -----------------------------------------------------------------
+# ----- State ------------------------------------------------------------------
 DEFAULT_STATE = {
     "next_seq": 1,
     "guid_to_slug": {},
     "guid_to_log_id": {},
-    "seen_guids": []
+    "seen_guids": [],
 }
 
 def load_state():
@@ -200,13 +247,15 @@ def load_state():
         try:
             s = json.loads(STATE_FILE.read_text("utf-8"))
             for k, v in DEFAULT_STATE.items():
-                if k not in s: s[k] = v
+                if k not in s:
+                    s[k] = v
             return s
         except Exception:
             pass
     return DEFAULT_STATE.copy()
 
-def save_state(s): STATE_FILE.write_text(json.dumps(s, indent=2), encoding="utf-8")
+def save_state(s):
+    STATE_FILE.write_text(json.dumps(s, indent=2), encoding="utf-8")
 
 # ----- Feed fetch -------------------------------------------------------------
 def fetch_and_parse_feed(url: str):
@@ -221,21 +270,26 @@ def fetch_and_parse_feed(url: str):
         primary = proxied(raw_feed_url)
         log(f"Fetching feed: {primary}")
         raw = fetch_url(primary)
-        if IMPORT_DEBUG: log(f"Feed head: {raw[:250].replace(chr(10),' ')}")
+        if IMPORT_DEBUG:
+            log(f"Feed head: {raw[:250].replace(chr(10), ' ')}")
         feed = parse_raw("Primary", raw)
-        if feed.entries: return feed
+        if feed.entries:
+            return feed
         log("Primary feed empty; trying fallbacks…")
     except Exception as e:
         log(f"Primary fetch failed: {e}")
 
     host = urllib.parse.urlparse(raw_feed_url).hostname or ""
     pub = host.split(".")[0] if host.endswith(".substack.com") else host
-    for fu in (f"https://{pub}.substack.com/api/v1/posts/rss",
-               f"https://{pub}.substack.com/feed"):
+    for fu in (
+        f"https://{pub}.substack.com/api/v1/posts/rss",
+        f"https://{pub}.substack.com/feed",
+    ):
         try:
             raw2 = fetch_url(proxied(fu))
             f2 = parse_raw("Fallback", raw2)
-            if f2.entries: return f2
+            if f2.entries:
+                return f2
         except Exception as ex:
             log(f"Fallback error for {fu}: {ex}")
 
@@ -245,18 +299,26 @@ def fetch_and_parse_feed(url: str):
 def pick_entries(feed):
     entries = list(feed.entries or [])
     if IMPORT_LATEST_ONLY and entries:
-        newest = max(entries, key=lambda x: x.get("published_parsed") or x.get("updated_parsed") or time.gmtime(0))
+        newest = max(
+            entries,
+            key=lambda x: x.get("published_parsed")
+            or x.get("updated_parsed")
+            or time.gmtime(0),
+        )
         return [newest]
     return entries
 
 # ----- Write helpers ----------------------------------------------------------
 def write_text_if_changed(path: Path, content: str) -> bool:
     old = path.read_text("utf-8") if path.exists() else ""
-    if old == content: return False
+    if old == content:
+        return False
     path.write_text(content, encoding="utf-8")
     return True
 
-def build_front_matter(*, title, date_iso, slug, log_id, url, guid_path, hero_image, artifacts):
+def build_front_matter(
+    *, title, date_iso, slug, log_id, url, guid_path, hero_image, artifacts
+):
     esc_title = title.replace('"', '\\"')
     lines = [
         "---",
@@ -265,7 +327,7 @@ def build_front_matter(*, title, date_iso, slug, log_id, url, guid_path, hero_im
         f'log_id: "{log_id}"',
         f'date: "{date_iso}"',
         f'source_url: "{url}"',
-        f'guid: "{guid_path}"',                 # domain-agnostic, readable
+        f'guid: "{guid_path}"',  # domain-agnostic, readable
         f'permalink: "/logs/{slug}/"',
     ]
     if hero_image:
@@ -292,9 +354,13 @@ def import_post(entry, state):
 
     # ISO-8601 w/ local timezone
     if entry.get("published_parsed"):
-        date_iso = dt.datetime.fromtimestamp(time.mktime(entry.published_parsed)).astimezone().isoformat()
+        date_iso = dt.datetime.fromtimestamp(
+            time.mktime(entry.published_parsed)
+        ).astimezone().isoformat()
     elif entry.get("updated_parsed"):
-        date_iso = dt.datetime.fromtimestamp(time.mktime(entry.updated_parsed)).astimezone().isoformat()
+        date_iso = dt.datetime.fromtimestamp(
+            time.mktime(entry.updated_parsed)
+        ).astimezone().isoformat()
     else:
         date_iso = dt.datetime.now().astimezone().isoformat()
 
@@ -308,8 +374,8 @@ def import_post(entry, state):
         n = state["next_seq"]
         s = ""
         while n > 0:
-            n, r = divmod(n-1, 26)
-            s = chr(65+r) + s
+            n, r = divmod(n - 1, 26)
+            s = chr(65 + r) + s
         log_id = f"1022{s}"
         state["next_seq"] += 1
         state["guid_to_log_id"][key] = log_id
@@ -344,7 +410,7 @@ def import_post(entry, state):
         url=link_url,
         guid_path=canonical_path(link_url),
         hero_image=hero,
-        artifacts=artifacts
+        artifacts=artifacts,
     )
 
     md_path = COLL_DIR / f"{slug}.md"
@@ -368,7 +434,12 @@ def main():
 
     candidates = pick_entries(feed)
     log(f"Entries selected for import (upsert): {len(candidates)}")
-    for e in sorted(candidates, key=lambda x: x.get("published_parsed") or x.get("updated_parsed") or time.gmtime(0)):
+    for e in sorted(
+        candidates,
+        key=lambda x: x.get("published_parsed")
+        or x.get("updated_parsed")
+        or time.gmtime(0),
+    ):
         import_post(e, state)
 
     save_state(state)
