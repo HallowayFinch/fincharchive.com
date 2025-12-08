@@ -3,14 +3,14 @@ import os, sys, json, time, feedparser, datetime as dt
 from pathlib import Path
 import re, html, urllib.request, urllib.parse
 
-def log(*args): 
+def log(*args):
     print("[rss-sync]", *args, flush=True)
 
 # ----- ENV & paths -----------------------------------------------------------
 ROOT = Path(__file__).resolve().parents[1]
 STATE_FILE    = ROOT / ".finch" / "state.json"
-COLL_DIR      = ROOT / "_logs"          # Jekyll source collection (truth)
-ARTIFACTS_DIR = ROOT / "artifacts"      # sidecar files live under /artifacts/:slug/
+COLL_DIR      = ROOT / "_logs"
+ARTIFACTS_DIR = ROOT / "artifacts"
 
 for p in (STATE_FILE.parent, COLL_DIR, ARTIFACTS_DIR):
     p.mkdir(parents=True, exist_ok=True)
@@ -20,11 +20,10 @@ IMPORT_LATEST_ONLY = os.environ.get("IMPORT_LATEST_ONLY", "1") == "1"
 IMPORT_DEBUG       = os.environ.get("IMPORT_DEBUG", "0") == "1"
 RSS_PROXY_URL      = os.environ.get("RSS_PROXY_URL", "").strip()
 
-# File types we’ll surface on the page (if present under /artifacts/:slug/)
 ARTIFACT_EXTS = [
     ".wav", ".flac", ".mp3",
     ".pdf",
-    ".jpg", ".jpeg", ".png", ".gif", ".webp"
+    ".jpg", ".jpeg", ".png", ".gif", ".webp",
 ]
 
 # ----- Proxy helpers ---------------------------------------------------------
@@ -50,9 +49,8 @@ def proxied(url: str) -> str:
         return raw
     return f"{RSS_PROXY_URL}?url={urllib.parse.quote(raw, safe='')}"
 
-# ----- Canonical keys (domain-agnostic) --------------------------------------
+# ----- Canonical keys --------------------------------------------------------
 def canonical_path(u: str) -> str:
-    """Return only the URL path without trailing slashes for stable IDs."""
     try:
         p = urllib.parse.urlparse(unproxy_url(u))
         path = (p.path or "/").rstrip("/")
@@ -61,13 +59,11 @@ def canonical_path(u: str) -> str:
         return u or "/"
 
 def guid_key(entry) -> str:
-    """Stable key that survives host/domain changes."""
     src = entry.get("id") or entry.get("guid") or entry.get("link") or ""
     return canonical_path(src)
 
 # ----- HTTP fetch ------------------------------------------------------------
 def fetch_url(url: str, timeout=30) -> str:
-    # choose a sensible Referer based on the unproxied URL host
     unp = urllib.parse.urlparse(unproxy_url(url))
     ref = f"{unp.scheme}://{unp.netloc}/" if unp.netloc else "https://substack.com/"
     headers = {
@@ -114,14 +110,13 @@ def html_to_markdown_simple(html_text: str) -> str:
     Convert a subset of Substack HTML to markdown, preserving:
       - Links as [text](url)
       - Blockquotes as markdown `> ` lines
-
-    Everything else is reduced to paragraphs and line breaks.
+      - Horizontal rules (<hr>) as markdown `---`
     """
     # Strip script/style entirely.
     text = re.sub(r"(?is)<script.*?</script>", "", html_text)
     text = re.sub(r"(?is)<style.*?</style>", "", text)
 
-    # Convert links to markdown first, so they survive later tag stripping.
+    # Links → markdown
     def _a(m):
         href = m.group(1)
         inner = re.sub(r"(?is)<.*?>", "", m.group(2))
@@ -129,13 +124,11 @@ def html_to_markdown_simple(html_text: str) -> str:
 
     text = re.sub(r'(?is)<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>', _a, text)
 
-    # Preserve blockquotes by turning them into markdown-style `> ` lines.
+    # Blockquotes → markdown
     def _bq(m):
         inner = m.group(1)
-        # Treat paragraph and <br> structure as newlines inside the quote.
         inner = re.sub(r"(?is)</p>", "\n\n", inner)
         inner = re.sub(r"(?is)<br\s*/?>", "\n", inner)
-        # Strip remaining tags while keeping any markdown we already injected.
         inner_plain = re.sub(r"(?is)<.*?>", "", inner)
         lines = [ln.strip() for ln in inner_plain.splitlines() if ln.strip()]
         if not lines:
@@ -144,25 +137,23 @@ def html_to_markdown_simple(html_text: str) -> str:
 
     text = re.sub(r"(?is)<blockquote[^>]*>(.*?)</blockquote>", _bq, text)
 
-    # Now handle remaining paragraphs and <br> tags outside of blockquotes.
+    # Horizontal rules → markdown '---'
+    text = re.sub(r"(?is)<hr\s*/?>", "\n\n---\n\n", text)
+
+    # Paragraphs + <br>
     text = re.sub(r"(?is)</p>", "\n\n", text)
     text = re.sub(r"(?is)<br\s*/?>", "\n", text)
 
-    # Strip any other tags.
+    # Strip remaining tags
     text = re.sub(r"(?is)<.*?>", "", text)
 
-    # Decode HTML entities (so &gt; becomes >, which Jekyll will treat as markdown).
     return html.unescape(text).strip()
 
 def tidy_markdown(md: str, title: str) -> str:
     out = md
-    # Drop any stray title line that matches exactly.
     out = re.sub(rf"(?im)^\s*{re.escape(title)}\s*$\n?", "", out)
-    # Remove naked []() artifacts.
     out = re.sub(r"\[\s*\]\([^)]+\)", "", out)
-    # Remove bare "Share" lines.
     out = re.sub(r"(?m)^\s*Share\s*$", "", out)
-    # Collapse excessive blank lines.
     out = re.sub(r"\n{3,}", "\n\n", out)
     return out.strip() + "\n"
 
@@ -183,7 +174,6 @@ def extract_slug_from_url(url: str) -> str:
     return safe_filename(path.split("/")[-1]) or "log"
 
 def ensure_artifacts_folder(slug: str):
-    """Create /artifacts/<slug>/ and ensure Git will track it with a README if empty."""
     folder = ARTIFACTS_DIR / slug
     folder.mkdir(parents=True, exist_ok=True)
     visible = [p for p in folder.iterdir() if not p.name.startswith(".")]
@@ -206,10 +196,7 @@ def find_artifacts_for_slug(slug: str):
         for ext in ARTIFACT_EXTS:
             for p in sorted(folder.glob(f"*{ext}"), key=lambda x: x.name.lower()):
                 items.append(
-                    {
-                        "path": f"/artifacts/{slug}/{p.name}",
-                        "label": nice_label_from_path(p),
-                    }
+                    {"path": f"/artifacts/{slug}/{p.name}", "label": nice_label_from_path(p)}
                 )
     return items
 
@@ -327,7 +314,7 @@ def build_front_matter(
         f'log_id: "{log_id}"',
         f'date: "{date_iso}"',
         f'source_url: "{url}"',
-        f'guid: "{guid_path}"',  # domain-agnostic, readable
+        f'guid: "{guid_path}"',
         f'permalink: "/logs/{slug}/"',
     ]
     if hero_image:
@@ -343,16 +330,12 @@ def build_front_matter(
 # ----- Import one -------------------------------------------------------------
 def import_post(entry, state):
     title = clean_title(entry.get("title"))
-    # canonical key & canonical GUID path (hostless)
     key = guid_key(entry)
-
-    # prefer clean, unproxied link for front matter
     link_url = unproxy_url(entry.get("link") or "")
 
     if not link_url:
         raise RuntimeError("Entry missing URL")
 
-    # ISO-8601 w/ local timezone
     if entry.get("published_parsed"):
         date_iso = dt.datetime.fromtimestamp(
             time.mktime(entry.published_parsed)
@@ -364,11 +347,9 @@ def import_post(entry, state):
     else:
         date_iso = dt.datetime.now().astimezone().isoformat()
 
-    # slug (stable per canonical key)
     slug = state["guid_to_slug"].get(key) or extract_slug_from_url(link_url)
     state["guid_to_slug"][key] = slug
 
-    # log id (stable per canonical key)
     log_id = state["guid_to_log_id"].get(key)
     if not log_id:
         n = state["next_seq"]
@@ -380,7 +361,6 @@ def import_post(entry, state):
         state["next_seq"] += 1
         state["guid_to_log_id"][key] = log_id
 
-    # Prefer RSS content:encoded; fallback to fetched page
     content_html = ""
     try:
         if entry.get("content") and entry.content:
@@ -395,10 +375,7 @@ def import_post(entry, state):
     body_md = html_to_markdown_simple(content_html)
     body_md = tidy_markdown(body_md, title)
 
-    # hero image
     hero = primary_image_from_entry(entry)
-
-    # artifacts
     ensure_artifacts_folder(slug)
     artifacts = find_artifacts_for_slug(slug)
 
