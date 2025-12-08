@@ -18,7 +18,7 @@ The front door was unlocked.
 
 I noted that in my recorder as I stepped inside.
 
-“Initial entry at 08:43. Exterior shows expected signs of long-term vacancy. Interior security appears to have been left unarmed.”
+> “Initial entry at 08:43. Exterior shows expected signs of long-term vacancy. Interior security appears to have been left unarmed.”
 
 The foyer smelled faintly of dust and toner. Fluorescent lights buzzed overhead when I found the breaker panel and restored partial power. Emergency strips along the hallway glowed a dull green.
 
@@ -30,7 +30,7 @@ On the wall just past reception, a whiteboard still hung in its metal frame. Som
 
 Over those ghosted abstractions, in darker, newer ink, someone had written:
 
-WELCOME, FINCH
+> WELCOME, FINCH
 
 The letters were blocky and careful, spaced with the precision of someone accustomed to technical diagrams. Below that, a bulleted list:
 
@@ -64,13 +64,10 @@ The plaque was not aged like the others. The lettering was sharp, free of the su
 
 Inside, the office was almost aggressively neutral. Empty bookshelves. Clean desk. No personal effects. The only item on the blotter was a laminated checklist titled NEW STAFF INTAKE – H.F. with several fields already printed:
 
-ID photo – PENDING
-
-Building tour – PENDING
-
-Lab access briefing – PENDING
-
-Emergency procedure review – PENDING
+> ID photo – PENDING
+> Building tour – PENDING
+> Lab access briefing – PENDING
+> Emergency procedure review – PENDING
 
 At the bottom, a line for a signature had been pre-filled in block letters: H. FINCH.
 
@@ -84,7 +81,7 @@ At 09:12, I entered what had once been a break room. A microwave, silent. A refr
 
 Near the sink, a ceramic mug sat inverted on a drying rack. Someone had written a name in permanent marker along its side.
 
-FINCH
+> FINCH
 
 The edges of the letters showed no cracking. The ink had not aged the way the other markings in the room had. When I lifted the mug, the ring of dry water beneath it was still neat and circular, unaffected by dust.
 
@@ -102,7 +99,7 @@ The room had been partially reset.
 
 Equipment had been pushed back against the walls. Benches cleared. At the center of the floor, someone had taped out a rectangle with blue painter’s tape, two meters by one. Next to it, in clean handwriting:
 
-“STATION FINCH – CALIBRATION”
+> “STATION FINCH – CALIBRATION”
 
 There was nothing inside the taped area.
 
@@ -144,13 +141,10 @@ Row upon row. Dozens of them.
 
 Every page contained a version of my name.
 
-Finch, Halloway – ARRIVED
-
-Finch, H. – RESCHEDULED
-
-H. Finch – CLEARED FOR ACCESS
-
-FINCH (H.) – DENIED ENTRY
+> Finch, Halloway – ARRIVED
+> Finch, H. – RESCHEDULED
+> H. Finch – CLEARED FOR ACCESS
+> FINCH (H.) – DENIED ENTRY
 
 Dates varied, but they were all recent. Many were duplicates with minor differences: a changed time, a different stamp, a new notation in the margin.
 
@@ -158,7 +152,7 @@ Some were marked CANCELLED in red. Others: PENDING.
 
 One, directly at eye level, had no stamp at all. Just my name, clean and unaltered.
 
-H. FINCH – EXPECTED
+> H. FINCH – EXPECTED
 
 No date. No time.
 
@@ -166,7 +160,7 @@ The clipboard beneath it was empty, awaiting another page.
 
 At the base of the grid, a cardboard box sat open, filled with forms identical to the ones on the wall, all blank except for the pre-printed heading:
 
-“SITE PREPARATION CHECKLIST – FINCH (H.)”
+> “SITE PREPARATION CHECKLIST – FINCH (H.)”
 
 I found the control room for the public address system adjacent to the server room. The console’s display was dark at first, then blinked to life when I approached.
 
@@ -174,7 +168,7 @@ A queue of pre-recorded announcements filled the screen. Most were marked TEST. 
 
 One file sat at the top of the list, flagged as REPEAT UNTIL ACKNOWLEDGED.
 
-MSG_1022_FINCH_ARRIVAL.wav
+> MSG_1022_FINCH_ARRIVAL.wav
 
 Its runtime was listed as 00:03.
 
@@ -214,7 +208,7 @@ In the second, taken as I left, the same board showed new text written in smalle
 
 The handwriting was my own.
 
-YOU’VE BEEN HERE BEFORE.
+> YOU’VE BEEN HERE BEFORE.
 
 There was no corresponding pressure mark on the board in the physical building when the team returned to secure the site.
 
