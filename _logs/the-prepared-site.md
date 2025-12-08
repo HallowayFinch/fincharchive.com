@@ -24,6 +24,8 @@ The foyer smelled faintly of dust and toner. Fluorescent lights buzzed overhead 
 
 It felt like walking into a building that expected company.
 
+---
+
 The first sign that something was wrong was my name.
 
 On the wall just past reception, a whiteboard still hung in its metal frame. Someone had wiped it mostly clean, but faint traces of older notes remained where the cleaning solution had dried unevenly.
@@ -52,6 +54,8 @@ It smudged.
 
 Whoever had written it had done so recently.
 
+---
+
 The main corridor led past a series of glass-walled offices. Desks still held computer monitors, keyboards, paper trays. Some chairs were pushed back as if their occupants had only stepped away for a moment. Coffee mugs ringed with sediment sat in place beneath a thin film of dust.
 
 On one door, a narrow brass slot held a nameplate.
@@ -75,6 +79,8 @@ The line above it, where the “Supervisor” should sign, was blank.
 
 The pen resting beside the sheet was uncapped.
 
+---
+
 I moved more carefully after that.
 
 At 09:12, I entered what had once been a break room. A microwave, silent. A refrigerator, unplugged and half open. A corkboard covered with yellowing flyers.
@@ -93,6 +99,8 @@ My recorder clicked softly as it continued to capture the ambient noise of the f
 
 There were too many small, deliberate preparations.
 
+---
+
 The lab spaces were clustered along the west wing. Their windows were papered over from the inside with sheets of printer paper gone brittle at the edges. When I opened the first door, the lights came on without hesitation, triggered by a motion sensor that had no reason to be working so reliably in a building this old.
 
 The room had been partially reset.
@@ -108,6 +116,8 @@ On a clipboard hanging beside the door, a printed sign-in sheet had been filled 
 Only one box—Orientation complete?—had been ticked, though no such orientation had taken place.
 
 I left the room lights on and stepped back into the corridor.
+
+---
 
 At 09:38, the facility acknowledged me.
 
@@ -130,6 +140,8 @@ After a moment, it repeated, identical down to the smallest fluctuation.
 I checked my watch. 09:39.
 
 The intercom remained silent.
+
+---
 
 The deepest part of the facility housed the server room.
 
@@ -162,6 +174,8 @@ At the base of the grid, a cardboard box sat open, filled with forms identical t
 
 > “SITE PREPARATION CHECKLIST – FINCH (H.)”
 
+---
+
 I found the control room for the public address system adjacent to the server room. The console’s display was dark at first, then blinked to life when I approached.
 
 A queue of pre-recorded announcements filled the screen. Most were marked TEST. A few had labels: FIRE DRILL, EVACUATION NOTICE, SYSTEM RESTART.
@@ -181,6 +195,8 @@ My own voice emerged from the speakers, flat and tired.
 The waveform on the screen matched my speech patterns almost perfectly. Spectral analysis would later confirm a near-exact match to my vocal profile.
 
 I had never recorded that announcement.
+
+---
 
 I left the building at 10:04.
 
@@ -213,6 +229,8 @@ The handwriting was my own.
 There was no corresponding pressure mark on the board in the physical building when the team returned to secure the site.
 
 Only the image had changed.
+
+---
 
 [End of recovered material]
 
