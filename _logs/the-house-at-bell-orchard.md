@@ -8,209 +8,207 @@ guid: "/p/the-house-at-bell-orchard"
 permalink: "/logs/the-house-at-bell-orchard/"
 hero_image: "https://substack-post-media.s3.amazonaws.com/public/images/84b711b0-f411-44f0-ac03-db78c8c919ca_1200x675.png"
 ---
-The waterline reached just beneath the second-story windows.  
+The waterline reached just beneath the second-story windows.
 
-Bell Orchard had been under eight feet of floodwater for almost a decade, and when the reservoir finally drained this spring, the house surfaced like something that had been holding its breath.  
+Bell Orchard had been under eight feet of floodwater for almost a decade, and when the reservoir finally drained this spring, the house surfaced like something that had been holding its breath.
 
-I was sent to document its interior conditions before the preservation teams arrived.  
+I was sent to document its interior conditions before the preservation teams arrived.
 
-The orchard itself was gone, replaced by a flat plain of pale silt.  
+The orchard itself was gone, replaced by a flat plain of pale silt.
 
-The trees had rotted to black ribs.  
+The trees had rotted to black ribs.
 
-I parked the truck on the cracked foundation of the old barn and walked the last hundred yards. Each step left a print that filled with water.  
+I parked the truck on the cracked foundation of the old barn and walked the last hundred yards. Each step left a print that filled with water.
 
-The house waited at the far edge, wood swollen, shingles flaking like bark.  
+The house waited at the far edge, wood swollen, shingles flaking like bark.
 
-Inside, the air smelled of limestone and mildew. Wallpaper peeled in soft curls, exposing plaster that glittered faintly with salt.  
+Inside, the air smelled of limestone and mildew. Wallpaper peeled in soft curls, exposing plaster that glittered faintly with salt.
 
-Along the first-floor hall, the walls bore shadows of missing furniture — faint silhouettes, darker than the paper around them.  
+Along the first-floor hall, the walls bore shadows of missing furniture — faint silhouettes, darker than the paper around them.
 
-A rectangle where a dresser once stood, an oval mirror without glass, and near the stairs, the outline of a person.  
+A rectangle where a dresser once stood, an oval mirror without glass, and near the stairs, the outline of a person.
 
-It reached from floor to shoulder height, arms at its sides, perfectly still.  
+It reached from floor to shoulder height, arms at its sides, perfectly still.
 
-I touched the wall. Damp.  
+I touched the wall. Damp.
 
-The rest of the hall was dry.  
+The rest of the hall was dry.
 
-I logged the anomaly as a moisture bloom from flood damage.  
+I logged the anomaly as a moisture bloom from flood damage.
 
-Still, the shape was too exact — even the slope of the shoulders looked deliberate, as if someone had stood there a long time while the house remembered them.  
-
----
-
-The second floor had fared worse. The plaster bubbled, and the floors bowed toward the center joist.  
-
-I set up my cot in the master bedroom because the window frames still held. The floor dipped just enough to pool a thin film of water near the far wall.  
-
-The first night, I heard slow dripping from somewhere overhead — irregular, heavy, like footsteps trying not to be heard.  
-
-When I checked the attic hatch, it was dry.  
-
-The house sighed with its own weight.  
-
-Every few hours, a bubble of trapped air rose through the wall cavities with a sound like a person exhaling.  
-
-I noted times, barometric readings, internal humidity.  
-
-The gauge read 10.22% before the needle jerked and reset to zero.  
-
-Instrument fault, I wrote.  
-
-At dawn, I walked the first floor again.  
-
-The outline near the stairs had changed.  
-
-The shoulders were broader now, the arms slightly bent, palms turned inward as if the figure were holding something unseen.  
+Still, the shape was too exact — even the slope of the shoulders looked deliberate, as if someone had stood there a long time while the house remembered them.
 
 ---
 
-By the second night, new silhouettes had appeared.  
+The second floor had fared worse. The plaster bubbled, and the floors bowed toward the center joist.
 
-One sat in the parlor, shaped like a person in a chair that was no longer there.  
+I set up my cot in the master bedroom because the window frames still held. The floor dipped just enough to pool a thin film of water near the far wall.
 
-Another leaned near the kitchen doorway, head angled as though listening.  
+The first night, I heard slow dripping from somewhere overhead — irregular, heavy, like footsteps trying not to be heard.
 
-The stains glistened faintly even in darkness.  
+When I checked the attic hatch, it was dry.
 
-When I brushed my flashlight across them, they absorbed the light instead of reflecting it.  
+The house sighed with its own weight.
 
-The smell of the place thickened — sour, organic, like damp hair.  
+Every few hours, a bubble of trapped air rose through the wall cavities with a sound like a person exhaling.
 
-I tried to sleep.  
+I noted times, barometric readings, internal humidity.
 
-Somewhere between waking and dreaming, I heard the faint patter of water moving along the wallpaper, a trickling that traveled from room to room.  
+The gauge read 10.22% before the needle jerked and reset to zero.
 
-I kept telling myself it was the flood withdrawing from the wood, memory bleeding off into vapor.  
+Instrument fault, I wrote.
 
-In the morning, the outline beside the cot was new.  
+At dawn, I walked the first floor again.
 
-It faced the bed.  
+The outline near the stairs had changed.
 
-Its head stopped where my pillow began.  
-
-I checked the hygrometer: still zero.  
+The shoulders were broader now, the arms slightly bent, palms turned inward as if the figure were holding something unseen.
 
 ---
 
-On the third day, the humidity climbed again.  
+By the second night, new silhouettes had appeared.
 
-The camera I’d set in the parlor recorded condensation forming in precise arcs, tracing limbs and torsos out of thin air.  
+One sat in the parlor, shaped like a person in a chair that was no longer there.
 
-When played back at normal speed, the shapes pulsed as though breathing.  
+Another leaned near the kitchen doorway, head angled as though listening.
 
-I pressed my ear to the wall. The plaster was warm.  
+The stains glistened faintly even in darkness.
 
-Behind it, water moved in deliberate rhythm — not dripping, but circulating, drawn through the veins of the house like blood.  
+When I brushed my flashlight across them, they absorbed the light instead of reflecting it.
 
-At dusk, I packed my equipment.  
+The smell of the place thickened — sour, organic, like damp hair.
 
-I planned to sleep in the truck.  
+I tried to sleep.
 
-Before leaving, I checked the main hall once more.  
+Somewhere between waking and dreaming, I heard the faint patter of water moving along the wallpaper, a trickling that traveled from room to room.
 
-Every wall bore a human impression.  
+I kept telling myself it was the flood withdrawing from the wood, memory bleeding off into vapor.
 
-Some stood, some crouched, one on all fours. Their edges were darker than before, glossy with moisture.  
+In the morning, the outline beside the cot was new.
 
-The original figure near the stairs had stepped forward several inches; a faint trail of wet footprints glistened where there hadn’t been floorboards yesterday.  
+It faced the bed.
 
-They ended where I stood.  
+Its head stopped where my pillow began.
 
-I backed toward the door.  
-
-A soft sound followed, like someone peeling themselves away from wallpaper.  
+I checked the hygrometer: still zero.
 
 ---
 
-Outside, the air felt colder than it should have been.  
+On the third day, the humidity climbed again.
 
-Fog clung low across the field, thick and yellow-gray.  
+The camera I’d set in the parlor recorded condensation forming in precise arcs, tracing limbs and torsos out of thin air.
 
-The orchard smell returned with it — not rot, but bloom. Apple blossom, though every tree was long dead.  
+When played back at normal speed, the shapes pulsed as though breathing.
 
-I carried the camera in both hands, the strap biting my neck.  
+I pressed my ear to the wall. The plaster was warm.
 
-The house’s windows reflected no light, only their own shape, black within black.  
+Behind it, water moved in deliberate rhythm — not dripping, but circulating, drawn through the veins of the house like blood.
 
-Halfway to the truck, I looked back.  
+At dusk, I packed my equipment.
 
-A dull sheen ran down the outer siding in vertical bands, as if rain had begun falling only on that one structure.  
+I planned to sleep in the truck.
 
-The moisture moved, following the lines of the interior walls I’d walked earlier.  
+Before leaving, I checked the main hall once more.
 
-It pulsed once, a shimmer that rippled outward and faded.  
+Every wall bore a human impression.
 
-Then something behind the second-story window moved — not the curtain, which had rotted years ago, but the wall itself, swelling and relaxing like a chest drawing breath.  
+Some stood, some crouched, one on all fours. Their edges were darker than before, glossy with moisture.
 
-I kept walking.  
+The original figure near the stairs had stepped forward several inches; a faint trail of wet footprints glistened where there hadn’t been floorboards yesterday.
 
-The mud swallowed each step and gave it back in suction pops, a noise like lips parting.  
+They ended where I stood.
 
----
+I backed toward the door.
 
-I made camp in the truck that night.  
-
-Wind moved through the orchard plain, whispering over the old irrigation pipes.  
-
-I opened my field notebook to log the day’s data. The pages stuck together from damp fingers I hadn’t realized were wet.  
-
-At 23:00 I heard a slow tapping.  
-
-It came from the passenger side of the truck, steady and polite.  
-
-The glass fogged from the inside as though I were exhaling against it, but I wasn’t breathing.  
-
-When I wiped it clear, I saw only the reflection of my lamp and the silhouette of the house, small and patient across the field.  
-
-I left the engine running until dawn.  
-
-The fuel gauge needle didn’t move.  
+A soft sound followed, like someone peeling themselves away from wallpaper.
 
 ---
 
-Morning brought wind and thin sunlight.  
+Outside, the air felt colder than it should have been.
 
-I returned to the house once, against every instinct, to retrieve the camera I’d left inside.  
+Fog clung low across the field, thick and yellow-gray.
 
-The air was cold, dry, empty.  
+The orchard smell returned with it — not rot, but bloom. Apple blossom, though every tree was long dead.
 
-The wallpaper had turned pale again.  
+I carried the camera in both hands, the strap biting my neck.
 
-Every silhouette gone — only faint rings where the moisture had been, outlines drying into memory.  
+The house’s windows reflected no light, only their own shape, black within black.
 
-In the master bedroom, my cot was gone.  
+Halfway to the truck, I looked back.
 
-Only a damp rectangle on the floor remained.  
+A dull sheen ran down the outer siding in vertical bands, as if rain had begun falling only on that one structure.
 
-Its dimensions matched my body.  
+The moisture moved, following the lines of the interior walls I’d walked earlier.
 
-I packed the camera and left quickly, but the air outside felt heavier.  
+It pulsed once, a shimmer that rippled outward and faded.
 
-I could smell blossom again, faint as breath.  
+Then something behind the second-story window moved — not the curtain, which had rotted years ago, but the wall itself, swelling and relaxing like a chest drawing breath.
 
-When I turned the ignition, the clock on the dashboard blinked once, frozen at 10:22, and refused to reset.  
+I kept walking.
 
----
-
-I filed the report that night from the field tent.  
-
-The data was incomplete.  
-
-The humidity reader still read zero, but my hands left wet prints on the paper as I wrote.  
-
-Something dripped behind me — slow, regular.  
-
-I told myself it was condensation on the canvas.  
-
-It kept perfect rhythm with my pulse.  
-
-I didn’t turn around.  
-
-I wrote until the ink thinned from moisture and the words blurred.  
+The mud swallowed each step and gave it back in suction pops, a noise like lips parting.
 
 ---
 
+I made camp in the truck that night.
+
+Wind moved through the orchard plain, whispering over the old irrigation pipes.
+
+I opened my field notebook to log the day’s data. The pages stuck together from damp fingers I hadn’t realized were wet.
+
+At 23:00 I heard a slow tapping.
+
+It came from the passenger side of the truck, steady and polite.
+
+The glass fogged from the inside as though I were exhaling against it, but I wasn’t breathing.
+
+When I wiped it clear, I saw only the reflection of my lamp and the silhouette of the house, small and patient across the field.
+
+I left the engine running until dawn.
+
+The fuel gauge needle didn’t move.
+
+---
+
+Morning brought wind and thin sunlight.
+
+I returned to the house once, against every instinct, to retrieve the camera I’d left inside.
+
+The air was cold, dry, empty.
+
+The wallpaper had turned pale again.
+
+Every silhouette gone — only faint rings where the moisture had been, outlines drying into memory.
+
+In the master bedroom, my cot was gone.
+
+Only a damp rectangle on the floor remained.
+
+Its dimensions matched my body.
+
+I packed the camera and left quickly, but the air outside felt heavier.
+
+I could smell blossom again, faint as breath.
+
+When I turned the ignition, the clock on the dashboard blinked once, frozen at 10:22, and refused to reset.
+
+---
+
+I filed the report that night from the field tent.
+
+The data was incomplete.
+
+The humidity reader still read zero, but my hands left wet prints on the paper as I wrote.
+
+Something dripped behind me — slow, regular.
+
+I told myself it was condensation on the canvas.
+
+It kept perfect rhythm with my pulse.
+
+I didn’t turn around.
+
+I wrote until the ink thinned from moisture and the words blurred.
+
+---
 [End of recovered material]
-
