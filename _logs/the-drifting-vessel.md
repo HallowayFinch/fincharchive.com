@@ -22,11 +22,13 @@ The name on the stern had been scrubbed away at some point. Only the ghosted out
 
 I logged my first impression in the recorder as I stepped onto the accommodation ladder.
 
-“Boarding at 09:13. Vessel appears powered but unmanned. Running lights are off. No visible damage topside.”
+> “Boarding at 09:13. Vessel appears powered but unmanned. Running lights are off. No visible damage topside.”
 
 The deck under my boots vibrated faintly, as if something deep below was turning over in its sleep.
 
 The first anomaly was procedural, not paranormal.
+
+---
 
 Every door I tested was locked from the inside.
 
@@ -62,6 +64,8 @@ Nothing.
 
 When I tried the handle, the lock held firm.
 
+---
+
 The bridge was open.
 
 The door had been propped with a plastic crate wedged just so, as if someone had meant to return in a moment and never did.
@@ -90,6 +94,8 @@ No signature. No time.
 
 I checked the ship’s clocks. 09:37.
 
+---
+
 South of the bridge, a narrow stairwell led down to B-deck. The light over the landing flickered intermittently, buzzing in a frequency that sat behind the ears rather than in them.
 
 The first three doors I checked were locked.
@@ -104,13 +110,13 @@ On the desk sat a glass of water, beads of condensation still forming on its sur
 
 Four words, printed in careful block letters:
 
-DO NOT OPEN ANOTHER ONE.
+> DO NOT OPEN ANOTHER ONE.
 
 The pen lay uncapped, its tip drying in the cabin’s still air.
 
 I put the recorder on the desk.
 
-“Cabin 3B appears recently occupied. Condensation on glass suggests very recent activity. Note left on desk: ‘Do not open another one.’ No indication to whom the note was addressed.”
+> “Cabin 3B appears recently occupied. Condensation on glass suggests very recent activity. Note left on desk: ‘Do not open another one.’ No indication to whom the note was addressed.”
 
 As I spoke, the faint hum of the ship’s systems rose half a tone, like someone softly tightening a string.
 
@@ -119,6 +125,8 @@ Out in the passage, something moved. Not footsteps. More like weight redistribut
 The door eased itself closed by two centimeters without anyone touching it.
 
 I stepped into the passage and found it exactly as I’d left it.
+
+---
 
 The soundscape of the vessel changed over the next hour.
 
@@ -142,6 +150,8 @@ Something on the other side of the door was maintaining tension against the meta
 
 The lock on that hatch was also set from within.
 
+---
+
 At 10:22 the ship changed its mind about being silent.
 
 I was back on the bridge, watching the radar. For most of the morning it had shown only our own echo: a pale shape at the center of the green phosphor, the familiar outline of the hull, nothing else within range.
@@ -160,13 +170,14 @@ I adjusted gain. The secondary echo grew more defined. The caption at the bottom
 
 For a single frame, it read:
 
-RV [ ] (PRESENT)
-
-RV [ ] (OTHER)
+> RV [ ] (PRESENT)  
+> RV [ ] (OTHER)
 
 The word “OTHER” remained burned into my vision longer than the phosphor justified.
 
 I blinked and the label was gone.
+
+---
 
 I didn’t decide to leave the ship so much as choose not to go any deeper into it. The lower holds, the sealed engine room, the locked infirmary—whatever sequence of doors the note in 3B was warning against, I had already opened one more than intended.
 
@@ -200,6 +211,8 @@ No footsteps. No voices. No door opening.
 
 Just writing.
 
+---
+
 It wasn’t until I was back on the tender, the vessel receding against the flat gray sky, that I realized I still had the ship’s log in my bag.
 
 I opened it on my lap.
@@ -210,7 +223,7 @@ The date line was blank.
 
 The text was not.
 
-He is on board now. He is reading this.
+> He is on board now. He is reading this.
 
 No name.
 
@@ -226,5 +239,5 @@ The log had been updated after I boarded.
 
 Somewhere between the locked doors, the hollow corridors, and the empty cabin with its single warning, the vessel had found room for me in its record.
 
+---
 [End of recovered material]
-
