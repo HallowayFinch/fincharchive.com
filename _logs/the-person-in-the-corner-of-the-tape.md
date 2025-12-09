@@ -16,9 +16,11 @@ The anomalies, according to campus security, were “visual artifacts probably f
 
 The crate was logged in at 09:58. I signed for it at 10:04. I began the first playback at 10:18.
 
+---
+
 The first tape that mattered was marked:
 
-B-7 / CAM-03 / 2019-04-12 / 21:30–23:00
+> B-7 / CAM-03 / 2019-04-12 / 21:30–23:00
 
 The footage was unremarkable at first. A fixed angle in a concrete corridor: storage cages, fluorescent hum just below the threshold of irritation, a wall clock in the far background. Boxes. Wire shelving. Occasional motion when students came to sign out equipment.
 
@@ -34,7 +36,7 @@ I rewound and watched again. The same.
 
 The second tape came from a different camera.
 
-B-7 / CAM-01 / 2019-04-12 / 21:30–23:00
+> B-7 / CAM-01 / 2019-04-12 / 21:30–23:00
 
 Same corridor, different angle. Here the camera faced down the length of the hall toward a steel fire door. The table and clipboard were visible in the middle distance, distorted differently. The far left corner from the first tape was now a stretch of bare cinderblock halfway along the right edge.
 
@@ -66,6 +68,8 @@ If it was present at 22:07:13, it was present at 22:07:14, and 22:08, and 22:30,
 
 That was the first assumption I had to let go of.
 
+---
+
 The second fell away when I played two tapes side by side.
 
 I set up a dual playback: CAM-02 and CAM-03 from April 19th. On CAM-02, the figure stood at the far left, half obscured by a support column. On CAM-03, which looked down the corridor from the opposite direction, the corner where the figure should have been was empty.
@@ -84,10 +88,10 @@ The security office had not reported any of this. They had simply written “vis
 
 I started making my own notes.
 
-2234-B / Observation 06
-The figure’s apparent height varies between 1.55 m and 2.03 m depending on camera, but never inconsistently within a single feed.
-
-Hypothesis (provisional): image is being composited at the level of recorded medium, not optical path.
+> 2234-B / Observation 06  
+> The figure’s apparent height varies between 1.55 m and 2.03 m depending on camera, but never inconsistently within a single feed.  
+>  
+> Hypothesis (provisional): image is being composited at the level of recorded medium, not optical path.
 
 Saying it on paper did not make it more reasonable.
 
@@ -95,7 +99,7 @@ Around midnight the building changed character. Daytime HVAC noise dropped off. 
 
 At 00:09 I loaded a tape that had come with a handwritten note in the crate: “Security Incident, Cage 4B.”
 
-B-7 / CAM-03 / 2020-02-06 / 20:00–22:30
+> B-7 / CAM-03 / 2020-02-06 / 20:00–22:30
 
 Halfway through this tape, a student appears at the far end of the corridor carrying a heavy metallic case. He walks into frame at 21:51:09, fumbles with the key to his storage cage, and disappears from view behind a solid partition.
 
@@ -113,12 +117,12 @@ Only the figure changes.
 
 I made another note.
 
-2234-B / Observation 11
-First instance of intra-tape positional change.
-
-Note: coincides with corridor lighting disturbance and student departure.
-
-Timestmp: 22:10:22.
+> 2234-B / Observation 11  
+> First instance of intra-tape positional change.  
+>  
+> Note: coincides with corridor lighting disturbance and student departure.  
+>  
+> Timestmp: 22:10:22.
 
 I wrote the last colon heavier than intended and had to cross it out once.
 
@@ -126,7 +130,7 @@ I should have stopped there. That is a complete anomaly: a static artifact becom
 
 Instead, I pulled one more tape at random.
 
-B-7 / CAM-02 / 2020-02-06 / 20:00–22:30
+> B-7 / CAM-02 / 2020-02-06 / 20:00–22:30
 
 The same corridor from the perpendicular angle. The same student. The same metallic case. The same time window. From this camera’s perspective, the figure should occupy the far right corner, just beyond a steel support column.
 
@@ -148,5 +152,5 @@ Before I left, I checked the wall clock out of habit. It read 10:22, though my w
 
 I did not open the crate again that night.
 
+---
 [End of recovered material]
-
