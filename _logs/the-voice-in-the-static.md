@@ -24,13 +24,13 @@ I told myself it was an illusion—magnetic drift, syllables collapsing into noi
 
 I stopped the tape. The hiss continued for three breaths after the motor died.
 
-—
+---
 
 I left the recorder running while I made tea. When I came back, the tape had reached its end and the counter blinked zeros. The silence in the room felt engineered, as though the soundproofing had thickened while I was gone.
 
 Out of habit I pressed play again, expecting only hiss. Instead, the voice resumed—not from the beginning, but halfway through, as if it had been waiting for me.
 
-“...he’s standing now,” it said. “He’ll check the window next.”
+> “...he’s standing now,” it said. “He’ll check the window next.”
 
 I did. The window was closed. The night beyond it looked motionless, the rain reduced to drifting threads.
 
@@ -46,7 +46,7 @@ I exhaled. The hiss returned.
 
 The voice spoke one last line, softer than the rest.
 
-“Don’t stop until you’ve written it down.”
+> “Don’t stop until you’ve written it down.”
 
 I did what it asked. The ink trembled on the page, forming two small smudges side by side. They looked like numbers, but I couldn’t tell which.
 
@@ -54,7 +54,7 @@ I listened again, just to prove the silence was clean. The sound had changed—n
 
 I told myself it was electrical. Everything in this building hums. Still, I boxed the cassette carefully, slid it under a stack of folders, and promised myself I’d log the anomaly tomorrow. I didn’t. The box stayed on the desk all night, warm to the touch when I passed it.
 
-—
+---
 
 Morning came gray and slow. I tried playing other tapes to clear my head—old lectures, half-erased dictations—but most of them stopped mid-sentence, their magnets gone slack. A few carried only a thin breath of static, as if waiting for me to answer.
 
@@ -64,7 +64,7 @@ I started a fresh page in the logbook, dated it, and pressed record. Nothing. Ju
 
 The voice that answered was again my own, but the phrasing was wrong. It began before I’d spoken, predicting me.
 
-“Verification test,” it said. “He will say his name next.”
+> “Verification test,” it said. “He will say his name next.”
 
 I stared at the machine. On the counter, the numbers advanced to 10:21, then paused, as if waiting for permission.
 
@@ -74,7 +74,7 @@ The voice on the recording had gone quiet; what came through instead was the sou
 
 When it stopped, I looked down. The new line in my notebook was in my handwriting, but I hadn’t moved:
 
-Play the next one.
+> Play the next one.
 
 There was no next cassette. Only the empty box, its label peeled halfway away. Beneath the torn paper, a second line of faded ink showed through—a different number, almost invisible.
 
@@ -82,7 +82,9 @@ I started to copy it, but the pen wouldn’t write. The ink had dried to the col
 
 I switched off the deck and sat listening to the static on the tape until it ran smooth and blank. Then I wrote the final note of the session.
 
-Session complete. No anomalies detected.
+> Session complete. No anomalies detected.
 
 I closed the book. The hum in the walls followed me into sleep.
 
+---
+[End of recovered material]
