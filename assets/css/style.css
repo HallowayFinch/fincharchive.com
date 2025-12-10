@@ -962,20 +962,41 @@ a:focus-visible,
   outline-offset: 2px;
 }
 
-/* --- Body-copy links (About, inline text) ---
-   These apply to links *inside* main.container
-   unless a component-specific override says otherwise. */
-main.container a:not(.btn) {
+/* Body copy links (About, log text, notes, etc.)
+   Restrict to inline text contexts so cards/hero links keep their own styling. */
+main.container p a:not(.btn),
+main.container li a:not(.btn),
+main.container dd a:not(.btn),
+main.container blockquote a:not(.btn) {
   color: var(--accent, currentColor);
   text-decoration-line: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.18em;
   text-decoration-color: currentColor;
 }
-main.container a:not(.btn):hover,
-main.container a:not(.btn):focus-visible {
-  color: var(--accent, currentColor); /* keep accent, override global a:hover */
+
+/* Hover / focus – slightly stronger underline but still restrained */
+main.container p a:not(.btn):hover,
+main.container li a:not(.btn):hover,
+main.container dd a:not(.btn):hover,
+main.container blockquote a:not(.btn):hover,
+main.container p a:not(.btn):focus-visible,
+main.container li a:not(.btn):focus-visible,
+main.container dd a:not(.btn):focus-visible,
+main.container blockquote a:not(.btn):focus-visible {
   text-decoration-thickness: 2px;
+}
+
+/* Card-style links (homepage feature + log list) should look like cards, not inline links */
+.feature-link,
+.log-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.feature-link:hover,
+.log-link:hover {
+  text-decoration: none;
 }
 
 /* --- Component link resets ---
