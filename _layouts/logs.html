@@ -3,72 +3,130 @@ layout: default
 ---
 
 {%- comment -%}
-LOGS LAYOUT (Paginated)
-Displays the logs list with manual pagination (GitHub Pages compatible).
-page_num  → current page number (1-based)
-per_page  → items per page
+LOGS ARCHIVE LAYOUT (Paginated, GitHub Pages–friendly)
+
+Inputs (from front matter or defaults):
+- page.per_page  → items per page (defaults to 12)
+- page.page_num  → current page number (1-based, defaults to 1)
+
+This layout:
+- Sorts all logs newest → oldest
+- Computes total pages (ceil(total / per_page))
+- Slices the correct window of logs for the current page
+- Renders a list of log cards
+- Includes the shared pager partial with current/total
+
+It also:
+- Adds basic accessibility helpers (role="list", aria-labelledby)
+- Handles edge cases (no logs; page_num > total_pages)
 {%- endcomment -%}
 
-{%- assign all_logs  = site.logs | sort: "date" | reverse -%}
-{%- assign per_page  = page.per_page | default: 12 | plus: 0 -%}
-{%- assign page_num  = page.page_num | default: 1  | plus: 0 -%}
-{%- assign total     = all_logs | size -%}
+{%- assign all_logs = site.logs | sort: "date" | reverse -%}
+{%- assign total    = all_logs | size -%}
 
-{%- assign q = total | divided_by: per_page -%}
-{%- assign r = total | modulo: per_page -%}
-{%- if r > 0 -%}{% assign total_pages = q | plus: 1 %}{%- else -%}{% assign total_pages = q %}{%- endif -%}
+{%- assign per_page = page.per_page | default: 12 | plus: 0 -%}
+{%- assign page_num = page.page_num | default: 1  | plus: 0 -%}
 
-{%- assign offset = per_page | times: page_num | minus: per_page -%}
-{%- assign items  = all_logs | slice: offset, per_page -%}
+{%- comment -%}
+Guardrails:
+- Ensure per_page is never < 1 (avoid divide-by-zero)
+- Ensure page_num is at least 1
+{%- endcomment -%}
+{%- if per_page < 1 -%}{% assign per_page = 12 %}{%- endif -%}
+{%- if page_num < 1 -%}{% assign page_num = 1 %}{%- endif -%}
 
-<section class="container">
+{%- comment -%}
+Compute total_pages = ceil(total / per_page)
+Liquid doesn’t have ceil(), so we split into quotient + remainder.
+{%- endcomment -%}
+{%- if total > 0 -%}
+  {%- assign q = total | divided_by: per_page -%}
+  {%- assign r = total | modulo: per_page -%}
+  {%- if r > 0 -%}
+    {%- assign total_pages = q | plus: 1 -%}
+  {%- else -%}
+    {%- assign total_pages = q -%}
+  {%- endif -%}
+{%- else -%}
+  {%- assign total_pages = 1 -%}
+{%- endif -%}
+
+{%- comment -%}
+If someone manually requests an out-of-range page (e.g., /logs/page/99/),
+show a gentle fallback instead of an empty list.
+{%- endcomment -%}
+{%- assign is_out_of_range = false -%}
+{%- if page_num > total_pages -%}
+  {%- assign is_out_of_range = true -%}
+{%- endif -%}
+
+<section class="container" aria-labelledby="logs-heading">
   <header class="page-header">
-    <h1 class="page-title">Logs{% if page_num > 1 %} · Page {{ page_num }}{% endif %}</h1>
+    <h1 id="logs-heading" class="page-title">
+      Logs{% if page_num > 1 %} · Page {{ page_num }}{% endif %}
+    </h1>
     <p class="page-lead">Recovered transmissions from the Finch Archive.</p>
   </header>
 
-  {%- if items and items.size > 0 -%}
-    <ul class="log-list">
-      {%- for item in items -%}
-        <li class="log-card">
-          <a class="log-link" href="{{ item.url | relative_url }}">
-            {%- if item.hero_image -%}
-              {%- assign _thumb_src  = item.hero_image | relative_url -%}
-              {%- assign _thumb_alt  = item.hero_alt | default: item.title -%}
-              {%- assign _thumb_w    = item.hero_w | default: 1600 -%}
-              {%- assign _thumb_h    = item.hero_h | default: 900 -%}
+  {%- if total == 0 -%}
+    <p>No logs are available in the archive yet. New transmissions will appear here once they are recovered.</p>
 
-              {% include img.html
-                src=_thumb_src
-                alt=_thumb_alt
-                w=_thumb_w
-                h=_thumb_h
-                class="log-thumb"
-                sizes="(min-width:700px) 18vw, 30vw"
-                loading="lazy"
-                fetch="low"
-              %}
-            {%- endif -%}
+  {%- elsif is_out_of_range -%}
+    <p>
+      No logs are available for this page of the archive.
+      <a href="{{ '/logs/' | relative_url }}">Return to the first page of logs.</a>
+    </p>
 
-            <div class="log-meta">
-              <h2 class="log-title">{{ item.title }}</h2>
-              <div class="log-sub">
-                {%- if item.log_id -%}
-                  <span class="log-id">{{ item.log_id }}</span>
-                  <span aria-hidden="true">•</span>
-                {%- endif -%}
-                <time datetime="{{ item.date | date_to_xmlschema }}">
-                  {% include date-local.html dt=item.date %}
-                </time>
-              </div>
-            </div>
-          </a>
-        </li>
-      {%- endfor -%}
-    </ul>
-
-    {% include pager.html current=page_num total=total_pages %}
   {%- else -%}
-    <p>No logs found.</p>
+    {%- assign offset = per_page | times: page_num | minus: per_page -%}
+    {%- assign items  = all_logs | slice: offset, per_page -%}
+
+    {%- if items and items.size > 0 -%}
+      <ul class="log-list" role="list">
+        {%- for item in items -%}
+          <li class="log-card">
+            <a class="log-link" href="{{ item.url | relative_url }}">
+              {%- if item.hero_image -%}
+                {%- assign _thumb_src  = item.hero_image | relative_url -%}
+                {%- assign _thumb_alt  = item.hero_alt | default: item.title -%}
+                {%- assign _thumb_w    = item.hero_w | default: 1600 -%}
+                {%- assign _thumb_h    = item.hero_h | default: 900 -%}
+
+                {% include img.html
+                  src=_thumb_src
+                  alt=_thumb_alt
+                  w=_thumb_w
+                  h=_thumb_h
+                  class="log-thumb"
+                  sizes="(min-width:700px) 18vw, 30vw"
+                  loading="lazy"
+                  fetch="low"
+                %}
+              {%- endif -%}
+
+              <div class="log-meta">
+                <h2 class="log-title">{{ item.title }}</h2>
+                <div class="log-sub">
+                  {%- if item.log_id -%}
+                    <span class="log-id">{{ item.log_id }}</span>
+                    <span aria-hidden="true">•</span>
+                  {%- endif -%}
+                  <time datetime="{{ item.date | date_to_xmlschema }}">
+                    {% include date-local.html dt=item.date %}
+                  </time>
+                </div>
+              </div>
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+
+      {%- comment -%}
+      Shared pager partial; uses the global prev/next card styling.
+      {%- endcomment -%}
+      {% include pager.html current=page_num total=total_pages %}
+    {%- else -%}
+      <p>No logs are available on this page of the archive.</p>
+    {%- endif -%}
   {%- endif -%}
 </section>
