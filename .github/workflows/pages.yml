@@ -1,8 +1,20 @@
 name: github-pages
+# Finch Archive · Build & deploy the Jekyll site to GitHub Pages
+#
+# Triggers:
+# - On push to `main` when site-relevant files change (content, layouts, assets, config)
+# - Manual run via "Run workflow" (workflow_dispatch)
+#
+# Notes:
+# - Uses the official GitHub Pages Jekyll build action.
+# - Concurrency ensures only the latest run is active to avoid redundant builds.
+
+run-name: "Build & deploy Finch Archive • ${{ github.ref_name }}"
 
 on:
   push:
     branches: [ main ]
+    # Only rebuild when site-related files change to avoid unnecessary deploys.
     paths:
       - "**/*.md"
       - "**/*.html"
@@ -17,34 +29,51 @@ on:
       - "feed*"
       - "CNAME"
       - "_config.yml"
+  # Allow manual runs from the Actions UI if needed.
   workflow_dispatch: {}
 
 permissions:
+  # Required permissions for GitHub Pages builds & deploys.
   contents: read
   pages: write
   id-token: write
 
+# Ensure only one Pages build/deploy runs at a time.
+# If a new push arrives while a build is running, the older run is cancelled.
 concurrency:
   group: "pages"
   cancel-in-progress: true
 
 jobs:
+  # 1) Build the Jekyll site into ./_site using the official GitHub Pages actions.
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/jekyll-build-pages@v1
-      - uses: actions/upload-pages-artifact@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Build site with Jekyll
+        uses: actions/jekyll-build-pages@v1
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./_site
 
+  # 2) Deploy the built artifact to GitHub Pages.
   deploy:
     needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
-      - id: deployment
+      - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
