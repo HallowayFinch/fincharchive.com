@@ -1,8 +1,16 @@
 title: Finch Archive
 description: Recovered notes from incomplete transmissions.
+
+# Base + canonical URL
 baseurl: ""            # leave empty for apex domain
 url: "https://fincharchive.com"
 lang: en
+
+# Primary author / curator (used by feeds + meta)
+author:
+  name: "Halloway Finch"
+  url: "https://fincharchive.com"
+  twitter: "hallowayfinch"
 
 # Render times in US Central (CST/CDT) while keeping stored dates in UTC
 timezone: America/Chicago
@@ -10,16 +18,24 @@ timezone: America/Chicago
 # Allow content whose UTC timestamp may be slightly ahead (import timing)
 future: true
 
+# --- Markdown / theme ---
 markdown: kramdown
 theme: null
 
-# Public folders that must be published (feeds live here)
-include:
-  - logs
-  - field-notes
-  # (Root-level "feed" has front matter, so Jekyll builds it automatically.)
+kramdown:
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter_opts:
+    disable: true
 
-# Keep misc files out of the site output
+# --- Include / Exclude ---
+
+# Public folders that must be published (feeds + pagination live here)
+include:
+  - logs          # paginated log index: /logs/page/N/
+  - field-notes   # field notes index: /field-notes/
+
+# Keep internal and tooling files out of the site output
 exclude:
   - README.md
   - README_AUTOMATION.md
@@ -27,6 +43,9 @@ exclude:
   - node_modules/
   - package.json
   - package-lock.json
+  - scripts/                    # automation + helpers (Python, etc.)
+  - .finch/                     # internal state for automations
+  - .fieldnote-import-ledger.json
 
 # --- Collections ---
 collections:
@@ -57,7 +76,7 @@ sass:
 plugins:
   - jekyll-sitemap
   - jekyll-redirect-from
-  # (Removed jekyll-feed since feeds are hand-rolled at /feed, /logs/feed.xml, /field-notes/feed.xml)
+  # (Feeds are hand-rolled at /feed, /logs/feed.xml, /field-notes/feed.xml)
 
 # --- Site-wide artifact references (used by homepage links) ---
 artifacts:
