@@ -2,35 +2,61 @@
 layout: default
 ---
 
-<main class="container">
+<main
+  id="main-content"
+  class="container"
+  aria-labelledby="log-title"
+>
+  {%- comment -%}
+  Optional hero figure (Substack cover)
+  - Uses responsive sizes and eager loading for primary log image.
+  {%- endcomment -%}
   {%- if page.hero_image -%}
-  {%- assign _hero_src  = page.hero_image | relative_url -%}
-  {%- assign _hero_alt  = page.hero_alt | default: page.title -%}
-  {%- assign _hero_w    = page.hero_w | default: 1600 -%}
-  {%- assign _hero_h    = page.hero_h | default: 900 -%}
+    {%- assign _hero_src = page.hero_image | relative_url -%}
+    {%- assign _hero_alt = page.hero_alt | default: page.title -%}
+    {%- assign _hero_w   = page.hero_w | default: 1600 -%}
+    {%- assign _hero_h   = page.hero_h | default: 900 -%}
 
-  <figure class="log-figure">
-    {% include img.html
-      src=_hero_src
-      alt=_hero_alt
-      w=_hero_w
-      h=_hero_h
-      class="log-hero"
-      sizes="(min-width:980px) 1100px, 100vw"
-      loading="eager"
-      fetch="high"
-    %}
-  </figure>
+    <figure class="log-figure">
+      {% include img.html
+        src=_hero_src
+        alt=_hero_alt
+        w=_hero_w
+        h=_hero_h
+        class="log-hero"
+        sizes="(min-width:980px) 1100px, 100vw"
+        loading="eager"
+        fetch="high"
+      %}
+    </figure>
   {%- endif -%}
 
+  {%- comment -%}
+  Log header
+  - H1 with stable ID for skip-link + aria-labelledby on <main>.
+  - Meta line shows log_id (if present) plus date and share links.
+  {%- endcomment -%}
   <header class="log-header">
-    <h1 class="log-title">{{ page.title }}</h1>
+    <h1 id="log-title" class="log-title">{{ page.title }}</h1>
+
     <div class="meta">
-      {% include date-local.html dt=page.date %}
+      {%- if page.log_id -%}
+        <span class="log-id">{{ page.log_id }}</span>
+        <span aria-hidden="true">•</span>
+      {%- endif -%}
+
+      <time datetime="{{ page.date | date_to_xmlschema }}">
+        {% include date-local.html dt=page.date %}
+      </time>
+
       {% include share.html %}
     </div>
   </header>
 
+  {%- comment -%}
+  Primary log body
+  - Markdown content from the log file.
+  {%- endcomment -%}
   <article class="log-content">
     {{ content }}
   </article>
@@ -38,15 +64,20 @@ layout: default
   {%- comment -%}
   Artifact rendering
 
-  1. If the log front matter defines `artifacts:` explicitly, we honor it.
-  2. Otherwise, we auto-discover static files under /artifacts/<slug>/ (or
-     /artifacts/<artifacts_folder>/ if overridden) and render those.
-  3. Internal plumbing files like SHA256SUMS.txt and metadata.json are
+  Strategy:
+  1. If front matter defines `artifacts:` explicitly, honor that list exactly.
+     Each item is expected to be an object like:
+       - path: "/artifacts/1022a/example.wav"
+         label: "Session audio"
+  2. Otherwise, auto-discover static files under:
+       /artifacts/<slug>/  (or /artifacts/<artifacts_folder>/ if overridden)
+     and render those as buttons.
+  3. Internal plumbing files (SHA256SUMS.txt, metadata.json) are
      intentionally hidden from the UI.
   {%- endcomment -%}
 
   {%- if page.artifacts and page.artifacts.size > 0 -%}
-    <section class="log-artifacts">
+    <section class="log-artifacts" aria-label="Related artifacts">
       <h2>Artifacts</h2>
       <ul class="artifact-list">
         {%- for a in page.artifacts -%}
@@ -60,28 +91,38 @@ layout: default
     </section>
   {%- else -%}
     {%- assign artifacts_slug = page.artifacts_folder | default: page.slug -%}
+
     {%- if artifacts_slug -%}
       {%- assign artifacts_prefix = '/artifacts/' | append: artifacts_slug | append: '/' -%}
       {%- assign artifacts_files = site.static_files
           | where_exp: "f", "f.path contains artifacts_prefix" -%}
 
+      {%- comment -%}
+      Only treat these extensions as visible artifacts.
+      (Everything else is assumed to be internal or non-user-facing.)
+      {%- endcomment -%}
       {%- assign allowed_exts = ".wav,.flac,.mp3,.m4a,.aiff,.mp4,.mov,.png,.jpg,.jpeg,.gif,.webp,.tif,.tiff,.pdf,.txt,.csv" | split: "," -%}
 
       {%- assign artifacts_clean = "" | split: "" -%}
+
       {%- for f in artifacts_files -%}
         {%- assign ext  = f.extname | downcase -%}
         {%- assign name = f.name | downcase -%}
         {%- assign base = f.name | split: "." | first | downcase -%}
 
         {%- if allowed_exts contains ext -%}
-          {%- unless base == "sha256sums" or base == "metadata" or name == "sha256sums.txt" or name == "metadata.json" -%}
+          {%- unless base == "sha256sums"
+            or base == "metadata"
+            or name == "sha256sums.txt"
+            or name == "metadata.json"
+          -%}
             {%- assign artifacts_clean = artifacts_clean | push: f -%}
           {%- endunless -%}
         {%- endif -%}
       {%- endfor -%}
 
       {%- if artifacts_clean.size > 0 -%}
-        <section class="log-artifacts">
+        <section class="log-artifacts" aria-label="Related artifacts">
           <h2>Artifacts</h2>
           <ul class="artifact-list">
             {%- for f in artifacts_clean -%}
