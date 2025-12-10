@@ -296,6 +296,37 @@ a:hover .fn-thumb{
 .log-artifacts h2{ margin:0 0 .75rem; font-family:var(--serif); font-size:1.25rem; color:var(--fg); }
 .artifact-list{ list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.75rem; }
 
+.log-artifacts {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.log-artifacts h2 {
+  font-family: var(--mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.8;
+  margin: 0 0 0.85rem 0;
+}
+
+.artifact-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.artifact-list .btn {
+  font-family: var(--mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+  font-size: 0.75rem;
+  padding: 0.35rem 0.8rem;
+  line-height: 1.3;
+}
+
 /* ======================================
    Pager / Prev–Next Cards (tighter gap)
    ====================================== */
