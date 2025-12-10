@@ -963,11 +963,11 @@ a:focus-visible,
 }
 
 /* Body copy links (About, log text, notes, etc.)
-   Restrict to inline text contexts so cards/hero links keep their own styling. */
+   Limit to true inline/reading contexts so cards/hero links keep their own styling. */
 main.container p a:not(.btn),
-main.container li a:not(.btn),
-main.container dd a:not(.btn),
-main.container blockquote a:not(.btn) {
+main.container blockquote a:not(.btn),
+main.container .content li a:not(.btn),
+main.container dl a:not(.btn) {
   color: var(--accent, currentColor);
   text-decoration-line: underline;
   text-decoration-thickness: 1px;
@@ -977,17 +977,17 @@ main.container blockquote a:not(.btn) {
 
 /* Hover / focus – slightly stronger underline but still restrained */
 main.container p a:not(.btn):hover,
-main.container li a:not(.btn):hover,
-main.container dd a:not(.btn):hover,
 main.container blockquote a:not(.btn):hover,
+main.container .content li a:not(.btn):hover,
+main.container dl a:not(.btn):hover,
 main.container p a:not(.btn):focus-visible,
-main.container li a:not(.btn):focus-visible,
-main.container dd a:not(.btn):focus-visible,
-main.container blockquote a:not(.btn):focus-visible {
+main.container blockquote a:not(.btn):focus-visible,
+main.container .content li a:not(.btn):focus-visible,
+main.container dl a:not(.btn):focus-visible {
   text-decoration-thickness: 2px;
 }
 
-/* Card-style links (homepage feature + log list) should look like cards, not inline links */
+/* Card-style links (homepage feature + log list) */
 .feature-link,
 .log-link {
   color: inherit;
