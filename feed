@@ -15,12 +15,32 @@ redirect_from:
     <lastBuildDate>{{ site.time | date_to_rfc822 }}</lastBuildDate>
     <generator>Jekyll</generator>
 
+    {%- comment -%}
+    Build the combined item list:
+
+    - logs:        site.logs
+    - field notes: site["field-notes"]
+    - posts:       site.posts (if any)
+    - filter out any with `published: false`
+    - sort by date desc and trim to the latest 20 items
+    {%- endcomment -%}
+
     {%- assign EMPTY = '' | split: '' -%}
-    {%- assign logs  = site.logs           | default: EMPTY -%}
-    {%- assign notes = site["field-notes"] | default: EMPTY -%}
-    {%- assign items = EMPTY | concat: logs | concat: notes | sort:'date' | reverse -%}
+
+    {%- assign logs  = site.logs           | default: EMPTY | where_exp: "i", "i.published != false" -%}
+    {%- assign notes = site["field-notes"] | default: EMPTY | where_exp: "i", "i.published != false" -%}
+    {%- assign posts = site.posts          | default: EMPTY | where_exp: "i", "i.published != false" -%}
+
+    {%- assign items = EMPTY
+      | concat: logs
+      | concat: notes
+      | concat: posts
+      | sort: "date"
+      | reverse
+    -%}
 
     {%- for p in items limit: 20 -%}
+      {%- if p.date -%}
     <item>
       <title>{{ p.title | xml_escape }}</title>
       <link>{{ p.url | absolute_url }}</link>
@@ -32,6 +52,7 @@ redirect_from:
       <enclosure url="{{ img | absolute_url }}" type="image/jpeg" />
       {%- endif -%}
     </item>
+      {%- endif -%}
     {%- endfor -%}
   </channel>
 </rss>
