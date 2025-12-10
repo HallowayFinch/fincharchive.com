@@ -12,14 +12,16 @@ description: "Background, scope, and transmission lookup details for the Finch A
 
 <div class="rule rule--spaced"></div>
 
-The Finch Archive collects recovered notes from incomplete transmissions.  
+The Finch Archive collects recovered notes from incomplete transmissions.
+
 This project preserves the fragments with minimal intervention and presents them in a consistent, navigable form.
 
 <div class="rule rule--spaced"></div>
 
 ## Transmission lookup
 
-Certain materials are not listed in the public catalog.  
+Certain materials are not listed in the public catalog.
+
 When a log or artifact references an access key, it can be submitted through the
 [Transmission Lookup](/t/) interface. The archive will return any records it is willing to acknowledge.
 
