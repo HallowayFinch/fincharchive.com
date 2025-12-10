@@ -1,16 +1,17 @@
 ---
 layout: default
 title: Finch Archive
+description: "Recovered notes from incomplete transmissions: the latest logs from the Finch Archive."
 full_width: true
 ---
 
-<main class="container">
+<section class="container home-archive" aria-labelledby="home-title">
   {%- assign logs = site.logs | sort: "date" | reverse -%}
   {%- assign feat = logs | first -%}
   {%- assign rest = logs | slice: 1, 50 -%}
 
   <header class="page-header">
-    <h1 class="page-title">FINCH ARCHIVE</h1>
+    <h1 id="home-title" class="page-title">FINCH ARCHIVE</h1>
     <p class="page-lead">Recovered notes from incomplete transmissions.</p>
   </header>
 
@@ -39,7 +40,8 @@ full_width: true
           <h2 class="feature-title">{{ feat.title }}</h2>
           <div class="feature-sub">
             {%- if feat.log_id -%}
-              <span class="log-id">{{ feat.log_id }}</span><span aria-hidden="true">•</span>
+              <span class="log-id">{{ feat.log_id }}</span>
+              <span aria-hidden="true">•</span>
             {%- endif -%}
             <time datetime="{{ feat.date | date_to_xmlschema }}">
               {% include date-local.html dt=feat.date %}
@@ -80,7 +82,8 @@ full_width: true
               <h3 class="log-title">{{ item.title }}</h3>
               <div class="log-sub">
                 {%- if item.log_id -%}
-                  <span class="log-id">{{ item.log_id }}</span><span aria-hidden="true">•</span>
+                  <span class="log-id">{{ item.log_id }}</span>
+                  <span aria-hidden="true">•</span>
                 {%- endif -%}
                 <time datetime="{{ item.date | date_to_xmlschema }}">
                   {% include date-local.html dt=item.date %}
@@ -94,4 +97,4 @@ full_width: true
   {%- else -%}
     <p>No logs found. Once a log exists in <code>_logs/</code>, it will appear here.</p>
   {%- endif -%}
-</main>
+</section>
