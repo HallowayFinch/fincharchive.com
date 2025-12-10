@@ -39,7 +39,7 @@ jobs:
           BADGE_DIR.mkdir(parents=True, exist_ok=True)
           badge_path = BADGE_DIR / "artifacts.json"
 
-          # Extensions we treat as "real" artifacts for verification
+          # Extensions treated as "real" artifacts for verification
           exts = {
               ".wav", ".flac", ".mp3", ".m4a", ".aiff",
               ".png", ".jpg", ".jpeg", ".gif", ".webp",
@@ -47,9 +47,9 @@ jobs:
               ".pdf", ".txt", ".csv", ".json",
           }
 
-          def short_sha256(path: pathlib.Path, n=12) -> str:
+          def short_sha256(path: pathlib.Path, n: int = 12) -> str:
               h = hashlib.sha256()
-              with path.open("rb", "rb") as f:
+              with path.open("rb") as f:
                   for chunk in iter(lambda: f.read(8192), b""):
                       h.update(chunk)
               return h.hexdigest()[:n]
@@ -80,38 +80,39 @@ jobs:
 
           total_files = checked = mismatches = declared_total = folders = 0
 
-          for sub in sorted(ART_ROOT.glob("*")):
-              if not sub.is_dir():
-                  continue
-              folders += 1
+          if ART_ROOT.exists():
+              for sub in sorted(ART_ROOT.glob("*")):
+                  if not sub.is_dir():
+                      continue
+                  folders += 1
 
-              actual = []
-              for root, _, files in os.walk(sub):
-                  for fname in files:
-                      if fname.startswith("."):
-                          continue
-                      p = pathlib.Path(root) / fname
-                      if p.suffix.lower() in exts:
-                          actual.append(p)
-              total_files += len(actual)
+                  actual = []
+                  for root, _, files in os.walk(sub):
+                      for fname in files:
+                          if fname.startswith("."):
+                              continue
+                          p = pathlib.Path(root) / fname
+                          if p.suffix.lower() in exts:
+                              actual.append(p)
+                  total_files += len(actual)
 
-              declared = {}
-              meta = sub / "metadata.json"
-              if meta.exists():
-                  declared = load_declared_hashes(meta)
-                  declared_total += len(declared)
+                  declared = {}
+                  meta = sub / "metadata.json"
+                  if meta.exists():
+                      declared = load_declared_hashes(meta)
+                      declared_total += len(declared)
 
-              for p in actual:
-                  rel_from_art = str(p.relative_to(ART_ROOT))
-                  sha_now = short_sha256(p, 12)
-                  checked += 1
-                  if declared:
-                      sha_decl = declared.get(rel_from_art)
-                      ok = (sha_decl == sha_now) or (
-                          isinstance(sha_decl, str) and sha_decl.startswith(sha_now)
-                      )
-                      if not ok:
-                          mismatches += 1
+                  for p in actual:
+                      rel_from_art = str(p.relative_to(ART_ROOT))
+                      sha_now = short_sha256(p, 12)
+                      checked += 1
+                      if declared:
+                          sha_decl = declared.get(rel_from_art)
+                          ok = (sha_decl == sha_now) or (
+                              isinstance(sha_decl, str) and sha_decl.startswith(sha_now)
+                          )
+                          if not ok:
+                              mismatches += 1
 
           if total_files == 0:
               badge = {
@@ -140,11 +141,15 @@ jobs:
                   "color": "critical",
               }
 
-          badge_path.write_text(json.dumps(badge, ensure_ascii=False), encoding="utf-8")
+          badge_path.write_text(
+              json.dumps(badge, ensure_ascii=False),
+              encoding="utf-8",
+          )
           print("Wrote badge JSON →", badge_path)
           print(
-              f"folders={folders} total_files={total_files} checked={checked} "
-              f"declared={declared_total} mismatches={mismatches}"
+              f"folders={folders} total_files={total_files} "
+              f"checked={checked} declared={declared_total} "
+              f"mismatches={mismatches}"
           )
           PY
 
