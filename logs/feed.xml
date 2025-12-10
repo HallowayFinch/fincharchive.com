@@ -4,15 +4,23 @@ permalink: /logs/feed.xml
 ---
 
 <?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>{{ site.title }} — Logs</title>
     <link>{{ '/logs/' | absolute_url }}</link>
     <description>{{ site.description | xml_escape }}</description>
+    <language>{{ site.lang | default: 'en' }}</language>
     <lastBuildDate>{{ site.time | date_to_rfc822 }}</lastBuildDate>
     <generator>Jekyll</generator>
 
-    {%- assign logs = site.logs | sort:'date' | reverse -%}
+    <!-- Self link for feed consumers -->
+    <atom:link href="{{ '/logs/feed.xml' | absolute_url }}"
+               rel="self"
+               type="application/rss+xml" />
+
+    {%- assign EMPTY = '' | split: '' -%}
+    {%- assign logs  = site.logs | default: EMPTY | sort:'date' | reverse -%}
+
     {%- for p in logs limit: 20 -%}
     <item>
       <title>{{ p.title | xml_escape }}</title>
@@ -20,9 +28,20 @@ permalink: /logs/feed.xml
       <guid isPermaLink="true">{{ p.url | absolute_url }}</guid>
       <pubDate>{{ p.date | date_to_rfc822 }}</pubDate>
       <description>{{ p.excerpt | strip_html | strip_newlines | xml_escape }}</description>
+
       {%- assign img = p.og_image | default: p.hero_image -%}
       {%- if img -%}
-      <enclosure url="{{ img | absolute_url }}" type="image/jpeg" />
+        {%- assign lower = img | downcase -%}
+        {%- if lower contains '.png' -%}
+          {%- assign mime = 'image/png' -%}
+        {%- elsif lower contains '.webp' -%}
+          {%- assign mime = 'image/webp' -%}
+        {%- elsif lower contains '.gif' -%}
+          {%- assign mime = 'image/gif' -%}
+        {%- else -%}
+          {%- assign mime = 'image/jpeg' -%}
+        {%- endif -%}
+      <enclosure url="{{ img | absolute_url }}" type="{{ mime }}" />
       {%- endif -%}
     </item>
     {%- endfor -%}
