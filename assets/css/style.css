@@ -531,16 +531,18 @@ a:focus-visible,.btn:focus-visible,.log-link:focus-visible,.theme-toggle:focus-v
 }
 
 /* Body copy links (About, logs, notes, etc.) */
-main.container a {
-  text-decoration: underline;
+main.container a:not(.btn) {
+  color: var(--accent, currentColor);
+  text-decoration-line: underline;
   text-decoration-thickness: 1px;
-  text-underline-offset: 0.16em;
-  text-decoration-color: rgba(255, 255, 255, 0.45);
+  text-underline-offset: 0.18em;
+  text-decoration-color: currentColor;
 }
 
-main.container a:hover {
+/* Hover / focus – slightly stronger but still restrained */
+main.container a:not(.btn):hover,
+main.container a:not(.btn):focus-visible {
   text-decoration-thickness: 2px;
-  text-decoration-color: rgba(255, 255, 255, 0.85);
 }
 
 /* Mobile spacing fix for theme toggle */
