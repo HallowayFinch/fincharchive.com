@@ -6,7 +6,8 @@ published: true
 
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  {% raw %}{%- assign space = "  " -%}{% endraw %}
+  {%- assign space = "  " -%}
+
   <!-- Home -->
   <url>
     <loc>{{ "/" | absolute_url }}</loc>
@@ -19,6 +20,7 @@ published: true
   {%- for p in site.pages -%}
     {%- assign u = p.url -%}
     {%- unless p.sitemap == false
+          or p.published == false
           or u contains ".xml"
           or u contains "/feed"
           or u == "/feed.json"
@@ -37,33 +39,39 @@ published: true
 
   <!-- Logs -->
   {%- for item in site.logs -%}
+    {%- unless item.sitemap == false or item.published == false -%}
 {{ space }}<url>
 {{ space }}  <loc>{{ item.url | absolute_url }}</loc>
 {{ space }}  <lastmod>{{ item.last_modified_at | default: item.date | date_to_xmlschema }}</lastmod>
 {{ space }}  <changefreq>monthly</changefreq>
 {{ space }}  <priority>0.6</priority>
 {{ space }}</url>
+    {%- endunless -%}
   {%- endfor -%}
   <!-- /Logs -->
 
   <!-- Field Notes -->
   {%- for item in site["field-notes"] -%}
+    {%- unless item.sitemap == false or item.published == false -%}
 {{ space }}<url>
 {{ space }}  <loc>{{ item.url | absolute_url }}</loc>
 {{ space }}  <lastmod>{{ item.last_modified_at | default: item.date | date_to_xmlschema }}</lastmod>
 {{ space }}  <changefreq>monthly</changefreq>
 {{ space }}  <priority>0.5</priority>
 {{ space }}</url>
+    {%- endunless -%}
   {%- endfor -%}
   <!-- /Field Notes -->
 
   <!-- Optional: classic blog posts -->
   {%- for post in site.posts -%}
+    {%- unless post.sitemap == false or post.published == false -%}
 {{ space }}<url>
 {{ space }}  <loc>{{ post.url | absolute_url }}</loc>
 {{ space }}  <lastmod>{{ post.last_modified_at | default: post.date | date_to_xmlschema }}</lastmod>
 {{ space }}  <changefreq>monthly</changefreq>
 {{ space }}</url>
+    {%- endunless -%}
   {%- endfor -%}
   <!-- /Optional posts -->
 </urlset>
