@@ -32,7 +32,8 @@ A friendlier, human-readable version of [`/humans.txt`]({{ '/humans.txt' | relat
 
 ## Principles
 
-Plain text first. No popups. No paywalls. No surveillance.  
+Plain text first. No popups. No paywalls. No surveillance.
+
 Small pages. Fast enough to feel quiet.
 
 ## Credits & Thanks
