@@ -3,55 +3,76 @@ layout: default
 title: Field Notes
 ---
 
-<section class="fn-archive">
+<main
+  id="main-content"
+  class="container fn-archive"
+  aria-labelledby="field-notes-title"
+>
   <header class="fn-archive-header">
-    <h1 class="fn-archive-title">Field Notes</h1>
-    <p class="fn-archive-subtitle">Fragments, observations, and marginalia</p>
+    <h1 id="field-notes-title" class="fn-archive-title">Field Notes</h1>
+    <p class="fn-archive-subtitle">
+      Fragments, observations, and marginalia.
+    </p>
   </header>
 
   {%- assign notes = site["field-notes"] | sort: "date" | reverse -%}
 
-  <div class="fn-archive-list">
-    {%- for note in notes -%}
-      <article class="fn-item">
-        {%- if note.hero_image -%}
-          {%- assign _thumb_src  = note.hero_image | relative_url -%}
-          {%- assign _thumb_alt  = note.hero_alt | default: note.title -%}
-          {%- assign _thumb_w    = note.hero_w | default: 1600 -%}
-          {%- assign _thumb_h    = note.hero_h | default: 900 -%}
-          <a href="{{ note.url | relative_url }}" class="fn-item-thumb">
-            {% include img.html
-              src=_thumb_src
-              alt=_thumb_alt
-              w=_thumb_w
-              h=_thumb_h
-              class="fn-thumb"
-              sizes="(min-width:980px) 480px, 100vw"
-              loading="lazy"
-              fetch="low"
-            %}
-          </a>
-        {%- endif -%}
+  {%- if notes and notes.size > 0 -%}
+    <div class="fn-archive-list" role="list">
+      {%- for note in notes -%}
+        <article class="fn-item" role="listitem">
+          {%- if note.hero_image -%}
+            {%- assign _thumb_src = note.hero_image | relative_url -%}
+            {%- assign _thumb_alt = note.hero_alt | default: note.title -%}
+            {%- assign _thumb_w   = note.hero_w | default: 1600 -%}
+            {%- assign _thumb_h   = note.hero_h | default: 900 -%}
 
-        <h2 class="fn-item-title">
-          <a href="{{ note.url | relative_url }}">{{ note.title }}</a>
-        </h2>
-
-        <p class="fn-item-meta">
-          <time datetime="{{ note.date | date_to_xmlschema }}">
-            {% include date-local.html dt=note.date %}
-          </time>
-          {%- if note.source_url -%}
-            <span class="fn-item-source">
-              • <a href="{{ note.source_url }}" target="_blank" rel="noopener">Source</a>
-            </span>
+            <a href="{{ note.url | relative_url }}" class="fn-item-thumb">
+              {% include img.html
+                src=_thumb_src
+                alt=_thumb_alt
+                w=_thumb_w
+                h=_thumb_h
+                class="fn-thumb"
+                sizes="(min-width:980px) 480px, 100vw"
+                loading="lazy"
+                fetch="low"
+              %}
+            </a>
           {%- endif -%}
-        </p>
 
-        {%- if note.excerpt -%}
-          <p class="fn-item-excerpt">{{ note.excerpt | strip_html | truncate: 200 }}</p>
-        {%- endif -%}
-      </article>
-    {%- endfor -%}
-  </div>
-</section>
+          <h2 class="fn-item-title">
+            <a href="{{ note.url | relative_url }}">{{ note.title }}</a>
+          </h2>
+
+          <p class="fn-item-meta">
+            <time datetime="{{ note.date | date_to_xmlschema }}">
+              {% include date-local.html dt=note.date %}
+            </time>
+
+            {%- if note.source_url -%}
+              <span class="fn-item-source">
+                •
+                <a
+                  href="{{ note.source_url }}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Source
+                </a>
+              </span>
+            {%- endif -%}
+          </p>
+
+          {%- if note.excerpt -%}
+            <p class="fn-item-excerpt">
+              {{ note.excerpt | strip_html | truncate: 200 }}
+            </p>
+          {%- endif -%}
+        </article>
+      {%- endfor -%}
+    </div>
+  {%- else -%}
+    <p>No Field Notes have been recovered yet.</p>
+  {%- endif -%}
+</main>
