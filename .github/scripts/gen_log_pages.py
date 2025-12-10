@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# .github/scripts/gen_log_pages.py
 """
 Generate paginated /logs/page/N/ index files before Jekyll build.
 - Computes total logs by counting files in _logs/
