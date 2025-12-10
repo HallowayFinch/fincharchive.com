@@ -1,9 +1,22 @@
 name: Status / Heartbeat
+# Finch Archive · Periodic status snapshot
+#
+# Triggers:
+# - Every 6 hours at :17 UTC (cron), staggered away from other jobs
+# - Manual run via "Run workflow"
+# - On changes to this workflow file (for quick testing)
+#
+# Behavior:
+# - Counts logs, field notes, and artifacts
+# - Writes status/status.json and _data/status.json
+# - Commits & pushes only if those files change
+
+run-name: "Status / Heartbeat • ${{ github.event_name }} #${{ github.run_number }}"
 
 on:
-  # every 6 hours at :12; staggered away from other cron jobs
+  # Every 6 hours at :17; offset from RSS (:05) and other cron jobs
   schedule:
-    - cron: "12 */6 * * *"
+    - cron: "17 */6 * * *"
   workflow_dispatch: {}
   push:
     paths:
@@ -18,9 +31,16 @@ env:
   BRANCH: "main"
   HF_PAT: ${{ secrets.HF_PAT }}
 
+# Queue heartbeat jobs so they never cancel each other.
+# Only one status run per branch will be active at a time.
+concurrency:
+  group: finch-status-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   heartbeat:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
@@ -32,43 +52,60 @@ jobs:
       - name: Generate status payloads
         run: |
           set -euo pipefail
+
           NOW_UTC="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
           LOG_COUNT=$(ls -1 _logs/*.md 2>/dev/null | wc -l | tr -d ' ')
           NOTE_COUNT=$(ls -1 "_field-notes"/*.md 2>/dev/null | wc -l | tr -d ' ')
           ART_COUNT=$(find artifacts -type f 2>/dev/null | wc -l | tr -d ' ')
+
           mkdir -p status _data
+
           cat > status/status.json <<JSON
           {
             "updated_utc": "${NOW_UTC}",
             "environment": "production",
-            "counts": { "logs": ${LOG_COUNT:-0}, "field_notes": ${NOTE_COUNT:-0}, "artifacts": ${ART_COUNT:-0} }
+            "counts": {
+              "logs": ${LOG_COUNT:-0},
+              "field_notes": ${NOTE_COUNT:-0},
+              "artifacts": ${ART_COUNT:-0}
+            }
           }
           JSON
+
           cp status/status.json _data/status.json
 
-      - name: Commit changes
+      - name: Commit changes (if any)
         run: |
           set -euo pipefail
+
           git config user.name  "${AUTHOR_NAME}"
           git config user.email "${AUTHOR_EMAIL:-actions@users.noreply.github.com}"
+
           git add status/status.json _data/status.json || true
+
           if git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0
           fi
+
           git commit -m "chore(status): heartbeat @ $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
       - name: Safe push (rebase + retry)
         run: |
           set -euo pipefail
-          git fetch origin main
+
+          git fetch origin "${BRANCH}"
+
           for n in 1 2 3; do
-            git pull --rebase origin main || true
-            if git push "https://x-access-token:${HF_PAT}@github.com/${{ github.repository }}.git" HEAD:${BRANCH}; then
+            git pull --rebase origin "${BRANCH}" || true
+
+            if git push "https://x-access-token:${HF_PAT}@github.com/${{ github.repository }}.git" HEAD:"${BRANCH}"; then
               exit 0
             fi
+
             echo "Push attempt $n failed; retrying..."
             sleep 2
           done
+
           echo "Push failed after retries" >&2
           exit 1
