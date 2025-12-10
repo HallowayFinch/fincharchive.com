@@ -2,9 +2,8 @@
 layout: default
 ---
 
-<main
-  id="main-content"
-  class="container"
+<section
+  class="container log-detail"
   aria-labelledby="log-title"
 >
   {%- comment -%}
@@ -33,7 +32,7 @@ layout: default
 
   {%- comment -%}
   Log header
-  - H1 with stable ID for skip-link + aria-labelledby on <main>.
+  - H1 with stable ID; default layout’s <main id="main"> is the primary landmark.
   - Meta line shows log_id (if present) plus date and share links.
   {%- endcomment -%}
   <header class="log-header">
@@ -144,4 +143,4 @@ layout: default
   {%- endif -%}
 
   {% include prev_next.html %}
-</main>
+</section>
