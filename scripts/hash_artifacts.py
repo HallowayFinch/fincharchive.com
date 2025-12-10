@@ -5,10 +5,10 @@ ARTIFACTS_ROOT = pathlib.Path("artifacts").resolve()
 
 # File types we care about (extend if needed)
 WHITELIST_EXT = {
-    ".wav", ".flac", ".mp3",
-    ".mp4", ".mov",
-    ".png", ".jpg", ".jpeg", ".gif", ".webp", ".tif", ".tiff",
-    ".pdf", ".txt"
+    ".wav", ".flac", ".mp3", ".m4a", ".aiff", ".mp4", ".mov",
+    ".png", ".jpg", ".jpeg", ".gif", ".webp",
+    ".tif", ".tiff",
+    ".pdf", ".txt", ".csv",
 }
 
 # Files we NEVER hash or include (prevents self-referential churn)
