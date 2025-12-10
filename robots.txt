@@ -4,17 +4,19 @@ permalink: /robots.txt
 ---
 
 # Finch Archive — robots.txt
+
 User-agent: *
 Allow: /
+Disallow: /status/
 
-# Optional gentle crawl delay
+# Optional gentle crawl delay (supported by some bots only)
 Crawl-delay: 5
 
 # Sitemap
 Sitemap: {{ '/sitemap.xml' | absolute_url }}
 
-# Feeds (canonical)
-Feed: {{ '/feed' | absolute_url }}
-Feed: {{ '/logs/feed.xml' | absolute_url }}
-Feed: {{ '/field-notes/feed.xml' | absolute_url }}
-Feed: {{ '/feed.json' | absolute_url }}
+# Feeds (canonical, for humans / tooling)
+# All items (logs + field notes, RSS):  {{ '/feed' | absolute_url }}
+# Logs only (RSS):                      {{ '/logs/feed.xml' | absolute_url }}
+# Field notes only (RSS):               {{ '/field-notes/feed.xml' | absolute_url }}
+# All items (JSON Feed):                {{ '/feed.json' | absolute_url }}
