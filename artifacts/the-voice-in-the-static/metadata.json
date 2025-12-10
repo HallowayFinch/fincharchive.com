@@ -1,5 +1,11 @@
 {
-  "artifact_count": 0,
-  "artifacts": [],
+  "artifact_count": 1,
+  "artifacts": [
+    {
+      "bytes": 971,
+      "file": "environmental-log-1022a.csv",
+      "sha256": "55008ab212c21c0f0ffad6a947359557cd5a0dc4e100cf9d1d7f3e875466fb4f"
+    }
+  ],
   "folder": "the-voice-in-the-static"
 }
