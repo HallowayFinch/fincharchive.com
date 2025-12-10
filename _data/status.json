@@ -1,5 +1,9 @@
 {
-  "updated_utc": "2025-12-10T18:44:53Z",
+  "updated_utc": "2025-12-10T22:25:47Z",
   "environment": "production",
-  "counts": { "logs": 8, "field_notes": 1, "artifacts": 19 }
+  "counts": {
+    "logs": 8,
+    "field_notes": 1,
+    "artifacts": 19
+  }
 }
