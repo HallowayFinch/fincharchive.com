@@ -3,12 +3,32 @@ layout: null
 permalink: /feed.json
 ---
 
-{%- comment -%} Build arrays safely so concat never breaks {%- endcomment -%}
-{%- assign EMPTY = '' | split: '' -%}
-{%- assign logs  = site.logs           | default: EMPTY -%}
-{%- assign notes = site["field-notes"] | default: EMPTY -%}
-{%- assign posts = site.posts          | default: EMPTY -%}
-{%- assign items = EMPTY | concat: logs | concat: notes | concat: posts | sort: 'date' | reverse -%}
+{%- comment -%}
+JSON Feed (v1.1) for Finch Archive
+
+Includes:
+- Logs        (site.logs)
+- Field Notes (site["field-notes"])
+- Classic posts (site.posts, if any)
+
+Rules:
+- Items with `published: false` are excluded.
+- Combined set is sorted by `date` (desc) and trimmed to the latest 20.
+{%- endcomment -%}
+
+{%- assign EMPTY = "" | split: "" -%}
+
+{%- assign logs  = site.logs           | default: EMPTY | where_exp: "i", "i.published != false" -%}
+{%- assign notes = site["field-notes"] | default: EMPTY | where_exp: "i", "i.published != false" -%}
+{%- assign posts = site.posts          | default: EMPTY | where_exp: "i", "i.published != false" -%}
+
+{%- assign items = EMPTY
+  | concat: logs
+  | concat: notes
+  | concat: posts
+  | sort: "date"
+  | reverse
+-%}
 
 {
   "version": "https://jsonfeed.org/version/1.1",
@@ -18,21 +38,23 @@ permalink: /feed.json
   "description": {{ site.description | jsonify }},
   "language": {{ site.lang | default: 'en' | jsonify }},
   "items": [
-    {% assign author_name = site.author.name | default: site.title %}
-    {% for p in items limit: 20 %}
-    {% assign img = p.og_image | default: p.hero_image %}
-    {
-      "id": {{ p.url | absolute_url | jsonify }},
-      "url": {{ p.url | absolute_url | jsonify }},
-      "title": {{ p.title | jsonify }},
-      "author": { "name": {{ author_name | jsonify }} },
-      "date_published": "{{ p.date | date_to_xmlschema }}",
-      "date_modified": "{{ p.last_modified_at | default: p.date | date_to_xmlschema }}"{% if img %},
-      "image": {{ img | absolute_url | jsonify }}{% endif %},
-      "summary": {{ p.excerpt | strip_html | strip_newlines | truncate: 200 | jsonify }}{% if p.tags and p.tags.size > 0 %},
-      "tags": {{ p.tags | jsonify }}{% endif %},
-      "content_html": {{ p.content | jsonify }}
-    }{% if forloop.last == false %},{% endif %}
-    {% endfor %}
+    {%- assign author_name = site.author.name | default: site.title -%}
+    {%- for p in items limit: 20 -%}
+      {%- if p.date -%}
+        {%- assign img = p.og_image | default: p.hero_image -%}
+        {
+          "id": {{ p.url | absolute_url | jsonify }},
+          "url": {{ p.url | absolute_url | jsonify }},
+          "title": {{ p.title | jsonify }},
+          "author": { "name": {{ author_name | jsonify }} },
+          "date_published": "{{ p.date | date_to_xmlschema }}",
+          "date_modified": "{{ p.last_modified_at | default: p.date | date_to_xmlschema }}"{% if img %},
+          "image": {{ img | absolute_url | jsonify }}{% endif %},
+          "summary": {{ p.excerpt | strip_html | strip_newlines | truncate: 200 | jsonify }}{% if p.tags and p.tags.size > 0 %},
+          "tags": {{ p.tags | jsonify }}{% endif %},
+          "content_html": {{ p.content | jsonify }}
+        }{% if forloop.last == false %},{% endif %}
+      {%- endif -%}
+    {%- endfor -%}
   ]
 }
