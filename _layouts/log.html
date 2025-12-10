@@ -35,14 +35,14 @@ layout: default
     {{ content }}
   </article>
 
-  {% include prev_next.html %}
-
   {%- comment -%}
   Artifact rendering
 
   1. If the log front matter defines `artifacts:` explicitly, we honor it.
   2. Otherwise, we auto-discover static files under /artifacts/<slug>/ (or
      /artifacts/<artifacts_folder>/ if overridden) and render those.
+  3. Internal plumbing files like SHA256SUMS.txt and metadata.json are
+     intentionally hidden from the UI.
   {%- endcomment -%}
 
   {%- if page.artifacts and page.artifacts.size > 0 -%}
@@ -67,36 +67,40 @@ layout: default
 
       {%- assign allowed_exts = ".wav,.flac,.mp3,.m4a,.aiff,.mp4,.mov,.png,.jpg,.jpeg,.gif,.webp,.tif,.tiff,.pdf,.txt,.csv" | split: "," -%}
 
-      {%- assign artifacts_count = 0 -%}
+      {%- assign artifacts_clean = "" | split: "" -%}
       {%- for f in artifacts_files -%}
-        {%- assign ext = f.extname | downcase -%}
+        {%- assign ext  = f.extname | downcase -%}
+        {%- assign name = f.name | downcase -%}
+        {%- assign base = f.name | split: "." | first | downcase -%}
+
         {%- if allowed_exts contains ext -%}
-          {%- assign artifacts_count = artifacts_count | plus: 1 -%}
+          {%- unless base == "sha256sums" or base == "metadata" or name == "sha256sums.txt" or name == "metadata.json" -%}
+            {%- assign artifacts_clean = artifacts_clean | push: f -%}
+          {%- endunless -%}
         {%- endif -%}
       {%- endfor -%}
 
-      {%- if artifacts_count > 0 -%}
+      {%- if artifacts_clean.size > 0 -%}
         <section class="log-artifacts">
           <h2>Artifacts</h2>
           <ul class="artifact-list">
-            {%- for f in artifacts_files -%}
-              {%- assign ext = f.extname | downcase -%}
-              {%- if allowed_exts contains ext -%}
-                {%- assign base  = f.name | split: "." | first -%}
-                {%- assign label = base
-                    | replace: "-", " "
-                    | replace: "_", " "
-                    | capitalize -%}
-                <li>
-                  <a class="btn" href="{{ f.path | relative_url }}">
-                    {{ label }}
-                  </a>
-                </li>
-              {%- endif -%}
+            {%- for f in artifacts_clean -%}
+              {%- assign base_raw = f.name | split: "." | first -%}
+              {%- assign label = base_raw
+                  | replace: "-", " "
+                  | replace: "_", " "
+                  | capitalize -%}
+              <li>
+                <a class="btn" href="{{ f.path | relative_url }}">
+                  {{ label }}
+                </a>
+              </li>
             {%- endfor -%}
           </ul>
         </section>
       {%- endif -%}
     {%- endif -%}
   {%- endif -%}
+
+  {% include prev_next.html %}
 </main>
