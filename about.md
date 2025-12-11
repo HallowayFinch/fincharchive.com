@@ -15,49 +15,85 @@ hero_h: 2133
 </header>
 
 <figure class="log-figure about-figure">
-  {% include img.html
-    src=page.hero_image
-    alt=page.hero_alt
-    w=page.hero_w
-    h=page.hero_h
+  <img
+    src="/assets/og/about-corridor-1600x2133.webp"
+    alt="An empty tiled corridor lit by a single green fluorescent tube."
     class="log-hero about-hero"
-    sizes="(min-width: 980px) 960px, 100vw"
     loading="lazy"
-    fetch="low"
-  %}
+    decoding="async"
+    fetchpriority="low"
+    width="1600"
+    height="2133"
+    style="aspect-ratio: 1600/2133;"
+    sizes="(min-width: 980px) 960px, 100vw"
+  />
 </figure>
 
 <div class="rule rule--spaced"></div>
 
-The Finch Archive collects recovered notes, incomplete transmissions, and fragments of observation attributed to **Halloway Finch**.
+<p>
+  The Finch Archive collects recovered notes, incomplete transmissions, and fragments of
+  observation attributed to <strong>Halloway Finch</strong>.
+</p>
 
-Each entry appears as it was found&mdash;unaltered, unverified, and incomplete. No official record confirms the origin or intent of these materials. Patterns emerge only to collapse. Dates repeat. Some transmissions reference events that have not yet occurred.
+<p>
+  Each entry appears as it was found—unaltered, unverified, and incomplete. No official record
+  confirms the origin or intent of these materials. Patterns emerge only to collapse. Dates repeat.
+  Some transmissions reference events that have not yet occurred.
+</p>
 
-This project preserves those fragments with minimal intervention and presents them in a consistent, navigable form.
+<p>
+  This project preserves those fragments with minimal intervention and presents them in a
+  consistent, navigable form.
+</p>
 
 <div class="rule rule--spaced"></div>
 
 ## Relationship to other records
 
-The Finch Archive at **fincharchive.com** serves as the canonical index: logs, field notes, and referenced artifacts are cataloged here with stable IDs and checksums.
+<p>
+  The Finch Archive at <a href="https://fincharchive.com">fincharchive.com</a> serves as the
+  canonical index: logs, field notes, and referenced artifacts are cataloged here with stable
+  identifiers and checksums.
+</p>
 
-Related materials and release notes are also published through the Substack instance at  
-[`hallowayfinch.com`](https://www.hallowayfinch.com), which functions as a public broadcast channel. When the two sources differ, the Archive is treated as the authoritative record.
+<p>
+  Related materials and release notes are also published through the
+  <a href="https://www.hallowayfinch.com" rel="noopener">Halloway Finch Substack</a>, which may
+  contain drafts, alternate presentations, or out-of-sequence fragments.
+</p>
+
+<p>
+  When discrepancies appear between sources, the Finch Archive record is considered primary unless
+  explicitly marked otherwise.
+</p>
 
 <div class="rule rule--spaced"></div>
 
 ## Transmission lookup
 
-Certain materials are not listed in the public catalog.
+<p>
+  Certain materials are not listed in the public catalog. When a log or artifact references an
+  access key, it can be submitted through the
+  <a href="/t/">Transmission Lookup</a> interface. The archive will return any records it is willing
+  to acknowledge.
+</p>
 
-When a log or artifact references an access key, it can be submitted through the  
-[Transmission Lookup](/t/) interface. The Archive will return any records it is willing to acknowledge.
-
-Responses may change over time. Readers are advised to record what they can.
+<p>
+  A lack of response does not guarantee the absence of a record. It may indicate redaction,
+  misclassification, or an ongoing review.
+</p>
 
 <div class="rule rule--spaced"></div>
 
-## Credits
+## Contact and credits
 
-Curator: Halloway Finch  
-License: [CC&nbsp;BY-NC-ND&nbsp;4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+<p>
+  Curator: Halloway Finch  
+  License: <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC&nbsp;BY-NC-ND&nbsp;4.0</a>
+</p>
+
+<p>
+  Technical notes, accessibility details, and a human-readable colophon are available at
+  <a href="/humans/">/humans/</a>.
+</p>
