@@ -8,10 +8,23 @@
     </div>
 
     <div class="header-actions">
-      <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false" title="Toggle color scheme">
+      <button id="theme-toggle"
+              class="theme-toggle"
+              type="button"
+              aria-pressed="false"
+              title="Toggle color scheme">
         <!-- SUN (visible in dark theme; action = go light) -->
         <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path fill="currentColor" d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Zm0 4a1 1 0 0 1-1-1v-1.5a1 1 0 1 1 2 0V21a1 1 0 0 1-1 1Zm0-20a1 1 0 0 1 1 1v1.5a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1Zm9 9a1 1 0 0 1-1 1h-1.5a1 1 0 1 1 0-2H20a1 1 0 0 1 1 1ZM5.5 12a1 1 0 0 1-1 1H3a1 1 0 1 1 0-2h1.5a1 1 0 0 1 1 1Zm12.02 6.02a1 1 0 0 1 0-1.42l1.06-1.06a1 1 0 1 1 1.41 1.41l-1.06 1.07a1 1 0 0 1-1.41 0ZM4 6.93A1 1 0 0 1 5.41 5.5l1.06 1.06A1 1 0 0 1 5.06 8L4 6.93Zm13.59-1.43A1 1 0 1 1 19 6.93L17.94 8a1 1 0 0 1-1.41-1.41l1.06-1.07ZM6.47 17.53a1 1 0 0 1 1.06-1.06l1.06 1.06A1 1 0 1 1 7.18 19L6.47 18.29a1 1 0 0 1 0-1.41Z"/>
+          <circle cx="12" cy="12" r="4"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6" />
+          <g stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <line x1="12" y1="2.5" x2="12" y2="5" />
+            <line x1="12" y1="19"  x2="12" y2="21.5" />
+            <line x1="2.5" y1="12" x2="5"  y2="12" />
+            <line x1="19"  y1="12" x2="21.5" y2="12" />
+          </g>
         </svg>
 
         <!-- MOON (visible in light theme; action = go dark) -->
