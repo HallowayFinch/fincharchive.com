@@ -8,31 +8,43 @@
     </div>
 
     <div class="header-actions">
-      <button id="theme-toggle"
-              class="theme-toggle"
-              type="button"
-              aria-pressed="false"
-              title="Toggle color scheme">
+      <button
+        id="theme-toggle"
+        class="theme-toggle"
+        type="button"
+        aria-pressed="false"
+        title="Toggle color scheme"
+      >
         <!-- SUN (visible in dark theme; action = go light) -->
-        <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <circle cx="12" cy="12" r="4"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.6" />
-          <g stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <line x1="12" y1="2.5" x2="12" y2="5" />
-            <line x1="12" y1="19"  x2="12" y2="21.5" />
-            <line x1="2.5" y1="12" x2="5"  y2="12" />
-            <line x1="19"  y1="12" x2="21.5" y2="12" />
+        <svg
+          class="icon icon-sun"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <!-- Option C: ring + four ticks (dial-style) -->
+          <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <!-- central ring -->
+            <circle cx="12" cy="12" r="4.25" />
+            <!-- north / south ticks -->
+            <path d="M12 5.25v-1.75M12 20.5v-1.75" />
+            <!-- east / west ticks -->
+            <path d="M5.25 12H3.5M20.5 12H18.75" />
           </g>
         </svg>
 
         <!-- MOON (visible in light theme; action = go dark) -->
-        <svg class="icon icon-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <!-- Robust, non-overlapping crescent -->
-          <path fill="currentColor"
-                d="M21 12.79A9 9 0 1 1 11.21 3
-                   a7.001 7.001 0 0 0 9.79 9.79Z"/>
+        <svg
+          class="icon icon-moon"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path
+            fill="currentColor"
+            d="M21 12.79A9 9 0 1 1 11.21 3
+               a7.001 7.001 0 0 0 9.79 9.79Z"
+          />
         </svg>
 
         <span class="visually-hidden">Toggle color scheme</span>
@@ -42,20 +54,30 @@
     <!-- Row 2: primary nav (full width on mobile) -->
     <nav class="primary-nav" aria-label="Primary">
       {% assign here = page.url | relative_url %}
-      <a href="{{ '/' | relative_url }}" {% if here == '/' %}aria-current="page"{% endif %}>Home</a>
+
+      <a href="{{ '/' | relative_url }}"
+         {% if here == '/' %}aria-current="page"{% endif %}>
+        Home
+      </a>
 
       <a href="{{ '/logs/' | relative_url }}"
-         {% if here == '/logs/' or here contains '/logs/' or page.collection == 'logs' %}aria-current="page"{% endif %}>
+         {% if here == '/logs/' or here contains '/logs/' or page.collection == 'logs' %}
+           aria-current="page"
+         {% endif %}>
         Logs
       </a>
 
       <a href="{{ '/field-notes/' | relative_url }}"
-         {% if here == '/field-notes/' or here contains '/field-notes/' or page.collection == 'field-notes' %}aria-current="page"{% endif %}>
+         {% if here == '/field-notes/' or here contains '/field-notes/' or page.collection == 'field-notes' %}
+           aria-current="page"
+         {% endif %}>
         Field Notes
       </a>
 
       <a href="{{ '/about/' | relative_url }}"
-         {% if here == '/about/' %}aria-current="page"{% endif %}>About</a>
+         {% if here == '/about/' %}aria-current="page"{% endif %}>
+        About
+      </a>
     </nav>
   </div>
 </header>
