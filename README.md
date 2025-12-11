@@ -2,7 +2,8 @@
 
 Recovered notes from incomplete transmissions.
 
-This repository is the canonical archive for **Halloway Finch** and deploys **https://fincharchive.com**.  
+This repository is the canonical archive for **Halloway Finch** and deploys **[fincharchive.com](https://fincharchive.com)**.
+
 It stores public logs, sidecar artifacts (audio/images/docs), integrity metadata, and the static Jekyll site used for publishing.
 
 [![RSS → Repo](https://github.com/HallowayFinch/fincharchive.com/actions/workflows/rss.yml/badge.svg?branch=main)](https://github.com/HallowayFinch/fincharchive.com/actions/workflows/rss.yml)
