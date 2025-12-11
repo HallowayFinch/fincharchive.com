@@ -37,7 +37,7 @@ hero_h: 2133
 </p>
 
 <p>
-  Each entry appears as it was found—unaltered, unverified, and incomplete. No official record
+  Each entry appears as it was found -- unaltered, unverified, and incomplete. No official record
   confirms the origin or intent of these materials. Patterns emerge only to collapse. Dates repeat.
   Some transmissions reference events that have not yet occurred.
 </p>
@@ -58,8 +58,8 @@ hero_h: 2133
 </p>
 
 <p>
-  Related materials and release notes are also published through the
-  <a href="https://www.hallowayfinch.com" rel="noopener">Halloway Finch Substack</a>, which may
+  Related materials and release notes are also published through 
+  <a href="https://www.hallowayfinch.com" rel="noopener">HallowayFinch.com</a>, which may
   contain drafts, alternate presentations, or out-of-sequence fragments.
 </p>
 
