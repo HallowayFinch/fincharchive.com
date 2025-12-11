@@ -31,69 +31,49 @@ hero_h: 2133
 
 <div class="rule rule--spaced"></div>
 
-<p>
-  The Finch Archive collects recovered notes, incomplete transmissions, and fragments of
-  observation attributed to <strong>Halloway Finch</strong>.
-</p>
+The Finch Archive collects recovered notes, incomplete transmissions, and fragments of
+observation attributed to **Halloway Finch**.
 
-<p>
-  Each entry appears as it was found -- unaltered, unverified, and incomplete. No official record
-  confirms the origin or intent of these materials. Patterns emerge only to collapse. Dates repeat.
-  Some transmissions reference events that have not yet occurred.
-</p>
+Each entry appears as it was found—unaltered, unverified, and incomplete. No official
+record confirms the origin or intent of these materials. Patterns emerge only to collapse.
+Dates repeat. Some transmissions reference events that have not yet occurred.
 
-<p>
-  This project preserves those fragments with minimal intervention and presents them in a
-  consistent, navigable form.
-</p>
+This project preserves those fragments with minimal intervention and presents them in a
+consistent, navigable form.
 
 <div class="rule rule--spaced"></div>
 
 ## Relationship to other records
 
-<p>
-  The Finch Archive at <a href="https://fincharchive.com">FinchArchive.com</a> serves as the
-  canonical index: logs, field notes, and referenced artifacts are cataloged here with stable
-  identifiers and checksums.
-</p>
+The Finch Archive at [FinchArchive.com](https://fincharchive.com) serves as the canonical
+index: logs, field notes, and referenced artifacts are cataloged here with stable
+identifiers and checksums.
 
-<p>
-  Related materials and release notes are also published through Substack at 
-  <a href="https://www.hallowayfinch.com" target="_blank" rel="noopener">HallowayFinch.com</a>, which may
-  contain drafts, alternate presentations, or out-of-sequence fragments.
-</p>
+Related materials and release notes are also published through Substack at
+[HallowayFinch.com](https://www.hallowayfinch.com), which may contain drafts, alternate
+presentations, or out-of-sequence fragments.
 
-<p>
-  When discrepancies appear between sources, the Finch Archive record is considered primary unless
-  explicitly marked otherwise.
-</p>
+When discrepancies appear between sources, the Finch Archive record is considered primary
+unless explicitly marked otherwise.
 
 <div class="rule rule--spaced"></div>
 
 ## Transmission lookup
 
-<p>
-  Certain materials are not listed in the public catalog. When a log or artifact references an
-  access key, it can be submitted through the
-  <a href="/t/">Transmission Lookup</a> interface. The archive will return any records it is willing
-  to acknowledge.
-</p>
+Certain materials are not listed in the public catalog. When a log or artifact references
+an access key, it can be submitted through the
+[Transmission Lookup](/t/) interface. The archive will return any records it is willing
+to acknowledge.
 
-<p>
-  A lack of response does not guarantee the absence of a record. It may indicate redaction,
-  misclassification, or an ongoing review.
-</p>
+A lack of response does not guarantee the absence of a record. It may indicate redaction,
+misclassification, or an ongoing review.
 
 <div class="rule rule--spaced"></div>
 
 ## Contact and credits
 
-<p>
-  Curator: Halloway Finch  
-  License: <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC&nbsp;BY-NC-ND&nbsp;4.0</a>
-</p>
+Curator: Halloway Finch  
+License: [CC&nbsp;BY-NC-ND&nbsp;4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)
 
-<p>
-  Technical notes, accessibility details, and a human-readable colophon are available at
-  <a href="/humans/">/humans/</a>.
-</p>
+Technical notes, accessibility details, and a human-readable colophon are available at
+[`/humans/`](/humans/).
