@@ -52,14 +52,14 @@ hero_h: 2133
 ## Relationship to other records
 
 <p>
-  The Finch Archive at <a href="https://fincharchive.com">fincharchive.com</a> serves as the
+  The Finch Archive at <a href="https://fincharchive.com">FinchArchive.com</a> serves as the
   canonical index: logs, field notes, and referenced artifacts are cataloged here with stable
   identifiers and checksums.
 </p>
 
 <p>
-  Related materials and release notes are also published through 
-  <a href="https://www.hallowayfinch.com" rel="noopener">HallowayFinch.com</a>, which may
+  Related materials and release notes are also published through Substack at 
+  <a href="https://www.hallowayfinch.com" target="_blank" rel="noopener">HallowayFinch.com</a>, which may
   contain drafts, alternate presentations, or out-of-sequence fragments.
 </p>
 
