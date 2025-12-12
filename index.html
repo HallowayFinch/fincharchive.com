@@ -5,14 +5,40 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
 full_width: true
 ---
 
-<section class="container home-archive" aria-labelledby="home-title">
-  {%- assign logs = site.logs | sort: "date" | reverse -%}
-  {%- assign feat = logs | first -%}
-  {%- assign rest = logs | slice: 1, 50 -%}
+{%- assign EMPTY = '' | split: '' -%}
+{%- assign logs  = site.logs | sort: "date" | reverse | default: EMPTY -%}
+{%- assign feat  = logs | first -%}
+{%- assign rest  = logs | slice: 1, 50 -%}
 
-  <header class="page-header">
+{%- assign notes = site["field-notes"] | sort: "date" | reverse | default: EMPTY -%}
+
+<section class="container home-archive" aria-labelledby="home-title">
+  <!-- Hero / intro -->
+  <header class="page-header home-hero">
     <h1 id="home-title" class="page-title">FINCH ARCHIVE</h1>
     <p class="page-lead">Recovered notes from incomplete transmissions.</p>
+
+    <p class="home-intro">
+      The Finch Archive catalogs incomplete transmissions, observational fragments, and recovered
+      notes attributed to <strong>Halloway Finch</strong>. Entries are preserved as they were found:
+      unverified, out of sequence, and occasionally in disagreement with one another.
+    </p>
+
+    <p class="home-intro">
+      Patterns appear, collapse, and return. Some records reference events that have not yet
+      occurred. Readers are encouraged to note what they can, in case the record changes.
+    </p>
+
+    <div class="home-actions">
+      {%- if feat -%}
+        <a class="btn" href="{{ feat.url | relative_url }}">
+          Latest transmission
+        </a>
+      {%- endif -%}
+      <a class="btn btn-ghost" href="{{ '/about/' | relative_url }}">
+        About the Archive
+      </a>
+    </div>
   </header>
 
   {%- if feat -%}
@@ -21,80 +47,122 @@ full_width: true
     {%- assign _feat_w    = feat.hero_w | default: 1600 -%}
     {%- assign _feat_h    = feat.hero_h | default: 900 -%}
 
-    <article class="feature-card">
-      <a class="feature-link" href="{{ feat.url | relative_url }}">
-        {%- if feat.hero_image -%}
-          {% include img.html
-            src=_feat_src
-            alt=_feat_alt
-            w=_feat_w
-            h=_feat_h
-            class="feature-thumb"
-            sizes="(min-width:980px) 720px, 100vw"
-            loading="eager"
-            fetch="high"
-          %}
-        {%- endif -%}
+    <section aria-labelledby="latest-log-heading" class="home-latest">
+      <h2 id="latest-log-heading" class="section-title">Latest transmission</h2>
 
-        <div class="feature-meta">
-          <h2 class="feature-title">{{ feat.title }}</h2>
-          <div class="feature-sub">
-            {%- if feat.log_id -%}
-              <span class="log-id">{{ feat.log_id }}</span>
-              <span aria-hidden="true">•</span>
-            {%- endif -%}
-            <time datetime="{{ feat.date | date_to_xmlschema }}">
-              {% include date-local.html dt=feat.date %}
-            </time>
-          </div>
-          {%- if feat.excerpt -%}
-            <p class="feature-excerpt">{{ feat.excerpt | strip_html | truncate: 190 }}</p>
+      <article class="feature-card">
+        <a class="feature-link" href="{{ feat.url | relative_url }}">
+          {%- if feat.hero_image -%}
+            {% include img.html
+              src=_feat_src
+              alt=_feat_alt
+              w=_feat_w
+              h=_feat_h
+              class="feature-thumb"
+              sizes="(min-width:980px) 720px, 100vw"
+              loading="eager"
+              fetch="high"
+            %}
           {%- endif -%}
-        </div>
-      </a>
-    </article>
+
+          <div class="feature-meta">
+            <h3 class="feature-title">{{ feat.title }}</h3>
+            <div class="feature-sub">
+              {%- if feat.log_id -%}
+                <span class="log-id">{{ feat.log_id }}</span>
+                <span aria-hidden="true">•</span>
+              {%- endif -%}
+              <time datetime="{{ feat.date | date_to_xmlschema }}">
+                {% include date-local.html dt=feat.date %}
+              </time>
+            </div>
+            {%- if feat.excerpt -%}
+              <p class="feature-excerpt">
+                {{ feat.excerpt | strip_html | truncate: 190 }}
+              </p>
+            {%- endif -%}
+          </div>
+        </a>
+      </article>
+    </section>
   {%- endif -%}
 
   {%- if rest and rest.size > 0 -%}
-    <ul class="log-list" role="list">
-      {%- for item in rest -%}
-        <li class="log-card">
-          <a class="log-link" href="{{ item.url | relative_url }}">
-            {%- if item.hero_image -%}
-              {%- assign _thumb_src  = item.hero_image | relative_url -%}
-              {%- assign _thumb_alt  = item.hero_alt | default: item.title -%}
-              {%- assign _thumb_w    = item.hero_w | default: 1600 -%}
-              {%- assign _thumb_h    = item.hero_h | default: 900 -%}
+    <section aria-labelledby="recent-logs-heading" class="home-recent">
+      <div class="section-heading-row">
+        <h2 id="recent-logs-heading" class="section-title">Recent logs</h2>
+        <a class="section-link" href="{{ '/logs/' | relative_url }}">View all logs</a>
+      </div>
 
-              {% include img.html
-                src=_thumb_src
-                alt=_thumb_alt
-                w=_thumb_w
-                h=_thumb_h
-                class="log-thumb"
-                sizes="(min-width:700px) 18vw, 30vw"
-                loading="lazy"
-                fetch="low"
-              %}
-            {%- endif -%}
+      {%- assign recent = rest | slice: 0, 6 -%}
+      <ul class="log-list" role="list">
+        {%- for item in recent -%}
+          <li class="log-card">
+            <a class="log-link" href="{{ item.url | relative_url }}">
+              {%- if item.hero_image -%}
+                {%- assign _thumb_src  = item.hero_image | relative_url -%}
+                {%- assign _thumb_alt  = item.hero_alt | default: item.title -%}
+                {%- assign _thumb_w    = item.hero_w | default: 1600 -%}
+                {%- assign _thumb_h    = item.hero_h | default: 900 -%}
 
-            <div class="log-meta">
-              <h3 class="log-title">{{ item.title }}</h3>
-              <div class="log-sub">
-                {%- if item.log_id -%}
-                  <span class="log-id">{{ item.log_id }}</span>
-                  <span aria-hidden="true">•</span>
-                {%- endif -%}
-                <time datetime="{{ item.date | date_to_xmlschema }}">
-                  {% include date-local.html dt=item.date %}
-                </time>
+                {% include img.html
+                  src=_thumb_src
+                  alt=_thumb_alt
+                  w=_thumb_w
+                  h=_thumb_h
+                  class="log-thumb"
+                  sizes="(min-width:700px) 18vw, 30vw"
+                  loading="lazy"
+                  fetch="low"
+                %}
+              {%- endif -%}
+
+              <div class="log-meta">
+                <h3 class="log-title">{{ item.title }}</h3>
+                <div class="log-sub">
+                  {%- if item.log_id -%}
+                    <span class="log-id">{{ item.log_id }}</span>
+                    <span aria-hidden="true">•</span>
+                  {%- endif -%}
+                  <time datetime="{{ item.date | date_to_xmlschema }}">
+                    {% include date-local.html dt=item.date %}
+                  </time>
+                </div>
               </div>
-            </div>
-          </a>
-        </li>
-      {%- endfor -%}
-    </ul>
-  {%- else -%}
-    <p>No logs found. Once a log exists in <code>_logs/</code>, it will appear here.</p>
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </section>
+  {%- endif -%}
+
+  {%- if notes and notes.size > 0 -%}
+    <section aria-labelledby="recent-notes-heading" class="home-notes">
+      <div class="section-heading-row">
+        <h2 id="recent-notes-heading" class="section-title">Field Notes</h2>
+        <a class="section-link" href="{{ '/field-notes/' | relative_url }}">View all Field Notes</a>
+      </div>
+
+      {%- assign recent_notes = notes | slice: 0, 3 -%}
+      <ul class="fn-home-list" role="list">
+        {%- for note in recent_notes -%}
+          <li class="fn-home-item">
+            <h3 class="fn-home-title">
+              <a href="{{ note.url | relative_url }}">{{ note.title }}</a>
+            </h3>
+            <p class="fn-home-meta">
+              <time datetime="{{ note.date | date_to_xmlschema }}">
+                {% include date-local.html dt=note.date %}
+              </time>
+            </p>
+            {%- if note.excerpt -%}
+              <p class="fn-home-excerpt">
+                {{ note.excerpt | strip_html | truncate: 140 }}
+              </p>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </section>
   {%- endif -%}
 </section>
