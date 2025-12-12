@@ -17,7 +17,7 @@
 
   /* Layout widths */
   --wrap: 1100px;  /* header max width */
-  --col: 76ch;     /* content column width */
+  --col: 84ch;     /* content column width (slightly widened) */
 
   /* Typography */
   --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
@@ -1200,25 +1200,35 @@ main.container .log-sub a:hover {
 }
 
 /* ======================================
-   18. Homepage · home console layout
+   18. Misc
    ====================================== */
 
-/* Give the homepage console its own, wider container.
-   This overrides the generic .container width ONLY when
-   .container and .home-console are on the same element. */
-.container.home-console {
-  max-width: min(80rem, 100%);
-  margin: 3rem auto;
-  padding-inline: 1.25rem;
+html {
+  scroll-behavior: smooth;
 }
 
-/* Slightly more breathing room on large screens */
-@media (min-width: 960px) {
+/* ======================================
+   19. Homepage console layout
+   ====================================== */
+
+/* Widen just the home console a bit more than the default container */
+.container.home-console {
+  max-width: min(96ch, 100% - 3rem);
+  margin: 3rem auto 3.25rem;
+  padding-bottom: 3rem;
+}
+
+/* On small screens, let it use full width so it doesn't feel extra narrow */
+@media (max-width: 640px) {
   .container.home-console {
-    max-width: min(84rem, 100%);
-    padding-inline: 2rem;
+    max-width: 100%;
+    margin-top: 2.25rem;
+    margin-bottom: 3rem;
+    padding-inline: 1rem;
   }
 }
+
+/* Hero + intro */
 
 .home-hero {
   margin-bottom: 1.75rem;
@@ -1226,12 +1236,10 @@ main.container .log-sub a:hover {
 
 .home-intro {
   margin-top: 0.5rem;
-  max-width: 40rem;
+  max-width: 44rem;
   font-size: 0.95rem;
   line-height: 1.6;
 }
-
-/* Hero figure */
 
 .home-figure {
   margin: 0 0 2rem;
@@ -1244,7 +1252,7 @@ main.container .log-sub a:hover {
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-html[data-theme="light"] .home-hero-image {
+:root[data-theme="light"] .home-hero-image {
   border-color: rgba(0, 0, 0, 0.08);
 }
 
@@ -1254,46 +1262,18 @@ html[data-theme="light"] .home-hero-image {
   opacity: 0.7;
 }
 
-/* Index status strip under hero image */
-
-.home-status {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.45rem;
-  margin: 0 0 1.75rem;
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.home-status-label {
-  text-transform: uppercase;
-  letter-spacing: 0.11em;
-  font-size: 0.72rem;
-}
-
-.home-status-dot {
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 999px;
-  background: #4caf50;
-  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.25);
-}
-
 /* Panel grid */
 
 .home-grid {
   display: grid;
   gap: 1.5rem;
-  margin-top: 1.75rem;
 }
 
-/* Two-column console on wider screens, with a slightly
-   larger left column so neither side feels “skinny”. */
+/* On wider screens, bias the left column a bit but keep both readable */
 @media (min-width: 960px) {
   .home-grid {
-    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.3fr);
-    column-gap: 2rem;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1.45fr);
+    column-gap: 1.9rem;
   }
 }
 
@@ -1345,6 +1325,7 @@ html[data-theme="light"] .home-hero-image {
 }
 
 /* Label + title block on the left */
+
 .panel-title-wrap {
   display: inline-flex;
   align-items: baseline;
@@ -1365,7 +1346,7 @@ html[data-theme="light"] .home-hero-image {
   margin: 0;
 }
 
-/* Tag on the right (log ID) */
+/* Tag on the right (log id) */
 
 .panel-tag {
   font-family: var(--mono);
@@ -1425,6 +1406,7 @@ html[data-theme="light"] .home-hero-image {
 }
 
 /* Slightly mute secondary panel bodies vs primary */
+
 .home-panel:not(.panel-primary) .panel-text,
 .home-panel:not(.panel-primary) .panel-status {
   color: var(--muted);
@@ -1495,7 +1477,6 @@ html[data-theme="light"] .home-hero-image {
   margin-top: 0.1rem;
 }
 
-/* Emphasised first link in “Access & Channels” */
 .panel-links-primary a {
   font-weight: 600;
 }
@@ -1506,7 +1487,8 @@ html[data-theme="light"] .home-hero-image {
   padding-top: 0.15rem;
 }
 
-/* Button-style text link used at bottom of some panels */
+/* Button-style text link */
+
 .btn-link {
   font-size: 0.8rem;
 }
@@ -1525,12 +1507,4 @@ html[data-theme="light"] .home-hero-image {
   border-radius: 999px;
   margin-right: 0.3rem;
   background: #4caf50;
-}
-
-/* ======================================
-   19. Misc
-   ====================================== */
-
-html {
-  scroll-behavior: smooth;
 }
