@@ -16,7 +16,7 @@
   --line: #222;
 
   /* Layout widths */
-  --wrap: 1100px;  /* header max width */
+  --wrap: 1200px;  /* header max width */
   --col: 84ch;     /* content column width (slightly widened) */
 
   /* Typography */
@@ -1211,24 +1211,15 @@ html {
    19. Homepage console layout
    ====================================== */
 
-/* Widen just the home console a bit more than the default container */
-.container.home-console {
-  max-width: min(96ch, 100% - 3rem);
-  margin: 3rem auto 3.25rem;
+/* Shell for the whole home console.
+   Lives inside the full_width <main> wrapper (`.wrap`). */
+.home-console {
+  max-width: min(84rem, 100% - 3rem);
+  margin: 0 auto;
   padding-bottom: 3rem;
 }
 
-/* On small screens, let it use full width so it doesn't feel extra narrow */
-@media (max-width: 640px) {
-  .container.home-console {
-    max-width: 100%;
-    margin-top: 2.25rem;
-    margin-bottom: 3rem;
-    padding-inline: 1rem;
-  }
-}
-
-/* Hero + intro */
+/* Header + intro block */
 
 .home-hero {
   margin-bottom: 1.75rem;
@@ -1236,10 +1227,12 @@ html {
 
 .home-intro {
   margin-top: 0.5rem;
-  max-width: 44rem;
+  max-width: 40rem;
   font-size: 0.95rem;
   line-height: 1.6;
 }
+
+/* Hero figure */
 
 .home-figure {
   margin: 0 0 2rem;
@@ -1269,10 +1262,11 @@ html {
   gap: 1.5rem;
 }
 
-/* On wider screens, bias the left column a bit but keep both readable */
+/* On wider screens, keep a two-column grid,
+   with a slightly larger left column. */
 @media (min-width: 960px) {
   .home-grid {
-    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1.45fr);
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.4fr);
     column-gap: 1.9rem;
   }
 }
