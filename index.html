@@ -3,6 +3,10 @@ layout: default
 title: Finch Archive
 description: "Recovered notes from incomplete transmissions: the latest logs from the Finch Archive."
 full_width: true
+hero_image: "/assets/og/home-console-1600x900.webp"
+hero_alt: "A dim, abandoned control corridor lit by a single fluorescent tube."
+hero_w: 1600
+hero_h: 900
 ---
 
 {%- assign EMPTY = '' | split: '' -%}
@@ -12,7 +16,7 @@ full_width: true
 
 {%- assign notes = site["field-notes"] | sort: "date" | reverse | default: EMPTY -%}
 
-<section class="container home-archive" aria-labelledby="home-title">
+<section class="container home-console" aria-labelledby="home-title">
   <!-- Hero / intro -->
   <header class="page-header home-hero">
     <h1 id="home-title" class="page-title">FINCH ARCHIVE</h1>
@@ -28,141 +32,177 @@ full_width: true
       Patterns appear, collapse, and return. Some records reference events that have not yet
       occurred. Readers are encouraged to note what they can, in case the record changes.
     </p>
-
-    <div class="home-actions">
-      {%- if feat -%}
-        <a class="btn" href="{{ feat.url | relative_url }}">
-          Latest transmission
-        </a>
-      {%- endif -%}
-      <a class="btn btn-ghost" href="{{ '/about/' | relative_url }}">
-        About the Archive
-      </a>
-    </div>
   </header>
 
-  {%- if feat -%}
-    {%- assign _feat_src  = feat.hero_image | relative_url -%}
-    {%- assign _feat_alt  = feat.hero_alt | default: feat.title -%}
-    {%- assign _feat_w    = feat.hero_w | default: 1600 -%}
-    {%- assign _feat_h    = feat.hero_h | default: 900 -%}
+  {%- if page.hero_image -%}
+    {%- assign _hero_src = page.hero_image | relative_url -%}
+    {%- assign _hero_alt = page.hero_alt | default: page.title -%}
+    {%- assign _hero_w   = page.hero_w   | default: 1600 -%}
+    {%- assign _hero_h   = page.hero_h   | default: 900  -%}
 
-    <section aria-labelledby="latest-log-heading" class="home-latest">
-      <h2 id="latest-log-heading" class="section-title">Latest transmission</h2>
+    <figure class="home-figure">
+      {% include img.html
+        src=_hero_src
+        alt=_hero_alt
+        w=_hero_w
+        h=_hero_h
+        class="home-hero-image"
+        sizes="(min-width:980px) 960px, 100vw"
+        loading="eager"
+        fetch="high"
+      %}
+      <figcaption class="home-figure-caption">
+        Archive console · primary monitor
+      </figcaption>
+    </figure>
+  {%- endif -%}
 
-      <article class="feature-card">
-        <a class="feature-link" href="{{ feat.url | relative_url }}">
-          {%- if feat.hero_image -%}
-            {% include img.html
-              src=_feat_src
-              alt=_feat_alt
-              w=_feat_w
-              h=_feat_h
-              class="feature-thumb"
-              sizes="(min-width:980px) 720px, 100vw"
-              loading="eager"
-              fetch="high"
-            %}
+  <!-- Console grid -->
+  <section class="home-grid" aria-label="Archive console panels">
+    <!-- Panel 1: Active transmission -->
+    <article class="home-panel panel-primary" aria-labelledby="panel-active-title">
+      <header class="panel-header">
+        <h2 id="panel-active-title" class="panel-title">Active transmission</h2>
+        {%- if feat and feat.log_id -%}
+          <span class="panel-tag">{{ feat.log_id }}</span>
+        {%- endif -%}
+      </header>
+
+      {%- if feat -%}
+        <div class="panel-body">
+          <h3 class="panel-item-title">
+            <a href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
+          </h3>
+
+          <p class="panel-meta">
+            <time datetime="{{ feat.date | date_to_xmlschema }}">
+              {% include date-local.html dt=feat.date %}
+            </time>
+          </p>
+
+          {%- if feat.excerpt -%}
+            <p class="panel-text">
+              {{ feat.excerpt | strip_html | truncate: 190 }}
+            </p>
           {%- endif -%}
 
-          <div class="feature-meta">
-            <h3 class="feature-title">{{ feat.title }}</h3>
-            <div class="feature-sub">
-              {%- if feat.log_id -%}
-                <span class="log-id">{{ feat.log_id }}</span>
-                <span aria-hidden="true">•</span>
-              {%- endif -%}
-              <time datetime="{{ feat.date | date_to_xmlschema }}">
-                {% include date-local.html dt=feat.date %}
-              </time>
-            </div>
-            {%- if feat.excerpt -%}
-              <p class="feature-excerpt">
-                {{ feat.excerpt | strip_html | truncate: 190 }}
-              </p>
-            {%- endif -%}
-          </div>
-        </a>
-      </article>
-    </section>
-  {%- endif -%}
-
-  {%- if rest and rest.size > 0 -%}
-    <section aria-labelledby="recent-logs-heading" class="home-recent">
-      <div class="section-heading-row">
-        <h2 id="recent-logs-heading" class="section-title">Recent logs</h2>
-        <a class="section-link" href="{{ '/logs/' | relative_url }}">View all logs</a>
-      </div>
-
-      {%- assign recent = rest | slice: 0, 6 -%}
-      <ul class="log-list" role="list">
-        {%- for item in recent -%}
-          <li class="log-card">
-            <a class="log-link" href="{{ item.url | relative_url }}">
-              {%- if item.hero_image -%}
-                {%- assign _thumb_src  = item.hero_image | relative_url -%}
-                {%- assign _thumb_alt  = item.hero_alt | default: item.title -%}
-                {%- assign _thumb_w    = item.hero_w | default: 1600 -%}
-                {%- assign _thumb_h    = item.hero_h | default: 900 -%}
-
-                {% include img.html
-                  src=_thumb_src
-                  alt=_thumb_alt
-                  w=_thumb_w
-                  h=_thumb_h
-                  class="log-thumb"
-                  sizes="(min-width:700px) 18vw, 30vw"
-                  loading="lazy"
-                  fetch="low"
-                %}
-              {%- endif -%}
-
-              <div class="log-meta">
-                <h3 class="log-title">{{ item.title }}</h3>
-                <div class="log-sub">
-                  {%- if item.log_id -%}
-                    <span class="log-id">{{ item.log_id }}</span>
-                    <span aria-hidden="true">•</span>
-                  {%- endif -%}
-                  <time datetime="{{ item.date | date_to_xmlschema }}">
-                    {% include date-local.html dt=item.date %}
-                  </time>
-                </div>
-              </div>
+          <div class="panel-actions">
+            <a class="btn btn-small" href="{{ feat.url | relative_url }}">Read log</a>
+            <a class="btn btn-ghost btn-small" href="{{ '/logs/' | relative_url }}">
+              View all logs
             </a>
-          </li>
-        {%- endfor -%}
-      </ul>
-    </section>
-  {%- endif -%}
+          </div>
+        </div>
+      {%- else -%}
+        <p class="panel-text">No active transmissions are currently indexed.</p>
+      {%- endif -%}
+    </article>
 
-  {%- if notes and notes.size > 0 -%}
-    <section aria-labelledby="recent-notes-heading" class="home-notes">
-      <div class="section-heading-row">
-        <h2 id="recent-notes-heading" class="section-title">Field Notes</h2>
-        <a class="section-link" href="{{ '/field-notes/' | relative_url }}">View all Field Notes</a>
+    <!-- Panel 2: Log index snapshot -->
+    <article class="home-panel" aria-labelledby="panel-logs-title">
+      <header class="panel-header">
+        <h2 id="panel-logs-title" class="panel-title">Log index snapshot</h2>
+      </header>
+
+      {%- assign recent_logs = logs | slice: 0, 4 -%}
+      {%- if recent_logs and recent_logs.size > 0 -%}
+        <ol class="panel-list">
+          {%- for item in recent_logs -%}
+            <li class="panel-list-item">
+              <div class="panel-list-main">
+                <span class="panel-list-title">
+                  <a href="{{ item.url | relative_url }}">{{ item.title }}</a>
+                </span>
+                {%- if item.log_id -%}
+                  <span class="panel-list-tag">{{ item.log_id }}</span>
+                {%- endif -%}
+              </div>
+              <time class="panel-list-date" datetime="{{ item.date | date_to_xmlschema }}">
+                {% include date-local.html dt=item.date %}
+              </time>
+            </li>
+          {%- endfor -%}
+        </ol>
+      {%- else -%}
+        <p class="panel-text">No logs have been cataloged yet.</p>
+      {%- endif -%}
+
+      <div class="panel-actions">
+        <a class="btn-link" href="{{ '/logs/' | relative_url }}">Open full logs index →</a>
       </div>
+    </article>
+
+    <!-- Panel 3: Field Notes -->
+    <article class="home-panel" aria-labelledby="panel-notes-title">
+      <header class="panel-header">
+        <h2 id="panel-notes-title" class="panel-title">Field Notes</h2>
+      </header>
 
       {%- assign recent_notes = notes | slice: 0, 3 -%}
-      <ul class="fn-home-list" role="list">
-        {%- for note in recent_notes -%}
-          <li class="fn-home-item">
-            <h3 class="fn-home-title">
-              <a href="{{ note.url | relative_url }}">{{ note.title }}</a>
-            </h3>
-            <p class="fn-home-meta">
-              <time datetime="{{ note.date | date_to_xmlschema }}">
+      {%- if recent_notes and recent_notes.size > 0 -%}
+        <ul class="panel-list" aria-label="Latest Field Notes">
+          {%- for note in recent_notes -%}
+            <li class="panel-list-item">
+              <div class="panel-list-main">
+                <span class="panel-list-title">
+                  <a href="{{ note.url | relative_url }}">{{ note.title }}</a>
+                </span>
+              </div>
+              <time class="panel-list-date" datetime="{{ note.date | date_to_xmlschema }}">
                 {% include date-local.html dt=note.date %}
               </time>
-            </p>
-            {%- if note.excerpt -%}
-              <p class="fn-home-excerpt">
-                {{ note.excerpt | strip_html | truncate: 140 }}
-              </p>
-            {%- endif -%}
-          </li>
-        {%- endfor -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- else -%}
+        <p class="panel-text">No Field Notes are currently visible in the public catalog.</p>
+      {%- endif -%}
+
+      <div class="panel-actions">
+        <a class="btn-link" href="{{ '/field-notes/' | relative_url }}">
+          View all Field Notes →
+        </a>
+      </div>
+    </article>
+
+    <!-- Panel 4: Access & feeds -->
+    <article class="home-panel" aria-labelledby="panel-access-title">
+      <header class="panel-header">
+        <h2 id="panel-access-title" class="panel-title">Access & channels</h2>
+      </header>
+
+      <p class="panel-text">
+        Some records are only available by reference. When a log or artifact mentions an access key,
+        it can be submitted through the Transmission Lookup interface.
+      </p>
+
+      <ul class="panel-links">
+        <li>
+          <a href="{{ '/t/' | relative_url }}">Transmission Lookup</a>
+        </li>
+        <li>
+          <a href="{{ '/feeds/' | relative_url }}">Feeds hub</a>
+        </li>
+        <li>
+          <a href="{{ '/feed/' | relative_url }}">Site RSS</a>
+        </li>
+        <li>
+          <a href="{{ '/feed.json' | relative_url }}">JSON feed</a>
+        </li>
+        <li>
+          <a href="{{ '/logs/feed.xml' | relative_url }}">Logs RSS</a>
+        </li>
+        <li>
+          <a href="{{ '/field-notes/feed.xml' | relative_url }}">Field Notes RSS</a>
+        </li>
+        <li>
+          <a href="{{ '/humans/' | relative_url }}">Colophon &amp; technical notes</a>
+        </li>
       </ul>
-    </section>
-  {%- endif -%}
+
+      <p class="panel-status">
+        Status: <span class="panel-status-indicator">online</span> · drift monitoring active
+      </p>
+    </article>
+  </section>
 </section>
