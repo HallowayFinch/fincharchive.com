@@ -1253,10 +1253,20 @@ html[data-theme="light"] .home-hero-image {
   gap: 1.5rem;
 }
 
+/* Desktop: asymmetric console layout */
 @media (min-width: 900px) {
   .home-grid {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 2fr);
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    grid-template-areas:
+      "primary primary"
+      "logs    access"
+      "notes   access";
   }
+
+  .panel-primary       { grid-area: primary; }
+  .home-panel--logs    { grid-area: logs; }
+  .home-panel--notes   { grid-area: notes; }
+  .home-panel--access  { grid-area: access; }
 }
 
 .home-panel {
@@ -1294,7 +1304,7 @@ html[data-theme="light"] .home-panel {
 }
 
 .panel-tag {
-  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+  font-family: var(--mono);
   font-size: 0.75rem;
   padding: 0.1rem 0.45rem;
   border-radius: 999px;
@@ -1382,7 +1392,7 @@ html[data-theme="light"] .panel-list-item {
 }
 
 .panel-list-tag {
-  font-family: var(--font-mono, ui-monospace);
+  font-family: var(--mono);
   font-size: 0.75rem;
   padding: 0.05rem 0.4rem;
   border-radius: 999px;
