@@ -1208,18 +1208,15 @@ html {
 }
 
 /* ======================================
-   19. Homepage console layout
+   19. Homepage / home console
    ====================================== */
 
-/* Shell for the whole home console.
-   Lives inside the full_width <main> wrapper (`.wrap`). */
+/* Wrapper for the homepage “console” area */
 .home-console {
-  max-width: min(84rem, 100% - 3rem);
-  margin: 0 auto;
   padding-bottom: 3rem;
 }
 
-/* Header + intro block */
+/* Hero / intro */
 
 .home-hero {
   margin-bottom: 1.75rem;
@@ -1255,19 +1252,19 @@ html {
   opacity: 0.7;
 }
 
-/* Panel grid */
+/* Panel grid – single column by default, 2-column on wide screens */
 
 .home-grid {
   display: grid;
   gap: 1.5rem;
 }
 
-/* On wider screens, keep a two-column grid,
-   with a slightly larger left column. */
+/* On wider screens: two columns, with a slight bias to the left column */
 @media (min-width: 960px) {
   .home-grid {
-    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.4fr);
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.3fr);
     column-gap: 1.9rem;
+    align-items: flex-start;
   }
 }
 
@@ -1303,6 +1300,8 @@ html {
 :root[data-theme="light"] .home-panel:hover {
   background: rgba(255, 255, 255, 0.9);
 }
+
+/* Primary panel (active transmission) gets a stronger border */
 
 .panel-primary {
   border-color: var(--accent);
@@ -1385,6 +1384,8 @@ html {
   color: var(--muted);
   margin: 0 0 0.35rem;
 }
+
+/* Buttons / actions */
 
 .panel-actions {
   margin-top: 0.6rem;
