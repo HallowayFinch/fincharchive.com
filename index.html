@@ -75,7 +75,7 @@ hero_h: 900
   <!-- Console grid -->
   <section class="home-grid" aria-label="Archive console panels">
     <!-- Panel 1: Active transmission -->
-    <article class="home-panel panel-primary" aria-labelledby="panel-active-title">
+    <article class="home-panel panel-primary panel-active" aria-labelledby="panel-active-title">
       <header class="panel-header">
         <div class="panel-title-wrap">
           <span class="panel-label">CH-01</span>
@@ -117,7 +117,7 @@ hero_h: 900
     </article>
 
     <!-- Panel 2: Log index snapshot -->
-    <article class="home-panel" aria-labelledby="panel-logs-title">
+    <article class="home-panel panel-log-index" aria-labelledby="panel-logs-title">
       <header class="panel-header">
         <div class="panel-title-wrap">
           <span class="panel-label">CH-02</span>
@@ -153,48 +153,8 @@ hero_h: 900
       </div>
     </article>
 
-    <!-- Panel 3: Field Notes -->
-    <article class="home-panel" aria-labelledby="panel-notes-title">
-      <header class="panel-header">
-        <div class="panel-title-wrap">
-          <span class="panel-label">CH-03</span>
-          <h2 id="panel-notes-title" class="panel-title">Field Notes</h2>
-        </div>
-      </header>
-
-      <p class="panel-text panel-subtitle">
-        Off-record observations and drift measurements.
-      </p>
-
-      {%- assign recent_notes = notes | slice: 0, 3 -%}
-      {%- if recent_notes and recent_notes.size > 0 -%}
-        <ul class="panel-list" aria-label="Latest Field Notes">
-          {%- for note in recent_notes -%}
-            <li class="panel-list-item">
-              <div class="panel-list-main">
-                <span class="panel-list-title">
-                  <a href="{{ note.url | relative_url }}">{{ note.title }}</a>
-                </span>
-              </div>
-              <time class="panel-list-date" datetime="{{ note.date | date_to_xmlschema }}">
-                {% include date-local.html dt=note.date %}
-              </time>
-            </li>
-          {%- endfor -%}
-        </ul>
-      {%- else -%}
-        <p class="panel-text">No Field Notes are currently visible in the public catalog.</p>
-      {%- endif -%}
-
-      <div class="panel-actions">
-        <a class="btn-link" href="{{ '/field-notes/' | relative_url }}">
-          View all Field Notes →
-        </a>
-      </div>
-    </article>
-
-    <!-- Panel 4: Access & feeds -->
-    <article class="home-panel" aria-labelledby="panel-access-title">
+    <!-- Panel 3: Access & Channels -->
+    <article class="home-panel panel-access" aria-labelledby="panel-access-title">
       <header class="panel-header">
         <div class="panel-title-wrap">
           <span class="panel-label">CH-04</span>
@@ -210,6 +170,7 @@ hero_h: 900
       <ul class="panel-links">
         <li class="panel-links-primary">
           <a href="{{ '/feeds/' | relative_url }}">All feeds</a>
+        </li>
         <li>
           <a href="{{ '/feed/' | relative_url }}">Site RSS</a>
         </li>
@@ -222,7 +183,7 @@ hero_h: 900
         <li>
           <a href="{{ '/field-notes/feed.xml' | relative_url }}">Field Notes RSS</a>
         </li>
-         <li>
+        <li>
           <a href="{{ '/t/' | relative_url }}">Transmission Lookup</a>
         </li>
         <li>
