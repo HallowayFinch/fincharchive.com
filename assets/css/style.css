@@ -1225,8 +1225,10 @@ html {
   line-height: 1.6;
 }
 
+/* Hero figure */
+
 .home-figure {
-  margin: 0 0 2rem;
+  margin: 0 0 1.25rem;
 }
 
 .home-hero-image {
@@ -1236,7 +1238,7 @@ html {
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-html[data-theme="light"] .home-hero-image {
+:root[data-theme="light"] .home-hero-image {
   border-color: rgba(0, 0, 0, 0.08);
 }
 
@@ -1246,45 +1248,81 @@ html[data-theme="light"] .home-hero-image {
   opacity: 0.7;
 }
 
+/* Index status strip */
+
+.home-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 1.75rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.home-status-label {
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  font-size: 0.72rem;
+}
+
+.home-status-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: #4caf50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.25);
+}
+
 /* Panel grid */
 
 .home-grid {
   display: grid;
   gap: 1.5rem;
+  margin-top: 1.75rem;
 }
 
-/* Desktop: asymmetric console layout */
-@media (min-width: 900px) {
+@media (min-width: 980px) {
   .home-grid {
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-    grid-template-areas:
-      "primary primary"
-      "logs    access"
-      "notes   access";
+    grid-template-columns: minmax(0, 2fr) minmax(0, 2fr);
   }
-
-  .panel-primary       { grid-area: primary; }
-  .home-panel--logs    { grid-area: logs; }
-  .home-panel--notes   { grid-area: notes; }
-  .home-panel--access  { grid-area: access; }
 }
+
+/* Panels */
 
 .home-panel {
+  position: relative;
   border-radius: 0.75rem;
   padding: 1rem 1.25rem 1.1rem;
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(0, 0, 0, 0.45);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7);
+  transition:
+    background var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease),
+    transform var(--dur-fast) var(--ease);
 }
 
-html[data-theme="light"] .home-panel {
+:root[data-theme="light"] .home-panel {
   background: rgba(255, 255, 255, 0.85);
   border-color: rgba(0, 0, 0, 0.06);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
+.home-panel:hover {
+  transform: translateY(-1px);
+  border-color: var(--badge-border);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-soft);
+}
+
+:root[data-theme="light"] .home-panel:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
 .panel-primary {
-  border-color: #7a3a3a;
+  border-color: var(--accent);
 }
 
 /* Panel internals */
@@ -1297,11 +1335,29 @@ html[data-theme="light"] .home-panel {
   margin-bottom: 0.5rem;
 }
 
+/* Label + title block on the left */
+
+.panel-title-wrap {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.panel-label {
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
 .panel-title {
   font-size: 0.95rem;
   text-transform: uppercase;
   letter-spacing: 0.11em;
+  margin: 0;
 }
+
+/* Tag on the right (log id) */
 
 .panel-tag {
   font-family: var(--mono);
@@ -1311,9 +1367,11 @@ html[data-theme="light"] .home-panel {
   border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
-html[data-theme="light"] .panel-tag {
+:root[data-theme="light"] .panel-tag {
   border-color: rgba(0, 0, 0, 0.3);
 }
+
+/* Body */
 
 .panel-body {
   margin-top: 0.35rem;
@@ -1339,6 +1397,12 @@ html[data-theme="light"] .panel-tag {
   line-height: 1.6;
 }
 
+.panel-subtitle {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0 0 0.35rem;
+}
+
 .panel-actions {
   margin-top: 0.6rem;
   display: flex;
@@ -1350,6 +1414,13 @@ html[data-theme="light"] .panel-tag {
   font-size: 0.8rem;
   padding-inline: 0.75rem;
   padding-block: 0.35rem;
+}
+
+/* Slightly mute secondary panel bodies vs primary */
+
+.home-panel:not(.panel-primary) .panel-text,
+.home-panel:not(.panel-primary) .panel-status {
+  color: var(--muted);
 }
 
 /* Lists inside panels */
@@ -1372,7 +1443,7 @@ html[data-theme="light"] .panel-tag {
   border-top: none;
 }
 
-html[data-theme="light"] .panel-list-item {
+:root[data-theme="light"] .panel-list-item {
   border-top-color: rgba(0, 0, 0, 0.06);
 }
 
@@ -1417,11 +1488,27 @@ html[data-theme="light"] .panel-list-item {
   margin-top: 0.1rem;
 }
 
+.panel-links-primary a {
+  font-weight: 600;
+}
+
+.panel-links-divider {
+  opacity: 0.6;
+  font-size: 0.75rem;
+  padding-top: 0.15rem;
+}
+
+/* Button-style text link */
+
 .btn-link {
   font-size: 0.8rem;
 }
 
 /* Status indicator */
+
+.panel-status {
+  margin-top: 0.4rem;
+}
 
 .panel-status-indicator::before {
   content: "";
