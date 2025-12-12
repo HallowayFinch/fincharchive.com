@@ -17,7 +17,7 @@
 
   /* Layout widths */
   --wrap: 1100px;  /* header max width */
-  --col: 72ch;     /* content column width */
+  --col: 76ch;     /* content column width */
 
   /* Typography */
   --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
@@ -1210,7 +1210,9 @@ html {
 /* Home console layout */
 
 .home-console {
-  max-width: 72rem;
+  /* Make the whole console a bit wider on large screens,
+     but still respect smaller viewports. */
+  max-width: min(84rem, 100% - 3rem);
   padding-bottom: 3rem;
 }
 
@@ -1225,10 +1227,8 @@ html {
   line-height: 1.6;
 }
 
-/* Hero figure */
-
 .home-figure {
-  margin: 0 0 1.25rem;
+  margin: 0 0 2rem;
 }
 
 .home-hero-image {
@@ -1238,7 +1238,7 @@ html {
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-:root[data-theme="light"] .home-hero-image {
+html[data-theme="light"] .home-hero-image {
   border-color: rgba(0, 0, 0, 0.08);
 }
 
@@ -1248,44 +1248,42 @@ html {
   opacity: 0.7;
 }
 
-/* Index status strip */
-
-.home-status {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.45rem;
-  margin: 0 0 1.75rem;
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.home-status-label {
-  text-transform: uppercase;
-  letter-spacing: 0.11em;
-  font-size: 0.72rem;
-}
-
-.home-status-dot {
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 999px;
-  background: #4caf50;
-  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.25);
-}
-
 /* Panel grid */
 
 .home-grid {
   display: grid;
   gap: 1.5rem;
-  margin-top: 1.75rem;
 }
 
-@media (min-width: 980px) {
+/* On wider screens, give the console more width and
+   bias the grid so the left column is larger. */
+@media (min-width: 960px) {
   .home-grid {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 2fr);
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.4fr);
+    column-gap: 1.9rem;
   }
+
+  .home-panel {
+    padding: 1.15rem 1.4rem 1.25rem;
+  }
+}
+
+.home-panel {
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.45);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7);
+}
+
+html[data-theme="light"] .home-panel {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.06);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+.panel-primary {
+  border-color: #7a3a3a;
 }
 
 /* Panels */
