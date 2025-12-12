@@ -13,8 +13,9 @@ hero_h: 900
 {%- assign logs  = site.logs | sort: "date" | reverse | default: EMPTY -%}
 {%- assign feat  = logs | first -%}
 {%- assign rest  = logs | slice: 1, 50 -%}
-
 {%- assign notes = site["field-notes"] | sort: "date" | reverse | default: EMPTY -%}
+{%- assign total_logs  = logs  | size -%}
+{%- assign total_notes = notes | size -%}
 
 <section class="container home-console" aria-labelledby="home-title">
   <!-- Hero / intro -->
@@ -52,17 +53,34 @@ hero_h: 900
         fetch="high"
       %}
       <figcaption class="home-figure-caption">
-        Archive console · primary monitor
+        Archive console · primary corridor monitor
       </figcaption>
     </figure>
   {%- endif -%}
+
+  {%- assign latest_dt = feat.date | default: site.time -%}
+  <p class="home-status" aria-label="Archive index status">
+    <span class="home-status-label">Index status</span>
+    <span class="home-status-dot" aria-hidden="true"></span>
+    <span>{{ total_logs }} logs</span>
+    <span aria-hidden="true">·</span>
+    <span>{{ total_notes }} field notes</span>
+    <span aria-hidden="true">·</span>
+    <span>last update:</span>
+    <time datetime="{{ latest_dt | date_to_xmlschema }}">
+      {% include date-local.html dt=latest_dt %}
+    </time>
+  </p>
 
   <!-- Console grid -->
   <section class="home-grid" aria-label="Archive console panels">
     <!-- Panel 1: Active transmission -->
     <article class="home-panel panel-primary" aria-labelledby="panel-active-title">
       <header class="panel-header">
-        <h2 id="panel-active-title" class="panel-title">Active transmission</h2>
+        <div class="panel-title-wrap">
+          <span class="panel-label">CH-01</span>
+          <h2 id="panel-active-title" class="panel-title">Active transmission</h2>
+        </div>
         {%- if feat and feat.log_id -%}
           <span class="panel-tag">{{ feat.log_id }}</span>
         {%- endif -%}
@@ -99,9 +117,12 @@ hero_h: 900
     </article>
 
     <!-- Panel 2: Log index snapshot -->
-    <article class="home-panel home-panel--logs" aria-labelledby="panel-logs-title">
+    <article class="home-panel" aria-labelledby="panel-logs-title">
       <header class="panel-header">
-        <h2 id="panel-logs-title" class="panel-title">Log index snapshot</h2>
+        <div class="panel-title-wrap">
+          <span class="panel-label">CH-02</span>
+          <h2 id="panel-logs-title" class="panel-title">Log index snapshot</h2>
+        </div>
       </header>
 
       {%- assign recent_logs = logs | slice: 0, 4 -%}
@@ -133,10 +154,17 @@ hero_h: 900
     </article>
 
     <!-- Panel 3: Field Notes -->
-    <article class="home-panel home-panel--notes" aria-labelledby="panel-notes-title">
+    <article class="home-panel" aria-labelledby="panel-notes-title">
       <header class="panel-header">
-        <h2 id="panel-notes-title" class="panel-title">Field Notes</h2>
+        <div class="panel-title-wrap">
+          <span class="panel-label">CH-03</span>
+          <h2 id="panel-notes-title" class="panel-title">Field Notes</h2>
+        </div>
       </header>
+
+      <p class="panel-text panel-subtitle">
+        Off-record observations and drift measurements.
+      </p>
 
       {%- assign recent_notes = notes | slice: 0, 3 -%}
       {%- if recent_notes and recent_notes.size > 0 -%}
@@ -166,9 +194,12 @@ hero_h: 900
     </article>
 
     <!-- Panel 4: Access & feeds -->
-    <article class="home-panel home-panel--access" aria-labelledby="panel-access-title">
+    <article class="home-panel" aria-labelledby="panel-access-title">
       <header class="panel-header">
-        <h2 id="panel-access-title" class="panel-title">Access &amp; channels</h2>
+        <div class="panel-title-wrap">
+          <span class="panel-label">CH-04</span>
+          <h2 id="panel-access-title" class="panel-title">Access &amp; channels</h2>
+        </div>
       </header>
 
       <p class="panel-text">
@@ -177,9 +208,10 @@ hero_h: 900
       </p>
 
       <ul class="panel-links">
-        <li>
+        <li class="panel-links-primary">
           <a href="{{ '/t/' | relative_url }}">Transmission Lookup</a>
         </li>
+        <li class="panel-links-divider" aria-hidden="true">—</li>
         <li>
           <a href="{{ '/feeds/' | relative_url }}">Feeds hub</a>
         </li>
@@ -201,7 +233,7 @@ hero_h: 900
       </ul>
 
       <p class="panel-status">
-        Status: <span class="panel-status-indicator">online</span> · drift monitoring active
+        Status: <span class="panel-status-indicator">online</span> · drift-monitoring active
       </p>
     </article>
   </section>
