@@ -1252,19 +1252,40 @@ html {
   opacity: 0.7;
 }
 
-/* Panel grid – single column by default, 2-column on wide screens */
+/* Panel grid – single column by default */
 
 .home-grid {
   display: grid;
   gap: 1.5rem;
 }
 
-/* On wider screens: two columns, with a slight bias to the left column */
+/* Desktop layout:
+   - Active transmission (CH-01) top-left
+   - Log index snapshot (CH-02) bottom-left
+   - Access & channels (CH-04) full-height right column
+*/
+
 @media (min-width: 960px) {
   .home-grid {
     grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.3fr);
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "active access"
+      "logs   access";
     column-gap: 1.9rem;
-    align-items: flex-start;
+    align-items: stretch;
+  }
+
+  .panel-active {
+    grid-area: active;
+  }
+
+  .panel-log-index {
+    grid-area: logs;
+  }
+
+  .panel-access {
+    grid-area: access;
   }
 }
 
@@ -1282,6 +1303,10 @@ html {
     border-color var(--dur-fast) var(--ease),
     box-shadow var(--dur-fast) var(--ease),
     transform var(--dur-fast) var(--ease);
+  /* Make all tiles stretch to fill their grid area */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 :root[data-theme="light"] .home-panel {
@@ -1357,6 +1382,7 @@ html {
 
 .panel-body {
   margin-top: 0.35rem;
+  flex: 1 1 auto; /* lets main content grow to fill tile */
 }
 
 .panel-item-title {
@@ -1492,6 +1518,20 @@ html {
 
 .panel-status {
   margin-top: 0.4rem;
+}
+
+/* On desktop, pin the Access & channels status line to the bottom
+   so that panel fills the full height of the right column cleanly. */
+@media (min-width: 960px) {
+  .panel-access {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-access .panel-status {
+    margin-top: auto;
+    padding-top: 0.5rem;
+  }
 }
 
 .panel-status-indicator::before {
