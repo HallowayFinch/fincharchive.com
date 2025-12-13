@@ -1,5 +1,5 @@
 {
-  "next_seq": 11,
+  "next_seq": 12,
   "guid_to_slug": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "the-voice-in-the-static",
     "https://hallowayfinch.substack.com/p/the-orchard-transmission": "the-orchard-transmission",
@@ -10,7 +10,8 @@
     "/p/the-person-in-the-corner-of-the-tape": "the-person-in-the-corner-of-the-tape",
     "/p/the-angle-deviation-study": "the-angle-deviation-study",
     "/p/the-drifting-vessel": "the-drifting-vessel",
-    "/p/the-prepared-site": "the-prepared-site"
+    "/p/the-prepared-site": "the-prepared-site",
+    "/p/the-station-7-diary": "the-station-7-diary"
   },
   "guid_to_log_id": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "1022A",
@@ -22,7 +23,8 @@
     "/p/the-person-in-the-corner-of-the-tape": "1022G",
     "/p/the-angle-deviation-study": "1022H",
     "/p/the-drifting-vessel": "1022I",
-    "/p/the-prepared-site": "1022J"
+    "/p/the-prepared-site": "1022J",
+    "/p/the-station-7-diary": "1022K"
   },
   "seen_guids": [
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static",
@@ -34,6 +36,7 @@
     "/p/the-person-in-the-corner-of-the-tape",
     "/p/the-angle-deviation-study",
     "/p/the-drifting-vessel",
-    "/p/the-prepared-site"
+    "/p/the-prepared-site",
+    "/p/the-station-7-diary"
   ]
 }
