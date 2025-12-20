@@ -1,5 +1,5 @@
 {
-  "next_seq": 12,
+  "next_seq": 13,
   "guid_to_slug": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "the-voice-in-the-static",
     "https://hallowayfinch.substack.com/p/the-orchard-transmission": "the-orchard-transmission",
@@ -11,7 +11,8 @@
     "/p/the-angle-deviation-study": "the-angle-deviation-study",
     "/p/the-drifting-vessel": "the-drifting-vessel",
     "/p/the-prepared-site": "the-prepared-site",
-    "/p/the-station-7-diary": "the-station-7-diary"
+    "/p/the-station-7-diary": "the-station-7-diary",
+    "/p/postmortem-1022": "postmortem-1022"
   },
   "guid_to_log_id": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "1022A",
@@ -24,7 +25,8 @@
     "/p/the-angle-deviation-study": "1022H",
     "/p/the-drifting-vessel": "1022I",
     "/p/the-prepared-site": "1022J",
-    "/p/the-station-7-diary": "1022K"
+    "/p/the-station-7-diary": "1022K",
+    "/p/postmortem-1022": "1022L"
   },
   "seen_guids": [
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static",
@@ -37,6 +39,7 @@
     "/p/the-angle-deviation-study",
     "/p/the-drifting-vessel",
     "/p/the-prepared-site",
-    "/p/the-station-7-diary"
+    "/p/the-station-7-diary",
+    "/p/postmortem-1022"
   ]
 }
