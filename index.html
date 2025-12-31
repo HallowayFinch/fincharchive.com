@@ -58,141 +58,146 @@ hero_h: 900
   {%- endif -%}
 
   {%- assign latest_dt = feat.date | default: site.time -%}
-  <p class="home-status" aria-label="Archive index status">
-    <span class="home-status-label">Index status</span>
-    <span class="home-status-dot" aria-hidden="true"></span>
-    <span>{{ total_logs }} logs</span>
-    <span aria-hidden="true">·</span>
-    <span>{{ total_notes }} field notes</span>
-    <span aria-hidden="true">·</span>
-    <span>last update:</span>
-    <time datetime="{{ latest_dt | date_to_xmlschema }}">
-      {% include date-local.html dt=latest_dt %}
-    </time>
-  </p>
 
-  <!-- Console grid -->
-  <section class="home-grid" aria-label="Archive console panels">
-    <!-- Panel 1: Active transmission -->
-    <article class="home-panel panel-primary panel-active" aria-labelledby="panel-active-title">
-      <header class="panel-header">
-        <div class="panel-title-wrap">
-          <span class="panel-label">CH-01</span>
-          <h2 id="panel-active-title" class="panel-title">Active transmission</h2>
-        </div>
-        {%- if feat and feat.log_id -%}
-          <span class="panel-tag">{{ feat.log_id }}</span>
-        {%- endif -%}
-      </header>
+  <!-- Console frame -->
+  <div class="home-console-frame" aria-label="Archive control console">
 
-      {%- if feat -%}
-        <div class="panel-body">
-          <h3 class="panel-item-title">
-            <a href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
-          </h3>
+    <p class="home-status" aria-label="Archive index status">
+      <span class="home-status-label">Index status</span>
+      <span class="home-status-dot" aria-hidden="true"></span>
+      <span>{{ total_logs }} logs</span>
+      <span aria-hidden="true">·</span>
+      <span>{{ total_notes }} field notes</span>
+      <span aria-hidden="true">·</span>
+      <span>last update:</span>
+      <time datetime="{{ latest_dt | date_to_xmlschema }}">
+        {% include date-local.html dt=latest_dt %}
+      </time>
+    </p>
 
-          <p class="panel-meta">
-            <time datetime="{{ feat.date | date_to_xmlschema }}">
-              {% include date-local.html dt=feat.date %}
-            </time>
-          </p>
-
-          {%- if feat.excerpt -%}
-            <p class="panel-text">
-              {{ feat.excerpt | strip_html | truncate: 190 }}
-            </p>
-          {%- endif -%}
-
-          <div class="panel-actions">
-            <a class="btn btn-small" href="{{ feat.url | relative_url }}">Read log</a>
-            <a class="btn btn-ghost btn-small" href="{{ '/logs/' | relative_url }}">
-              View all logs
-            </a>
+    <!-- Console grid -->
+    <section class="home-grid" aria-label="Archive console panels">
+      <!-- Panel 1: Active transmission -->
+      <article class="home-panel panel-primary panel-active" aria-labelledby="panel-active-title">
+        <header class="panel-header">
+          <div class="panel-title-wrap">
+            <span class="panel-label">CH-01</span>
+            <h2 id="panel-active-title" class="panel-title">Active transmission</h2>
           </div>
-        </div>
-      {%- else -%}
-        <p class="panel-text">No active transmissions are currently indexed.</p>
-      {%- endif -%}
-    </article>
+          {%- if feat and feat.log_id -%}
+            <span class="panel-tag">{{ feat.log_id }}</span>
+          {%- endif -%}
+        </header>
 
-    <!-- Panel 2: Log index snapshot -->
-    <article class="home-panel panel-log-index" aria-labelledby="panel-logs-title">
-      <header class="panel-header">
-        <div class="panel-title-wrap">
-          <span class="panel-label">CH-02</span>
-          <h2 id="panel-logs-title" class="panel-title">Log index snapshot</h2>
-        </div>
-      </header>
+        {%- if feat -%}
+          <div class="panel-body">
+            <h3 class="panel-item-title">
+              <a href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
+            </h3>
 
-      {%- assign recent_logs = logs | slice: 0, 4 -%}
-      {%- if recent_logs and recent_logs.size > 0 -%}
-        <ol class="panel-list">
-          {%- for item in recent_logs -%}
-            <li class="panel-list-item">
-              <div class="panel-list-main">
-                <span class="panel-list-title">
-                  <a href="{{ item.url | relative_url }}">{{ item.title }}</a>
-                </span>
-                {%- if item.log_id -%}
-                  <span class="panel-list-tag">{{ item.log_id }}</span>
-                {%- endif -%}
-              </div>
-              <time class="panel-list-date" datetime="{{ item.date | date_to_xmlschema }}">
-                {% include date-local.html dt=item.date %}
+            <p class="panel-meta">
+              <time datetime="{{ feat.date | date_to_xmlschema }}">
+                {% include date-local.html dt=feat.date %}
               </time>
-            </li>
-          {%- endfor -%}
-        </ol>
-      {%- else -%}
-        <p class="panel-text">No logs have been cataloged yet.</p>
-      {%- endif -%}
+            </p>
 
-      <div class="panel-actions">
-        <a class="btn-link" href="{{ '/logs/' | relative_url }}">Open full logs index →</a>
-      </div>
-    </article>
+            {%- if feat.excerpt -%}
+              <p class="panel-text">
+                {{ feat.excerpt | strip_html | truncate: 190 }}
+              </p>
+            {%- endif -%}
 
-    <!-- Panel 3: Access & Channels -->
-    <article class="home-panel panel-access" aria-labelledby="panel-access-title">
-      <header class="panel-header">
-        <div class="panel-title-wrap">
-          <span class="panel-label">CH-04</span>
-          <h2 id="panel-access-title" class="panel-title">Access &amp; channels</h2>
+            <div class="panel-actions">
+              <a class="btn btn-small" href="{{ feat.url | relative_url }}">Read log</a>
+              <a class="btn btn-ghost btn-small" href="{{ '/logs/' | relative_url }}">
+                View all logs
+              </a>
+            </div>
+          </div>
+        {%- else -%}
+          <p class="panel-text">No active transmissions are currently indexed.</p>
+        {%- endif -%}
+      </article>
+
+      <!-- Panel 2: Log index snapshot -->
+      <article class="home-panel panel-log-index" aria-labelledby="panel-logs-title">
+        <header class="panel-header">
+          <div class="panel-title-wrap">
+            <span class="panel-label">CH-02</span>
+            <h2 id="panel-logs-title" class="panel-title">Log index snapshot</h2>
+          </div>
+        </header>
+
+        {%- assign recent_logs = logs | slice: 0, 4 -%}
+        {%- if recent_logs and recent_logs.size > 0 -%}
+          <ol class="panel-list">
+            {%- for item in recent_logs -%}
+              <li class="panel-list-item">
+                <div class="panel-list-main">
+                  <span class="panel-list-title">
+                    <a href="{{ item.url | relative_url }}">{{ item.title }}</a>
+                  </span>
+                  {%- if item.log_id -%}
+                    <span class="panel-list-tag">{{ item.log_id }}</span>
+                  {%- endif -%}
+                </div>
+                <time class="panel-list-date" datetime="{{ item.date | date_to_xmlschema }}">
+                  {% include date-local.html dt=item.date %}
+                </time>
+              </li>
+            {%- endfor -%}
+          </ol>
+        {%- else -%}
+          <p class="panel-text">No logs have been cataloged yet.</p>
+        {%- endif -%}
+
+        <div class="panel-actions">
+          <a class="btn-link" href="{{ '/logs/' | relative_url }}">Open full logs index →</a>
         </div>
-      </header>
+      </article>
 
-      <p class="panel-text">
-        Some records are only available by reference. When a log or artifact mentions an access key,
-        it can be submitted through the Transmission Lookup interface.
-      </p>
+      <!-- Panel 3: Access & Channels -->
+      <article class="home-panel panel-access" aria-labelledby="panel-access-title">
+        <header class="panel-header">
+          <div class="panel-title-wrap">
+            <span class="panel-label">CH-04</span>
+            <h2 id="panel-access-title" class="panel-title">Access &amp; channels</h2>
+          </div>
+        </header>
 
-      <ul class="panel-links">
-        <li class="panel-links-primary">
-          <a href="{{ '/feeds/' | relative_url }}">All feeds</a>
-        </li>
-        <li>
-          <a href="{{ '/feed/' | relative_url }}">Site RSS</a>
-        </li>
-        <li>
-          <a href="{{ '/feed.json' | relative_url }}">JSON feed</a>
-        </li>
-        <li>
-          <a href="{{ '/logs/feed.xml' | relative_url }}">Logs RSS</a>
-        </li>
-        <li>
-          <a href="{{ '/field-notes/feed.xml' | relative_url }}">Field Notes RSS</a>
-        </li>
-        <li>
-          <a href="{{ '/t/' | relative_url }}">Transmission Lookup</a>
-        </li>
-        <li>
-          <a href="{{ '/humans/' | relative_url }}">Colophon &amp; technical notes</a>
-        </li>
-      </ul>
+        <p class="panel-text">
+          Some records are only available by reference. When a log or artifact mentions an access key,
+          it can be submitted through the Transmission Lookup interface.
+        </p>
 
-      <p class="panel-status">
-        Status: <span class="panel-status-indicator">online</span> · drift-monitoring active
-      </p>
-    </article>
-  </section>
+        <ul class="panel-links">
+          <li class="panel-links-primary">
+            <a href="{{ '/feeds/' | relative_url }}">All feeds</a>
+          </li>
+          <li>
+            <a href="{{ '/feed/' | relative_url }}">Site RSS</a>
+          </li>
+          <li>
+            <a href="{{ '/feed.json' | relative_url }}">JSON feed</a>
+          </li>
+          <li>
+            <a href="{{ '/logs/feed.xml' | relative_url }}">Logs RSS</a>
+          </li>
+          <li>
+            <a href="{{ '/field-notes/feed.xml' | relative_url }}">Field Notes RSS</a>
+          </li>
+          <li>
+            <a href="{{ '/t/' | relative_url }}">Transmission Lookup</a>
+          </li>
+          <li>
+            <a href="{{ '/humans/' | relative_url }}">Colophon &amp; technical notes</a>
+          </li>
+        </ul>
+
+        <p class="panel-status">
+          Status: <span class="panel-status-indicator">online</span> · drift-monitoring active
+        </p>
+      </article>
+    </section>
+  </div>
 </section>
