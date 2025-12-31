@@ -16,52 +16,53 @@ hero_h: 900
 {%- assign total_logs  = logs  | size -%}
 {%- assign total_notes = notes | size -%}
 
+{%- assign latest_dt = feat.date | default: site.time -%}
+
 <section class="container home-console" aria-labelledby="home-title">
-  <!-- Hero / intro -->
-  <header class="page-header home-hero">
-    <h1 id="home-title" class="page-title">FINCH ARCHIVE</h1>
-    <p class="page-lead">Recovered notes from incomplete transmissions.</p>
+  <!-- Keep semantic H1, but let the console UI carry the visual weight -->
+  <h1 id="home-title" class="visually-hidden">Finch Archive</h1>
 
-    <p class="home-intro">
-      The Finch Archive catalogs incomplete transmissions, observational fragments, and recovered
-      notes attributed to <strong>Halloway Finch</strong>. Entries are preserved as they were found:
-      unverified, out of sequence, and occasionally in disagreement with one another.
-    </p>
-
-    <p class="home-intro">
-      Patterns appear, collapse, and return. Some records reference events that have not yet
-      occurred. Readers are encouraged to note what they can, in case the record changes.
-    </p>
-  </header>
-
-  {%- if page.hero_image -%}
-    {%- assign _hero_src = page.hero_image | relative_url -%}
-    {%- assign _hero_alt = page.hero_alt | default: page.title -%}
-    {%- assign _hero_w   = page.hero_w   | default: 1600 -%}
-    {%- assign _hero_h   = page.hero_h   | default: 900  -%}
-
-    <figure class="home-figure">
-      {% include img.html
-        src=_hero_src
-        alt=_hero_alt
-        w=_hero_w
-        h=_hero_h
-        class="home-hero-image"
-        sizes="(min-width:980px) 960px, 100vw"
-        loading="eager"
-        fetch="high"
-      %}
-      <figcaption class="home-figure-caption">
-        Photo courtesy of the Finch Archive.
-      </figcaption>
-    </figure>
-  {%- endif -%}
-
-  {%- assign latest_dt = feat.date | default: site.time -%}
-
-  <!-- Console frame -->
+  <!-- Primary console frame -->
   <div class="home-console-frame" aria-label="Archive control console">
 
+    <!-- Boot sequence / terminal header -->
+    <section class="home-boot" aria-label="Console initialization sequence">
+      <p class="home-boot-title">FINCH ARCHIVE / PRIMARY CONSOLE</p>
+      <p class="home-boot-line">BUILD 10.22.Φ</p>
+      <p class="home-boot-line">[0000.001] Initializing archive core........OK</p>
+      <p class="home-boot-line">[0000.028] Loading log index...............OK</p>
+      <p class="home-boot-line">[0000.042] Drift monitor...................ACTIVE</p>
+      <p class="home-boot-line">
+        [0000.067] Last anomaly................
+        <span class="home-boot-meta">
+          {{ latest_dt | date: "%Y-%m-%d %H:%M %Z" }}
+        </span>
+      </p>
+      <p class="home-boot-line">[0000.088] External channels...............LINKED</p>
+      <p class="home-boot-line home-boot-line--final">[0000.104] Console status..................ONLINE</p>
+    </section>
+
+    <!-- Indicator row -->
+    <ul class="home-indicators" aria-label="Subsystem indicators">
+      <li class="home-indicator">
+        <span class="home-indicator-dot ok"></span>
+        <span class="home-indicator-label">DRIFT</span>
+      </li>
+      <li class="home-indicator">
+        <span class="home-indicator-dot ok"></span>
+        <span class="home-indicator-label">FIELD NOTES</span>
+      </li>
+      <li class="home-indicator">
+        <span class="home-indicator-dot warn"></span>
+        <span class="home-indicator-label">INTERFERENCE</span>
+      </li>
+      <li class="home-indicator">
+        <span class="home-indicator-dot idle"></span>
+        <span class="home-indicator-label">REMOTE ACCESS</span>
+      </li>
+    </ul>
+
+    <!-- Index status -->
     <p class="home-status" aria-label="Archive index status">
       <span class="home-status-label">Index status</span>
       <span class="home-status-dot" aria-hidden="true"></span>
@@ -199,5 +200,16 @@ hero_h: 900
         </p>
       </article>
     </section>
+
+    <!-- Command prompt / CTA -->
+    <a
+      class="home-prompt"
+      href="{{ '/t/' | relative_url }}"
+      aria-label="Open Transmission Lookup console"
+    >
+      <span class="home-prompt-prefix">/t</span>
+      <span class="home-prompt-command">lookup 1022M</span>
+      <span class="home-prompt-cursor" aria-hidden="true">▌</span>
+    </a>
   </div>
 </section>
