@@ -1256,7 +1256,7 @@ html {
 .home-console-frame {
   position: relative;
   margin: 0.75rem auto 3rem;
-  padding: 1rem 1.15rem 1.6rem;
+  padding: 1rem 1.1rem 1.6rem;
   border-radius: 0.9rem;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background:
@@ -1274,7 +1274,7 @@ html {
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.75),
     inset 0 0 0 1px rgba(0, 0, 0, 0.7);
-  overflow: hidden; /* prevent any horizontal overflow on mobile */
+  overflow: hidden; /* keep inner cards from kissing the border */
 }
 
 :root[data-theme="light"] .home-console-frame {
@@ -1320,11 +1320,12 @@ html {
   right: 12px;
 }
 
-/* On smaller screens, give the console a bit of extra breathing room */
+/* On smaller screens, tighten padding a bit but keep a gutter
+   between inner cards and the frame edge. */
 @media (max-width: 640px) {
   .home-console-frame {
     margin-inline: 0.5rem;
-    padding: 0.85rem 0.9rem 1.4rem;
+    padding: 0.85rem 0.75rem 1.3rem;
   }
 }
 
@@ -1336,8 +1337,8 @@ html {
   font-family: var(--mono);
   font-size: 0.8rem;
   line-height: 1.5;
-  padding: 0.6rem 0.7rem 0.65rem;
-  margin: 0 0 0.85rem;
+  padding: 0.6rem 0.7rem 0.7rem;
+  margin: 0 0.1rem 0.9rem;
   border-radius: 0.55rem;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: radial-gradient(
@@ -1372,73 +1373,85 @@ html {
   text-transform: uppercase;
 }
 
-/* Simple line (build line) */
+/* New structured boot lines */
 .home-boot-line {
   margin: 0;
+  display: flex;
+  align-items: baseline;
   letter-spacing: 0.06em;
-  opacity: 0.9;
 }
 
 .home-boot-line + .home-boot-line {
   margin-top: 0.1rem;
 }
 
-.home-boot-build {
-  text-transform: uppercase;
-  opacity: 0.8;
-}
-
-/* Time-coded rows with right-aligned status and dot filler */
-.home-boot-row {
-  display: flex;
-  align-items: baseline;
-  gap: 0.35rem;
-}
-
-.home-boot-timecode {
+.home-boot-code {
   flex: 0 0 auto;
-  white-space: nowrap;
+  margin-right: 0.35rem;
 }
 
 .home-boot-label {
   flex: 0 1 auto;
+  min-width: 0;
 }
 
-.home-boot-filler {
+/* Dot filler between label and status */
+.home-boot-dots {
   flex: 1 1 auto;
-  white-space: nowrap;
+  min-width: 1.5rem;
+  text-align: right;
   overflow: hidden;
-  text-overflow: clip;
-  color: rgba(230, 230, 230, 0.35);
 }
 
-:root[data-theme="light"] .home-boot-filler {
-  color: rgba(0, 0, 0, 0.25);
+.home-boot-dots::before {
+  content: "........................................................";
+  opacity: 0.45;
+  letter-spacing: 0.18em;
 }
 
-.home-boot-status {
-  flex: 0 0 auto;
-  white-space: nowrap;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-}
-
+/* Right-side status / meta */
+.home-boot-state,
 .home-boot-meta {
-  opacity: 0.85;
+  flex: 0 0 auto;
+  margin-left: 0.35rem;
+}
+
+/* Status colors */
+.home-boot-state--ok,
+.home-boot-state--online,
+.home-boot-state--active {
+  color: #4caf50;
+}
+
+.home-boot-state--linked {
+  color: #4fc3f7;
 }
 
 .home-boot-line--final {
   margin-top: 0.3rem;
 }
 
-/* Status color accents */
-.home-boot-status--active,
-.home-boot-status--online {
-  color: #4caf50;
-}
+/* Mobile: keep everything readable, drop the dots so lines never
+   collide with the panel edge. */
+@media (max-width: 540px) {
+  .home-boot {
+    font-size: 0.72rem;
+    padding-inline: 0.6rem;
+  }
 
-.home-boot-status--linked {
-  color: #03a9f4;
+  .home-boot-line {
+    flex-wrap: wrap;
+  }
+
+  .home-boot-dots {
+    display: none;
+  }
+
+  .home-boot-state,
+  .home-boot-meta {
+    margin-left: 0;
+    margin-top: 0.05rem;
+  }
 }
 
 /* ==========================
@@ -1449,7 +1462,7 @@ html {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem 0.9rem;
-  margin: 0 0 0.9rem;
+  margin: 0 0.1rem 0.9rem;
   padding: 0.25rem 0.1rem 0.1rem;
   list-style: none;
   font-family: var(--mono);
@@ -1500,7 +1513,7 @@ html {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.45rem 0.8rem;
-  margin: 0 0 1.25rem;
+  margin: 0 0.1rem 1.25rem;
   padding: 0.45rem 0.8rem 0.5rem;
   font-size: 0.8rem;
   letter-spacing: 0.12em;
@@ -1562,7 +1575,7 @@ html {
 .home-grid {
   display: grid;
   gap: 1.5rem;
-  margin-inline: 0.1rem; /* keeps card borders off the console edge */
+  margin-inline: 0.05rem;
 }
 
 /* Desktop layout:
@@ -1580,7 +1593,7 @@ html {
       "logs   access";
     column-gap: 1.9rem;
     align-items: stretch;
-    margin-inline: 0; /* snap back for desktop */
+    margin-inline: 0.1rem;
   }
 
   .panel-active {
@@ -1613,6 +1626,7 @@ html {
   display: flex;
   flex-direction: column;
   height: 100%;
+  margin-inline: 0.15rem; /* keep a visible gap to console frame */
 }
 
 :root[data-theme="light"] .home-panel {
@@ -1630,13 +1644,6 @@ html {
 
 :root[data-theme="light"] .home-panel:hover {
   background: rgba(255, 255, 255, 0.9);
-}
-
-/* Tighten spacing & add breathing room on small screens */
-@media (max-width: 640px) {
-  .home-panel {
-    padding: 0.9rem 1rem 1rem;
-  }
 }
 
 /* Primary panel (active transmission) gets a stronger border */
@@ -1863,7 +1870,7 @@ html {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 1.4rem;
+  margin: 1.4rem 0.1rem 0;
   padding: 0.55rem 0.8rem 0.6rem;
   border-radius: 0.55rem;
   border: 1px solid rgba(255, 255, 255, 0.22);
