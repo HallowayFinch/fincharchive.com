@@ -28,50 +28,49 @@ hero_h: 900
     <!-- Boot sequence / terminal header -->
     <section class="home-boot" aria-label="Console initialization sequence">
       <p class="home-boot-title">FINCH ARCHIVE / PRIMARY CONSOLE</p>
-      <p class="home-boot-line home-boot-build">BUILD 10.22.Φ</p>
 
-      <p class="home-boot-line home-boot-row">
-        <span class="home-boot-timecode">[0000.001]</span>
+      <p class="home-boot-line">
+        <span class="home-boot-code">[0000.001]</span>
         <span class="home-boot-label">Initializing archive core</span>
-        <span class="home-boot-filler" aria-hidden="true">....................................</span>
-        <span class="home-boot-status">OK</span>
+        <span class="home-boot-dots" aria-hidden="true"></span>
+        <span class="home-boot-state home-boot-state--ok">OK</span>
       </p>
 
-      <p class="home-boot-line home-boot-row">
-        <span class="home-boot-timecode">[0000.028]</span>
+      <p class="home-boot-line">
+        <span class="home-boot-code">[0000.028]</span>
         <span class="home-boot-label">Loading log index</span>
-        <span class="home-boot-filler" aria-hidden="true">....................................</span>
-        <span class="home-boot-status">OK</span>
+        <span class="home-boot-dots" aria-hidden="true"></span>
+        <span class="home-boot-state home-boot-state--ok">OK</span>
       </p>
 
-      <p class="home-boot-line home-boot-row">
-        <span class="home-boot-timecode">[0000.042]</span>
+      <p class="home-boot-line">
+        <span class="home-boot-code">[0000.042]</span>
         <span class="home-boot-label">Drift monitor</span>
-        <span class="home-boot-filler" aria-hidden="true">....................................</span>
-        <span class="home-boot-status home-boot-status--active">ACTIVE</span>
+        <span class="home-boot-dots" aria-hidden="true"></span>
+        <span class="home-boot-state home-boot-state--active">ACTIVE</span>
       </p>
 
-      <p class="home-boot-line home-boot-row">
-        <span class="home-boot-timecode">[0000.067]</span>
+      <p class="home-boot-line">
+        <span class="home-boot-code">[0000.067]</span>
         <span class="home-boot-label">Last anomaly</span>
-        <span class="home-boot-filler" aria-hidden="true">....................................</span>
-        <span class="home-boot-status home-boot-meta">
+        <span class="home-boot-dots" aria-hidden="true"></span>
+        <span class="home-boot-meta">
           {{ latest_dt | date: "%Y-%m-%d %H:%M %Z" }}
         </span>
       </p>
 
-      <p class="home-boot-line home-boot-row">
-        <span class="home-boot-timecode">[0000.088]</span>
+      <p class="home-boot-line">
+        <span class="home-boot-code">[0000.088]</span>
         <span class="home-boot-label">External channels</span>
-        <span class="home-boot-filler" aria-hidden="true">....................................</span>
-        <span class="home-boot-status home-boot-status--linked">LINKED</span>
+        <span class="home-boot-dots" aria-hidden="true"></span>
+        <span class="home-boot-state home-boot-state--linked">LINKED</span>
       </p>
 
-      <p class="home-boot-line home-boot-row home-boot-line--final">
-        <span class="home-boot-timecode">[0000.104]</span>
+      <p class="home-boot-line home-boot-line--final">
+        <span class="home-boot-code">[0000.104]</span>
         <span class="home-boot-label">Console status</span>
-        <span class="home-boot-filler" aria-hidden="true">....................................</span>
-        <span class="home-boot-status home-boot-status--online">ONLINE</span>
+        <span class="home-boot-dots" aria-hidden="true"></span>
+        <span class="home-boot-state home-boot-state--online">ONLINE</span>
       </p>
     </section>
 
