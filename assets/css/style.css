@@ -1274,7 +1274,7 @@ html {
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.75),
     inset 0 0 0 1px rgba(0, 0, 0, 0.7);
-  /* NEW: keep all inner borders/shadows clipped inside the frame */
+  /* keep all inner borders/shadows clipped inside the frame */
   overflow: hidden;
 }
 
@@ -1377,18 +1377,41 @@ html {
   margin: 0;
   letter-spacing: 0.06em;
   opacity: 0.9;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .home-boot-line + .home-boot-line {
   margin-top: 0.1rem;
 }
 
-.home-boot-meta {
-  opacity: 0.85;
-}
-
 .home-boot-line--final {
   margin-top: 0.3rem;
+}
+
+.home-boot-meta {
+  opacity: 0.85;
+  margin-left: 0.35rem;
+}
+
+/* Status tokens: OK / ACTIVE / LINKED / ONLINE */
+.home-boot-status {
+  display: inline-block;
+  margin-left: 0.35rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.home-boot-status--ok,
+.home-boot-status--active,
+.home-boot-status--online {
+  color: #4caf50;
+}
+
+.home-boot-status--linked {
+  color: #40b3ff;
 }
 
 /* ==========================
@@ -1561,7 +1584,7 @@ html {
   display: flex;
   flex-direction: column;
   height: 100%;
-  /* NEW: keep panels visually inside the console frame */
+  /* keep panels visually inside the console frame */
   margin-inline: 0.15rem;
   max-width: calc(100% - 0.3rem);
 }
@@ -1593,7 +1616,6 @@ html {
 }
 
 /* Primary panel (active transmission) gets a stronger border */
-
 .panel-primary {
   border-color: var(--accent);
 }
@@ -1602,9 +1624,10 @@ html {
 
 .panel-header {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 0.75rem;
+  flex-wrap: wrap;              /* allow tag to wrap on narrow screens */
+  gap: 0.5rem 0.75rem;
   margin-bottom: 0.5rem;
 }
 
@@ -1612,6 +1635,7 @@ html {
   display: inline-flex;
   align-items: baseline;
   gap: 0.5rem;
+  min-width: 0;                 /* let title shrink instead of pushing out */
 }
 
 .panel-label {
@@ -1626,11 +1650,14 @@ html {
   text-transform: uppercase;
   letter-spacing: 0.11em;
   margin: 0;
+  word-break: break-word;
 }
 
 /* Tag on the right (log id) */
-
 .panel-tag {
+  flex: 0 0 auto;
+  margin-left: auto;
+  margin-top: 0.05rem;
   font-family: var(--mono);
   font-size: 0.75rem;
   padding: 0.1rem 0.45rem;
@@ -1640,6 +1667,13 @@ html {
 
 :root[data-theme="light"] .panel-tag {
   border-color: rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 400px) {
+  .panel-tag {
+    font-size: 0.7rem;
+    padding-inline: 0.35rem;
+  }
 }
 
 /* Body */
