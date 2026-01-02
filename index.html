@@ -24,50 +24,54 @@ hero_h: 900
 
   <!-- Primary console frame -->
   <div class="home-console-frame" aria-label="Archive control console">
-    <!-- CRT overlay -->
-    <div class="home-console-overlay" aria-hidden="true"></div>
 
     <!-- Boot sequence / terminal header -->
     <section class="home-boot" aria-label="Console initialization sequence">
       <p class="home-boot-title">FINCH ARCHIVE / PRIMARY CONSOLE</p>
-      <p class="home-boot-line">BUILD 10.22.Φ</p>
+      <p class="home-boot-line home-boot-build">BUILD 10.22.Φ</p>
 
-      <p class="home-boot-line home-boot-line--status">
-        <span class="boot-left">[0000.001] Initializing archive core</span>
-        <span class="boot-dots" aria-hidden="true"></span>
-        <span class="boot-right">OK</span>
+      <p class="home-boot-line home-boot-row">
+        <span class="home-boot-timecode">[0000.001]</span>
+        <span class="home-boot-label">Initializing archive core</span>
+        <span class="home-boot-filler" aria-hidden="true">....................................</span>
+        <span class="home-boot-status">OK</span>
       </p>
 
-      <p class="home-boot-line home-boot-line--status">
-        <span class="boot-left">[0000.028] Loading log index</span>
-        <span class="boot-dots" aria-hidden="true"></span>
-        <span class="boot-right">OK</span>
+      <p class="home-boot-line home-boot-row">
+        <span class="home-boot-timecode">[0000.028]</span>
+        <span class="home-boot-label">Loading log index</span>
+        <span class="home-boot-filler" aria-hidden="true">....................................</span>
+        <span class="home-boot-status">OK</span>
       </p>
 
-      <p class="home-boot-line home-boot-line--status">
-        <span class="boot-left">[0000.042] Drift monitor</span>
-        <span class="boot-dots" aria-hidden="true"></span>
-        <span class="boot-right">ACTIVE</span>
+      <p class="home-boot-line home-boot-row">
+        <span class="home-boot-timecode">[0000.042]</span>
+        <span class="home-boot-label">Drift monitor</span>
+        <span class="home-boot-filler" aria-hidden="true">....................................</span>
+        <span class="home-boot-status home-boot-status--active">ACTIVE</span>
       </p>
 
-      <p class="home-boot-line home-boot-line--status">
-        <span class="boot-left">[0000.067] Last anomaly</span>
-        <span class="boot-dots" aria-hidden="true"></span>
-        <span class="boot-right home-boot-meta">
+      <p class="home-boot-line home-boot-row">
+        <span class="home-boot-timecode">[0000.067]</span>
+        <span class="home-boot-label">Last anomaly</span>
+        <span class="home-boot-filler" aria-hidden="true">....................................</span>
+        <span class="home-boot-status home-boot-meta">
           {{ latest_dt | date: "%Y-%m-%d %H:%M %Z" }}
         </span>
       </p>
 
-      <p class="home-boot-line home-boot-line--status">
-        <span class="boot-left">[0000.088] External channels</span>
-        <span class="boot-dots" aria-hidden="true"></span>
-        <span class="boot-right">LINKED</span>
+      <p class="home-boot-line home-boot-row">
+        <span class="home-boot-timecode">[0000.088]</span>
+        <span class="home-boot-label">External channels</span>
+        <span class="home-boot-filler" aria-hidden="true">....................................</span>
+        <span class="home-boot-status home-boot-status--linked">LINKED</span>
       </p>
 
-      <p class="home-boot-line home-boot-line--status home-boot-line--final">
-        <span class="boot-left">[0000.104] Console status</span>
-        <span class="boot-dots" aria-hidden="true"></span>
-        <span class="boot-right">ONLINE</span>
+      <p class="home-boot-line home-boot-row home-boot-line--final">
+        <span class="home-boot-timecode">[0000.104]</span>
+        <span class="home-boot-label">Console status</span>
+        <span class="home-boot-filler" aria-hidden="true">....................................</span>
+        <span class="home-boot-status home-boot-status--online">ONLINE</span>
       </p>
     </section>
 
