@@ -24,22 +24,51 @@ hero_h: 900
 
   <!-- Primary console frame -->
   <div class="home-console-frame" aria-label="Archive control console">
+    <!-- CRT overlay -->
+    <div class="home-console-overlay" aria-hidden="true"></div>
 
     <!-- Boot sequence / terminal header -->
     <section class="home-boot" aria-label="Console initialization sequence">
       <p class="home-boot-title">FINCH ARCHIVE / PRIMARY CONSOLE</p>
       <p class="home-boot-line">BUILD 10.22.Φ</p>
-      <p class="home-boot-line">[0000.001] Initializing archive core........OK</p>
-      <p class="home-boot-line">[0000.028] Loading log index...............OK</p>
-      <p class="home-boot-line">[0000.042] Drift monitor...................ACTIVE</p>
-      <p class="home-boot-line">
-        [0000.067] Last anomaly................
-        <span class="home-boot-meta">
+
+      <p class="home-boot-line home-boot-line--status">
+        <span class="boot-left">[0000.001] Initializing archive core</span>
+        <span class="boot-dots" aria-hidden="true"></span>
+        <span class="boot-right">OK</span>
+      </p>
+
+      <p class="home-boot-line home-boot-line--status">
+        <span class="boot-left">[0000.028] Loading log index</span>
+        <span class="boot-dots" aria-hidden="true"></span>
+        <span class="boot-right">OK</span>
+      </p>
+
+      <p class="home-boot-line home-boot-line--status">
+        <span class="boot-left">[0000.042] Drift monitor</span>
+        <span class="boot-dots" aria-hidden="true"></span>
+        <span class="boot-right">ACTIVE</span>
+      </p>
+
+      <p class="home-boot-line home-boot-line--status">
+        <span class="boot-left">[0000.067] Last anomaly</span>
+        <span class="boot-dots" aria-hidden="true"></span>
+        <span class="boot-right home-boot-meta">
           {{ latest_dt | date: "%Y-%m-%d %H:%M %Z" }}
         </span>
       </p>
-      <p class="home-boot-line">[0000.088] External channels...............LINKED</p>
-      <p class="home-boot-line home-boot-line--final">[0000.104] Console status..................ONLINE</p>
+
+      <p class="home-boot-line home-boot-line--status">
+        <span class="boot-left">[0000.088] External channels</span>
+        <span class="boot-dots" aria-hidden="true"></span>
+        <span class="boot-right">LINKED</span>
+      </p>
+
+      <p class="home-boot-line home-boot-line--status home-boot-line--final">
+        <span class="boot-left">[0000.104] Console status</span>
+        <span class="boot-dots" aria-hidden="true"></span>
+        <span class="boot-right">ONLINE</span>
+      </p>
     </section>
 
     <!-- Indicator row -->
