@@ -1255,8 +1255,8 @@ html {
 
 .home-console-frame {
   position: relative;
-  margin: 0.75rem 0 3rem;          /* full container width (no side narrowing) */
-  padding: 1rem 1.15rem 1.8rem;
+  margin: 0.75rem auto 3rem;
+  padding: 1rem 1.15rem 1.7rem;
   border-radius: 0.9rem;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background:
@@ -1274,7 +1274,8 @@ html {
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.75),
     inset 0 0 0 1px rgba(0, 0, 0, 0.7);
-  overflow: hidden; /* keep inner glows/edges clipped */
+  /* keep all inner borders/shadows clipped inside the frame */
+  overflow: hidden;
 }
 
 :root[data-theme="light"] .home-console-frame {
@@ -1320,11 +1321,11 @@ html {
   right: 12px;
 }
 
-/* On smaller screens, keep width full but soften padding slightly */
+/* On smaller screens, let the console use the full container width */
 @media (max-width: 640px) {
   .home-console-frame {
-    margin: 0.75rem 0 2.5rem;
-    padding: 0.9rem 0.9rem 1.6rem;
+    margin-inline: 0;
+    padding: 0.85rem 0.9rem 1.6rem;
   }
 }
 
@@ -1337,7 +1338,7 @@ html {
   font-size: 0.8rem;
   line-height: 1.5;
   padding: 0.6rem 0.7rem 0.7rem;
-  margin: 0 0 0.85rem;
+  margin: 0 0 0.95rem;
   border-radius: 0.55rem;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: radial-gradient(
@@ -1372,64 +1373,51 @@ html {
   text-transform: uppercase;
 }
 
-/* Make boot lines stay structured and readable on mobile */
 .home-boot-line {
   margin: 0;
   letter-spacing: 0.06em;
   opacity: 0.9;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  column-gap: 0.6rem;
-  align-items: baseline;
 }
 
 .home-boot-line + .home-boot-line {
-  margin-top: 0.15rem;
-}
-
-.home-boot-code {
-  opacity: 0.85;
-  white-space: nowrap;
-}
-
-.home-boot-label {
-  min-width: 0;
-}
-
-.home-boot-dots {
-  display: none; /* decorative; dropping on mobile for clarity */
+  margin-top: 0.12rem;
 }
 
 .home-boot-meta {
   opacity: 0.85;
-  white-space: nowrap;
 }
 
 .home-boot-line--final {
   margin-top: 0.3rem;
 }
 
-/* State colours */
+/* State labels (OK / ACTIVE / LINKED / ONLINE) */
+
 .home-boot-state {
   font-weight: 600;
+  letter-spacing: 0.1em;
 }
+
 .home-boot-state--ok,
-.home-boot-state--online {
+.home-status-dot,
+.panel-status-indicator::before {
   color: #4caf50;
 }
+
+.home-boot-state--ok {
+  color: #4caf50;
+}
+
 .home-boot-state--active {
   color: #ffeb3b;
 }
+
 .home-boot-state--linked {
-  color: #29b6f6;
+  color: #4fc3f7;
 }
 
-/* Slightly smaller type on very small screens */
-@media (max-width: 480px) {
-  .home-boot {
-    font-size: 0.74rem;
-    line-height: 1.45;
-  }
+.home-boot-state--online {
+  color: #4caf50;
 }
 
 /* ==========================
@@ -1491,8 +1479,8 @@ html {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.45rem 0.8rem;
-  margin: 0 0 1.25rem;
-  padding: 0.45rem 0.8rem 0.6rem;
+  margin: 0 0 1.4rem;
+  padding: 0.45rem 0.8rem 0.5rem;
   font-size: 0.8rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -1552,7 +1540,7 @@ html {
 
 .home-grid {
   display: grid;
-  gap: 1.5rem;
+  gap: 1.6rem;
 }
 
 /* Desktop layout:
@@ -1590,7 +1578,7 @@ html {
 .home-panel {
   position: relative;
   border-radius: 0.75rem;
-  padding: 1rem 1.25rem 1.6rem; /* extra bottom padding so buttons/links clear border */
+  padding: 0.95rem 1.25rem 1.7rem;
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(0, 0, 0, 0.45);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7);
@@ -1602,8 +1590,9 @@ html {
   display: flex;
   flex-direction: column;
   height: 100%;
-  margin-inline: 0;      /* align with console edges */
-  max-width: 100%;
+  /* keep panels visually inside the console frame */
+  margin-inline: 0.15rem;
+  max-width: calc(100% - 0.3rem);
 }
 
 :root[data-theme="light"] .home-panel {
@@ -1623,14 +1612,17 @@ html {
   background: rgba(255, 255, 255, 0.9);
 }
 
-/* Slight padding tweak on narrow phones */
+/* Slight padding/margin trim on narrow phones */
 @media (max-width: 480px) {
   .home-panel {
-    padding: 0.95rem 1rem 1.5rem;
+    padding-inline: 0.9rem;
+    margin-inline: 0.1rem;
+    max-width: calc(100% - 0.2rem);
   }
 }
 
 /* Primary panel (active transmission) gets a stronger border */
+
 .panel-primary {
   border-color: var(--accent);
 }
@@ -1639,7 +1631,7 @@ html {
 
 .panel-header {
   display: flex;
-  align-items: flex-start;
+  align-items: baseline;
   justify-content: space-between;
   gap: 0.75rem;
   margin-bottom: 0.5rem;
@@ -1670,10 +1662,9 @@ html {
 .panel-tag {
   font-family: var(--mono);
   font-size: 0.75rem;
-  padding: 0.1rem 0.6rem;
+  padding: 0.1rem 0.45rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.25);
-  flex-shrink: 0;
 }
 
 :root[data-theme="light"] .panel-tag {
@@ -1723,7 +1714,13 @@ html {
 }
 
 .panel-actions--link-only {
-  margin-top: 0.65rem;
+  justify-content: flex-start;
+}
+
+/* keep bottom breathing room so buttons/links don’t hug the border */
+.panel-primary .panel-actions,
+.panel-log-index .panel-actions {
+  margin-bottom: 0.15rem;
 }
 
 .btn-small {
@@ -1784,7 +1781,6 @@ html {
   padding: 0.05rem 0.4rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  flex-shrink: 0;
 }
 
 .panel-list-date {
