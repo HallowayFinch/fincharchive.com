@@ -24,7 +24,6 @@ hero_h: 900
 
   <!-- Primary console frame -->
   <div class="home-console-frame" aria-label="Archive control console">
-
     <!-- Boot sequence / terminal header -->
     <section class="home-boot" aria-label="Console initialization sequence">
       <p class="home-boot-title">FINCH ARCHIVE / PRIMARY CONSOLE</p>
@@ -59,7 +58,7 @@ hero_h: 900
         </span>
       </p>
 
-      <p class="home-boot-line home-boot-line--final">
+      <p class="home-boot-line">
         <span class="home-boot-code">[0000.088]</span>
         <span class="home-boot-label">External channels</span>
         <span class="home-boot-dots" aria-hidden="true"></span>
@@ -184,7 +183,7 @@ hero_h: 900
           <p class="panel-text">No logs have been cataloged yet.</p>
         {%- endif -%}
 
-        <div class="panel-actions">
+        <div class="panel-actions panel-actions--link-only">
           <a class="btn-link" href="{{ '/logs/' | relative_url }}">Open full logs index →</a>
         </div>
       </article>
