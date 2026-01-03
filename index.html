@@ -24,6 +24,7 @@ hero_h: 900
 
   <!-- Primary console frame -->
   <div class="home-console-frame" aria-label="Archive control console">
+
     <!-- Boot sequence / terminal header -->
     <section class="home-boot" aria-label="Console initialization sequence">
       <p class="home-boot-title">FINCH ARCHIVE / PRIMARY CONSOLE</p>
@@ -49,13 +50,12 @@ hero_h: 900
         <span class="home-boot-state home-boot-state--active">ACTIVE</span>
       </p>
 
+      <!-- Simplified for mobile readability: no long timestamp here -->
       <p class="home-boot-line">
         <span class="home-boot-code">[0000.067]</span>
-        <span class="home-boot-label">Last anomaly</span>
+        <span class="home-boot-label">Last anomaly check</span>
         <span class="home-boot-dots" aria-hidden="true"></span>
-        <span class="home-boot-meta">
-          {{ latest_dt | date: "%Y-%m-%d %H:%M %Z" }}
-        </span>
+        <span class="home-boot-state home-boot-state--ok">OK</span>
       </p>
 
       <p class="home-boot-line">
