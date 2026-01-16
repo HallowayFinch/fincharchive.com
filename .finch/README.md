@@ -1,23 +1,36 @@
 # .finch
+*Internal reference folder (public repo)*
 
-Internal reference material for the Finch Archive project.
+This folder contains the **production references** for the Finch Archive project: canon guardrails, voice/style calibration, formatting specs, continuity tracking, and planning notes.
 
-This folder is **not for publication**. It exists to keep the Halloway Finch canon consistent across:
-- Logs (`_logs/`)
-- Field Notes (`_field-notes/`)
-- Artifacts (`artifacts/`)
-- Automation metadata and “RecoveryDaemon” behaviors
+Although these documents are labeled “internal,” this repository is public. Treat the contents as **canon-adjacent** and avoid placing sensitive spoilers here unless you want readers to potentially interpret them as lore.
 
 ## How to use this folder
 
-- If you’re writing a new Log: start with `reference/voice-style-guide.md`, then the appropriate template in `reference/templates/`.
-- If you’re adding a new “truth” to the universe: update `reference/canon-ledger.md`.
-- If you’re introducing a new location: add it to `reference/sites-and-recoveries.md`.
-- If you’re adding a recurring term: add it to `reference/lexicon.md`.
-- If you’re planning puzzle-layer elements: use `reference/puzzle-layer.md`, but keep puzzle logic **subordinate** to story integrity.
+### When writing a new Log
+1. Read: `.finch/reference/voice-style-guide.md`
+2. Confirm format: `.finch/reference/format-spec.md`
+3. Use a template: `.finch/reference/templates/`
+4. Preflight: `.finch/reference/continuity-checklist.md`
 
-## Guardrail
+### After publishing (or importing) a new Log
+- Add any new “truth” to: `.finch/reference/canon-ledger.md`
+- Add any new recurring term to: `.finch/reference/lexicon.md`
+- Add any new location to:
+  - `.finch/reference/sites-and-recoveries.md` (index)
+  - `.finch/reference/locations-dossier.md` (deep sheet, if needed)
+- If it creates or resolves a contradiction:
+  - Track it in `.finch/reference/timeline.md`
+  - Record the decision in `.finch/reference/continuity-log.md`
 
-Everything here supports the primary goal:
+### When planning long-term escalation
+- Use: `.finch/planning/arc-map.md`
+- Keep spoilers general unless you want them discoverable.
 
-**Publish believable documentary fragments that feel recovered, incomplete, and quietly alarming.**
+## Quick links
+- Start here: `.finch/reference/INDEX.md`
+- Canon pillars & motifs: `.finch/reference/canon-ledger.md`
+- Voice calibration: `.finch/reference/voice-style-guide.md`
+- Formatting spec: `.finch/reference/format-spec.md`
+
+[End of recovered material]
