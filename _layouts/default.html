@@ -71,7 +71,7 @@ layout: null
     - Instead, they should wrap content in <section> / <div> inside this.
     - .container is applied here by default for consistent width.
     {%- endcomment -%}
-    <main id="main" class="container" role="main">
+    <main id="main" class="{% if page.full_width %}wrap finch-main finch-main--wide{% else %}container{% endif %}" role="main">
       {{ content }}
     </main>
 
