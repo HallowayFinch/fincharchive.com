@@ -1,22 +1,21 @@
 ---
 layout: default
 title: Finch Archive
-description: "Recovered notes from incomplete transmissions: terminal access to the latest logs."
+description: "Recovered notes from incomplete transmissions: receiver interface for decoded logs."
 full_width: true
 ---
 
 {%- assign EMPTY = '' | split: '' -%}
 {%- assign logs  = site.logs | sort: "date" | reverse | default: EMPTY -%}
 {%- assign feat  = logs | first -%}
-{%- assign recent = logs | slice: 0, 12 | default: EMPTY -%}
+{%- assign recent = logs | slice: 0, 10 | default: EMPTY -%}
 
-<section class="finch-terminal-home finch-terminal-home--transcript" aria-label="Finch Archive terminal interface">
+<section class="finch-terminal-home finch-terminal-home--receiver" aria-label="Finch Archive receiver interface">
   <div class="finch-terminal-bezel">
     <div class="finch-terminal-screen" role="region" aria-label="CRT viewport">
-      <!-- TOP BAR -->
       <header class="finch-terminal-topbar">
         <div class="finch-terminal-topbar__left">
-          <span class="finch-mono finch-toplabel">FINCH ARCHIVE OS v10.22</span>
+          <span class="finch-mono finch-toplabel">RECEIVER INTERFACE / PROTOCOL 22</span>
         </div>
         <div class="finch-terminal-topbar__center">
           <span class="finch-mono finch-clock">10:22</span>
@@ -25,133 +24,87 @@ full_width: true
         </div>
         <div class="finch-terminal-topbar__right">
           <span class="finch-led finch-led--pulse" aria-hidden="true"></span>
-          <span class="finch-mono finch-muted">LINK: ACTIVE</span>
+          <span class="finch-mono finch-muted">SIGNAL: ACTIVE</span>
         </div>
       </header>
 
-      <!-- BODY (single transcript flow) -->
       <div class="finch-terminal-body">
-        <div class="finch-transcript" aria-label="Operator session transcript">
-          <pre class="finch-pre" aria-hidden="true">--------------------------------------------------------------------------------</pre>
-
-          <ul class="finch-boot-lines finch-boot-lines--compact" data-boot>
-            <li><span class="finch-mono">[00:00.18]</span> integrity_check ............................................. <span class="finch-ok">OK</span></li>
-            <li><span class="finch-mono">[00:00.27]</span> mount /archive .............................................. <span class="finch-ok">OK</span></li>
-            <li><span class="finch-mono">[00:00.58]</span> time_source ................................................ <span class="finch-warn">FAIL</span></li>
-            <li><span class="finch-mono">[00:00.61]</span> time_lock .................................................. <span class="finch-warn">10:22</span></li>
-            <li><span class="finch-mono">[00:00.74]</span> condition ............................................. <span class="finch-warn">INCOMPLETE</span></li>
-          </ul>
-
-          <div class="finch-gap"></div>
-
-          {%- if feat -%}
-            <div class="finch-line">
-              <span class="finch-mono">archive@finch:~$</span> <span class="finch-mono">open latest</span>
-            </div>
-
-            <div class="finch-out">
-              <div class="finch-out__line">
-                <span class="finch-muted">OPENING:</span>
-                <a class="finch-out__link" href="{{ feat.url | relative_url }}">{{ feat.url | relative_url }}</a>
-              </div>
-              <div class="finch-out__line">
-                <span class="finch-muted">ID:</span> <span class="finch-mono">{{ feat.log_id | default: "LOG" }}</span>
-                <span class="finch-sep" aria-hidden="true">·</span>
-                <span class="finch-muted">DATE:</span> <span class="finch-mono">{{ feat.date | date: "%Y-%m-%d" }}</span>
-              </div>
-              <div class="finch-out__line">
-                <span class="finch-muted">TITLE:</span>
-                <a class="finch-out__link" href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
-              </div>
-
-              <pre class="finch-pre" aria-hidden="true">--------------------------------------------------------------------------------</pre>
-
-              <div class="finch-out__excerpt">
-                {{ feat.content | strip_html | strip_newlines | truncate: 560 }}
-              </div>
-
-              <pre class="finch-pre" aria-hidden="true">--------------------------------------------------------------------------------</pre>
-
-              <div class="finch-actions">
-                <a class="finch-action" href="{{ feat.url | relative_url }}">[ENTER] READ FULL RECORD</a>
-                <span class="finch-muted"> </span>
-                <a class="finch-action" href="{{ '/logs/' | relative_url }}">[I] INDEX</a>
-                <span class="finch-muted"> </span>
-                <a class="finch-action" href="{{ '/feeds/' | relative_url }}">[F] FEEDS</a>
+        <div class="finch-receiver">
+          <div class="finch-grid">
+            <div class="finch-panel">
+              <div class="finch-kv">
+                <div class="finch-kv__row"><span class="finch-muted">FREQ</span><span class="finch-mono">10.22</span></div>
+                <div class="finch-kv__row"><span class="finch-muted">CARRIER</span><span class="finch-mono">PRESENT</span></div>
+                <div class="finch-kv__row"><span class="finch-muted">INTERFERENCE</span><span class="finch-mono">0.22%</span></div>
+                <div class="finch-kv__row"><span class="finch-muted">CLOCK</span><span class="finch-mono">LOCKED</span></div>
               </div>
             </div>
 
-            <div class="finch-gap"></div>
-
-            <div class="finch-line">
-              <span class="finch-mono">archive@finch:~$</span> <span class="finch-mono">list --recent</span>
-            </div>
-
-            <div class="finch-out">
-              <ul class="finch-ls finch-ls--plain" role="list" aria-label="Recent logs">
-                {%- for item in recent -%}
-                  <li class="finch-ls__row finch-ls__row--plain">
-                    <span class="finch-mono finch-ls__date">{{ item.date | date: "%Y-%m-%d" }}</span>
-                    <span class="finch-mono finch-ls__id">{{ item.log_id | default: "—" }}</span>
-                    <a class="finch-ls__title" href="{{ item.url | relative_url }}">{{ item.title }}</a>
-                  </li>
-                {%- endfor -%}
-              </ul>
-
-              <div class="finch-gap"></div>
-
-              <div class="finch-actions">
-                <a class="finch-action" href="{{ '/logs/' | relative_url }}">[OPEN] FULL CATALOG</a>
-                <span class="finch-muted"> </span>
-                <a class="finch-action" href="{{ '/about/' | relative_url }}">[NOTES] SYSTEM</a>
+            <div class="finch-panel">
+              <div class="finch-line">
+                <span class="finch-muted">DECODING PAYLOAD</span>
+                <span class="finch-mono">..................................................</span>
+                <span class="finch-ok">OK</span>
               </div>
-            </div>
-          {%- else -%}
-            <div class="finch-line">
-              <span class="finch-mono">archive@finch:~$</span> <span class="finch-mono">status</span>
-            </div>
-            <div class="finch-out">
-              <span class="finch-muted">No transmissions available.</span>
-            </div>
-          {%- endif -%}
 
-          <div class="finch-gap"></div>
+              {%- if feat -%}
+                <div class="finch-gap"></div>
 
-          <div class="finch-line finch-line--prompt">
-            <span class="finch-mono">archive@finch:~$</span>
-            <span class="finch-cursor" aria-hidden="true">▍</span>
+                <div class="finch-out">
+                  <div class="finch-out__line"><span class="finch-muted">PACKET ID:</span> <span class="finch-mono">{{ feat.log_id | default: "LOG" }}</span></div>
+                  <div class="finch-out__line"><span class="finch-muted">TIMESTAMP:</span> <span class="finch-mono">{{ feat.date | date: "%Y-%m-%d" }}</span></div>
+                  <div class="finch-out__line"><span class="finch-muted">TITLE:</span> <a class="finch-out__link" href="{{ feat.url | relative_url }}">{{ feat.title }}</a></div>
+                </div>
+
+                <pre class="finch-pre" aria-hidden="true">--------------------------------------------------------------------------------</pre>
+
+                <div class="finch-decode">
+                  <div class="finch-section-label">DECODED TEXT</div>
+                  <div class="finch-out__excerpt">
+                    {{ feat.content | strip_html | strip_newlines | truncate: 560 }}
+                  </div>
+                </div>
+
+                <pre class="finch-pre" aria-hidden="true">--------------------------------------------------------------------------------</pre>
+
+                <div class="finch-actions">
+                  <a class="finch-action" href="{{ feat.url | relative_url }}">[R] READ FULL RECORD</a>
+                  <span class="finch-muted"> </span>
+                  <a class="finch-action" href="{{ '/logs/' | relative_url }}">[L] LIST PACKETS</a>
+                  <span class="finch-muted"> </span>
+                  <a class="finch-action" href="{{ '/feeds/' | relative_url }}">[F] FEEDS</a>
+                  <span class="finch-muted"> </span>
+                  <a class="finch-action" href="{{ '/about/' | relative_url }}">[N] NOTES</a>
+                </div>
+
+                <div class="finch-gap"></div>
+
+                <div class="finch-section-label">RECENT PACKETS</div>
+                <ul class="finch-ls finch-ls--plain" role="list">
+                  {%- for item in recent -%}
+                    <li class="finch-ls__row finch-ls__row--plain">
+                      <span class="finch-mono finch-ls__date">{{ item.date | date: "%Y-%m-%d" }}</span>
+                      <span class="finch-mono finch-ls__id">{{ item.log_id | default: "—" }}</span>
+                      <a class="finch-ls__title" href="{{ item.url | relative_url }}">{{ item.title }}</a>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+
+                <div class="finch-gap"></div>
+
+                <div class="finch-line finch-line--prompt">
+                  <span class="finch-mono">INPUT:</span>
+                  <span class="finch-cursor" aria-hidden="true">▍</span>
+                </div>
+              {%- else -%}
+                <div class="finch-gap"></div>
+                <div class="finch-out">
+                  <span class="finch-warn">NO PAYLOAD</span>
+                </div>
+              {%- endif -%}
+            </div>
           </div>
         </div>
-
-        <!-- Tiny boot reveal (optional flavor, safe) -->
-        <script>
-          (function () {
-            const root = document.querySelector('.finch-terminal-home');
-            const list = document.querySelector('[data-boot]');
-            if (!root || !list) return;
-            const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            if (reduce) return;
-
-            const lines = Array.from(list.querySelectorAll('li'));
-            if (!lines.length) return;
-
-            root.classList.add('is-boot-animating');
-            lines.forEach(li => li.classList.remove('is-revealed'));
-
-            let i = 0;
-            const step = () => {
-              if (i < lines.length) {
-                lines[i].classList.add('is-revealed');
-                i += 1;
-                setTimeout(step, 85);
-              } else {
-                root.classList.remove('is-boot-animating');
-              }
-            };
-
-            setTimeout(step, 120);
-          })();
-        </script>
       </div>
     </div>
   </div>
