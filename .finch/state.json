@@ -1,5 +1,5 @@
 {
-  "next_seq": 16,
+  "next_seq": 17,
   "guid_to_slug": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "the-voice-in-the-static",
     "https://hallowayfinch.substack.com/p/the-orchard-transmission": "the-orchard-transmission",
@@ -15,7 +15,8 @@
     "/p/postmortem-1022": "postmortem-1022",
     "/p/the-22-minute-delay": "the-22-minute-delay",
     "/p/the-rest-stop-interference": "the-rest-stop-interference",
-    "/p/the-storage-unit-chair": "the-storage-unit-chair"
+    "/p/the-storage-unit-chair": "the-storage-unit-chair",
+    "/p/the-hidden-room-blueprint": "the-hidden-room-blueprint"
   },
   "guid_to_log_id": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "1022A",
@@ -32,7 +33,8 @@
     "/p/postmortem-1022": "1022L",
     "/p/the-22-minute-delay": "1022M",
     "/p/the-rest-stop-interference": "1022N",
-    "/p/the-storage-unit-chair": "1022O"
+    "/p/the-storage-unit-chair": "1022O",
+    "/p/the-hidden-room-blueprint": "1022P"
   },
   "seen_guids": [
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static",
@@ -49,6 +51,7 @@
     "/p/postmortem-1022",
     "/p/the-22-minute-delay",
     "/p/the-rest-stop-interference",
-    "/p/the-storage-unit-chair"
+    "/p/the-storage-unit-chair",
+    "/p/the-hidden-room-blueprint"
   ]
 }
