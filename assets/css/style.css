@@ -2274,3 +2274,117 @@ html {
   .finch-rail__left, .finch-rail__center, .finch-rail__right { justify-content: center; }
   .finch-softkeys { grid-template-columns: 1fr 1fr; }
 }
+
+/* ======================================
+   Finch Console Homepage: v2 tweaks
+   - Widen layout using theme wrap width
+   - Add bay seams + faceplate feel
+   - Add fasteners/screws (CSS-only)
+   ====================================== */
+
+/* Wide main variant (used by pages with full_width: true) */
+.finch-main {
+  margin: 3rem auto;
+  padding: 0 20px; /* match .wrap padding */
+}
+.finch-main--wide {
+  max-width: var(--wrap);
+}
+
+/* Make the console consume the full available main width */
+.finch-console {
+  width: 100%;
+  max-width: 100%;
+
+  /* align console styling with existing Finch tokens */
+  --finch-text: var(--fg);
+  --finch-muted: var(--muted);
+  --finch-frame: var(--badge-border);
+  --finch-frame-2: rgba(122, 58, 58, 0.25);
+
+  /* slightly squarer + more "hardware" spacing */
+  --finch-radius: 12px;
+  --finch-gap: 16px;
+}
+
+/* Faceplate / chassis: true bay seams */
+.finch-chassis {
+  gap: 0;
+  padding: 0;
+}
+.finch-bay {
+  padding: var(--finch-gap);
+}
+.finch-bay--center {
+  border-left: 1px solid rgba(122, 58, 58, 0.35);
+  border-right: 1px solid rgba(122, 58, 58, 0.35);
+  box-shadow:
+    inset 1px 0 0 rgba(0,0,0,0.45),
+    inset -1px 0 0 rgba(0,0,0,0.45);
+}
+
+/* Give modules physical fasteners (corner screws) */
+.finch-module {
+  background:
+    radial-gradient(circle at 12px 12px,
+      rgba(0,0,0,0.70) 0 1px,
+      rgba(255,255,255,0.08) 2px,
+      rgba(0,0,0,0.35) 3px,
+      transparent 4px),
+    radial-gradient(circle at calc(100% - 12px) 12px,
+      rgba(0,0,0,0.70) 0 1px,
+      rgba(255,255,255,0.08) 2px,
+      rgba(0,0,0,0.35) 3px,
+      transparent 4px),
+    radial-gradient(circle at 12px calc(100% - 12px),
+      rgba(0,0,0,0.70) 0 1px,
+      rgba(255,255,255,0.08) 2px,
+      rgba(0,0,0,0.35) 3px,
+      transparent 4px),
+    radial-gradient(circle at calc(100% - 12px) calc(100% - 12px),
+      rgba(0,0,0,0.70) 0 1px,
+      rgba(255,255,255,0.08) 2px,
+      rgba(0,0,0,0.35) 3px,
+      transparent 4px),
+    linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.015));
+}
+
+/* Label plates: more like etched/label tape */
+.finch-plate {
+  border-bottom: 1px solid rgba(122, 58, 58, 0.30);
+  background:
+    linear-gradient(180deg, rgba(122, 58, 58, 0.12), rgba(0,0,0,0.06));
+}
+
+/* LEDs: warmer (less sci-fi, more industrial) */
+.finch-led {
+  background: rgba(255, 210, 150, 0.92);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.55) inset, 0 0 12px rgba(255,210,150,0.30);
+}
+.finch-led--dim {
+  background: rgba(255, 210, 150, 0.35);
+}
+
+/* Soft keys: more tactile */
+.finch-softkey {
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.35) inset,
+    0 2px 0 rgba(0,0,0,0.45);
+}
+.finch-softkey:active {
+  transform: translateY(1px);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.35) inset,
+    0 1px 0 rgba(0,0,0,0.45);
+}
+
+/* Responsive: remove bay seams when stacked */
+@media (max-width: 980px) {
+  .finch-bay { padding: 12px; }
+  .finch-bay--center {
+    border-left: 0;
+    border-right: 0;
+    box-shadow: none;
+  }
+}
+
