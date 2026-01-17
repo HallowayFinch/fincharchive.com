@@ -3,200 +3,179 @@ layout: default
 title: Finch Archive
 description: "Recovered notes from incomplete transmissions: the latest logs from the Finch Archive."
 full_width: true
-hero_image: "/assets/og/home-console-1600x900.webp"
-hero_alt: "A dim, abandoned control corridor lit by a single fluorescent tube."
-hero_w: 1600
-hero_h: 900
 ---
 
 {%- assign EMPTY = '' | split: '' -%}
 {%- assign logs  = site.logs | sort: "date" | reverse | default: EMPTY -%}
 {%- assign feat  = logs | first -%}
-{%- assign rest  = logs | slice: 1, 9 | default: EMPTY -%}
+{%- assign rest  = logs | slice: 0, 12 | default: EMPTY -%}
 
-<section class="finch-console" aria-label="Finch Archive control panel">
-  <!-- STATUS RAIL -->
-  <header class="finch-rail" role="banner">
-    <div class="finch-rail__left">
-      <span class="finch-label">FINCH ARCHIVE</span>
-      <span class="finch-sep" aria-hidden="true">//</span>
-      <span class="finch-mono">NODE: FINCH-01</span>
-    </div>
-
-    <div class="finch-rail__center" aria-label="System clock">
-      <span class="finch-mono finch-clock">10:22</span>
-      <span class="finch-sep" aria-hidden="true">·</span>
-      <span class="finch-mono finch-muted">CONDITION: INCOMPLETE</span>
-    </div>
-
-    <div class="finch-rail__right" aria-label="Link status">
-      <span class="finch-led finch-led--pulse" aria-hidden="true"></span>
-      <span class="finch-mono">LINK: ACTIVE</span>
-    </div>
-  </header>
-
-  <!-- CHASSIS / BAYS -->
-  <div class="finch-chassis">
-    <!-- LEFT BAY -->
-    <aside class="finch-bay finch-bay--left" aria-label="Left bay">
-      <section class="finch-module" aria-label="Navigation module">
-        <header class="finch-plate">
-          <span class="finch-plate__title">MODULE: NAV</span>
-          <span class="finch-plate__status finch-ok">OK</span>
-        </header>
-        <div class="finch-body">
-          <nav class="finch-nav" aria-label="Console navigation">
-            <a class="finch-key" href="{{ '/' | relative_url }}">F1: LATEST</a>
-            <a class="finch-key" href="{{ '/logs/' | relative_url }}">F2: INDEX</a>
-            <a class="finch-key" href="{{ '/feeds/' | relative_url }}">F3: FEEDS</a>
-            <a class="finch-key" href="{{ '/about/' | relative_url }}">F4: ABOUT</a>
-          </nav>
+<section class="finch-terminal-home" aria-label="Finch Archive terminal interface">
+  <div class="finch-terminal-bezel">
+    <div class="finch-terminal-screen" role="region" aria-label="CRT viewport">
+      <!-- TOP BAR -->
+      <header class="finch-terminal-topbar">
+        <div class="finch-terminal-topbar__left">
+          <span class="finch-mono finch-toplabel">FINCH ARCHIVE OS v10.22</span>
         </div>
-      </section>
-
-      <section class="finch-module" aria-label="Telemetry module">
-        <header class="finch-plate">
-          <span class="finch-plate__title">MODULE: TELEMETRY</span>
-          <span class="finch-plate__status finch-warn">LIVE</span>
-        </header>
-        <div class="finch-body">
-          <dl class="finch-kv" role="list">
-            <div class="finch-kv__row" role="listitem">
-              <dt>LOGS</dt>
-              <dd>{{ logs | size }}</dd>
-            </div>
-            <div class="finch-kv__row" role="listitem">
-              <dt>NODE</dt>
-              <dd>FINCH-01</dd>
-            </div>
-            {%- if feat and feat.date -%}
-            <div class="finch-kv__row" role="listitem">
-              <dt>LAST INGEST</dt>
-              <dd>{{ feat.date | date: "%Y-%m-%d" }}</dd>
-            </div>
-            {%- endif -%}
-            <div class="finch-kv__row" role="listitem">
-              <dt>DRIFT</dt>
-              <dd><span class="finch-mono">+0.22%</span></dd>
-            </div>
-          </dl>
-
-          <p class="finch-note">
-            <span class="finch-led finch-led--dim" aria-hidden="true"></span>
-            <span class="finch-mono finch-muted">Operator presence not confirmed.</span>
-          </p>
+        <div class="finch-terminal-topbar__center">
+          <span class="finch-mono finch-clock">10:22</span>
+          <span class="finch-sep" aria-hidden="true">·</span>
+          <span class="finch-mono finch-muted">NODE: FINCH-01</span>
         </div>
-      </section>
-    </aside>
+        <div class="finch-terminal-topbar__right">
+          <span class="finch-led finch-led--pulse" aria-hidden="true"></span>
+          <span class="finch-mono finch-muted">LINK: ACTIVE</span>
+        </div>
+      </header>
 
-    <!-- CENTER BAY -->
-    <main class="finch-bay finch-bay--center" aria-label="Center bay">
-      <!-- FEATURED / CRT -->
-      <section class="finch-module" aria-label="Active transmission">
-        <header class="finch-plate finch-plate--crt">
-          <span class="finch-plate__title">
-            <span class="finch-led finch-led--pulse" aria-hidden="true"></span>
-            ACTIVE TRANSMISSION
-          </span>
-          <span class="finch-plate__status finch-warn">UNSTABLE</span>
-        </header>
+      <!-- BODY -->
+      <div class="finch-terminal-body">
+        <!-- BOOT -->
+        <section class="finch-boot" aria-label="Boot sequence">
+          <div class="finch-section-label">BOOT SEQUENCE</div>
 
-        <div class="finch-crt" role="region" aria-label="CRT viewport">
+          <ul class="finch-boot-lines" data-boot>
+            <li><span class="finch-mono">[00:00.12]</span> integrity_check ......................... <span class="finch-ok">OK</span></li>
+            <li><span class="finch-mono">[00:00.18]</span> mount /archive .......................... <span class="finch-ok">OK</span></li>
+            <li><span class="finch-mono">[00:00.27]</span> mount /logs ............................. <span class="finch-ok">OK</span></li>
+            <li><span class="finch-mono">[00:00.41]</span> sync_source: substack ................... <span class="finch-ok">OK</span></li>
+            <li><span class="finch-mono">[00:00.58]</span> time_source: UNKNOWN .................... <span class="finch-warn">FAIL</span></li>
+            <li><span class="finch-mono">[00:00.61]</span> time_lock ............................... <span class="finch-warn">10:22</span></li>
+            <li><span class="finch-mono">[00:00.74]</span> condition ............................... <span class="finch-warn">INCOMPLETE</span></li>
+          </ul>
+        </section>
+
+        <!-- PROMPT -->
+        <div class="finch-prompt" aria-label="Command prompt">
+          <span class="finch-mono">archive@finch:~$</span>
+          <span class="finch-cursor" aria-hidden="true">▍</span>
+        </div>
+
+        <!-- COMMANDS -->
+        <nav class="finch-commands" aria-label="Available commands">
+          <div class="finch-section-label">AVAILABLE COMMANDS</div>
+          <ul class="finch-cmdlist" role="list">
+            <li>
+              <a class="finch-cmd" href="{% if feat %}{{ feat.url | relative_url }}{% else %}{{ '/logs/' | relative_url }}{% endif %}">
+                <span class="finch-mono">&gt; open latest</span>
+                <span class="finch-muted finch-cmd__hint">open active transmission</span>
+              </a>
+            </li>
+            <li>
+              <a class="finch-cmd" href="#recent">
+                <span class="finch-mono">&gt; list logs --recent</span>
+                <span class="finch-muted finch-cmd__hint">jump to listing</span>
+              </a>
+            </li>
+            <li>
+              <a class="finch-cmd" href="{{ '/logs/' | relative_url }}">
+                <span class="finch-mono">&gt; open index</span>
+                <span class="finch-muted finch-cmd__hint">browse all records</span>
+              </a>
+            </li>
+            <li>
+              <a class="finch-cmd" href="{{ '/feeds/' | relative_url }}">
+                <span class="finch-mono">&gt; enable feeds</span>
+                <span class="finch-muted finch-cmd__hint">continuous receipt</span>
+              </a>
+            </li>
+            <li>
+              <a class="finch-cmd" href="{{ '/about/' | relative_url }}">
+                <span class="finch-mono">&gt; system notes</span>
+                <span class="finch-muted finch-cmd__hint">readme / context</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- ACTIVE TRANSMISSION -->
+        <section class="finch-active" aria-label="Active transmission">
+          <div class="finch-section-label">ACTIVE TRANSMISSION</div>
+
           {%- if feat -%}
-            <p class="finch-crt__meta">
+            <div class="finch-active__meta">
               <span class="finch-tag">{{ feat.log_id | default: "LOG" }}</span>
               <span class="finch-sep" aria-hidden="true">·</span>
-              <span class="finch-mono">{{ feat.date | date: "%Y-%m-%d" }}</span>
-            </p>
+              <span class="finch-mono finch-muted">{{ feat.date | date: "%Y-%m-%d" }}</span>
+            </div>
 
-            <h2 class="finch-crt__title">
+            <h2 class="finch-active__title">
               <a class="finch-link" href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
             </h2>
 
-            <div class="finch-crt__text">
+            <div class="finch-active__text">
               {{ feat.content | strip_html | strip_newlines | truncate: 520 }}
             </div>
 
-            <p class="finch-crt__prompt" aria-hidden="true">
-              archive@finch:~$ open record <span class="finch-cursor">▍</span>
-            </p>
-
-            <div class="finch-crt__actions" aria-label="Transmission actions">
+            <div class="finch-active__actions" aria-label="Transmission actions">
               <a class="finch-btn" href="{{ feat.url | relative_url }}">OPEN RECORD</a>
               <a class="finch-btn finch-btn--ghost" href="{{ '/logs/' | relative_url }}">VIEW INDEX</a>
             </div>
           {%- else -%}
-            <p class="finch-crt__text">No transmissions available.</p>
+            <p class="finch-muted finch-mono">No transmissions available.</p>
           {%- endif -%}
-        </div>
-      </section>
+        </section>
 
-      <!-- RECENT LIST -->
-      <section class="finch-module" aria-label="Recent transmissions">
-        <header class="finch-plate">
-          <span class="finch-plate__title">MODULE: RECENT TRANSMISSIONS</span>
-          <span class="finch-plate__status finch-ok">OK</span>
-        </header>
-        <div class="finch-body">
-          <ul class="finch-list" role="list">
+        <!-- LISTING -->
+        <section class="finch-listing" id="recent" aria-label="Recent logs listing">
+          <div class="finch-section-label">/logs (ls -lt --recent)</div>
+
+          <ul class="finch-ls" role="list">
             {%- for item in rest -%}
-              <li class="finch-list__row">
-                <span class="finch-list__id">{{ item.log_id | default: "—" }}</span>
-                <a class="finch-list__title" href="{{ item.url | relative_url }}">{{ item.title }}</a>
-                <span class="finch-list__date">{{ item.date | date: "%Y-%m-%d" }}</span>
+              <li class="finch-ls__row">
+                <span class="finch-mono finch-ls__date">{{ item.date | date: "%Y-%m-%d" }}</span>
+                <span class="finch-mono finch-ls__id">{{ item.log_id | default: "—" }}</span>
+                <a class="finch-ls__title" href="{{ item.url | relative_url }}">{{ item.title }}</a>
               </li>
             {%- endfor -%}
           </ul>
 
-          <div class="finch-row">
+          <div class="finch-listing__more">
             <a class="finch-btn finch-btn--ghost" href="{{ '/logs/' | relative_url }}">BROWSE FULL CATALOG</a>
           </div>
-        </div>
-      </section>
-    </main>
+        </section>
 
-    <!-- RIGHT BAY -->
-    <aside class="finch-bay finch-bay--right" aria-label="Right bay">
-      <section class="finch-module" aria-label="System notices">
-        <header class="finch-plate">
-          <span class="finch-plate__title">MODULE: SYSTEM NOTICES</span>
-          <span class="finch-plate__status finch-warn">WATCH</span>
-        </header>
-        <div class="finch-body">
-          <ul class="finch-bullets" role="list">
-            <li><span class="finch-led finch-led--dim" aria-hidden="true"></span> Ingest pipeline: nominal</li>
-            <li><span class="finch-led finch-led--dim" aria-hidden="true"></span> Time lock: 10:22 persists</li>
-            <li><span class="finch-led finch-led--dim" aria-hidden="true"></span> Interference: low, non-zero</li>
-            <li><span class="finch-led finch-led--dim" aria-hidden="true"></span> Operator logs: incomplete</li>
-          </ul>
-        </div>
-      </section>
-
-      <section class="finch-module" aria-label="Feeds module">
-        <header class="finch-plate">
-          <span class="finch-plate__title">MODULE: FEEDS</span>
-          <span class="finch-plate__status finch-ok">OK</span>
-        </header>
-        <div class="finch-body">
-          <div class="finch-stack">
-            <a class="finch-key" href="{{ '/feeds/' | relative_url }}">OPEN FEEDS HUB</a>
-            <a class="finch-key" href="{{ '/logs/' | relative_url }}">OPEN INDEX</a>
-            <a class="finch-key" href="{{ '/about/' | relative_url }}">SYSTEM NOTES</a>
-          </div>
-
-          <p class="finch-note">
-            <span class="finch-mono finch-muted">Feeds recommended for continuous receipt.</span>
-          </p>
-        </div>
-      </section>
-    </aside>
+        <!-- FUNCTION KEYS -->
+        <nav class="finch-fkeys" aria-label="Function keys">
+          <a class="finch-fkey" href="{% if feat %}{{ feat.url | relative_url }}{% else %}{{ '/logs/' | relative_url }}{% endif %}">F1 OPEN LATEST</a>
+          <a class="finch-fkey" href="{{ '/logs/' | relative_url }}">F2 INDEX</a>
+          <a class="finch-fkey" href="{{ '/feeds/' | relative_url }}">F3 FEEDS</a>
+          <a class="finch-fkey" href="{{ '/about/' | relative_url }}">F4 ABOUT</a>
+        </nav>
+      </div>
+    </div>
   </div>
 
-  <!-- SOFT KEYS -->
-  <nav class="finch-softkeys" aria-label="Soft keys">
-    <a class="finch-softkey" href="{{ feat.url | relative_url }}">F1 OPEN LATEST</a>
-    <a class="finch-softkey" href="{{ '/logs/' | relative_url }}">F2 BROWSE INDEX</a>
-    <a class="finch-softkey" href="{{ '/feeds/' | relative_url }}">F3 FEEDS</a>
-    <a class="finch-softkey" href="{{ '/about/' | relative_url }}">F4 ABOUT</a>
-  </nav>
+  <!-- tiny boot “typing” flavor (optional, safe) -->
+  <script>
+    (function () {
+      const root = document.querySelector('.finch-terminal-home');
+      const list = document.querySelector('[data-boot]');
+      if (!root || !list) return;
+
+      const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) return;
+
+      const lines = Array.from(list.querySelectorAll('li'));
+      if (!lines.length) return;
+
+      root.classList.add('is-boot-animating');
+      lines.forEach(li => li.classList.remove('is-revealed'));
+
+      let i = 0;
+      const step = () => {
+        if (i < lines.length) {
+          lines[i].classList.add('is-revealed');
+          i += 1;
+          setTimeout(step, 90);
+        } else {
+          root.classList.remove('is-boot-animating');
+          root.classList.add('is-boot-done');
+        }
+      };
+
+      setTimeout(step, 150);
+    })();
+  </script>
 </section>
