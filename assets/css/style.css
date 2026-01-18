@@ -2637,7 +2637,7 @@ html, body { overflow-x: hidden; }
   /* CRT: occupy (nearly) the full viewport width */
   .finch-crtframe {
     /* Slightly wider than the viewport so the CRT feels full-size on phones without changing desktop */
-    width: 116vw;
+    width: 120vw;
     max-width: none;
     padding-left: 0;
     padding-right: 0;
