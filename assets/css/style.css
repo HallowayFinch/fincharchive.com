@@ -2639,3 +2639,110 @@ html {
 @media (max-width: 380px) {
   .finch-crtframe { width: 112vw; margin-left: calc(50% - 56vw); }
 }
+
+/* Pull CRT closer to the site header on desktop */
+.finch-home {
+  margin-top: -1.25rem;
+}
+@media (max-width: 980px) {
+  .finch-home { margin-top: -0.75rem; }
+}
+@media (max-width: 680px) {
+  .finch-home { margin-top: 0; }
+}
+
+/* Make actions reliable inside the CRT viewport */
+.finch-homeui {
+  position: relative; /* anchor sticky/absolute children */
+}
+
+@media (max-width: 680px) {
+  /* Keep the important stuff visible */
+  .finch-active__excerpt { display: none; } /* excerpt disappears on mobile */
+  .finch-activity--secondary { display: none; } /* activity collapses on mobile */
+
+  /* Make the two actions always visible at the bottom of the CRT screen */
+  .finch-homeui__actions {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    z-index: 5;
+  }
+
+  /* Make buttons bigger for thumbs */
+  .finch-screen__btn {
+    padding: 12px 10px;
+    font-size: 0.70rem;
+  }
+
+  /* Prevent the prompt from colliding with the fixed buttons */
+  .finch-homeui__prompt {
+    display: none;
+  }
+
+  /* Give the upper content a safe bottom padding so it never sits behind buttons */
+  .finch-homeui {
+    padding-bottom: 60px;
+  }
+
+  /* Clamp the title hard */
+  .finch-active__title {
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Make actions reliable inside the CRT viewport */
+.finch-homeui {
+  position: relative; /* anchor sticky/absolute children */
+}
+
+@media (max-width: 680px) {
+  /* Keep the important stuff visible */
+  .finch-active__excerpt { display: none; } /* excerpt disappears on mobile */
+  .finch-activity--secondary { display: none; } /* activity collapses on mobile */
+
+  /* Make the two actions always visible at the bottom of the CRT screen */
+  .finch-homeui__actions {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    z-index: 5;
+  }
+
+  /* Make buttons bigger for thumbs */
+  .finch-screen__btn {
+    padding: 12px 10px;
+    font-size: 0.70rem;
+  }
+
+  /* Prevent the prompt from colliding with the fixed buttons */
+  .finch-homeui__prompt {
+    display: none;
+  }
+
+  /* Give the upper content a safe bottom padding so it never sits behind buttons */
+  .finch-homeui {
+    padding-bottom: 60px;
+  }
+
+  /* Clamp the title hard */
+  .finch-active__title {
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
