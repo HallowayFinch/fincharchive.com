@@ -31,28 +31,25 @@ hero_h: 900
 
     <div class="finch-crtframe__screen" role="region" aria-label="Archive interface">
       <div class="finch-screen finch-screen--home">
-        <header class="finch-screen__header" aria-label="System header">
-          <div class="finch-screen__brand">
+        <!-- single-line header -->
+        <header class="finch-screen__header finch-screen__header--single" aria-label="System header">
+          <div class="finch-screen__headline">
             <span class="finch-screen__label">FINCH ARCHIVE</span>
             <span class="finch-screen__sep" aria-hidden="true">//</span>
-            <span class="finch-screen__meta">RECOVERY NODE: FINCH-01</span>
-          </div>
-
-          <div class="finch-screen__status" aria-label="System status">
+            <span class="finch-screen__meta">NODE: FINCH-01</span>
+            <span class="finch-screen__sep" aria-hidden="true">·</span>
             <span class="finch-screen__clock">10:22</span>
-            <span class="finch-screen__dot" aria-hidden="true">·</span>
-            <span class="finch-screen__cond">CONDITION: INCOMPLETE</span>
+            <span class="finch-screen__sep" aria-hidden="true">·</span>
+            <span class="finch-screen__cond">INCOMPLETE</span>
           </div>
         </header>
 
         <div class="finch-screen__body finch-homeui">
-          <!-- Activity (Boot / Calibration) -->
+          <!-- Activity (short) -->
           <section class="finch-activity" aria-label="System activity">
-            <p class="finch-activity__line"><span class="finch-activity__k">BOOT</span> finch-archive.os v10.22</p>
-            <p class="finch-activity__line"><span class="finch-activity__k">MOUNT</span> /archive .................. <span class="finch-activity__ok">OK</span></p>
-            <p class="finch-activity__line"><span class="finch-activity__k">CLOCK</span> source ..................... <span class="finch-activity__warn">FAIL</span></p>
-            <p class="finch-activity__line"><span class="finch-activity__k">LOCK</span>  time ........................ <span class="finch-activity__ok">10:22</span></p>
-            <p class="finch-activity__line"><span class="finch-activity__k">DRIFT</span> +0.22% ...................... <span class="finch-activity__ok">STABLE</span></p>
+            <p class="finch-activity__line"><span class="finch-activity__k">LOCK</span> time ..................... <span class="finch-activity__ok">10:22</span></p>
+            <p class="finch-activity__line"><span class="finch-activity__k">DRIFT</span> +0.22% .................... <span class="finch-activity__ok">STABLE</span></p>
+            <p class="finch-activity__line"><span class="finch-activity__k">LINK</span> carrier .................. <span class="finch-activity__warn">PARTIAL</span></p>
 
             <div class="finch-wave" aria-hidden="true">
               <span class="finch-wave__bar"></span>
@@ -75,7 +72,7 @@ hero_h: 900
             </h1>
 
             <p class="finch-active__excerpt">
-              {{ feat.content | strip_html | strip_newlines | truncate: 220 }}
+              {{ feat.content | strip_html | strip_newlines | truncate: 140 }}
             </p>
           </section>
           {%- endif -%}
@@ -89,11 +86,6 @@ hero_h: 900
             {%- endif -%}
             <a class="finch-screen__btn finch-screen__btn--ghost" href="{{ '/logs/' | relative_url }}">READ ALL</a>
           </nav>
-
-          <!-- Tiny prompt (optional flavor, doesn’t steal space) -->
-          <p class="finch-homeui__prompt" aria-hidden="true">
-            archive@finch:~$ <span class="finch-screen__cursor">▍</span>
-          </p>
         </div>
       </div>
     </div>
