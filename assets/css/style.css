@@ -2283,12 +2283,12 @@ html {
 }
 
 /* ======================================
-   20. Homepage: Photoreal CRT frame (CRT UI) — CLEAN + MERGED
+   20. Homepage: Photoreal CRT frame (CRT UI) — CLEAN + MOBILE FIX
    Goals:
-   - Screen overlay stays correctly constrained (no drift)
-   - No horizontal scroll on mobile
-   - CRT uses the viewport on mobile (not the container width)
-   - Mobile has a dedicated compact UI (buttons always visible)
+   - Screen overlay stays constrained (no drift)
+   - Mobile CRT fills the viewport (with small inset)
+   - Mobile UI keeps buttons visible (no clipping)
+   - Desktop: slightly shorter scope + buttons
    ====================================== */
 
 /* Prevent accidental horizontal scrolling */
@@ -2301,13 +2301,11 @@ html, body { overflow-x: hidden; }
   overflow-x: clip;
 }
 
-/* CRT wrapper */
 .finch-crtframe{
   position: relative;
   width: min(1200px, 100%);
   margin: 0 auto;
   filter: drop-shadow(0 18px 70px rgba(0,0,0,.65));
-  overflow: visible;
 
   /* Screen bbox (measured from 1536×1024 CRT frame) */
   --screen-x: 20.57%;
@@ -2324,7 +2322,6 @@ html, body { overflow-x: hidden; }
   pointer-events: none; /* taps go to overlay UI */
 }
 
-/* Screen overlay window */
 .finch-crtframe__screen{
   position: absolute;
   left: var(--screen-x);
@@ -2335,182 +2332,29 @@ html, body { overflow-x: hidden; }
   border-radius: 10px;
 
   background: radial-gradient(120% 120% at 50% 38%, rgba(0,0,0,.15), rgba(0,0,0,.62));
-  box-shadow:
-    inset 0 0 0 1px rgba(126,255,176,.12),
-    inset 0 0 24px rgba(0,0,0,.55);
+  box-shadow: inset 0 0 0 1px rgba(126,255,176,.12), inset 0 0 24px rgba(0,0,0,.55);
 }
 
-/* Terminal surface */
+/* Terminal container */
 .finch-screen.finch-screen--home{
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-/* IMPORTANT: keep “terminal” typography mono (override global serif headings) */
-.finch-screen--home h1,
-.finch-screen--home h2,
-.finch-screen--home h3,
-.finch-screen--home .finch-active__title{
-  font-family: var(--mono);
-}
-
+/* No scrolling inside the CRT screen */
 .finch-screen--home .finch-screen__body{
   flex: 1;
   min-height: 0;
   padding: clamp(10px, 1.2vw, 16px);
-  overflow: hidden; /* no scrolling within screen */
+  overflow: hidden;
 }
 
 /* Desktop vs mobile UI panes */
 .finch-homeui__desktop{ display: block; height: 100%; }
 .finch-homeui__mobile{ display: none; height: 100%; }
 
-/* ASCII banner */
-.finch-ascii{
-  margin: 0 0 10px;
-  padding: 0;
-  font-size: 0.72rem;
-  line-height: 1.15;
-  letter-spacing: 0.02em;
-  color: rgba(126,255,176,.85);
-  text-shadow: 0 0 10px rgba(126,255,176,.12);
-  white-space: pre;
-}
-
-/* Active block */
-.finch-active__meta{
-  margin: 0 0 8px;
-  font-size: 0.84rem;
-  letter-spacing: 0.06em;
-  color: rgba(232,255,233,0.82);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.finch-active__pill{
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(126,255,176,.32);
-  background: rgba(0,0,0,.25);
-  color: rgba(232,255,233,0.92);
-  letter-spacing: 0.12em;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-}
-
-.finch-active__title{
-  margin: 0 0 8px;
-  font-size: clamp(1.0rem, 1.8vw, 1.28rem);
-  letter-spacing: 0.02em;
-}
-
-.finch-active__title a{
-  color: rgba(232,255,233,0.98);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(126,255,176,.25);
-}
-
-.finch-active__excerpt{
-  margin: 0 0 10px;
-  font-size: 0.92rem;
-  line-height: 1.45;
-  color: rgba(232,255,233,0.82);
-  max-width: 60ch;
-}
-
-/* Activity lines */
-.finch-activity__line{
-  margin: 0;
-  font-size: 0.82rem;
-  letter-spacing: 0.08em;
-  color: rgba(232,255,233,0.78);
-}
-.finch-activity__k{ color: rgba(232,255,233,0.62); }
-.finch-activity__ok{ color: rgba(126,255,176,.95); }
-
-/* Oscilloscope */
-.finch-scope{
-  margin-top: 10px;
-  border-radius: 12px;
-  background: rgba(0,0,0,.22);
-  box-shadow: inset 0 0 0 1px rgba(126,255,176,.12);
-  overflow: hidden;
-}
-.finch-scope--compact{ margin-top: 8px; }
-
-.finch-scope__svg{
-  display: block;
-  width: 100%;
-  height: 72px;
-}
-
-.finch-scope__grid{
-  fill: none;
-  stroke: rgba(126,255,176,.10);
-  stroke-width: 1;
-}
-
-.finch-scope__line{
-  fill: none;
-  stroke: rgba(126,255,176,.78);
-  stroke-width: 2.2;
-  filter: drop-shadow(0 0 6px rgba(126,255,176,.35));
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 10 6;
-  animation: finchScopeDrift 2.8s linear infinite;
-}
-
-.finch-scope__beam{
-  opacity: .70;
-  animation: finchScopeBeam 2.3s linear infinite;
-}
-
-@keyframes finchScopeDrift{
-  from{ stroke-dashoffset: 0; }
-  to{ stroke-dashoffset: -64; }
-}
-@keyframes finchScopeBeam{
-  0%{ transform: translateX(-140px); }
-  100%{ transform: translateX(740px); }
-}
-
-/* Buttons (filled) */
-.finch-homeui__actions{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.finch-homeui__actions--mobile{
-  grid-template-columns: 1fr;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.finch-screen__btn{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 42px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 0.74rem;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-  border: 1px solid rgba(255,255,255,.16);
-  background: rgba(255,255,255,.06);
-}
-
+/* Buttons (base) */
 .finch-screen__btn--fill{
   background: rgba(126,255,176,.18);
   border-color: rgba(126,255,176,.55);
@@ -2535,205 +2379,114 @@ html, body { overflow-x: hidden; }
   border-color: rgba(255,255,255,.30);
 }
 
-/* Prompt */
-.finch-homeui__prompt{
-  margin: 10px 0 0;
-  font-size: 0.82rem;
-  color: rgba(232,255,233,0.70);
+/* Oscilloscope */
+.finch-scope{
+  margin-top: 10px;
+  border-radius: 12px;
+  background: rgba(0,0,0,.22);
+  box-shadow: inset 0 0 0 1px rgba(126,255,176,.12);
+  overflow: hidden;
 }
-.finch-homeui__prompt--mobile{ font-size: 0.88rem; }
+.finch-scope__svg{
+  display: block;
+  width: 100%;
+  height: 58px; /* desktop request: less tall */
+}
+.finch-scope__grid{
+  fill: none;
+  stroke: rgba(126,255,176,.10);
+  stroke-width: 1;
+}
+.finch-scope__line{
+  fill: none;
+  stroke: rgba(126,255,176,.78);
+  stroke-width: 2.2;
+  filter: drop-shadow(0 0 6px rgba(126,255,176,.35));
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 10 6;
+  animation: finchScopeDrift 2.8s linear infinite;
+}
+.finch-scope__beam{
+  opacity: .70;
+  animation: finchScopeBeam 2.3s linear infinite;
+}
+@keyframes finchScopeDrift{ from{ stroke-dashoffset: 0; } to{ stroke-dashoffset: -64; } }
+@keyframes finchScopeBeam{ 0%{ transform: translateX(-140px); } 100%{ transform: translateX(740px); } }
 
-.finch-homeui__promptlink{
-  color: rgba(255,120,120,.85);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(255,120,120,.35);
+/* Desktop request: buttons a touch smaller/less tall */
+@media (min-width: 981px){
+  .finch-screen__btn{
+    min-height: 40px;
+    padding: 8px 12px;
+    font-size: 0.74rem;
+  }
 }
-.finch-homeui__promptlink:hover,
-.finch-homeui__promptlink:focus-visible{
-  color: rgba(255,170,170,.95);
-  border-bottom-color: rgba(255,170,170,.55);
-}
-
-.finch-screen__cursor{
-  display:inline-block;
-  transform: translateY(1px);
-  opacity: 0.85;
-  animation: finchBlink 1.1s steps(1, end) infinite;
-}
-@keyframes finchBlink{ 0%,55%{opacity:0;} 56%,100%{opacity:.85;} }
 
 /* ======================================
-   Responsive: MOBILE — use viewport width (not container width)
+   MOBILE: make CRT bigger AND keep buttons visible
    ====================================== */
 @media (max-width: 980px){
-  /* Break out of .container/.container--wide so the CRT can actually be big */
   .finch-home{
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
     margin-top: 0;
-    padding: 10px 12px 18px; /* gives the “small side padding” you wanted */
+    padding-top: 8px;
   }
 
-  /* CRT uses almost the full viewport */
+  /* CRT should fill viewport with a small inset */
   .finch-crtframe{
-    width: 100%;
-    max-width: 820px;
+    width: calc(100vw - 18px);
+    max-width: none;
   }
 
-  /* switch panes */
+  /* Slightly adjusted crop for phone readability (optional but helps) */
+  .finch-crtframe{
+    --screen-x: 19.4%;
+    --screen-y: 12.6%;
+    --screen-w: 61.2%;
+    --screen-h: 66.0%;
+  }
+
+  /* Use mobile UI */
   .finch-homeui__desktop{ display: none; }
-  .finch-homeui__mobile{ display: block; }
+  .finch-homeui__mobile{ display: flex; flex-direction: column; height: 100%; }
 
-  /* tighten inner padding so buttons fit */
-  .finch-screen--home .finch-screen__body{
-    padding: 12px;
+  /* Make the *top* area flexible, and pin actions below it */
+  .finch-homeui__top{
+    flex: 1;
+    min-height: 0;
   }
 
-  /* reduce header height a touch */
+  /* Tighten header + body padding to reclaim vertical space */
   .finch-screen__header{
     padding: 8px 10px 6px;
   }
-  .finch-screen__label,
-  .finch-screen__meta,
-  .finch-screen__cond{
-    font-size: 0.70rem;
+  .finch-screen--home .finch-screen__body{
+    padding: 10px;
   }
-  .finch-screen__clock{
+
+  /* Shorter scope on phones so buttons fit */
+  .finch-scope__svg{ height: 44px; }
+
+  /* Ensure buttons are visible + tappable */
+  .finch-homeui__actions{
+    margin-top: 8px;
+    display: grid;
+    gap: 8px;
+  }
+  .finch-screen__btn{
+    min-height: 42px;
+    padding: 8px 12px;
     font-size: 0.78rem;
   }
 
-  /* mobile buttons must be big and visible */
-  .finch-screen__btn{
-    min-height: 46px;
-    font-size: 0.78rem;
-    padding: 10px 12px;
+  /* (Optional) reduce the ACTIVE meta line a touch */
+  .finch-active__meta{
+    margin: 0 0 8px;
   }
-
-  .finch-scope__svg{ height: 60px; }
 }
 
+/* Extra-small phones */
 @media (max-width: 420px){
-  .finch-home{ padding-left: 10px; padding-right: 10px; }
-  .finch-scope__svg{ height: 54px; }
-}
-
-/* MOBILE CRT SIZE — FINAL OVERRIDE (make buttons visible) */
-@media (max-width: 980px){
-  .finch-crtframe{
-    /* near-full width, still a hair of breathing room */
-    width: calc(100vw - 12px) !important;
-    max-width: none !important;
-  }
-
-  /* stack action buttons on mobile so they can't disappear */
-  .finch-homeui__mobile .finch-homeui__actions{
-    grid-template-columns: 1fr !important;
-  }
-}
-
-/* ======================================
-   HOTFIX: CRT UI sizing tweaks (desktop + mobile)
-   - Desktop: slightly shorter scope + shorter buttons
-   - Mobile: breakout of container so CRT fills viewport width
-   ====================================== */
-
-/* Desktop tweaks */
-@media (min-width: 981px){
-  /* make the oscilloscope a touch less tall */
-  .finch-scope__svg{ height: 56px; }
-
-  /* make buttons a touch smaller/less tall */
-  .finch-screen__btn{
-    min-height: 38px;
-    padding: 8px 10px;
-    font-size: 0.72rem;
-    border-radius: 10px;
-  }
-  .finch-homeui__actions{ gap: 8px; }
-}
-
-/* Mobile: force the CRT to use (almost) full viewport width */
-@media (max-width: 980px){
-  /* small side padding so it never touches edges */
-  .finch-home{
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-top: 6px;
-  }
-
-  /*
-    Break out of any layout “wrap” max-width.
-    This makes the CRT scale to the phone width (minus the padding above).
-  */
-  .finch-crtframe{
-    width: calc(100vw - 20px);
-    max-width: none;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
-  }
-
-  /* reclaim a little vertical room so actions fit */
-  .finch-screen--home .finch-screen__body{ padding: 9px; }
-  .finch-scope__svg{ height: 52px; }
-
-  /* keep buttons tappable but not huge */
-  .finch-screen__btn{
-    min-height: 44px;
-    font-size: 0.76rem;
-    padding: 10px 12px;
-  }
-}
-
-/* Extra small phones */
-@media (max-width: 420px){
-  .finch-home{
-    padding-left: 8px;
-    padding-right: 8px;
-  }
-  .finch-crtframe{
-    width: calc(100vw - 16px);
-  }
-}
-
-/* ======================================
-   MOBILE CRT: force readable size
-   - full-bleed breakout from any container
-   - keep slight inset (doesn't touch edges)
-   - ensure no horizontal scroll
-   ====================================== */
-
-@media (max-width: 980px){
-  html, body{ overflow-x: hidden; }
-
-  /* Ensure the section itself can break out of any max-width wrap */
-  .finch-home{
-    width: 100vw !important;
-    margin-left: calc(50% - 50vw) !important;
-    margin-right: calc(50% - 50vw) !important;
-    padding-left: 10px !important;
-    padding-right: 10px !important;
-  }
-
-  /* Make the CRT big and centered on mobile */
-  .finch-home .finch-crtframe{
-    width: 96vw !important;
-    max-width: 96vw !important;
-    margin: 0 auto !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    position: relative !important;
-  }
-
-  /* Safety: ensure image always fills the CRT frame width */
-  .finch-home .finch-crtframe__img{
-    width: 100% !important;
-    height: auto !important;
-    display: block !important;
-  }
-}
-
-@media (max-width: 420px){
-  .finch-home{ padding-left: 8px !important; padding-right: 8px !important; }
-  .finch-home .finch-crtframe{ width: 97vw !important; max-width: 97vw !important; }
+  .finch-crtframe{ width: calc(100vw - 14px); }
+  .finch-scope__svg{ height: 40px; }
 }
