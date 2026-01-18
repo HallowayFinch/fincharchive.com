@@ -2286,21 +2286,9 @@ html {
    20. Homepage: Photoreal CRT frame
    ====================================== */
 
-.finch-home {
-  margin: 0;
-}
+.finch-home { margin: 0; }
 
 .finch-crtframe {
-  /*
-    Screen window calibration for finch-crt-frame-1536.webp (1536x1024).
-
-    If you ever need to micro-tune:
-      - nudge x/y by ~0.2–0.6%
-      - nudge w/h by ~0.2–0.8%
-
-    (Optional debug)
-    .finch-crtframe__screen { outline: 2px solid rgba(255,0,0,0.35); }
-  */
   --screen-x: 22.1%;
   --screen-y: 18.6%;
   --screen-w: 56.0%;
@@ -2386,19 +2374,14 @@ html {
   font-size: 0.78rem;
   color: rgba(232, 255, 233, 0.92);
 }
-
 .finch-screen__sep,
-.finch-screen__dot {
-  color: rgba(232, 255, 233, 0.55);
-}
-
+.finch-screen__dot { color: rgba(232, 255, 233, 0.55); }
 .finch-screen__meta,
 .finch-screen__cond {
   font-size: 0.78rem;
   color: rgba(232, 255, 233, 0.75);
   letter-spacing: 0.08em;
 }
-
 .finch-screen__clock {
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.08em;
@@ -2406,28 +2389,70 @@ html {
   color: rgba(232, 255, 233, 0.95);
 }
 
-.finch-screen__body {
+/* IMPORTANT: Home screen must never scroll */
+.finch-screen--home {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.finch-homeui {
   position: relative;
   z-index: 1;
-  height: calc(100% - 52px);
-  padding: 14px 16px 18px;
-  overflow: auto;
+  flex: 1;
+  padding: 12px 16px 12px;
+  overflow: hidden; /* no scrollbars */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.finch-screen__strap {
-  margin: 0 0 10px;
-  color: rgba(232, 255, 233, 0.86);
-  font-size: 0.95rem;
-}
-
-.finch-screen__line {
-  margin: 0 0 8px;
-  font-size: 0.82rem;
-  letter-spacing: 0.08em;
+/* Activity block (Boot/Calibration) */
+.finch-activity {
+  font-size: 0.80rem;
+  letter-spacing: 0.06em;
   color: rgba(232, 255, 233, 0.78);
+  border-bottom: 1px solid rgba(60, 255, 160, 0.12);
+  padding-bottom: 10px;
+}
+.finch-activity__line { margin: 0 0 4px; }
+.finch-activity__k {
+  display: inline-block;
+  width: 6ch;
+  color: rgba(232, 255, 233, 0.70);
+}
+.finch-activity__ok { color: rgba(60, 255, 160, 0.92); }
+.finch-activity__warn { color: rgba(255, 200, 120, 0.92); }
+
+.finch-wave {
+  height: 10px;
+  margin-top: 8px;
+  border: 1px solid rgba(232, 255, 233, 0.14);
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(0,0,0,0.28);
+}
+.finch-wave__bar {
+  display: block;
+  height: 100%;
+  width: 45%;
+  background: rgba(60, 255, 160, 0.35);
+  animation: finchWave 1.35s ease-in-out infinite;
+}
+@keyframes finchWave {
+  0% { transform: translateX(-30%); opacity: 0.45; }
+  50% { transform: translateX(110%); opacity: 0.75; }
+  100% { transform: translateX(-30%); opacity: 0.45; }
 }
 
-.finch-screen__tag {
+/* Active transmission (compact, clamped) */
+.finch-active__meta {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  letter-spacing: 0.10em;
+  color: rgba(232, 255, 233, 0.76);
+}
+.finch-active__pill {
   display: inline-block;
   padding: 2px 8px;
   border: 1px solid rgba(60, 255, 160, 0.24);
@@ -2435,36 +2460,44 @@ html {
   background: rgba(0,0,0,0.22);
   color: rgba(232, 255, 233, 0.92);
 }
+.finch-active__id { font-variant-numeric: tabular-nums; }
+.finch-active__date { font-variant-numeric: tabular-nums; }
 
-.finch-screen__title {
-  margin: 0 0 8px;
-  font-size: clamp(1.15rem, 1.9vw, 1.45rem);
+.finch-active__title {
+  margin: 0 0 6px;
+  font-size: clamp(1.05rem, 1.6vw, 1.35rem);
   letter-spacing: 0.02em;
+  line-height: 1.2;
 }
-
-.finch-screen__title a {
+.finch-active__title a {
   color: rgba(232, 255, 233, 0.98);
   text-decoration: none;
   border-bottom: 1px solid rgba(60, 255, 160, 0.25);
 }
-
-.finch-screen__title a:hover,
-.finch-screen__title a:focus-visible {
+.finch-active__title a:hover,
+.finch-active__title a:focus-visible {
   border-bottom-color: rgba(60, 255, 160, 0.55);
 }
 
-.finch-screen__excerpt {
-  font-size: 0.95rem;
-  line-height: 1.55;
+.finch-active__excerpt {
+  margin: 0;
   color: rgba(232, 255, 233, 0.86);
-  margin: 0 0 12px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+
+  /* clamp to avoid scrolling */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.finch-screen__actions {
+/* Two buttons only */
+.finch-homeui__actions {
+  margin-top: auto; /* pin to bottom */
   display: flex;
-  flex-wrap: wrap;
   gap: 8px;
-  margin: 0 0 10px;
+  flex-wrap: wrap;
 }
 
 .finch-screen__btn {
@@ -2481,163 +2514,46 @@ html {
   letter-spacing: 0.12em;
   font-size: 0.72rem;
 }
-
 .finch-screen__btn:hover,
 .finch-screen__btn:focus-visible {
   background: rgba(0,0,0,0.44);
   border-color: rgba(60, 255, 160, 0.55);
 }
+.finch-screen__btn--ghost { border-color: rgba(232, 255, 233, 0.18); }
 
-.finch-screen__btn--ghost {
-  border-color: rgba(232, 255, 233, 0.18);
+.finch-homeui__prompt {
+  margin: 6px 0 0;
+  color: rgba(232, 255, 233, 0.60);
+  font-size: 0.80rem;
+  letter-spacing: 0.06em;
 }
 
-.finch-screen__prompt {
-  margin: 4px 0 16px;
-  color: rgba(232, 255, 233, 0.65);
-  font-size: 0.82rem;
-}
-
+/* Cursor blink reused */
 .finch-screen__cursor {
   display: inline-block;
   transform: translateY(1px);
   opacity: 0.85;
   animation: finchBlink 1.1s steps(1, end) infinite;
 }
-
 @keyframes finchBlink {
   0%, 55% { opacity: 0.0; }
   56%, 100% { opacity: 0.85; }
 }
 
-.finch-screen__grid {
-  display: grid;
-  grid-template-columns: 0.95fr 1.05fr;
-  gap: 14px;
-  border-top: 1px solid rgba(60, 255, 160, 0.12);
-  padding-top: 14px;
-}
-
-.finch-screen__h2 {
-  margin: 0 0 8px;
-  font-size: 0.78rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(232, 255, 233, 0.78);
-}
-
-.finch-screen__links {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.finch-screen__links li {
-  margin: 0 0 6px;
-}
-
-.finch-screen__links a {
-  color: rgba(232, 255, 233, 0.92);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(60, 255, 160, 0.18);
-}
-
-.finch-screen__links a:hover,
-.finch-screen__links a:focus-visible {
-  border-bottom-color: rgba(60, 255, 160, 0.55);
-}
-
-.finch-screen__telemetry {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(60, 255, 160, 0.12);
-  display: grid;
-  gap: 6px;
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
-  color: rgba(232, 255, 233, 0.78);
-}
-
-.finch-screen__kv {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.finch-screen__ok {
-  color: rgba(60, 255, 160, 0.95);
-}
-
-.finch-screen__recentlist {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.finch-screen__row {
-  display: grid;
-  grid-template-columns: 6.5ch 1fr 10ch;
-  gap: 10px;
-  align-items: baseline;
-  padding: 6px 0;
-  border-bottom: 1px solid rgba(60, 255, 160, 0.10);
-}
-
-.finch-screen__rid {
-  color: rgba(232, 255, 233, 0.70);
-  font-variant-numeric: tabular-nums;
-}
-
-.finch-screen__rtitle {
-  color: rgba(232, 255, 233, 0.92);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(60, 255, 160, 0.15);
-}
-
-.finch-screen__rtitle:hover,
-.finch-screen__rtitle:focus-visible {
-  border-bottom-color: rgba(60, 255, 160, 0.55);
-}
-
-.finch-screen__rdate {
-  color: rgba(232, 255, 233, 0.60);
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-}
-
-.finch-screen__foot {
-  margin: 10px 0 0;
-  color: rgba(232, 255, 233, 0.72);
-}
-
-.finch-screen__foot a {
-  color: rgba(232, 255, 233, 0.92);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(60, 255, 160, 0.18);
-}
-
-.finch-screen__foot a:hover,
-.finch-screen__foot a:focus-visible {
-  border-bottom-color: rgba(60, 255, 160, 0.55);
-}
-
 @media (max-width: 980px) {
   .finch-crtframe { max-width: 960px; }
-  .finch-screen__grid { grid-template-columns: 1fr; }
-  .finch-screen__row {
-    grid-template-columns: 6.5ch 1fr;
-    grid-template-rows: auto auto;
-  }
-  .finch-screen__rdate {
-    grid-column: 2;
-    text-align: left;
-  }
 }
 
+/* Mobile: reduce header density + tighten fonts so content always fits */
 @media (max-width: 560px) {
   .finch-screen__header {
     flex-direction: column;
     align-items: flex-start;
     gap: 6px;
+    padding: 12px 12px 8px;
   }
+  .finch-homeui { padding: 10px 12px 10px; gap: 8px; }
+  .finch-activity { font-size: 0.76rem; }
+  .finch-active__excerpt { font-size: 0.88rem; -webkit-line-clamp: 2; }
+  .finch-screen__btn { padding: 9px 10px; font-size: 0.70rem; }
 }
