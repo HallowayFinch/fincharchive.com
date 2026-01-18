@@ -17,7 +17,7 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
       srcset="{{ '/assets/img/crt/finch-crt-frame-900.webp' | relative_url }} 900w,
               {{ '/assets/img/crt/finch-crt-frame-1200.webp' | relative_url }} 1200w,
               {{ '/assets/img/crt/finch-crt-frame-1536.webp' | relative_url }} 1536w"
-      sizes="(max-width: 980px) 100vw, 1200px"
+      sizes="(max-width: 980px) 96vw, 1200px"
       width="1536"
       height="1024"
       loading="eager"
@@ -27,8 +27,6 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
 
     <div class="finch-crtframe__screen" role="region" aria-label="Archive terminal">
       <div class="finch-screen finch-screen--home">
-
-        <!-- single-line header (desktop + mobile) -->
         <header class="finch-screen__header finch-screen__header--single" aria-label="System header">
           <div class="finch-screen__headline">
             <span class="finch-screen__label">FINCH ARCHIVE</span>
@@ -81,7 +79,6 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
                   <span class="finch-activity__k">DRIFT</span> +0.22% .......... <span class="finch-activity__ok">STABLE</span>
                 </p>
 
-                <!-- Oscilloscope -->
                 <div class="finch-scope" aria-hidden="true">
                   <svg class="finch-scope__svg" viewBox="0 0 720 120" preserveAspectRatio="none" role="img" aria-label="">
                     <path class="finch-scope__grid" d="M0 20H720 M0 40H720 M0 60H720 M0 80H720 M0 100H720" />
@@ -120,7 +117,9 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
 
               <p class="finch-activity__line finch-activity__line--mobile-latest">
                 <span class="finch-activity__k">LATEST</span>
-                <a class="finch-homeui__promptlink" href="{{ feat.url | relative_url }}">{{ feat.title | truncate: 28 }}</a>
+                <a class="finch-homeui__promptlink" href="{{ feat.url | relative_url }}">
+                  {{ feat.title | truncate: 26 }}
+                </a>
               </p>
 
               <p class="finch-activity__line finch-activity__line--mobile-status">
@@ -149,7 +148,6 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
           </div>
 
           <div class="finch-homeui__mobile" aria-label="Mobile terminal UI">
-            <pre class="finch-ascii" aria-hidden="true">FINCHARCHIVE.COM</pre>
             <p class="finch-activity__line"><span class="finch-activity__k">STATUS</span> NO TRANSMISSIONS</p>
             <nav class="finch-homeui__actions" aria-label="Primary actions" style="margin-top:10px;">
               <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
