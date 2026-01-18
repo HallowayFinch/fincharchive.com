@@ -2636,13 +2636,16 @@ html, body { overflow-x: hidden; }
 
   /* CRT: occupy (nearly) the full viewport width */
   .finch-crtframe {
-    width: 100vw;
+    /* Slightly wider than the viewport so the CRT feels full-size on phones without changing desktop */
+    width: 116vw;
     max-width: none;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 0;
+    padding-right: 0;
     box-sizing: border-box;
-    margin: 0 auto;
+    margin-left: calc(50% - 56vw);
+    margin-right: calc(50% - 56vw);
     position: relative;
+
   }
 
   .finch-crtframe__img {
@@ -2658,7 +2661,7 @@ html, body { overflow-x: hidden; }
     position: absolute;
     z-index: 2;
     /* Tuned for the current finch-crt-frame-* assets */
-    inset: 14% 9% 24% 9%;
+    inset: 15% 10% 26% 10%;
     border-radius: 14px;
     overflow: hidden;
     background: rgba(0,0,0,.55);
