@@ -2604,23 +2604,38 @@ html {
   .finch-screen__btn { padding: 9px 10px; font-size: 0.68rem; }
 }
 
-/* Make the CRT feel larger on mobile by bleeding out of the container padding */
+/* Mobile: make the CRT noticeably larger (slightly wider than the viewport)
+   without causing horizontal scrolling. */
 @media (max-width: 680px) {
-  /* Your theme container uses padding: 0 1.25rem; so we cancel it here */
+  /* Cancel container padding and prevent any sideways scroll caused by overscaling */
   .finch-home {
     margin-left: -1.25rem;
     margin-right: -1.25rem;
+    overflow-x: clip; /* modern */
   }
+
+  /* Fallback for older Safari */
+  body { overflow-x: hidden; }
 
   .finch-crtframe {
     max-width: none;
-    width: 100vw;
-    margin: 0 auto;
+
+    /* Overscale the monitor so the screen is readable */
+    width: 116vw;
+
+    /* Center a 116vw element in a 100vw viewport */
+    margin-left: calc(50% - 58vw);
+    margin-right: 0;
+
     filter: drop-shadow(0 18px 42px rgba(0,0,0,0.50));
   }
 
-  /* Optional: slightly tighter corners on small screens */
   .finch-crtframe__img {
-    border-radius: 14px;
+    border-radius: 12px;
   }
+}
+
+/* Very small phones: slightly less overscale */
+@media (max-width: 380px) {
+  .finch-crtframe { width: 112vw; margin-left: calc(50% - 56vw); }
 }
