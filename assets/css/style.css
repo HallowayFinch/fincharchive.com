@@ -2809,3 +2809,95 @@ html, body { overflow-x: hidden; }
     --crt-scale: 1.20; /* smaller phones can handle a touch more */
   }
 }
+
+/* ======================================
+   MOBILE CRT — FIT + FEELS RIGHT
+   Paste at VERY bottom of style.css
+   (desktop unchanged)
+   ====================================== */
+
+@media (max-width: 980px){
+
+  /* 1) Make CRT a touch larger (but not ridiculous) */
+  .finch-home .finch-crtframe{
+    --crt-scale: 1.22; /* bump from 1.16; tweak 1.20–1.26 if needed */
+  }
+
+  /* 2) Improve touch scrolling behavior inside the glass */
+  .finch-home .finch-crtframe__screen{
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+  }
+
+  /* 3) Make the MOBILE UI compact so it fits without “tiny scroll window” */
+  .finch-home .finch-homeui__mobile{
+    font-size: 0.92rem;
+    line-height: 1.15;
+  }
+
+  /* ASCII/branding line should NOT be tall */
+  .finch-home .finch-homeui__mobile .finch-ascii{
+    font-size: 1.02rem;
+    line-height: 1.05;
+    margin: 0 0 6px !important;
+    padding: 0 !important;
+    white-space: pre-wrap; /* safe if narrow */
+  }
+
+  /* tighten meta + title line spacing */
+  .finch-home .finch-homeui__mobile .finch-active__meta{
+    margin: 0 0 6px !important;
+  }
+  .finch-home .finch-homeui__mobile .finch-activity__line{
+    margin: 0 0 6px !important;
+    line-height: 1.1;
+  }
+
+  /* tighten any default p spacing inside the CRT on mobile */
+  .finch-home .finch-homeui__mobile p{
+    margin-top: 0 !important;
+  }
+
+  /* smaller oscilloscope so it doesn’t eat vertical space */
+  .finch-home .finch-homeui__mobile .finch-scope__svg{
+    height: 44px !important; /* was ~60 */
+  }
+
+  /* 4) Buttons: shorter + tighter */
+  .finch-home .finch-homeui__mobile .finch-homeui__actions{
+    gap: 6px !important;
+  }
+  .finch-home .finch-homeui__mobile .finch-screen__btn{
+    min-height: 40px !important;
+    padding: 8px 10px !important;
+    font-size: 0.74rem !important;
+    line-height: 1.05 !important;
+  }
+
+  /* 5) Screen body: allow scrolling, but make it feel normal */
+  .finch-home .finch-screen--home .finch-screen__body{
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 10px !important;
+  }
+
+  /* 6) Reclaim a little vertical space from the header */
+  .finch-home .finch-screen__header{
+    padding: 7px 10px 6px !important;
+  }
+  .finch-home .finch-screen__label,
+  .finch-home .finch-screen__meta,
+  .finch-home .finch-screen__cond{
+    font-size: 0.72rem !important;
+  }
+  .finch-home .finch-screen__clock{
+    font-size: 0.78rem !important;
+  }
+}
+
+@media (max-width: 420px){
+  /* tiny phones can use a hair more scale */
+  .finch-home .finch-crtframe{
+    --crt-scale: 1.26;
+  }
+}
