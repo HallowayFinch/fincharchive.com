@@ -3572,3 +3572,90 @@ html, body { overflow-x: hidden; }
     margin: 0 !important;
   }
 }
+
+/* ============================================================
+   SECTION 99 — MOBILE CRT NORMALIZATION (wins over test overrides)
+   Fixes: tiny CRT behind UI, off-centering, broken screen inset
+   ============================================================ */
+
+@media (max-width: 980px) {
+  /* Give the CRT frame a real box on mobile so absolute children can size correctly */
+  .finch-home .finch-crtframe {
+    position: relative;
+    width: min(96vw, 760px);
+    margin-left: auto;
+    margin-right: auto;
+    aspect-ratio: 3 / 2; /* 1536x1024 */
+  }
+
+  /* CRT image fills that box */
+  .finch-home .finch-crtframe__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    z-index: 1;
+  }
+
+  /* Restore the “glass” inset so the UI sits inside the screen, not the bezel */
+  .finch-home .finch-crtframe__screen {
+    position: absolute;
+    top: 13.5%;
+    left: 9%;
+    right: 9%;
+    bottom: 21%;
+    z-index: 2;
+    overflow: hidden;
+    border-radius: 10px;
+  }
+
+  /* Keep the header from wrapping into 2–3 lines */
+  .finch-home .finch-screen__header--single .finch-screen__headline {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Slightly smaller, more stable mobile sizing (so it fits the CRT) */
+  .finch-home .finch-screen--home {
+    font-size: clamp(12px, 2.9vw, 15px);
+    line-height: 1.25;
+  }
+
+  /* Mobile action buttons: two-column grid */
+  .finch-home .finch-homeui__mobile .finch-homeui__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* Button sizing tuned for mobile CRT */
+  .finch-home .finch-homeui__mobile .finch-screen__btn {
+    padding: 10px 12px;
+    font-size: 12px;
+    min-height: 44px;
+  }
+}
+
+/* ============================================================
+   SECTION 99B — PREV/NEXT CARD CONSISTENCY (log pages)
+   Makes disabled + enabled “cards” match dimensions/spacing
+   ============================================================ */
+
+.prev_next a,
+.prev_next .is-disabled,
+.prev-next a,
+.prev-next .is-disabled,
+.nav-cards a,
+.nav-cards .is-disabled {
+  min-height: 92px;
+  align-items: center;
+}
+
+.prev_next .is-disabled,
+.prev-next .is-disabled,
+.nav-cards .is-disabled {
+  opacity: 0.55;
+}
