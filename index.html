@@ -1,204 +1,124 @@
 ---
 layout: default
+full_width: true
 title: Finch Archive
-description: "Recovered notes from incomplete transmissions: live signal scope view."
+description: "Recovered notes from incomplete transmissions: the latest logs from the Finch Archive."
 hero_image: "/assets/og/home-console-1600x900.webp"
 hero_alt: "A dim, abandoned control corridor lit by a single fluorescent tube."
 hero_w: 1600
 hero_h: 900
-full_width: true
 ---
 
 {%- assign EMPTY = '' | split: '' -%}
 {%- assign logs  = site.logs | sort: "date" | reverse | default: EMPTY -%}
 {%- assign feat  = logs | first -%}
+{%- assign recent = logs | slice: 1, 7 | default: EMPTY -%}
 
-{%- comment -%}
-Markers: show a handful of "hits" on the scope timeline.
-We include the featured record + a few recent ones.
-{%- endcomment -%}
-{%- assign hits = logs | slice: 0, 9 | default: EMPTY -%}
-{%- assign hit_count = hits | size -%}
+<section class="finch-home" aria-label="Finch Archive homepage">
+  <div class="finch-crtframe" aria-label="CRT frame">
+    <img
+      class="finch-crtframe__img"
+      src="{{ '/assets/img/crt/finch-crt-frame-1200.webp' | relative_url }}"
+      srcset="{{ '/assets/img/crt/finch-crt-frame-900.webp' | relative_url }} 900w,
+              {{ '/assets/img/crt/finch-crt-frame-1200.webp' | relative_url }} 1200w,
+              {{ '/assets/img/crt/finch-crt-frame-1536.webp' | relative_url }} 1536w"
+      sizes="(max-width: 980px) 96vw, 1200px"
+      width="1536"
+      height="1024"
+      loading="eager"
+      decoding="async"
+      alt="A vintage CRT monitor, used as a frame for the Finch Archive interface."
+    />
 
-<section class="finch-scope-console" aria-label="Finch Archive signal monitor">
-  <!-- STATUS STRIP -->
-  <header class="finch-scope-rail" role="banner">
-    <div class="finch-scope-rail__left">
-      <span class="finch-scope-label">FINCH ARCHIVE</span>
-      <span class="finch-scope-sep" aria-hidden="true">//</span>
-      <span class="finch-scope-mono">NODE: FINCH-01</span>
-    </div>
-
-    <div class="finch-scope-rail__center" aria-label="System clock">
-      <span class="finch-scope-mono finch-scope-clock">10:22</span>
-      <span class="finch-scope-sep" aria-hidden="true">·</span>
-      <span class="finch-scope-mono finch-scope-muted">CONDITION: INCOMPLETE</span>
-    </div>
-
-    <div class="finch-scope-rail__right" aria-label="Link status">
-      <span class="finch-scope-led finch-scope-led--pulse" aria-hidden="true"></span>
-      <span class="finch-scope-mono">SIGNAL: ACTIVE</span>
-    </div>
-  </header>
-
-  <!-- MAIN GRID -->
-  <div class="finch-scope-grid">
-    <!-- SCOPE -->
-    <section class="finch-scope-module finch-scope-module--scope" aria-label="Live scope">
-      <header class="finch-scope-plate">
-        <div class="finch-scope-plate__title">
-          <span class="finch-scope-led finch-scope-led--dim" aria-hidden="true"></span>
-          LIVE SCOPE · FREQ 10.22
-        </div>
-        <div class="finch-scope-plate__status">
-          <span class="finch-scope-pill finch-scope-pill--warn">INTERFERENCE 0.22%</span>
-        </div>
-      </header>
-
-      <div class="finch-scope-glass" role="region" aria-label="Oscilloscope viewport">
-        <!-- HUD -->
-        <div class="finch-scope-hud" aria-hidden="true">
-          <div class="finch-scope-hud__row">
-            <span>GAIN: 0.86</span>
-            <span>SWEEP: 1.00s</span>
-            <span>LOCK: 10:22</span>
+    <div class="finch-crtframe__screen" role="region" aria-label="Archive interface">
+      <div class="finch-screen">
+        <header class="finch-screen__header" aria-label="System header">
+          <div class="finch-screen__brand">
+            <span class="finch-screen__label">FINCH ARCHIVE</span>
+            <span class="finch-screen__sep" aria-hidden="true">//</span>
+            <span class="finch-screen__meta">RECOVERY NODE: FA-01</span>
           </div>
-          <div class="finch-scope-hud__row finch-scope-hud__row--muted">
-            <span>carrier present</span>
-            <span>decode idle</span>
-            <span>operator unconfirmed</span>
+
+          <div class="finch-screen__status" aria-label="System status">
+            <span class="finch-screen__clock">10:22</span>
+            <span class="finch-screen__dot" aria-hidden="true">·</span>
+            <span class="finch-screen__cond">CONDITION: INCOMPLETE</span>
           </div>
-        </div>
+        </header>
 
-        <!-- GRID LINES -->
-        <div class="finch-scope-gridlines" aria-hidden="true"></div>
+        <div class="finch-screen__body">
+          <p class="finch-screen__strap">
+            Recovered notes from incomplete transmissions.
+          </p>
 
-        <!-- SVG WAVEFORM -->
-        <svg class="finch-scope-svg" viewBox="0 0 1000 220" preserveAspectRatio="none" aria-hidden="true">
-          <path class="finch-scope-wave finch-scope-wave--ghost"
-                d="M0,140 C60,120 90,60 130,110 C170,160 220,170 260,120 C300,70 330,70 370,120
-                   C410,170 460,190 500,130 C540,70 580,60 620,120 C660,180 710,190 760,130
-                   C810,70 850,60 900,115 C940,160 970,150 1000,130" />
-          <path class="finch-scope-wave"
-                d="M0,135 C60,115 90,65 130,115 C170,165 220,175 260,125 C300,75 330,75 370,125
-                   C410,175 460,195 500,135 C540,75 580,65 620,125 C660,185 710,195 760,135
-                   C810,75 850,65 900,120 C940,165 970,155 1000,135" />
-        </svg>
+          {%- if feat -%}
+          <section class="finch-screen__feature" aria-label="Latest recovered log">
+            <p class="finch-screen__line">
+              <span class="finch-screen__tag">ACTIVE</span>
+              <span class="finch-screen__sep" aria-hidden="true">·</span>
+              <span class="finch-screen__id">{{ feat.log_id | default: 'LOG' }}</span>
+              <span class="finch-screen__sep" aria-hidden="true">·</span>
+              <span class="finch-screen__date">{{ feat.date | date: "%Y-%m-%d" }}</span>
+            </p>
 
-        <!-- SWEEP -->
-        <div class="finch-scope-sweep" aria-hidden="true"></div>
+            <h1 class="finch-screen__title">
+              <a href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
+            </h1>
 
-        <!-- HIT MARKERS -->
-        {%- if hit_count and hit_count > 0 -%}
-          <div class="finch-scope-hits" aria-label="Transmission hits">
-            {%- assign denom = hit_count | minus: 1 -%}
-            {%- for item in hits -%}
-              {%- if denom > 0 -%}
-                {%- assign left = forloop.index0 | times: 100 | divided_by: denom -%}
-              {%- else -%}
-                {%- assign left = 50 -%}
-              {%- endif -%}
-
-              <a
-                class="finch-scope-hit {% if forloop.first %}is-active{% endif %}"
-                href="{{ item.url | relative_url }}"
-                style="left: {{ left }}%;"
-                aria-label="Open {{ item.log_id | default: 'log' }} {{ item.title }}"
-              >
-                <span class="finch-scope-hit__dot" aria-hidden="true"></span>
-                <span class="finch-scope-hit__label">{{ item.log_id | default: "LOG" }}</span>
-              </a>
-            {%- endfor -%}
-          </div>
-        {%- endif -%}
-      </div>
-
-      <footer class="finch-scope-footer">
-        <div class="finch-scope-footer__left">
-          <span class="finch-scope-mono finch-scope-muted">Markers = recent transmissions</span>
-        </div>
-        <div class="finch-scope-footer__right">
-          <a class="finch-scope-link" href="{{ '/logs/' | relative_url }}">Browse full catalog</a>
-        </div>
-      </footer>
-    </section>
-
-    <!-- DECODE PANEL -->
-    <aside class="finch-scope-module finch-scope-module--decode" aria-label="Decode panel">
-      <header class="finch-scope-plate">
-        <div class="finch-scope-plate__title">
-          <span class="finch-scope-led finch-scope-led--pulse" aria-hidden="true"></span>
-          DECODE PANEL
-        </div>
-        <div class="finch-scope-plate__status">
-          <span class="finch-scope-pill finch-scope-pill--ok">READY</span>
-        </div>
-      </header>
-
-      <div class="finch-scope-body">
-        {%- if feat -%}
-          <div class="finch-decode-kv" role="list">
-            <div class="finch-decode-kv__row" role="listitem">
-              <span class="finch-scope-muted">ACTIVE HIT</span>
-              <span class="finch-scope-mono">{{ feat.log_id | default: "LOG" }}</span>
+            <div class="finch-screen__excerpt">
+              {{ feat.content | strip_html | strip_newlines | truncate: 340 }}
             </div>
-            <div class="finch-decode-kv__row" role="listitem">
-              <span class="finch-scope-muted">DATE</span>
-              <span class="finch-scope-mono">{{ feat.date | date: "%Y-%m-%d" }}</span>
+
+            <div class="finch-screen__actions" aria-label="Primary actions">
+              <a class="finch-screen__btn" href="{{ feat.url | relative_url }}">OPEN LATEST</a>
+              <a class="finch-screen__btn finch-screen__btn--ghost" href="{{ '/logs/' | relative_url }}">BROWSE INDEX</a>
+              <a class="finch-screen__btn finch-screen__btn--ghost" href="{{ '/feeds/' | relative_url }}">FEEDS</a>
             </div>
-            <div class="finch-decode-kv__row" role="listitem">
-              <span class="finch-scope-muted">ROUTE</span>
-              <span class="finch-scope-mono">/logs</span>
+
+            <p class="finch-screen__prompt" aria-hidden="true">
+              archive@finch:~$ open latest <span class="finch-screen__cursor">▍</span>
+            </p>
+          </section>
+          {%- endif -%}
+
+          <section class="finch-screen__grid" aria-label="Navigation and recent transmissions">
+            <div class="finch-screen__nav" aria-label="Quick navigation">
+              <h2 class="finch-screen__h2">QUICK PATHS</h2>
+              <ul class="finch-screen__links" role="list">
+                <li><a href="{{ '/logs/' | relative_url }}">LIST ALL LOGS</a></li>
+                <li><a href="{{ '/feeds/' | relative_url }}">FEEDS & SUBSCRIPTION</a></li>
+                <li><a href="{{ '/field-notes/' | relative_url }}">FIELD NOTES</a></li>
+                <li><a href="{{ '/about/' | relative_url }}">SYSTEM NOTES</a></li>
+              </ul>
+
+              <div class="finch-screen__telemetry" aria-label="Telemetry">
+                <div class="finch-screen__kv"><span>LOGS</span><span>{{ logs | size }}</span></div>
+                <div class="finch-screen__kv"><span>LINK</span><span class="finch-screen__ok">ACTIVE</span></div>
+                {%- if feat and feat.date -%}
+                <div class="finch-screen__kv"><span>LAST INGEST</span><span>{{ feat.date | date: "%Y-%m-%d" }}</span></div>
+                {%- endif -%}
+                <div class="finch-screen__kv"><span>DRIFT</span><span>+0.22%</span></div>
+              </div>
             </div>
-          </div>
 
-          <h2 class="finch-decode-title">
-            <a class="finch-scope-link finch-scope-link--strong" href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
-          </h2>
-
-          <div class="finch-decode-excerpt">
-            {{ feat.content | strip_html | strip_newlines | truncate: 420 }}
-          </div>
-
-          <div class="finch-decode-actions" aria-label="Decode actions">
-            <a class="finch-scope-btn" href="{{ feat.url | relative_url }}">OPEN RECORD</a>
-            <a class="finch-scope-btn finch-scope-btn--ghost" href="{{ '/logs/' | relative_url }}">INDEX</a>
-            <a class="finch-scope-btn finch-scope-btn--ghost" href="{{ '/feeds/' | relative_url }}">FEEDS</a>
-          </div>
-
-          <div class="finch-decode-note">
-            <span class="finch-scope-led finch-scope-led--dim" aria-hidden="true"></span>
-            <span class="finch-scope-mono finch-scope-muted">Decoder output: stable enough to render.</span>
-          </div>
-        {%- else -%}
-          <p class="finch-scope-muted">No transmissions available.</p>
-        {%- endif -%}
-      </div>
-    </aside>
-
-    <!-- EVENT STRIP -->
-    <section class="finch-scope-module finch-scope-module--events" aria-label="Event strip">
-      <header class="finch-scope-plate">
-        <div class="finch-scope-plate__title">EVENT STRIP</div>
-        <div class="finch-scope-plate__status">
-          <a class="finch-scope-link" href="{{ '/feeds/' | relative_url }}">Feeds</a>
-          <span class="finch-scope-sep" aria-hidden="true">·</span>
-          <a class="finch-scope-link" href="{{ '/about/' | relative_url }}">Notes</a>
-        </div>
-      </header>
-
-      <div class="finch-scope-body">
-        <div class="finch-event-strip" role="list" aria-label="Recent events">
-          {%- for item in hits -%}
-            <a class="finch-event" href="{{ item.url | relative_url }}" role="listitem">
-              <span class="finch-event__dot" aria-hidden="true"></span>
-              <span class="finch-event__id">{{ item.log_id | default: "LOG" }}</span>
-              <span class="finch-event__title">{{ item.title }}</span>
-              <span class="finch-event__date">{{ item.date | date: "%Y-%m-%d" }}</span>
-            </a>
-          {%- endfor -%}
+            <div class="finch-screen__recent" aria-label="Recent transmissions">
+              <h2 class="finch-screen__h2">RECENT TRANSMISSIONS</h2>
+              <ul class="finch-screen__recentlist" role="list">
+                {%- for item in recent -%}
+                  <li class="finch-screen__row">
+                    <span class="finch-screen__rid">{{ item.log_id | default: '—' }}</span>
+                    <a class="finch-screen__rtitle" href="{{ item.url | relative_url }}">{{ item.title }}</a>
+                    <span class="finch-screen__rdate">{{ item.date | date: "%Y-%m-%d" }}</span>
+                  </li>
+                {%- endfor -%}
+              </ul>
+              <p class="finch-screen__foot">
+                <a href="{{ '/logs/' | relative_url }}">Open full catalog…</a>
+              </p>
+            </div>
+          </section>
         </div>
       </div>
-    </section>
+    </div>
   </div>
 </section>

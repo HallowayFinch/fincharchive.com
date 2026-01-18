@@ -71,7 +71,18 @@ layout: null
     - Instead, they should wrap content in <section> / <div> inside this.
     - .container is applied here by default for consistent width.
     {%- endcomment -%}
-    <main id="main" class="{% if page.full_width %}wrap finch-main finch-main--wide{% else %}container{% endif %}" role="main">
+    {%- comment -%}
+    Main width control
+    - Default: .container (content column)
+    - Per-page override: set frontmatter full_width: true
+      to use .container--wide (for immersive layouts like the homepage CRT frame)
+    {%- endcomment -%}
+    {%- assign main_class = 'container' -%}
+    {%- if page.full_width -%}
+      {%- assign main_class = 'container container--wide' -%}
+    {%- endif -%}
+
+    <main id="main" class="{{ main_class }}" role="main">
       {{ content }}
     </main>
 
@@ -79,13 +90,13 @@ layout: null
 
     {%- comment -%}
     Theme toggle logic
-    - Reads/writes localStorage key: "fa-theme"
+    - Reads/writes localStorage key: "finch-theme"
     - Applies data-theme="dark"/"light" on <html> (root)
     - Keeps ARIA pressed state in sync for the toggle button
     {%- endcomment -%}
     <script>
       (function () {
-        const key = 'fa-theme';
+        const key = 'finch-theme';
         const root = document.documentElement;
         const btn = document.getElementById('theme-toggle');
         if (!btn) return;
