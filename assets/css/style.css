@@ -2689,3 +2689,70 @@ html, body { overflow-x: hidden; }
     width: calc(100vw - 12px) !important;
   }
 }
+
+/* ======================================
+   MOBILE CRT — FORCE SCALE (v4)
+   - Desktop unchanged
+   - Mobile: breakout to 100vw + HARD scale up
+   - Also allows internal screen scroll so buttons are always reachable
+   Paste at VERY BOTTOM of style.css
+   ====================================== */
+
+@media (max-width: 980px){
+
+  html, body{
+    overflow-x: hidden !important;
+  }
+
+  /* Break out of any constrained wrapper on mobile */
+  .finch-home{
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin-left: calc(50% - 50vw) !important;
+    margin-right: calc(50% - 50vw) !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Force the CRT bigger using scale (width-only isn’t winning somewhere) */
+  .finch-home .finch-crtframe{
+    --crt-scale: 1.22; /* tweak 1.18–1.30 if needed */
+
+    position: relative !important;
+    left: 50% !important;
+    margin: 0 !important;
+
+    width: calc(100vw - 18px) !important;
+    max-width: none !important;
+
+    transform: translateX(-50%) scale(var(--crt-scale)) !important;
+    transform-origin: top center !important;
+  }
+
+  /* Keep image obedient */
+  .finch-home .finch-crtframe__img{
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  /* IMPORTANT: allow scrolling inside the CRT so actions/buttons can be reached */
+  .finch-home .finch-screen--home .finch-screen__body{
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Give the actions a little breathing room (helps visibility once you scroll) */
+  .finch-home .finch-homeui__actions{
+    margin-top: 10px !important;
+  }
+}
+
+/* Extra small phones: scale a bit more */
+@media (max-width: 420px){
+  .finch-home .finch-crtframe{
+    --crt-scale: 1.28;
+    width: calc(100vw - 12px) !important;
+  }
+}
