@@ -2283,16 +2283,22 @@ html {
 }
 
 /* ======================================
-   Homepage: Photoreal CRT frame (CRT UI)
-   Notes:
-   - Screen overlay is positioned using bbox values measured from the CRT image.
-   - Do NOT let the CRT <img> capture taps/clicks (pointer-events: none).
-   - Mobile uses a “zoom/crop” approach so the screen becomes readable.
+   20. Homepage: Photoreal CRT frame (CRT UI) — FIXED
+   Goals:
+   - Screen overlay stays correctly constrained (no drift)
+   - No horizontal scroll on mobile
+   - CRT is readable on phones without huge zoom-crop
+   - Mobile has a dedicated compact UI (no overflowing content)
    ====================================== */
 
+/* Prevent accidental horizontal scrolling caused by wide CRT experiments */
+html, body { overflow-x: hidden; }
+
 .finch-home{
-  margin-top: clamp(-44px, -3.2vw, -18px);
-  padding: 0 0 20px;
+  /* pull the monitor up a bit closer to the header on desktop */
+  margin-top: clamp(-36px, -2.6vw, -14px);
+  padding: clamp(6px, 1.2vw, 12px) 0 20px;
+  overflow-x: clip;
 }
 
 .finch-crtframe{
@@ -2345,27 +2351,33 @@ html {
   overflow: hidden; /* no scrolling within screen */
 }
 
-.finch-homeui__desktop{ display: block; }
-.finch-homeui__mobile{ display: none; }
+/* Desktop vs mobile UI panes (index.html must include both wrappers) */
+.finch-homeui__desktop{ display: block; height: 100%; }
+.finch-homeui__mobile{ display: none; height: 100%; }
 
 /* Buttons: filled for readability */
 .finch-screen__btn--fill{
-  background: rgba(126,255,176,.16);
-  border-color: rgba(126,255,176,.45);
+  background: rgba(126,255,176,.18);
+  border-color: rgba(126,255,176,.55);
   color: #eafff2;
   box-shadow: inset 0 0 0 1px rgba(0,0,0,.35);
 }
-
-.finch-screen__btn--fill2{
-  background: rgba(255,255,255,.06);
-  border-color: rgba(255,255,255,.16);
-  color: #e6e6e6;
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,.35);
+.finch-screen__btn--fill:hover,
+.finch-screen__btn--fill:focus-visible{
+  background: rgba(126,255,176,.24);
+  border-color: rgba(126,255,176,.75);
 }
 
-.finch-homeui__actions--stack{
-  grid-template-columns: 1fr;
-  gap: 10px;
+.finch-screen__btn--fill2{
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.18);
+  color: #f0f0f0;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.35);
+}
+.finch-screen__btn--fill2:hover,
+.finch-screen__btn--fill2:focus-visible{
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.30);
 }
 
 /* Oscilloscope */
@@ -2376,19 +2388,17 @@ html {
   box-shadow: inset 0 0 0 1px rgba(126,255,176,.12);
   overflow: hidden;
 }
-
+.finch-scope--compact{ margin-top: 8px; }
 .finch-scope__svg{
   display: block;
   width: 100%;
   height: 72px;
 }
-
 .finch-scope__grid{
   fill: none;
   stroke: rgba(126,255,176,.10);
   stroke-width: 1;
 }
-
 .finch-scope__line{
   fill: none;
   stroke: rgba(126,255,176,.78);
@@ -2399,17 +2409,14 @@ html {
   stroke-dasharray: 10 6;
   animation: finchScopeDrift 2.8s linear infinite;
 }
-
 .finch-scope__beam{
-  opacity: .75;
+  opacity: .70;
   animation: finchScopeBeam 2.3s linear infinite;
 }
-
 @keyframes finchScopeDrift{
   from{ stroke-dashoffset: 0; }
   to{ stroke-dashoffset: -64; }
 }
-
 @keyframes finchScopeBeam{
   0%{ transform: translateX(-140px); }
   100%{ transform: translateX(740px); }
@@ -2421,47 +2428,52 @@ html {
   text-decoration: none;
   border-bottom: 1px solid rgba(255,120,120,.35);
 }
-.finch-homeui__promptlink:hover{
+.finch-homeui__promptlink:hover,
+.finch-homeui__promptlink:focus-visible{
   color: rgba(255,170,170,.95);
   border-bottom-color: rgba(255,170,170,.55);
 }
 
 /* ======================================
    Responsive: make CRT readable on phones
-   - Increase CRT width beyond viewport and crop (zoom),
-     so the *screen area* becomes usable.
+   Strategy:
+   - Keep CRT within viewport (no 142vw/162vw zoom)
+   - Give small side padding so it doesn’t touch edges
+   - Use the dedicated “mobile UI” inside the screen
    ====================================== */
 
 @media (max-width: 980px){
-  .finch-crtframe{
-    width: 142vw;
-    max-width: none;
-    left: 50%;
-    transform: translateX(-50%);
+  .finch-home{
+    margin-top: 0;
+    padding-top: 10px;
   }
 
-  .finch-screen--home .finch-screen__body{
-    padding: 14px;
+  /* Slight inset so the CRT doesn’t touch screen edges */
+  .finch-crtframe{
+    width: calc(100vw - 24px);
+    max-width: 760px;
   }
 
   /* swap to minimal mobile UI */
   .finch-homeui__desktop{ display: none; }
   .finch-homeui__mobile{ display: block; }
+
+  /* tighten inner padding slightly */
+  .finch-screen--home .finch-screen__body{
+    padding: 12px;
+  }
+
+  .finch-scope__svg{ height: 60px; }
 }
 
-@media (max-width: 560px){
+@media (max-width: 420px){
   .finch-crtframe{
-    width: 162vw; /* stronger “zoom” */
+    width: calc(100vw - 18px);
   }
-
-  .finch-scope__svg{
-    height: 58px;
-  }
+  .finch-scope__svg{ height: 54px; }
 }
 
-/* Reduce dead space above the CRT */
+/* Reduce dead space above the CRT on desktop */
 @media (min-width: 981px){
-  .finch-home{
-    padding-top: 0;
-  }
+  .finch-home{ padding-top: 0; }
 }
