@@ -2901,3 +2901,58 @@ html, body { overflow-x: hidden; }
     --crt-scale: 1.26;
   }
 }
+
+/* ======================================
+   MOBILE: FULL-BLEED CRT + BIGGER SCREEN
+   Paste at VERY bottom of style.css
+   Desktop unaffected.
+   ====================================== */
+
+@media (max-width: 980px){
+
+  /* Break out of any global .wrap / max-width container */
+  .finch-home{
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+    overflow-x: hidden;
+  }
+
+  /* Make the CRT occupy more of the viewport */
+  .finch-home .finch-crtframe{
+    width: min(98vw, 920px);
+    max-width: none;
+    margin: 0 auto;
+  }
+
+  /* Give the "glass" a bit more usable space on mobile */
+  .finch-home .finch-crtframe{
+    --screen-x: 18.6%;
+    --screen-y: 12.2%;
+    --screen-w: 62.6%;
+    --screen-h: 67.2%;
+  }
+
+  /* Keep the screen content from feeling cramped */
+  .finch-home .finch-screen__header{
+    padding: 7px 10px 6px;
+  }
+  .finch-home .finch-screen__label,
+  .finch-home .finch-screen__meta,
+  .finch-home .finch-screen__cond{
+    font-size: 0.72rem;
+  }
+  .finch-home .finch-screen__clock{
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 420px){
+  .finch-home .finch-crtframe{
+    width: 99vw;
+  }
+}
