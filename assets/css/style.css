@@ -2283,39 +2283,38 @@ html {
 }
 
 /* ======================================
-   20. Homepage: Photoreal CRT frame (refactored)
-   - No scrolling inside screen
-   - Mobile gets a dedicated, readable layout
-   - Buttons are filled
-   - CRT sits higher under header
+   Homepage: Photoreal CRT frame (CRT UI)
+   Notes:
+   - Screen overlay is positioned using bbox values measured from the CRT image.
+   - Do NOT let the CRT <img> capture taps/clicks (pointer-events: none).
+   - Mobile uses a “zoom/crop” approach so the screen becomes readable.
    ====================================== */
 
 .finch-home{
-  /* pull the monitor up a bit closer to the header on desktop */
-  margin-top: clamp(-26px, -2.0vw, -14px);
-  padding: clamp(8px, 1.4vw, 14px) 0 clamp(10px, 2vw, 18px);
+  margin-top: clamp(-44px, -3.2vw, -18px);
+  padding: 0 0 20px;
 }
 
-/* Frame wrapper */
 .finch-crtframe{
-  --screen-x: 14.3%;
-  --screen-y: 11.2%;
-  --screen-w: 71.4%;
-  --screen-h: 58.2%;
-
   position: relative;
-  max-width: 1200px;
+  width: min(1200px, 100%);
   margin: 0 auto;
-  filter: drop-shadow(0 24px 60px rgba(0,0,0,0.55));
+  filter: drop-shadow(0 18px 70px rgba(0,0,0,.65));
+  overflow: visible;
+
+  /* Screen bbox (measured from 1536×1024 CRT frame) */
+  --screen-x: 20.57%;
+  --screen-y: 12.70%;
+  --screen-w: 59.38%;
+  --screen-h: 65.53%;
 }
 
 .finch-crtframe__img{
+  display: block;
   width: 100%;
   height: auto;
-  display: block;
-  border-radius: 18px;
-  position: relative;
-  z-index: 1;
+  user-select: none;
+  pointer-events: none; /* critical: taps go to overlay UI */
 }
 
 .finch-crtframe__screen{
@@ -2324,370 +2323,145 @@ html {
   top: var(--screen-y);
   width: var(--screen-w);
   height: var(--screen-h);
-  border-radius: 10px;
   overflow: hidden;
-  z-index: 2;
+  border-radius: 10px;
+
+  /* subtle CRT glass */
+  background: radial-gradient(120% 120% at 50% 38%, rgba(0,0,0,.15), rgba(0,0,0,.62));
+  box-shadow: inset 0 0 0 1px rgba(126,255,176,.12), inset 0 0 24px rgba(0,0,0,.55);
 }
 
-/* Screen surface + CRT effects */
-.finch-screen{
-  position: relative;
+/* Inside “terminal” */
+.finch-screen.finch-screen--home{
   height: 100%;
   display: flex;
   flex-direction: column;
-
-  background:
-    radial-gradient(120% 90% at 50% 45%, rgba(34, 255, 140, 0.06), transparent 58%),
-    radial-gradient(80% 60% at 30% 20%, rgba(122, 58, 58, 0.10), transparent 60%),
-    linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.55));
-  color: #e8ffe9;
-  font-family: var(--mono);
-  text-shadow: 0 0 10px rgba(60, 255, 160, 0.12);
 }
 
-.finch-screen::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.04), transparent 22%, rgba(0,0,0,0.18)),
-    repeating-linear-gradient(
-      180deg,
-      rgba(0,0,0,0.00) 0,
-      rgba(0,0,0,0.00) 2px,
-      rgba(0,0,0,0.10) 3px
-    );
-  mix-blend-mode: overlay;
-  opacity: 0.55;
-}
-.finch-screen::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  background: radial-gradient(120% 100% at 50% 40%, transparent 56%, rgba(0,0,0,0.55) 100%);
-  opacity: 0.85;
-}
-
-/* Header */
-.finch-screen__header{
-  position: relative;
-  z-index: 1;
-  padding: 12px 14px 9px;
-  border-bottom: 1px solid rgba(60, 255, 160, 0.16);
-  background: rgba(0,0,0,0.25);
-}
-.finch-screen__headline{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: baseline;
-}
-.finch-screen__label{
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-size: 0.76rem;
-  color: rgba(232, 255, 233, 0.92);
-}
-.finch-screen__meta,
-.finch-screen__cond{
-  font-size: 0.76rem;
-  color: rgba(232, 255, 233, 0.75);
-  letter-spacing: 0.08em;
-}
-.finch-screen__clock{
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
-  font-size: 0.86rem;
-  color: rgba(232, 255, 233, 0.95);
-}
-.finch-screen__sep{
-  color: rgba(232, 255, 233, 0.55);
-}
-
-/* Body: no scroll; we fit content by design */
-.finch-screen__body{
-  position: relative;
-  z-index: 1;
+.finch-screen--home .finch-screen__body{
   flex: 1;
-  padding: 12px 14px 12px;
-  overflow: hidden;
+  min-height: 0;
+  padding: clamp(10px, 1.2vw, 16px);
+  overflow: hidden; /* no scrolling within screen */
 }
 
-/* Layout split: desktop vs mobile */
-.finch-homeui__desktop{ display: block; height: 100%; }
-.finch-homeui__mobile{ display: none; height: 100%; }
+.finch-homeui__desktop{ display: block; }
+.finch-homeui__mobile{ display: none; }
 
-.finch-homeui__top{
-  display: grid;
-  gap: 10px;
-}
-.finch-homeui__bottom{
-  position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: 10px;
-  display: grid;
-  gap: 8px;
-}
-
-/* Active block (desktop) */
-.finch-active__meta{
-  margin: 0 0 6px;
-  font-size: 0.84rem;
-  letter-spacing: 0.06em;
-  color: rgba(232,255,233,0.82);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-.finch-active__pill{
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(60, 255, 160, 0.32);
-  background: rgba(0,0,0,0.25);
-  color: rgba(232,255,233,0.92);
-  letter-spacing: 0.12em;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-}
-.finch-active__title{
-  margin: 0 0 6px;
-  font-size: clamp(1.05rem, 1.8vw, 1.34rem);
-  letter-spacing: 0.02em;
-}
-.finch-active__title a{
-  color: rgba(232,255,233,0.98);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(60,255,160,0.25);
-}
-.finch-active__excerpt{
-  margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.45;
-  color: rgba(232,255,233,0.82);
-  max-width: 60ch;
-}
-
-/* Buttons (filled) */
-.finch-homeui__actions{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.finch-homeui__actions--mobile{
-  grid-template-columns: 1fr;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.finch-screen__btn{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 42px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 0.74rem;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
+/* Buttons: filled for readability */
 .finch-screen__btn--fill{
-  border: 1px solid rgba(60, 255, 160, 0.55);
-  background: rgba(60, 255, 160, 0.16);
-  color: rgba(232, 255, 233, 0.98);
-}
-.finch-screen__btn--fill:hover,
-.finch-screen__btn--fill:focus-visible{
-  background: rgba(60, 255, 160, 0.22);
-  border-color: rgba(60, 255, 160, 0.75);
+  background: rgba(126,255,176,.16);
+  border-color: rgba(126,255,176,.45);
+  color: #eafff2;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.35);
 }
 
 .finch-screen__btn--fill2{
-  border: 1px solid rgba(232, 255, 233, 0.35);
-  background: rgba(232, 255, 233, 0.10);
-  color: rgba(232, 255, 233, 0.98);
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.16);
+  color: #e6e6e6;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.35);
 }
-.finch-screen__btn--fill2:hover,
-.finch-screen__btn--fill2:focus-visible{
-  background: rgba(232, 255, 233, 0.14);
-  border-color: rgba(232, 255, 233, 0.55);
+
+.finch-homeui__actions--stack{
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+/* Oscilloscope */
+.finch-scope{
+  margin-top: 10px;
+  border-radius: 12px;
+  background: rgba(0,0,0,.22);
+  box-shadow: inset 0 0 0 1px rgba(126,255,176,.12);
+  overflow: hidden;
+}
+
+.finch-scope__svg{
+  display: block;
+  width: 100%;
+  height: 72px;
+}
+
+.finch-scope__grid{
+  fill: none;
+  stroke: rgba(126,255,176,.10);
+  stroke-width: 1;
+}
+
+.finch-scope__line{
+  fill: none;
+  stroke: rgba(126,255,176,.78);
+  stroke-width: 2.2;
+  filter: drop-shadow(0 0 6px rgba(126,255,176,.35));
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 10 6;
+  animation: finchScopeDrift 2.8s linear infinite;
+}
+
+.finch-scope__beam{
+  opacity: .75;
+  animation: finchScopeBeam 2.3s linear infinite;
+}
+
+@keyframes finchScopeDrift{
+  from{ stroke-dashoffset: 0; }
+  to{ stroke-dashoffset: -64; }
+}
+
+@keyframes finchScopeBeam{
+  0%{ transform: translateX(-140px); }
+  100%{ transform: translateX(740px); }
 }
 
 /* Prompt link */
-.finch-homeui__prompt{
-  margin: 0;
-  font-size: 0.82rem;
-  color: rgba(232,255,233,0.70);
-}
-.finch-homeui__prompt--mobile{
-  font-size: 0.86rem;
-}
 .finch-homeui__promptlink{
-  color: rgba(232,255,233,0.92);
+  color: rgba(255,120,120,.85);
   text-decoration: none;
-  border-bottom: 1px solid rgba(60,255,160,0.18);
+  border-bottom: 1px solid rgba(255,120,120,.35);
 }
-.finch-homeui__promptlink:hover,
-.finch-homeui__promptlink:focus-visible{
-  border-bottom-color: rgba(60,255,160,0.55);
-}
-
-.finch-screen__cursor{
-  display:inline-block;
-  transform: translateY(1px);
-  opacity: 0.85;
-  animation: finchBlink 1.1s steps(1, end) infinite;
-}
-@keyframes finchBlink{ 0%,55%{opacity:0;} 56%,100%{opacity:.85;} }
-
-/* Activity + oscilloscope */
-.finch-activity__line{
-  margin: 0;
-  font-size: 0.82rem;
-  letter-spacing: 0.08em;
-  color: rgba(232,255,233,0.78);
-}
-.finch-activity__k{
-  color: rgba(232,255,233,0.62);
-}
-.finch-activity__ok{
-  color: rgba(60,255,160,0.95);
+.finch-homeui__promptlink:hover{
+  color: rgba(255,170,170,.95);
+  border-bottom-color: rgba(255,170,170,.55);
 }
 
-/* Oscilloscope block */
-.finch-scope{
-  margin-top: 8px;
-  border: 1px solid rgba(60,255,160,0.16);
-  border-radius: 10px;
-  background:
-    repeating-linear-gradient(0deg, rgba(60,255,160,0.06) 0 1px, transparent 1px 10px),
-    repeating-linear-gradient(90deg, rgba(60,255,160,0.04) 0 1px, transparent 1px 14px),
-    rgba(0,0,0,0.22);
-  padding: 8px;
-  overflow: hidden;
-}
-.finch-scope--compact{
-  margin-top: 10px;
-}
-.finch-scope__svg{
-  width: 100%;
-  height: 44px;
-  display: block;
-}
-.finch-scope__trace{
-  fill: none;
-  stroke: rgba(60,255,160,0.85);
-  stroke-width: 2.2;
-  filter: drop-shadow(0 0 8px rgba(60,255,160,0.18));
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 520;
-  stroke-dashoffset: 0;
-  animation: finchScope 2.2s linear infinite;
-}
-@keyframes finchScope{
-  0%{ stroke-dashoffset: 0; opacity: .75; }
-  50%{ opacity: 1; }
-  100%{ stroke-dashoffset: -520; opacity: .75; }
-}
+/* ======================================
+   Responsive: make CRT readable on phones
+   - Increase CRT width beyond viewport and crop (zoom),
+     so the *screen area* becomes usable.
+   ====================================== */
 
-/* Responsive */
 @media (max-width: 980px){
-  .finch-crtframe{ max-width: 960px; }
-  .finch-active__excerpt{ display: none; } /* keep it tight */
-}
-
-@media (max-width: 680px){
-  /* make the CRT larger on phones (and center it) */
-  .finch-home{
-    margin-left: -1.25rem;
-    margin-right: -1.25rem;
-    overflow-x: clip;
-    margin-top: 0; /* don’t pull up on mobile */
-    padding-top: 10px;
-  }
-  body{ overflow-x: hidden; }
-
   .finch-crtframe{
+    width: 142vw;
     max-width: none;
-    width: 118vw;
-    margin-left: calc(50% - 59vw);
-    margin-right: 0;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
-  /* adjust screen crop slightly for mobile */
+  .finch-screen--home .finch-screen__body{
+    padding: 14px;
+  }
+
+  /* swap to minimal mobile UI */
+  .finch-homeui__desktop{ display: none; }
+  .finch-homeui__mobile{ display: block; }
+}
+
+@media (max-width: 560px){
   .finch-crtframe{
-    --screen-x: 11.8%;
-    --screen-y: 12.2%;
-    --screen-w: 76.8%;
-    --screen-h: 56.5%;
+    width: 162vw; /* stronger “zoom” */
   }
 
-  /* Switch to mobile UI inside the screen */
-  .finch-homeui__desktop{ display:none; }
-  .finch-homeui__mobile{ display:block; height: 100%; }
-
-  .finch-screen__body{
-    padding: 10px 12px 10px;
-  }
-
-  .finch-mobilecard{
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-  }
-
-  .finch-mobilecard__row{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: baseline;
-  }
-  .finch-mobilecard__row--meta{ margin-bottom: 10px; }
-  .finch-mobilecard__row--title{ margin-bottom: 10px; }
-  .finch-mobilecard__row--stats{ margin-top: 8px; }
-
-  .finch-mobilecard__mono{
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.08em;
-    color: rgba(232,255,233,0.92);
-    font-size: 0.92rem;
-  }
-  .finch-mobilecard__dim{
-    color: rgba(232,255,233,0.65);
-    font-size: 0.88rem;
-    letter-spacing: 0.06em;
-  }
-  .finch-mobilecard__sep{
-    color: rgba(232,255,233,0.45);
-  }
-
-  .finch-mobilecard__title{
-    display: inline-block;
-    font-size: 1.05rem;
-    line-height: 1.2;
-    color: rgba(232,255,233,0.98);
-    text-decoration: none;
-    border-bottom: 1px solid rgba(60,255,160,0.25);
-  }
-
-  /* make tap targets big and readable */
-  .finch-screen__btn{
-    min-height: 46px;
-    font-size: 0.78rem;
+  .finch-scope__svg{
+    height: 58px;
   }
 }
 
-@media (max-width: 380px){
-  .finch-crtframe{ width: 122vw; margin-left: calc(50% - 61vw); }
+/* Reduce dead space above the CRT */
+@media (min-width: 981px){
+  .finch-home{
+    padding-top: 0;
+  }
 }
