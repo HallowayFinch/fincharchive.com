@@ -2291,10 +2291,20 @@ html {
 }
 
 .finch-crtframe {
-  --screen-x: 14.3%;
-  --screen-y: 11.2%;
-  --screen-w: 71.4%;
-  --screen-h: 58.2%;
+  /*
+    Screen window calibration for finch-crt-frame-1536.webp (1536x1024).
+
+    If you ever need to micro-tune:
+      - nudge x/y by ~0.2–0.6%
+      - nudge w/h by ~0.2–0.8%
+
+    (Optional debug)
+    .finch-crtframe__screen { outline: 2px solid rgba(255,0,0,0.35); }
+  */
+  --screen-x: 22.1%;
+  --screen-y: 18.6%;
+  --screen-w: 56.0%;
+  --screen-h: 48.8%;
 
   position: relative;
   max-width: 1200px;
@@ -2315,7 +2325,7 @@ html {
   top: var(--screen-y);
   width: var(--screen-w);
   height: var(--screen-h);
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -2612,12 +2622,8 @@ html {
 }
 
 @media (max-width: 980px) {
-  .finch-crtframe {
-    max-width: 960px;
-  }
-  .finch-screen__grid {
-    grid-template-columns: 1fr;
-  }
+  .finch-crtframe { max-width: 960px; }
+  .finch-screen__grid { grid-template-columns: 1fr; }
   .finch-screen__row {
     grid-template-columns: 6.5ch 1fr;
     grid-template-rows: auto auto;
@@ -2629,12 +2635,6 @@ html {
 }
 
 @media (max-width: 560px) {
-  .finch-crtframe {
-    --screen-x: 11.8%;
-    --screen-y: 12.2%;
-    --screen-w: 76.8%;
-    --screen-h: 56.5%;
-  }
   .finch-screen__header {
     flex-direction: column;
     align-items: flex-start;
