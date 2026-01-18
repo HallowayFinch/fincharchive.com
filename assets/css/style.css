@@ -2331,8 +2331,10 @@ html, body { overflow-x: hidden; }
   overflow: hidden;
   border-radius: 10px;
 
+  /* subtle CRT glass */
   background: radial-gradient(120% 120% at 50% 38%, rgba(0,0,0,.15), rgba(0,0,0,.62));
-  box-shadow: inset 0 0 0 1px rgba(126,255,176,.12), inset 0 0 24px rgba(0,0,0,.55);
+  box-shadow: inset 0 0 0 1px rgba(126,255,176,.12),
+              inset 0 0 24px rgba(0,0,0,.55);
 }
 
 /* Terminal container */
@@ -2342,7 +2344,7 @@ html, body { overflow-x: hidden; }
   flex-direction: column;
 }
 
-/* No scrolling inside the CRT screen */
+/* Default: no scrolling inside the CRT screen */
 .finch-screen--home .finch-screen__body{
   flex: 1;
   min-height: 0;
@@ -2352,9 +2354,9 @@ html, body { overflow-x: hidden; }
 
 /* Desktop vs mobile UI panes */
 .finch-homeui__desktop{ display: block; height: 100%; }
-.finch-homeui__mobile{ display: none; height: 100%; }
+.finch-homeui__mobile{ display: none;  height: 100%; }
 
-/* Buttons (base) */
+/* Buttons (filled variants for readability) */
 .finch-screen__btn--fill{
   background: rgba(126,255,176,.18);
   border-color: rgba(126,255,176,.55);
@@ -2387,11 +2389,14 @@ html, body { overflow-x: hidden; }
   box-shadow: inset 0 0 0 1px rgba(126,255,176,.12);
   overflow: hidden;
 }
+
+/* Desktop: a touch less tall */
 .finch-scope__svg{
   display: block;
   width: 100%;
-  height: 58px; /* desktop request: less tall */
+  height: 56px; /* slightly shorter */
 }
+
 .finch-scope__grid{
   fill: none;
   stroke: rgba(126,255,176,.10);
@@ -2411,10 +2416,16 @@ html, body { overflow-x: hidden; }
   opacity: .70;
   animation: finchScopeBeam 2.3s linear infinite;
 }
-@keyframes finchScopeDrift{ from{ stroke-dashoffset: 0; } to{ stroke-dashoffset: -64; } }
-@keyframes finchScopeBeam{ 0%{ transform: translateX(-140px); } 100%{ transform: translateX(740px); } }
+@keyframes finchScopeDrift{
+  from{ stroke-dashoffset: 0; }
+  to{ stroke-dashoffset: -64; }
+}
+@keyframes finchScopeBeam{
+  0%{ transform: translateX(-140px); }
+  100%{ transform: translateX(740px); }
+}
 
-/* Desktop request: buttons a touch smaller/less tall */
+/* Desktop: buttons a touch smaller/less tall */
 @media (min-width: 981px){
   .finch-screen__btn{
     min-height: 40px;
@@ -2425,6 +2436,9 @@ html, body { overflow-x: hidden; }
 
 /* ======================================
    MOBILE: make CRT bigger AND keep buttons visible
+   Key fixes:
+   - force CRT width to viewport inset
+   - make .finch-screen__body a flex column so actions stay visible
    ====================================== */
 @media (max-width: 980px){
   .finch-home{
@@ -2433,12 +2447,12 @@ html, body { overflow-x: hidden; }
   }
 
   /* CRT should fill viewport with a small inset */
-  .finch-crtframe{
-    width: calc(100vw - 18px);
-    max-width: none;
+  .finch-home .finch-crtframe{
+    width: calc(100vw - 14px) !important;
+    max-width: none !important;
   }
 
-  /* Slightly adjusted crop for phone readability (optional but helps) */
+  /* Slightly adjusted crop for phone readability */
   .finch-crtframe{
     --screen-x: 19.4%;
     --screen-y: 12.6%;
@@ -2446,47 +2460,56 @@ html, body { overflow-x: hidden; }
     --screen-h: 66.0%;
   }
 
-  /* Use mobile UI */
+  /* Swap to mobile UI */
   .finch-homeui__desktop{ display: none; }
-  .finch-homeui__mobile{ display: flex; flex-direction: column; height: 100%; }
+  .finch-homeui__mobile{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
 
-  /* Make the *top* area flexible, and pin actions below it */
+  /* IMPORTANT: make body layout a flex column so actions don't get clipped */
+  .finch-screen--home .finch-screen__body{
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  /* Let the top content expand, keep actions below */
   .finch-homeui__top{
     flex: 1;
     min-height: 0;
   }
 
-  /* Tighten header + body padding to reclaim vertical space */
+  /* Tighten header a touch */
   .finch-screen__header{
     padding: 8px 10px 6px;
   }
-  .finch-screen--home .finch-screen__body{
-    padding: 10px;
-  }
 
   /* Shorter scope on phones so buttons fit */
-  .finch-scope__svg{ height: 44px; }
+  .finch-scope__svg{ height: 42px; }
 
-  /* Ensure buttons are visible + tappable */
+  /* Buttons visible + tappable */
   .finch-homeui__actions{
     margin-top: 8px;
     display: grid;
     gap: 8px;
   }
   .finch-screen__btn{
-    min-height: 42px;
+    min-height: 40px;
     padding: 8px 12px;
     font-size: 0.78rem;
   }
 
-  /* (Optional) reduce the ACTIVE meta line a touch */
-  .finch-active__meta{
-    margin: 0 0 8px;
-  }
+  /* Reduce the ACTIVE meta line spacing a touch */
+  .finch-active__meta{ margin: 0 0 8px; }
 }
 
 /* Extra-small phones */
 @media (max-width: 420px){
-  .finch-crtframe{ width: calc(100vw - 14px); }
+  .finch-home .finch-crtframe{
+    width: calc(100vw - 10px) !important;
+  }
   .finch-scope__svg{ height: 40px; }
 }
