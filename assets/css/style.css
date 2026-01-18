@@ -3257,3 +3257,114 @@ html, body { overflow-x: hidden; }
     line-height: 1.1 !important;
   }
 }
+
+/* ============================================================
+   Mobile CRT centering + scale (homepage only)
+   - Does NOT affect desktop.
+   - Makes CRT slightly larger on mobile and *centers it even if
+     the wrapper is wider than the viewport*.
+   ============================================================ */
+
+@media (max-width: 980px) {
+  /* Ensure the homepage section doesn't introduce sideways drift */
+  .finch-home {
+    overflow-x: hidden;
+  }
+
+  /* Make the CRT wrapper bigger than 100vw (so it feels “full”),
+     but force true centering with left:50% + translateX(-50%). */
+  .finch-home .finch-crtframe {
+    position: relative;
+    width: min(1200px, 128vw); /* increase/decrease if desired */
+    max-width: none;
+    margin: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* Image should fill wrapper */
+  .finch-home .finch-crtframe__img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* If your screen overlay is percentage/inset-based already,
+     this keeps it behaving while the frame scales. */
+  .finch-home .finch-crtframe__screen {
+    max-width: none;
+  }
+
+  /* Keep the single-line header from wrapping into “3 lines”
+     (which was contributing to weird scrolling/space usage). */
+  .finch-home .finch-screen__header--single .finch-screen__headline {
+    display: flex;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    gap: 0.5rem;
+  }
+
+  /* Slightly smaller header text on mobile so it stays one line */
+  .finch-home .finch-screen__header--single {
+    font-size: clamp(10px, 2.9vw, 14px);
+    line-height: 1.25;
+  }
+}
+
+
+/* ============================================================
+   Pager card normalization (Logs + anywhere pager.html is used)
+   - Forces Previous/Next to look the same even if markup differs.
+   - This is intentionally generic: it styles common pager patterns.
+   ============================================================ */
+
+.pager,
+.pagination,
+.finch-pager {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+/* If only one link exists (first/last page), let it span full width */
+.pager:has(a:only-child),
+.pagination:has(a:only-child),
+.finch-pager:has(a:only-child) {
+  grid-template-columns: 1fr;
+}
+
+.pager a,
+.pagination a,
+.finch-pager a {
+  display: block;
+  padding: 14px 14px;
+  border-radius: 14px;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  color: inherit;
+}
+
+.pager a:hover,
+.pagination a:hover,
+.finch-pager a:hover {
+  background: rgba(255,255,255,.06);
+}
+
+.pager a * ,
+.pagination a * ,
+.finch-pager a * {
+  text-decoration: none;
+}
+
+/* Mobile: stack pager cards */
+@media (max-width: 700px) {
+  .pager,
+  .pagination,
+  .finch-pager {
+    grid-template-columns: 1fr;
+  }
+}
