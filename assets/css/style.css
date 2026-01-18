@@ -2746,3 +2746,191 @@ html {
     overflow: hidden;
   }
 }
+
+/* Desktop: pull CRT upward so top/bottom spacing is more balanced */
+.finch-home {
+  margin-top: -2.25rem;
+}
+
+@media (min-width: 980px) {
+  .finch-home { margin-top: -3.25rem; }
+}
+
+/* Don’t yank it up on small screens */
+@media (max-width: 680px) {
+  .finch-home { margin-top: 0; }
+}
+
+@media (max-width: 680px) {
+  .finch-home {
+    margin-left: -1.25rem;
+    margin-right: -1.25rem;
+    overflow-x: clip;
+  }
+  body { overflow-x: hidden; }
+
+  /* Big phones (iPhone Pro Max etc.) */
+  .finch-crtframe {
+    max-width: none;
+    width: 128vw;
+    margin-left: calc(50% - 64vw);
+    filter: drop-shadow(0 18px 42px rgba(0,0,0,0.50));
+  }
+}
+
+/* Mid phones */
+@media (max-width: 430px) {
+  .finch-crtframe {
+    width: 124vw;
+    margin-left: calc(50% - 62vw);
+  }
+}
+
+/* Small phones */
+@media (max-width: 380px) {
+  .finch-crtframe {
+    width: 116vw;
+    margin-left: calc(50% - 58vw);
+  }
+}
+
+/* Make the screen UI layout behave like a bounded instrument panel */
+.finch-homeui {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Ensure actions can always drop to the bottom */
+.finch-homeui__actions {
+  margin-top: auto;
+}
+
+@media (max-width: 680px) {
+  /* reduce “header eats space” problem */
+  .finch-screen__header--single {
+    padding: 6px 10px 4px;
+  }
+  .finch-screen__headline {
+    font-size: 0.68rem;
+    letter-spacing: 0.10em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* collapse content that causes clipping */
+  .finch-active__excerpt { display: none; }
+  .finch-activity--secondary { display: none; }
+  .finch-homeui__prompt { display: none; }
+
+  /* buttons become big, stacked, thumb-friendly */
+  .finch-homeui__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .finch-screen__btn {
+    padding: 12px 12px;
+    font-size: 0.72rem;
+  }
+
+  /* keep title + meta readable and bounded */
+  .finch-active__meta { font-size: 0.72rem; }
+  .finch-active__title {
+    font-size: 1.0rem;
+    line-height: 1.15;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+}
+
+/* Filled buttons (default) */
+.finch-screen__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  border-radius: 999px;
+  border: 1px solid rgba(80, 255, 180, 0.28);
+  background: rgba(80, 255, 180, 0.14);
+  color: rgba(232, 255, 233, 0.92);
+
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 600;
+
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.35) inset,
+    0 0 24px rgba(80,255,180,0.08);
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.finch-screen__btn:hover {
+  background: rgba(80, 255, 180, 0.18);
+  border-color: rgba(80, 255, 180, 0.38);
+  transform: translateY(-1px);
+}
+
+/* Ghost variant */
+.finch-screen__btn--ghost {
+  background: rgba(0,0,0,0.18);
+  border-color: rgba(232,255,233,0.22);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.45) inset;
+}
+
+
+/* transmission lookup cursor prompt */
+.finch-homeui__cmd {
+  margin: 10px 0 0;
+  font-size: 0.78rem;
+  color: rgba(232,255,233,0.72);
+}
+
+.finch-cmdlink {
+  color: rgba(232,255,233,0.78);
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(232,255,233,0.25);
+}
+
+.finch-cmdlink:hover {
+  color: rgba(232,255,233,0.92);
+  border-bottom-color: rgba(232,255,233,0.45);
+}
+
+/* Equalizer bars on homepage CRT */
+.finch-graph {
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(80,255,180,0.16);
+  background: rgba(0,0,0,0.22);
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.35) inset;
+}
+
+.finch-graph--eq::before {
+  content: "";
+  display: block;
+  height: 100%;
+  width: 140%;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(80,255,180,0.0) 0px,
+      rgba(80,255,180,0.0) 6px,
+      rgba(80,255,180,0.22) 7px,
+      rgba(80,255,180,0.22) 8px
+    );
+  opacity: 0.85;
+  transform: translateX(-20%);
+  animation: finchEq 1.15s linear infinite;
+}
+
+@keyframes finchEq {
+  0% { transform: translateX(-20%); }
+  100% { transform: translateX(0%); }
+}
