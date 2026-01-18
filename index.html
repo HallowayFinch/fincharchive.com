@@ -49,9 +49,9 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
           <div class="finch-homeui__desktop" aria-label="Desktop terminal UI">
             <div class="finch-homeui__top">
               <pre class="finch-ascii" aria-hidden="true">
-  _____ _            _        _             _     _                                
- |  ___(_)_ __   ___| |__    / \   _ __ ___| |__ (_)_   _____   ___ ___  _ __ ___  
- | |_  | | '_ \ / __| '_ \  / _ \ | '__/ __| '_ \| \ \ / / _ \ / __/ _ \| '_ ` _ \ 
+  _____ _            _        _             _     _
+ |  ___(_)_ __   ___| |__    / \   _ __ ___| |__ (_)_   _____   ___ ___  _ __ ___
+ | |_  | | '_ \ / __| '_ \  / _ \ | '__/ __| '_ \| \ \ / / _ \ / __/ _ \| '_ ` _ \
  |  _| | | | | | (__| | | |/ ___ \| | | (__| | | | |\ V /  __/| (_| (_) | | | | | |
  |_|   |_|_| |_|\___|_| |_/_/   \_\_|  \___|_| |_|_| \_/ \___(_)___\___/|_| |_| |_|
               </pre>
@@ -79,18 +79,13 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
                 <!-- Oscilloscope -->
                 <div class="finch-scope" aria-hidden="true">
                   <svg class="finch-scope__svg" viewBox="0 0 720 120" preserveAspectRatio="none" role="img" aria-label="">
-                    <!-- grid -->
                     <path class="finch-scope__grid" d="M0 20H720 M0 40H720 M0 60H720 M0 80H720 M0 100H720" />
                     <path class="finch-scope__grid" d="M60 0V120 M120 0V120 M180 0V120 M240 0V120 M300 0V120 M360 0V120 M420 0V120 M480 0V120 M540 0V120 M600 0V120 M660 0V120" />
-
-                    <!-- trace -->
                     <path class="finch-scope__line" d="M0,70
                       L40,72 L80,69 L120,71 L160,68 L200,70
                       L240,67 L280,73 L320,66 L360,70 L400,69
                       L440,71 L480,68 L520,72 L560,69 L600,71
                       L640,68 L680,72 L720,70" />
-
-                    <!-- sweep beam -->
                     <rect class="finch-scope__beam" x="-160" y="0" width="160" height="120" fill="rgba(126,255,176,.08)"/>
                   </svg>
                 </div>
@@ -102,7 +97,6 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
                 <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">READ LATEST</a>
                 <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
               </nav>
-              </p>
             </div>
           </div>
 
@@ -122,7 +116,8 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
               </p>
 
               <p class="finch-activity__line" style="margin:0 0 8px;">
-                <span class="finch-activity__k">TITLE</span> <a class="finch-homeui__promptlink" href="{{ feat.url | relative_url }}">{{ feat.title | truncate: 44 }}</a>
+                <span class="finch-activity__k">TITLE</span>
+                <a class="finch-homeui__promptlink" href="{{ feat.url | relative_url }}">{{ feat.title | truncate: 44 }}</a>
               </p>
 
               <div class="finch-scope finch-scope--compact" aria-hidden="true">
@@ -145,11 +140,6 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
             <nav class="finch-homeui__actions" aria-label="Secondary actions" style="margin-top:8px;">
               <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/t/' | relative_url }}">TRANSMISSION LOOKUP</a>
             </nav>
-
-            <p class="finch-homeui__prompt" aria-label="Terminal prompt" style="margin-top:8px;">
-              archive@finch:~$ <a class="finch-homeui__promptlink" href="{{ '/t/' | relative_url }}">lookup {{ feat.log_id | default: 'LOG' }}</a>
-              <span class="finch-screen__cursor" aria-hidden="true">▍</span>
-            </p>
           </div>
 
           {%- else -%}
