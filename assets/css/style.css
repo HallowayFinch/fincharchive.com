@@ -3124,3 +3124,37 @@ html, body { overflow-x: hidden; }
   }
 }
 
+/* ===== Finch CRT mobile centering + scale (override) ===== */
+@media (max-width: 720px) {
+  /* Keep the CRT container centered and prevent sideways drift */
+  .finch-crtframe {
+    width: min(96vw, 640px);
+    margin-inline: auto;
+    display: block;
+  }
+
+  /* If any prior transform/translate was applied, neutralize it on mobile */
+  .finch-crtframe__img {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    margin-inline: auto;
+    transform-origin: 50% 50% !important;
+  }
+
+  /* Center the whole CRT frame visually, even if earlier rules used left/right offsets */
+  .finch-crtframe {
+    position: relative;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+  }
+
+  /*
+    Optional: slightly increase perceived size on mobile without breaking alignment.
+    If you want it even larger, change 1.08 -> 1.12.
+  */
+  .finch-crtframe__img {
+    transform: scale(1.08) !important;
+  }
+}
