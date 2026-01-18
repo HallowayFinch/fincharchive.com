@@ -3752,3 +3752,110 @@ html, body { overflow-x: hidden; }
     font-size: 12px !important;
   }
 }
+
+/* =========================================================
+   MOBILE CRT — FINAL OVERRIDE (place at VERY END of file)
+   Purpose: full-bleed CRT on mobile + correct screen inset
+   ========================================================= */
+
+@media (max-width: 980px) {
+  /* avoid accidental horizontal scroll from 100vw full-bleed */
+  html, body { overflow-x: hidden !important; }
+
+  /* make the homepage CRT area full-bleed (ignores site wrappers) */
+  .finch-home {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .finch-home .finch-crtframe {
+    position: relative !important;
+
+    /* full-bleed trick even inside a centered container */
+    width: 100vw !important;
+    max-width: none !important;
+    margin-left: calc(50% - 50vw) !important;
+    margin-right: calc(50% - 50vw) !important;
+
+    /* lock the frame ratio so the image doesn't collapse */
+    aspect-ratio: 3 / 2 !important;
+
+    /* keep it visually “bigger” on mobile */
+    transform: none !important;
+  }
+
+  .finch-home .finch-crtframe__img {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+
+    /*
+      KEY: cover makes the CRT feel larger.
+      If you absolutely must see the entire bezel, switch to: contain
+    */
+    object-fit: cover !important;
+
+    /* bias slightly upward so the top bezel/header stays visible */
+    object-position: 50% 44% !important;
+  }
+
+  /* the “screen” cutout: force it to the correct inset region */
+  .finch-home .finch-crtframe__screen {
+    position: absolute !important;
+    z-index: 2 !important;
+
+    /* tweak these 4 values to micro-align the cutout if needed */
+    top: 13.6% !important;
+    left: 10.5% !important;
+    width: 79% !important;
+    height: 65% !important;
+
+    overflow: hidden !important;
+
+    /* scale the whole terminal UI down slightly on phones */
+    font-size: clamp(12px, 2.65vw, 14px) !important;
+    line-height: 1.25 !important;
+  }
+
+  /* make the home screen content fill the cutout area cleanly */
+  .finch-home .finch-screen--home {
+    height: 100% !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .finch-home .finch-screen__body {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+
+    /* keep content away from bezel edges */
+    padding: 0.9rem 0.85rem !important;
+  }
+
+  /* enforce the intended breakpoint behavior */
+  .finch-home .finch-homeui__desktop { display: none !important; }
+  .finch-home .finch-homeui__mobile  { display: block !important; }
+
+  /* keep buttons from spilling outside the cutout */
+  .finch-home .finch-homeui__actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 0.6rem !important;
+    margin-top: 0.75rem !important;
+  }
+
+  .finch-home .finch-screen__btn {
+    width: 100% !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+  }
+
+  /* prevent the header line from forcing horizontal overflow */
+  .finch-home .finch-screen__header--single .finch-screen__headline {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
