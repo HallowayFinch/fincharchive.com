@@ -2603,3 +2603,24 @@ html {
 
   .finch-screen__btn { padding: 9px 10px; font-size: 0.68rem; }
 }
+
+/* Make the CRT feel larger on mobile by bleeding out of the container padding */
+@media (max-width: 680px) {
+  /* Your theme container uses padding: 0 1.25rem; so we cancel it here */
+  .finch-home {
+    margin-left: -1.25rem;
+    margin-right: -1.25rem;
+  }
+
+  .finch-crtframe {
+    max-width: none;
+    width: 100vw;
+    margin: 0 auto;
+    filter: drop-shadow(0 18px 42px rgba(0,0,0,0.50));
+  }
+
+  /* Optional: slightly tighter corners on small screens */
+  .finch-crtframe__img {
+    border-radius: 14px;
+  }
+}
