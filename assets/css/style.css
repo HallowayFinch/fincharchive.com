@@ -2668,7 +2668,7 @@ html, body { overflow-x: hidden; }
     -webkit-mask-image: -webkit-radial-gradient(white, black);
 
     /* subtle right nudge so content sits better in the glass */
-    transform: translateX(1.2%);
+    transform: translateX(2.6%);
   }
 
   /* Tighten mobile content so it fits inside the glass comfortably */
@@ -2702,10 +2702,23 @@ html, body { overflow-x: hidden; }
     margin-top: 10px;
   }
 
-  /* Keep button layout stable (no edge overflow) */
-  .finch-homeui__mobile .finch-screen__btn {
-    width: 100%;
-  }
+  /* Mobile buttons: smaller + two across */
+   .finch-homeui__mobile .finch-homeui__actions{
+     display: grid;
+     grid-template-columns: 1fr 1fr;
+     gap: 10px;
+     margin-top: 12px;
+   }
+   
+   .finch-homeui__mobile .finch-screen__btn{
+     width: auto;
+     min-height: 40px;
+     padding: 9px 10px;
+     font-size: 0.78rem;
+     line-height: 1;
+     white-space: nowrap;
+     letter-spacing: 0.14em;
+   }
 
   /* Hide Transmission Lookup on the homepage (per latest decision) */
   .finch-homeui__mobile a[href$="/t/"],
