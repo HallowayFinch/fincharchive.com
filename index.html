@@ -102,10 +102,6 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
                 <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">READ LATEST</a>
                 <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
               </nav>
-
-              <p class="finch-homeui__prompt" aria-label="Terminal prompt">
-                archive@finch:~$ <a class="finch-homeui__promptlink" href="{{ '/t/' | relative_url }}">lookup {{ feat.log_id | default: 'LOG' }}</a>
-                <span class="finch-screen__cursor" aria-hidden="true">▍</span>
               </p>
             </div>
           </div>
