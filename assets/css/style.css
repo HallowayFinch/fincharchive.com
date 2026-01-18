@@ -2557,3 +2557,49 @@ html {
   .finch-active__excerpt { font-size: 0.88rem; -webkit-line-clamp: 2; }
   .finch-screen__btn { padding: 9px 10px; font-size: 0.70rem; }
 }
+
+/* Single-line header that never pushes content down */
+.finch-screen__header--single {
+  padding: 10px 12px 8px;
+}
+
+.finch-screen__headline {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(232, 255, 233, 0.88);
+}
+
+/* Clamp title + excerpt so the screen never needs scrolling */
+.finch-active__title {
+  margin: 0 0 6px;
+  line-height: 1.15;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; /* desktop: max 2 lines */
+  overflow: hidden;
+}
+
+.finch-active__excerpt {
+  -webkit-line-clamp: 2; /* desktop: max 2 lines */
+}
+
+@media (max-width: 560px) {
+  .finch-screen__headline {
+    font-size: 0.70rem;
+    letter-spacing: 0.12em;
+  }
+
+  .finch-homeui { gap: 8px; }
+
+  .finch-activity { font-size: 0.74rem; padding-bottom: 8px; }
+
+  .finch-active__title { -webkit-line-clamp: 1; }   /* mobile: 1 line title */
+  .finch-active__excerpt { -webkit-line-clamp: 1; } /* mobile: 1 line excerpt */
+
+  .finch-screen__btn { padding: 9px 10px; font-size: 0.68rem; }
+}
