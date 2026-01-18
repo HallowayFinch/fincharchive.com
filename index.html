@@ -42,68 +42,134 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
 
         <div class="finch-screen__body finch-homeui">
           {%- if feat -%}
-            <!-- Active transmission (priority) -->
-            <section class="finch-active" aria-label="Active transmission">
-              <p class="finch-active__meta">
+
+          <!-- ===== Desktop UI ===== -->
+          <div class="finch-homeui__desktop" aria-label="Desktop interface">
+            <div class="finch-homeui__top">
+              <section class="finch-active" aria-label="Active transmission">
+                <p class="finch-active__meta">
+                  <span class="finch-active__pill">ACTIVE</span>
+                  <span class="finch-screen__sep" aria-hidden="true">·</span>
+                  <span class="finch-active__id">{{ feat.log_id | default: 'LOG' }}</span>
+                  <span class="finch-screen__sep" aria-hidden="true">·</span>
+                  <span class="finch-active__date">{{ feat.date | date: "%Y-%m-%d" }}</span>
+                </p>
+
+                <h1 class="finch-active__title">
+                  <a href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
+                </h1>
+
+                <p class="finch-active__excerpt">
+                  {{ feat.content | strip_html | strip_newlines | truncate: 110 }}
+                </p>
+              </section>
+
+              <section class="finch-activity finch-activity--secondary" aria-label="System activity">
+                <p class="finch-activity__line"><span class="finch-activity__k">LOCK</span> time ............. <span class="finch-activity__ok">10:22</span></p>
+                <p class="finch-activity__line"><span class="finch-activity__k">DRIFT</span> +0.22% .......... <span class="finch-activity__ok">STABLE</span></p>
+
+                <!-- Oscilloscope -->
+                <div class="finch-scope" aria-hidden="true">
+                  <svg class="finch-scope__svg" viewBox="0 0 300 64" preserveAspectRatio="none" focusable="false" aria-hidden="true">
+                    <path class="finch-scope__trace"
+                      d="M0 36
+                         L14 36 L22 34 L28 38 L36 30 L44 44 L52 36
+                         L66 36 L74 28 L84 46 L94 34 L110 36
+                         L128 36 L140 22 L152 52 L166 34 L178 36
+                         L194 36 L206 30 L218 42 L232 36
+                         L248 36 L262 34 L274 38 L286 36 L300 36" />
+                  </svg>
+                </div>
+              </section>
+            </div>
+
+            <div class="finch-homeui__bottom">
+              <nav class="finch-homeui__actions" aria-label="Primary actions">
+                <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">READ LATEST</a>
+                <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
+              </nav>
+
+              <p class="finch-homeui__prompt" aria-hidden="true">
+                archive@finch:~$ <a class="finch-homeui__promptlink" href="{{ '/status/' | relative_url }}?q={{ feat.log_id | url_encode }}">lookup {{ feat.log_id | default: '1022P' }}</a> <span class="finch-screen__cursor">▍</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- ===== Mobile UI (bigger + fewer lines, always tappable) ===== -->
+          <div class="finch-homeui__mobile" aria-label="Mobile interface">
+            <div class="finch-mobilecard">
+              <div class="finch-mobilecard__row finch-mobilecard__row--meta">
                 <span class="finch-active__pill">ACTIVE</span>
-                <span class="finch-screen__sep" aria-hidden="true">·</span>
-                <span class="finch-active__id">{{ feat.log_id | default: 'LOG' }}</span>
-                <span class="finch-screen__sep" aria-hidden="true">·</span>
-                <span class="finch-active__date">{{ feat.date | date: "%Y-%m-%d" }}</span>
+                <span class="finch-mobilecard__mono">{{ feat.log_id | default: 'LOG' }}</span>
+                <span class="finch-mobilecard__dim">{{ feat.date | date: "%Y-%m-%d" }}</span>
+              </div>
+
+              <div class="finch-mobilecard__row finch-mobilecard__row--title">
+                <a class="finch-mobilecard__title" href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
+              </div>
+
+              <div class="finch-mobilecard__row finch-mobilecard__row--stats">
+                <span class="finch-mobilecard__dim">LOCK</span> <span class="finch-mobilecard__mono">10:22</span>
+                <span class="finch-mobilecard__sep">·</span>
+                <span class="finch-mobilecard__dim">DRIFT</span> <span class="finch-mobilecard__mono">+0.22%</span>
+              </div>
+
+              <div class="finch-scope finch-scope--compact" aria-hidden="true">
+                <svg class="finch-scope__svg" viewBox="0 0 300 64" preserveAspectRatio="none" focusable="false" aria-hidden="true">
+                  <path class="finch-scope__trace"
+                    d="M0 36
+                       L14 36 L22 34 L28 38 L36 30 L44 44 L52 36
+                       L66 36 L74 28 L84 46 L94 34 L110 36
+                       L128 36 L140 22 L152 52 L166 34 L178 36
+                       L194 36 L206 30 L218 42 L232 36
+                       L248 36 L262 34 L274 38 L286 36 L300 36" />
+                </svg>
+              </div>
+
+              <nav class="finch-homeui__actions finch-homeui__actions--mobile" aria-label="Primary actions">
+                <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">READ LATEST</a>
+                <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
+              </nav>
+
+              <p class="finch-homeui__prompt finch-homeui__prompt--mobile" aria-hidden="true">
+                archive@finch:~$ <a class="finch-homeui__promptlink" href="{{ '/status/' | relative_url }}?q={{ feat.log_id | url_encode }}">lookup {{ feat.log_id | default: '1022P' }}</a> <span class="finch-screen__cursor">▍</span>
               </p>
-
-              <h1 class="finch-active__title">
-                <a href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
-              </h1>
-
-              <p class="finch-active__excerpt">
-                {{ feat.content | strip_html | strip_newlines | truncate: 140 }}
-              </p>
-            </section>
-
-            <!-- Two primary actions (always visible) -->
-            <nav class="finch-homeui__actions" aria-label="Primary actions">
-              <a class="finch-screen__btn" href="{{ feat.url | relative_url }}">READ LATEST</a>
-              <a class="finch-screen__btn finch-screen__btn--ghost" href="{{ '/logs/' | relative_url }}">READ ALL</a>
-            </nav>
-
-            <!-- Command/link affordance: Transmission Lookup -->
-            <p class="finch-homeui__cmd">
-              <a href="{{ '/t/' | relative_url }}" class="finch-cmdlink">archive@finch:~$ lookup</a>
-              <span class="finch-screen__cursor" aria-hidden="true">▍</span>
-            </p>
+            </div>
+          </div>
 
           {%- else -%}
+
+          <div class="finch-homeui__desktop">
             <section class="finch-active" aria-label="Archive status">
+              <p class="finch-active__meta">
+                <span class="finch-active__pill">IDLE</span>
+                <span class="finch-screen__sep" aria-hidden="true">·</span>
+                <span class="finch-active__id">NO TRANSMISSIONS</span>
+              </p>
               <h1 class="finch-active__title">
-                <a href="{{ '/logs/' | relative_url }}">No transmissions available</a>
+                <a href="{{ '/logs/' | relative_url }}">Browse the archive</a>
               </h1>
-              <p class="finch-active__excerpt">The archive index is available.</p>
+              <p class="finch-active__excerpt">The catalog is available.</p>
             </section>
 
             <nav class="finch-homeui__actions" aria-label="Primary actions">
-              <a class="finch-screen__btn" href="{{ '/logs/' | relative_url }}">READ ALL</a>
+              <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
             </nav>
+          </div>
 
-            <p class="finch-homeui__cmd">
-              <a href="{{ '/t/' | relative_url }}" class="finch-cmdlink">archive@finch:~$ lookup</a>
-              <span class="finch-screen__cursor" aria-hidden="true">▍</span>
-            </p>
+          <div class="finch-homeui__mobile">
+            <div class="finch-mobilecard">
+              <div class="finch-mobilecard__row finch-mobilecard__row--meta">
+                <span class="finch-active__pill">IDLE</span>
+                <span class="finch-mobilecard__mono">NO TRANSMISSIONS</span>
+              </div>
+              <nav class="finch-homeui__actions finch-homeui__actions--mobile" aria-label="Primary actions">
+                <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
+              </nav>
+            </div>
+          </div>
+
           {%- endif -%}
-
-          <!-- Activity (secondary flavor) -->
-          <section class="finch-activity finch-activity--secondary" aria-label="System activity">
-            <p class="finch-activity__line"><span class="finch-activity__k">LOCK</span> time ............. <span class="finch-activity__ok">10:22</span></p>
-            <p class="finch-activity__line"><span class="finch-activity__k">DRIFT</span> +0.22% .......... <span class="finch-activity__ok">STABLE</span></p>
-
-            <!-- Swap wave for equalizer bar graph -->
-            <div class="finch-graph finch-graph--eq" aria-hidden="true"></div>
-          </section>
-
-          <!-- Optional: keep the prompt (you can remove if you want) -->
-          <p class="finch-homeui__prompt" aria-hidden="true">
-            archive@finch:~$ <span class="finch-screen__cursor">▍</span>
-          </p>
         </div>
       </div>
     </div>
