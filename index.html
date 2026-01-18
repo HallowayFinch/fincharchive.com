@@ -1,3 +1,4 @@
+<!-- index.html -->
 ---
 layout: default
 full_width: true
@@ -17,7 +18,7 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
       srcset="{{ '/assets/img/crt/finch-crt-frame-900.webp' | relative_url }} 900w,
               {{ '/assets/img/crt/finch-crt-frame-1200.webp' | relative_url }} 1200w,
               {{ '/assets/img/crt/finch-crt-frame-1536.webp' | relative_url }} 1536w"
-      sizes="(max-width: 980px) 94vw, 1200px"
+      sizes="(max-width: 980px) 100vw, 1200px"
       width="1536"
       height="1024"
       loading="eager"
@@ -27,7 +28,7 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
 
     <div class="finch-crtframe__screen" role="region" aria-label="Archive terminal">
       <div class="finch-screen finch-screen--home">
-        <!-- Terminal header -->
+        <!-- single-line header (stays the same on desktop + mobile) -->
         <header class="finch-screen__header finch-screen__header--single" aria-label="System header">
           <div class="finch-screen__headline">
             <span class="finch-screen__label">FINCH ARCHIVE</span>
@@ -41,193 +42,142 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
         </header>
 
         <div class="finch-screen__body">
+          {%- if feat -%}
+
           <!-- =========================
-               DESKTOP PANE
+               DESKTOP UI (<=980 hidden)
                ========================= -->
           <div class="finch-homeui__desktop" aria-label="Desktop terminal UI">
-            <pre class="finch-ascii" aria-hidden="true">
- ______ _           _      _        _
-|  ____(_)         | |    | |      (_)
-| |__   _ _ __   ___| |__  | |_ _ __ _  ___
-|  __| | | '_ \ / __| '_ \ | __| '__| |/ _ \
-| |    | | | | | (__| | | || |_| |  | |  __/
-|_|    |_|_| |_|\___|_| |_| \__|_|  |_|\___/
-            </pre>
+            <div class="finch-homeui__top">
+              <pre class="finch-ascii" aria-hidden="true">
+  _____ _            _        _             _     _                                
+ |  ___(_)_ __   ___| |__    / \   _ __ ___| |__ (_)_   _____   ___ ___  _ __ ___  
+ | |_  | | '_ \ / __| '_ \  / _ \ | '__/ __| '_ \| \ \ / / _ \ / __/ _ \| '_ ` _ \ 
+ |  _| | | | | | (__| | | |/ ___ \| | | (__| | | | |\ V /  __/| (_| (_) | | | | | |
+ |_|   |_|_| |_|\___|_| |_/_/   \_\_|  \___|_| |_|_| \_/ \___(_)___\___/|_| |_| |_|
+              </pre>
 
-            {%- if feat -%}
-              <section class="finch-active" aria-label="Active transmission">
-                <p class="finch-active__meta">
-                  <span class="finch-active__pill">ACTIVE</span>
-                  <span class="finch-screen__sep" aria-hidden="true">·</span>
-                  <span class="finch-active__id">{{ feat.log_id | default: 'LOG' }}</span>
-                  <span class="finch-screen__sep" aria-hidden="true">·</span>
-                  <span class="finch-active__date">{{ feat.date | date: "%Y-%m-%d" }}</span>
-                </p>
+              <p class="finch-active__meta">
+                <span class="finch-active__pill">ACTIVE</span>
+                <span class="finch-screen__sep" aria-hidden="true">·</span>
+                <span class="finch-active__id">{{ feat.log_id | default: 'LOG' }}</span>
+                <span class="finch-screen__sep" aria-hidden="true">·</span>
+                <span class="finch-active__date">{{ feat.date | date: "%Y-%m-%d" }}</span>
+              </p>
 
-                <p class="finch-active__title">
-                  <a href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
-                </p>
+              <h1 class="finch-active__title">
+                <a href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
+              </h1>
 
-                <p class="finch-active__excerpt">
-                  {{ feat.content | strip_html | strip_newlines | truncate: 140 }}
-                </p>
+              <p class="finch-active__excerpt">
+                {{ feat.content | strip_html | strip_newlines | truncate: 150 }}
+              </p>
+
+              <section class="finch-activity finch-activity--secondary" aria-label="System activity">
+                <p class="finch-activity__line"><span class="finch-activity__k">LOCK</span> time ............. <span class="finch-activity__ok">10:22</span></p>
+                <p class="finch-activity__line"><span class="finch-activity__k">DRIFT</span> +0.22% .......... <span class="finch-activity__ok">STABLE</span></p>
+
+                <!-- Oscilloscope -->
+                <div class="finch-scope" aria-hidden="true">
+                  <svg class="finch-scope__svg" viewBox="0 0 720 120" preserveAspectRatio="none" role="img" aria-label="">
+                    <!-- grid -->
+                    <path class="finch-scope__grid" d="M0 20H720 M0 40H720 M0 60H720 M0 80H720 M0 100H720" />
+                    <path class="finch-scope__grid" d="M60 0V120 M120 0V120 M180 0V120 M240 0V120 M300 0V120 M360 0V120 M420 0V120 M480 0V120 M540 0V120 M600 0V120 M660 0V120" />
+
+                    <!-- trace -->
+                    <path class="finch-scope__line" d="M0,70
+                      L40,72 L80,69 L120,71 L160,68 L200,70
+                      L240,67 L280,73 L320,66 L360,70 L400,69
+                      L440,71 L480,68 L520,72 L560,69 L600,71
+                      L640,68 L680,72 L720,70" />
+
+                    <!-- sweep beam -->
+                    <rect class="finch-scope__beam" x="-160" y="0" width="160" height="120" fill="rgba(126,255,176,.08)"/>
+                  </svg>
+                </div>
               </section>
-            {%- else -%}
-              <section class="finch-active" aria-label="Archive status">
-                <p class="finch-active__meta">
-                  <span class="finch-active__pill">IDLE</span>
-                  <span class="finch-screen__sep" aria-hidden="true">·</span>
-                  <span class="finch-active__id">NO TRANSMISSIONS</span>
-                </p>
-                <p class="finch-active__title">
-                  <a href="{{ '/logs/' | relative_url }}">Open index</a>
-                </p>
-                <p class="finch-active__excerpt">The archive index is available.</p>
-              </section>
-            {%- endif -%}
+            </div>
 
-            <section class="finch-activity finch-activity--secondary" aria-label="System activity">
-              <p class="finch-activity__line"><span class="finch-activity__k">LOCK</span> time ............. <span class="finch-activity__ok">10:22</span></p>
-              <p class="finch-activity__line"><span class="finch-activity__k">DRIFT</span> +0.22% .......... <span class="finch-activity__ok">STABLE</span></p>
-
-              <div class="finch-scope" aria-hidden="true">
-                <svg class="finch-scope__svg" viewBox="0 0 600 72" preserveAspectRatio="none">
-                  <defs>
-                    <linearGradient id="finchBeam" x1="0" x2="1">
-                      <stop offset="0" stop-color="rgba(126,255,176,0)"></stop>
-                      <stop offset="0.5" stop-color="rgba(126,255,176,0.35)"></stop>
-                      <stop offset="1" stop-color="rgba(126,255,176,0)"></stop>
-                    </linearGradient>
-                    <clipPath id="finchClip">
-                      <rect x="0" y="0" width="600" height="72"></rect>
-                    </clipPath>
-                  </defs>
-
-                  <!-- grid -->
-                  <g opacity="0.9">
-                    {%- for x in (0..10) -%}
-                      <line x1="{{ x | times: 60 }}" y1="0" x2="{{ x | times: 60 }}" y2="72" class="finch-scope__grid"></line>
-                    {%- endfor -%}
-                    {%- for y in (0..6) -%}
-                      <line x1="0" y1="{{ y | times: 12 }}" x2="600" y2="{{ y | times: 12 }}" class="finch-scope__grid"></line>
-                    {%- endfor -%}
-                  </g>
-
-                  <!-- moving “beam” -->
-                  <rect class="finch-scope__beam" x="-140" y="0" width="140" height="72" fill="url(#finchBeam)"></rect>
-
-                  <!-- trace -->
-                  <path
-                    class="finch-scope__line"
-                    d="M0,40 L30,38 L60,41 L90,37 L120,39 L150,36 L180,42 L210,35 L240,39 L270,34 L300,40 L330,33 L360,38 L390,36 L420,41 L450,35 L480,39 L510,37 L540,40 L570,36 L600,38"
-                    clip-path="url(#finchClip)"
-                  ></path>
-                </svg>
-              </div>
-            </section>
-
-            <nav class="finch-homeui__actions" aria-label="Primary actions">
-              {%- if feat -%}
+            <div class="finch-homeui__bottom">
+              <nav class="finch-homeui__actions" aria-label="Primary actions">
                 <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">READ LATEST</a>
                 <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
-              {%- else -%}
-                <a class="finch-screen__btn finch-screen__btn--fill" href="{{ '/logs/' | relative_url }}">READ ALL</a>
-                <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/t/' | relative_url }}">LOOKUP</a>
-              {%- endif -%}
+              </nav>
+
+              <p class="finch-homeui__prompt" aria-label="Terminal prompt">
+                archive@finch:~$ <a class="finch-homeui__promptlink" href="{{ '/t/' | relative_url }}">lookup {{ feat.log_id | default: 'LOG' }}</a>
+                <span class="finch-screen__cursor" aria-hidden="true">▍</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- =========================
+               MOBILE UI (<=980 shown)
+               ========================= -->
+          <div class="finch-homeui__mobile" aria-label="Mobile terminal UI">
+            <div class="finch-homeui__top">
+              <pre class="finch-ascii" aria-hidden="true">FINCHARCHIVE.COM</pre>
+
+              <p class="finch-active__meta">
+                <span class="finch-active__pill">ACTIVE</span>
+                <span class="finch-screen__sep" aria-hidden="true">·</span>
+                <span class="finch-active__id">{{ feat.log_id | default: 'LOG' }}</span>
+                <span class="finch-screen__sep" aria-hidden="true">·</span>
+                <span class="finch-active__date">{{ feat.date | date: "%Y-%m-%d" }}</span>
+              </p>
+
+              <p class="finch-activity__line" style="margin:0 0 8px;">
+                <span class="finch-activity__k">TITLE</span> <a class="finch-homeui__promptlink" href="{{ feat.url | relative_url }}">{{ feat.title | truncate: 44 }}</a>
+              </p>
+
+              <div class="finch-scope finch-scope--compact" aria-hidden="true">
+                <svg class="finch-scope__svg" viewBox="0 0 720 120" preserveAspectRatio="none" role="img" aria-label="">
+                  <path class="finch-scope__grid" d="M0 30H720 M0 60H720 M0 90H720" />
+                  <path class="finch-scope__line" d="M0,72
+                    L60,70 L120,73 L180,69 L240,72
+                    L300,68 L360,74 L420,70 L480,73
+                    L540,69 L600,72 L660,70 L720,73" />
+                  <rect class="finch-scope__beam" x="-160" y="0" width="160" height="120" fill="rgba(126,255,176,.08)"/>
+                </svg>
+              </div>
+            </div>
+
+            <nav class="finch-homeui__actions" aria-label="Primary actions">
+              <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">READ LATEST</a>
+              <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
             </nav>
 
-            <p class="finch-homeui__prompt" aria-hidden="true">
-              archive@finch:~$ <a class="finch-homeui__promptlink" href="{{ '/t/' | relative_url }}">lookup{% if feat %} {{ feat.log_id | default: 'LOG' }}{% endif %}</a><span class="finch-screen__cursor">▍</span>
+            <nav class="finch-homeui__actions" aria-label="Secondary actions" style="margin-top:8px;">
+              <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/t/' | relative_url }}">TRANSMISSION LOOKUP</a>
+            </nav>
+
+            <p class="finch-homeui__prompt" aria-label="Terminal prompt" style="margin-top:8px;">
+              archive@finch:~$ <a class="finch-homeui__promptlink" href="{{ '/t/' | relative_url }}">lookup {{ feat.log_id | default: 'LOG' }}</a>
+              <span class="finch-screen__cursor" aria-hidden="true">▍</span>
             </p>
           </div>
 
-          <!-- =========================
-               MOBILE PANE
-               ========================= -->
-          <div class="finch-homeui__mobile" aria-label="Mobile terminal UI">
-            {%- if feat -%}
-              <div class="finch-mobilecard">
-                <div class="finch-mobilecard__row finch-mobilecard__row--meta">
-                  <span class="finch-active__pill">ACTIVE</span>
-                  <span class="finch-mobilecard__sep" aria-hidden="true">·</span>
-                  <span class="finch-mobilecard__mono">{{ feat.log_id | default: 'LOG' }}</span>
-                  <span class="finch-mobilecard__sep" aria-hidden="true">·</span>
-                  <span class="finch-mobilecard__dim">{{ feat.date | date: "%Y-%m-%d" }}</span>
-                </div>
+          {%- else -%}
 
-                <div class="finch-mobilecard__row finch-mobilecard__row--title">
-                  <a class="finch-mobilecard__title" href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
-                </div>
-
-                <div class="finch-mobilecard__row finch-mobilecard__row--stats">
-                  <span class="finch-mobilecard__dim">LOCK</span>
-                  <span class="finch-mobilecard__mono">10:22</span>
-                  <span class="finch-mobilecard__sep" aria-hidden="true">·</span>
-                  <span class="finch-mobilecard__dim">DRIFT</span>
-                  <span class="finch-mobilecard__mono">STABLE</span>
-                </div>
-
-                <div class="finch-scope finch-scope--compact" aria-hidden="true">
-                  <svg class="finch-scope__svg" viewBox="0 0 600 72" preserveAspectRatio="none">
-                    <defs>
-                      <linearGradient id="finchBeamM" x1="0" x2="1">
-                        <stop offset="0" stop-color="rgba(126,255,176,0)"></stop>
-                        <stop offset="0.5" stop-color="rgba(126,255,176,0.35)"></stop>
-                        <stop offset="1" stop-color="rgba(126,255,176,0)"></stop>
-                      </linearGradient>
-                      <clipPath id="finchClipM">
-                        <rect x="0" y="0" width="600" height="72"></rect>
-                      </clipPath>
-                    </defs>
-
-                    <g opacity="0.9">
-                      {%- for x in (0..10) -%}
-                        <line x1="{{ x | times: 60 }}" y1="0" x2="{{ x | times: 60 }}" y2="72" class="finch-scope__grid"></line>
-                      {%- endfor -%}
-                      {%- for y in (0..6) -%}
-                        <line x1="0" y1="{{ y | times: 12 }}" x2="600" y2="{{ y | times: 12 }}" class="finch-scope__grid"></line>
-                      {%- endfor -%}
-                    </g>
-
-                    <rect class="finch-scope__beam" x="-140" y="0" width="140" height="72" fill="url(#finchBeamM)"></rect>
-
-                    <path
-                      class="finch-scope__line"
-                      d="M0,40 L30,38 L60,41 L90,37 L120,39 L150,36 L180,42 L210,35 L240,39 L270,34 L300,40 L330,33 L360,38 L390,36 L420,41 L450,35 L480,39 L510,37 L540,40 L570,36 L600,38"
-                      clip-path="url(#finchClipM)"
-                    ></path>
-                  </svg>
-                </div>
-
-                <nav class="finch-homeui__actions finch-homeui__actions--mobile" aria-label="Primary actions">
-                  <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">READ LATEST</a>
-                  <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
-                  <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/t/' | relative_url }}">LOOKUP</a>
-                </nav>
-
-                <p class="finch-homeui__prompt finch-homeui__prompt--mobile" aria-hidden="true">
-                  archive@finch:~$ <a class="finch-homeui__promptlink" href="{{ '/t/' | relative_url }}">lookup {{ feat.log_id | default: 'LOG' }}</a><span class="finch-screen__cursor">▍</span>
-                </p>
-              </div>
-            {%- else -%}
-              <div class="finch-mobilecard">
-                <div class="finch-mobilecard__row finch-mobilecard__row--meta">
-                  <span class="finch-active__pill">IDLE</span>
-                  <span class="finch-mobilecard__sep" aria-hidden="true">·</span>
-                  <span class="finch-mobilecard__mono">NO TRANSMISSIONS</span>
-                </div>
-
-                <nav class="finch-homeui__actions finch-homeui__actions--mobile" aria-label="Primary actions">
-                  <a class="finch-screen__btn finch-screen__btn--fill" href="{{ '/logs/' | relative_url }}">READ ALL</a>
-                  <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/t/' | relative_url }}">LOOKUP</a>
-                </nav>
-
-                <p class="finch-homeui__prompt finch-homeui__prompt--mobile" aria-hidden="true">
-                  archive@finch:~$ <a class="finch-homeui__promptlink" href="{{ '/t/' | relative_url }}">lookup</a><span class="finch-screen__cursor">▍</span>
-                </p>
-              </div>
-            {%- endif -%}
+          <div class="finch-homeui__desktop">
+            <pre class="finch-ascii" aria-hidden="true">FINCHARCHIVE.COM</pre>
+            <p class="finch-activity__line"><span class="finch-activity__k">STATUS</span> NO TRANSMISSIONS</p>
+            <nav class="finch-homeui__actions" aria-label="Primary actions" style="margin-top:10px;">
+              <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
+              <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/t/' | relative_url }}">TRANSMISSION LOOKUP</a>
+            </nav>
           </div>
+
+          <div class="finch-homeui__mobile">
+            <pre class="finch-ascii" aria-hidden="true">FINCHARCHIVE.COM</pre>
+            <p class="finch-activity__line"><span class="finch-activity__k">STATUS</span> NO TRANSMISSIONS</p>
+            <nav class="finch-homeui__actions" aria-label="Primary actions" style="margin-top:10px;">
+              <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
+              <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/t/' | relative_url }}">TRANSMISSION LOOKUP</a>
+            </nav>
+          </div>
+
+          {%- endif -%}
         </div>
       </div>
     </div>
