@@ -2477,3 +2477,72 @@ html, body { overflow-x: hidden; }
 @media (min-width: 981px){
   .finch-home{ padding-top: 0; }
 }
+
+/* ======================================
+   HOTFIX: spacing + mobile CRT scale (no horizontal scroll)
+   Paste at bottom of style.css
+   ====================================== */
+
+/* 1) Pull CRT upward a bit more on desktop */
+@media (min-width: 981px){
+  .finch-home{
+    margin-top: clamp(-56px, -3.6vw, -22px);
+    padding-top: 0;
+  }
+}
+
+/* 2) Mobile: make CRT larger while staying within viewport (no sideways scroll) */
+@media (max-width: 980px){
+  .finch-home{
+    padding-top: 6px;
+  }
+
+  /* Bigger CRT, still inset a little */
+  .finch-crtframe{
+    width: min(96vw, 860px);
+  }
+
+  /* Slightly larger screen crop on mobile */
+  .finch-crtframe{
+    --screen-x: 18.9%;
+    --screen-y: 12.4%;
+    --screen-w: 62.0%;
+    --screen-h: 66.2%;
+  }
+
+  /* Tighten the header inside the CRT screen to reclaim vertical room */
+  .finch-screen__header{
+    padding: 8px 10px 6px;
+  }
+
+  .finch-screen__label,
+  .finch-screen__meta,
+  .finch-screen__cond{
+    font-size: 0.70rem;
+  }
+  .finch-screen__clock{
+    font-size: 0.78rem;
+  }
+
+  /* Tighten body padding so buttons fit */
+  .finch-screen--home .finch-screen__body{
+    padding: 10px;
+  }
+
+  /* Ensure mobile action buttons are visible + tappable */
+  .finch-homeui__actions{
+    gap: 8px;
+  }
+  .finch-screen__btn{
+    min-height: 46px;
+    font-size: 0.78rem;
+    padding: 10px 12px;
+  }
+}
+
+/* Extra small phones: go a touch larger */
+@media (max-width: 420px){
+  .finch-crtframe{
+    width: 97vw;
+  }
+}
