@@ -2756,3 +2756,56 @@ html, body { overflow-x: hidden; }
     width: calc(100vw - 12px) !important;
   }
 }
+
+/* ======================================
+   MOBILE CRT — POLISH PASS
+   (keeps desktop unchanged)
+   ====================================== */
+
+@media (max-width: 980px){
+  /* Slightly reduce scale so more of the screen fits vertically */
+  .finch-home .finch-crtframe{
+    --crt-scale: 1.16; /* was 1.22 — tweak 1.14–1.20 */
+  }
+
+  /* Show a touch more of the usable screen area on mobile */
+  .finch-home .finch-crtframe{
+    --screen-x: 19.3%;
+    --screen-y: 12.2%;
+    --screen-w: 61.2%;
+    --screen-h: 67.0%;
+  }
+
+  /* Make sure the SCREEN allows internal scrolling if content exceeds height */
+  .finch-home .finch-crtframe__screen{
+    overflow: hidden; /* keep glass clean */
+  }
+
+  /* But allow scrolling inside the body area */
+  .finch-home .finch-screen--home .finch-screen__body{
+    overflow: auto !important;
+    max-height: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Tighten header a bit to reclaim vertical room */
+  .finch-home .finch-screen__header{
+    padding: 7px 10px 6px !important;
+  }
+
+  /* Slightly smaller meta text on mobile so it doesn't dominate */
+  .finch-home .finch-screen__label,
+  .finch-home .finch-screen__meta,
+  .finch-home .finch-screen__cond{
+    font-size: 0.72rem !important;
+  }
+  .finch-home .finch-screen__clock{
+    font-size: 0.78rem !important;
+  }
+}
+
+@media (max-width: 420px){
+  .finch-home .finch-crtframe{
+    --crt-scale: 1.20; /* smaller phones can handle a touch more */
+  }
+}
