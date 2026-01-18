@@ -2618,7 +2618,6 @@ html, body { overflow-x: hidden; }
   .finch-scope__svg{ height: 54px; }
 }
 
-
 /* =====================================================================
    MOBILE CRT LAYOUT — single source of truth
    Goal: keep desktop unchanged, and make the CRT feel "full size" on phones
@@ -2634,48 +2633,62 @@ html, body { overflow-x: hidden; }
     padding: 28px 0 44px;
   }
 
-  /* CRT: occupy (nearly) the full viewport width */
-.finch-crtframe{
-  width: 120vw;               /* you set this already — keep */
-  max-width: none;
-  padding-left: 0;
-  padding-right: 0;
-  box-sizing: border-box;
+  /* CRT: occupy (slightly wider than) the viewport, centered */
+  .finch-crtframe{
+    width: 120vw;               /* you liked this size */
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+    box-sizing: border-box;
 
-  /* true centering on mobile */
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-  margin: 0;
-}
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+  }
 
-.finch-crtframe__img{
-  width: 100%;
-  height: auto;
-  display: block;
-}
+  .finch-crtframe__img{
+    width: 100%;
+    height: auto;
+    display: block;
+  }
 
-/* Screen region: align to CRT glass */
-.finch-crtframe__screen{
-  /* tuned for the current CRT asset */
-  inset: 18% 12% 36% 12%;     /* top | right | bottom | left */
-  border-radius: 18px;
-}
+  /* Screen region: align to CRT glass */
+  .finch-crtframe__screen{
+    position: absolute;
+    z-index: 2;
 
-/* Tighten mobile content so it fits inside the glass comfortably */
-.finch-screen--home{
-  padding: 10px 10px 12px;
-  font-size: 0.90rem;
-  line-height: 1.35;
-}
+    /* tuned for the current CRT asset */
+    inset: 18% 12% 36% 12%;     /* top | right | bottom | left */
+    border-radius: 18px;
 
-/* keep header in one line; truncate safely */
-.finch-screen__headline{
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-   
+    overflow: hidden;
+    background: rgba(0,0,0,.55);
+    box-shadow: inset 0 0 0 1px rgba(126,255,176,.16);
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+
+    /* subtle right nudge so content sits better in the glass */
+    transform: translateX(1.2%);
+  }
+
+  /* Tighten mobile content so it fits inside the glass comfortably */
+  .finch-screen--home{
+    padding: 10px 10px 12px;
+    font-size: 0.90rem;
+    line-height: 1.35;
+  }
+
+  /* Header variants: show FINCHARCHIVE.COM on mobile, keep desktop header intact */
+  .finch-screen__headline--mobile { display: block; }
+  .finch-screen__headline--desktop { display: none; }
+
+  /* keep header in one line; truncate safely */
+  .finch-screen__headline{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   /* Mobile UI wrappers */
   .finch-homeui__mobile {
     display: block;
@@ -2699,6 +2712,12 @@ html, body { overflow-x: hidden; }
   .finch-homeui__desktop a[href$="/t/"] {
     display: none !important;
   }
+}
+
+/* Desktop: ensure desktop header shows as before */
+@media (min-width: 981px) {
+  .finch-screen__headline--desktop { display: block; }
+  .finch-screen__headline--mobile { display: none; }
 }
 
 /* =====================================================================
