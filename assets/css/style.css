@@ -2283,16 +2283,25 @@ html {
 }
 
 /* ======================================
-   20. Homepage: Photoreal CRT frame
+   20. Homepage: Photoreal CRT frame (refactored)
+   - No scrolling inside screen
+   - Mobile gets a dedicated, readable layout
+   - Buttons are filled
+   - CRT sits higher under header
    ====================================== */
 
-.finch-home { margin: 0; }
+.finch-home{
+  /* pull the monitor up a bit closer to the header on desktop */
+  margin-top: clamp(-26px, -2.0vw, -14px);
+  padding: clamp(8px, 1.4vw, 14px) 0 clamp(10px, 2vw, 18px);
+}
 
-.finch-crtframe {
-  --screen-x: 22.1%;
-  --screen-y: 18.6%;
-  --screen-w: 56.0%;
-  --screen-h: 48.8%;
+/* Frame wrapper */
+.finch-crtframe{
+  --screen-x: 14.3%;
+  --screen-y: 11.2%;
+  --screen-w: 71.4%;
+  --screen-h: 58.2%;
 
   position: relative;
   max-width: 1200px;
@@ -2300,27 +2309,33 @@ html {
   filter: drop-shadow(0 24px 60px rgba(0,0,0,0.55));
 }
 
-.finch-crtframe__img {
+.finch-crtframe__img{
   width: 100%;
   height: auto;
   display: block;
   border-radius: 18px;
+  position: relative;
+  z-index: 1;
 }
 
-.finch-crtframe__screen {
+.finch-crtframe__screen{
   position: absolute;
   left: var(--screen-x);
   top: var(--screen-y);
   width: var(--screen-w);
   height: var(--screen-h);
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
+  z-index: 2;
 }
 
-/* Screen surface + effects */
-.finch-screen {
+/* Screen surface + CRT effects */
+.finch-screen{
   position: relative;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+
   background:
     radial-gradient(120% 90% at 50% 45%, rgba(34, 255, 140, 0.06), transparent 58%),
     radial-gradient(80% 60% at 30% 20%, rgba(122, 58, 58, 0.10), transparent 60%),
@@ -2330,11 +2345,11 @@ html {
   text-shadow: 0 0 10px rgba(60, 255, 160, 0.12);
 }
 
-.finch-screen::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+.finch-screen::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.04), transparent 22%, rgba(0,0,0,0.18)),
     repeating-linear-gradient(
@@ -2346,591 +2361,333 @@ html {
   mix-blend-mode: overlay;
   opacity: 0.55;
 }
-
-.finch-screen::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+.finch-screen::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
   background: radial-gradient(120% 100% at 50% 40%, transparent 56%, rgba(0,0,0,0.55) 100%);
   opacity: 0.85;
 }
 
-.finch-screen__header {
+/* Header */
+.finch-screen__header{
   position: relative;
   z-index: 1;
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 16px 10px;
+  padding: 12px 14px 9px;
   border-bottom: 1px solid rgba(60, 255, 160, 0.16);
   background: rgba(0,0,0,0.25);
 }
-
-.finch-screen__label {
+.finch-screen__headline{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: baseline;
+}
+.finch-screen__label{
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: rgba(232, 255, 233, 0.92);
 }
-.finch-screen__sep,
-.finch-screen__dot { color: rgba(232, 255, 233, 0.55); }
 .finch-screen__meta,
-.finch-screen__cond {
-  font-size: 0.78rem;
+.finch-screen__cond{
+  font-size: 0.76rem;
   color: rgba(232, 255, 233, 0.75);
   letter-spacing: 0.08em;
 }
-.finch-screen__clock {
+.finch-screen__clock{
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.08em;
-  font-size: 0.9rem;
+  font-size: 0.86rem;
   color: rgba(232, 255, 233, 0.95);
 }
-
-/* IMPORTANT: Home screen must never scroll */
-.finch-screen--home {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+.finch-screen__sep{
+  color: rgba(232, 255, 233, 0.55);
 }
 
-.finch-homeui {
+/* Body: no scroll; we fit content by design */
+.finch-screen__body{
   position: relative;
   z-index: 1;
   flex: 1;
-  padding: 12px 16px 12px;
-  overflow: hidden; /* no scrollbars */
-  display: flex;
-  flex-direction: column;
+  padding: 12px 14px 12px;
+  overflow: hidden;
+}
+
+/* Layout split: desktop vs mobile */
+.finch-homeui__desktop{ display: block; height: 100%; }
+.finch-homeui__mobile{ display: none; height: 100%; }
+
+.finch-homeui__top{
+  display: grid;
   gap: 10px;
 }
-
-/* Activity block (Boot/Calibration) */
-.finch-activity {
-  font-size: 0.80rem;
-  letter-spacing: 0.06em;
-  color: rgba(232, 255, 233, 0.78);
-  border-bottom: 1px solid rgba(60, 255, 160, 0.12);
-  padding-bottom: 10px;
-}
-.finch-activity__line { margin: 0 0 4px; }
-.finch-activity__k {
-  display: inline-block;
-  width: 6ch;
-  color: rgba(232, 255, 233, 0.70);
-}
-.finch-activity__ok { color: rgba(60, 255, 160, 0.92); }
-.finch-activity__warn { color: rgba(255, 200, 120, 0.92); }
-
-.finch-wave {
-  height: 10px;
-  margin-top: 8px;
-  border: 1px solid rgba(232, 255, 233, 0.14);
-  border-radius: 999px;
-  overflow: hidden;
-  background: rgba(0,0,0,0.28);
-}
-.finch-wave__bar {
-  display: block;
-  height: 100%;
-  width: 45%;
-  background: rgba(60, 255, 160, 0.35);
-  animation: finchWave 1.35s ease-in-out infinite;
-}
-@keyframes finchWave {
-  0% { transform: translateX(-30%); opacity: 0.45; }
-  50% { transform: translateX(110%); opacity: 0.75; }
-  100% { transform: translateX(-30%); opacity: 0.45; }
-}
-
-/* Active transmission (compact, clamped) */
-.finch-active__meta {
-  margin: 0 0 6px;
-  font-size: 0.78rem;
-  letter-spacing: 0.10em;
-  color: rgba(232, 255, 233, 0.76);
-}
-.finch-active__pill {
-  display: inline-block;
-  padding: 2px 8px;
-  border: 1px solid rgba(60, 255, 160, 0.24);
-  border-radius: 999px;
-  background: rgba(0,0,0,0.22);
-  color: rgba(232, 255, 233, 0.92);
-}
-.finch-active__id { font-variant-numeric: tabular-nums; }
-.finch-active__date { font-variant-numeric: tabular-nums; }
-
-.finch-active__title {
-  margin: 0 0 6px;
-  font-size: clamp(1.05rem, 1.6vw, 1.35rem);
-  letter-spacing: 0.02em;
-  line-height: 1.2;
-}
-.finch-active__title a {
-  color: rgba(232, 255, 233, 0.98);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(60, 255, 160, 0.25);
-}
-.finch-active__title a:hover,
-.finch-active__title a:focus-visible {
-  border-bottom-color: rgba(60, 255, 160, 0.55);
-}
-
-.finch-active__excerpt {
-  margin: 0;
-  color: rgba(232, 255, 233, 0.86);
-  font-size: 0.92rem;
-  line-height: 1.5;
-
-  /* clamp to avoid scrolling */
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* Two buttons only */
-.finch-homeui__actions {
-  margin-top: auto; /* pin to bottom */
-  display: flex;
+.finch-homeui__bottom{
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 10px;
+  display: grid;
   gap: 8px;
-  flex-wrap: wrap;
 }
 
-.finch-screen__btn {
+/* Active block (desktop) */
+.finch-active__meta{
+  margin: 0 0 6px;
+  font-size: 0.84rem;
+  letter-spacing: 0.06em;
+  color: rgba(232,255,233,0.82);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.finch-active__pill{
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(60, 255, 160, 0.32);
+  background: rgba(0,0,0,0.25);
+  color: rgba(232,255,233,0.92);
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+.finch-active__title{
+  margin: 0 0 6px;
+  font-size: clamp(1.05rem, 1.8vw, 1.34rem);
+  letter-spacing: 0.02em;
+}
+.finch-active__title a{
+  color: rgba(232,255,233,0.98);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(60,255,160,0.25);
+}
+.finch-active__excerpt{
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: rgba(232,255,233,0.82);
+  max-width: 60ch;
+}
+
+/* Buttons (filled) */
+.finch-homeui__actions{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.finch-homeui__actions--mobile{
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.finch-screen__btn{
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-height: 42px;
   padding: 10px 12px;
   border-radius: 12px;
-  border: 1px solid rgba(60, 255, 160, 0.28);
-  background: rgba(0,0,0,0.32);
-  color: rgba(232, 255, 233, 0.96);
   text-decoration: none;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.72rem;
-}
-.finch-screen__btn:hover,
-.finch-screen__btn:focus-visible {
-  background: rgba(0,0,0,0.44);
-  border-color: rgba(60, 255, 160, 0.55);
-}
-.finch-screen__btn--ghost { border-color: rgba(232, 255, 233, 0.18); }
-
-.finch-homeui__prompt {
-  margin: 6px 0 0;
-  color: rgba(232, 255, 233, 0.60);
-  font-size: 0.80rem;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.14em;
+  font-size: 0.74rem;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Cursor blink reused */
-.finch-screen__cursor {
-  display: inline-block;
+.finch-screen__btn--fill{
+  border: 1px solid rgba(60, 255, 160, 0.55);
+  background: rgba(60, 255, 160, 0.16);
+  color: rgba(232, 255, 233, 0.98);
+}
+.finch-screen__btn--fill:hover,
+.finch-screen__btn--fill:focus-visible{
+  background: rgba(60, 255, 160, 0.22);
+  border-color: rgba(60, 255, 160, 0.75);
+}
+
+.finch-screen__btn--fill2{
+  border: 1px solid rgba(232, 255, 233, 0.35);
+  background: rgba(232, 255, 233, 0.10);
+  color: rgba(232, 255, 233, 0.98);
+}
+.finch-screen__btn--fill2:hover,
+.finch-screen__btn--fill2:focus-visible{
+  background: rgba(232, 255, 233, 0.14);
+  border-color: rgba(232, 255, 233, 0.55);
+}
+
+/* Prompt link */
+.finch-homeui__prompt{
+  margin: 0;
+  font-size: 0.82rem;
+  color: rgba(232,255,233,0.70);
+}
+.finch-homeui__prompt--mobile{
+  font-size: 0.86rem;
+}
+.finch-homeui__promptlink{
+  color: rgba(232,255,233,0.92);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(60,255,160,0.18);
+}
+.finch-homeui__promptlink:hover,
+.finch-homeui__promptlink:focus-visible{
+  border-bottom-color: rgba(60,255,160,0.55);
+}
+
+.finch-screen__cursor{
+  display:inline-block;
   transform: translateY(1px);
   opacity: 0.85;
   animation: finchBlink 1.1s steps(1, end) infinite;
 }
-@keyframes finchBlink {
-  0%, 55% { opacity: 0.0; }
-  56%, 100% { opacity: 0.85; }
+@keyframes finchBlink{ 0%,55%{opacity:0;} 56%,100%{opacity:.85;} }
+
+/* Activity + oscilloscope */
+.finch-activity__line{
+  margin: 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  color: rgba(232,255,233,0.78);
+}
+.finch-activity__k{
+  color: rgba(232,255,233,0.62);
+}
+.finch-activity__ok{
+  color: rgba(60,255,160,0.95);
 }
 
-@media (max-width: 980px) {
-  .finch-crtframe { max-width: 960px; }
-}
-
-/* Mobile: reduce header density + tighten fonts so content always fits */
-@media (max-width: 560px) {
-  .finch-screen__header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-    padding: 12px 12px 8px;
-  }
-  .finch-homeui { padding: 10px 12px 10px; gap: 8px; }
-  .finch-activity { font-size: 0.76rem; }
-  .finch-active__excerpt { font-size: 0.88rem; -webkit-line-clamp: 2; }
-  .finch-screen__btn { padding: 9px 10px; font-size: 0.70rem; }
-}
-
-/* Single-line header that never pushes content down */
-.finch-screen__header--single {
-  padding: 10px 12px 8px;
-}
-
-.finch-screen__headline {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 0.76rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(232, 255, 233, 0.88);
-}
-
-/* Clamp title + excerpt so the screen never needs scrolling */
-.finch-active__title {
-  margin: 0 0 6px;
-  line-height: 1.15;
-
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2; /* desktop: max 2 lines */
+/* Oscilloscope block */
+.finch-scope{
+  margin-top: 8px;
+  border: 1px solid rgba(60,255,160,0.16);
+  border-radius: 10px;
+  background:
+    repeating-linear-gradient(0deg, rgba(60,255,160,0.06) 0 1px, transparent 1px 10px),
+    repeating-linear-gradient(90deg, rgba(60,255,160,0.04) 0 1px, transparent 1px 14px),
+    rgba(0,0,0,0.22);
+  padding: 8px;
   overflow: hidden;
 }
-
-.finch-active__excerpt {
-  -webkit-line-clamp: 2; /* desktop: max 2 lines */
+.finch-scope--compact{
+  margin-top: 10px;
+}
+.finch-scope__svg{
+  width: 100%;
+  height: 44px;
+  display: block;
+}
+.finch-scope__trace{
+  fill: none;
+  stroke: rgba(60,255,160,0.85);
+  stroke-width: 2.2;
+  filter: drop-shadow(0 0 8px rgba(60,255,160,0.18));
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 520;
+  stroke-dashoffset: 0;
+  animation: finchScope 2.2s linear infinite;
+}
+@keyframes finchScope{
+  0%{ stroke-dashoffset: 0; opacity: .75; }
+  50%{ opacity: 1; }
+  100%{ stroke-dashoffset: -520; opacity: .75; }
 }
 
-@media (max-width: 560px) {
-  .finch-screen__headline {
-    font-size: 0.70rem;
-    letter-spacing: 0.12em;
-  }
-
-  .finch-homeui { gap: 8px; }
-
-  .finch-activity { font-size: 0.74rem; padding-bottom: 8px; }
-
-  .finch-active__title { -webkit-line-clamp: 1; }   /* mobile: 1 line title */
-  .finch-active__excerpt { -webkit-line-clamp: 1; } /* mobile: 1 line excerpt */
-
-  .finch-screen__btn { padding: 9px 10px; font-size: 0.68rem; }
+/* Responsive */
+@media (max-width: 980px){
+  .finch-crtframe{ max-width: 960px; }
+  .finch-active__excerpt{ display: none; } /* keep it tight */
 }
 
-/* Mobile: make the CRT noticeably larger (slightly wider than the viewport)
-   without causing horizontal scrolling. */
-@media (max-width: 680px) {
-  /* Cancel container padding and prevent any sideways scroll caused by overscaling */
-  .finch-home {
-    margin-left: -1.25rem;
-    margin-right: -1.25rem;
-    overflow-x: clip; /* modern */
-  }
-
-  /* Fallback for older Safari */
-  body { overflow-x: hidden; }
-
-  .finch-crtframe {
-    max-width: none;
-
-    /* Overscale the monitor so the screen is readable */
-    width: 116vw;
-
-    /* Center a 116vw element in a 100vw viewport */
-    margin-left: calc(50% - 58vw);
-    margin-right: 0;
-
-    filter: drop-shadow(0 18px 42px rgba(0,0,0,0.50));
-  }
-
-  .finch-crtframe__img {
-    border-radius: 12px;
-  }
-}
-
-/* Very small phones: slightly less overscale */
-@media (max-width: 380px) {
-  .finch-crtframe { width: 112vw; margin-left: calc(50% - 56vw); }
-}
-
-/* Pull CRT closer to the site header on desktop */
-.finch-home {
-  margin-top: -1.25rem;
-}
-@media (max-width: 980px) {
-  .finch-home { margin-top: -0.75rem; }
-}
-@media (max-width: 680px) {
-  .finch-home { margin-top: 0; }
-}
-
-/* Make actions reliable inside the CRT viewport */
-.finch-homeui {
-  position: relative; /* anchor sticky/absolute children */
-}
-
-@media (max-width: 680px) {
-  /* Keep the important stuff visible */
-  .finch-active__excerpt { display: none; } /* excerpt disappears on mobile */
-  .finch-activity--secondary { display: none; } /* activity collapses on mobile */
-
-  /* Make the two actions always visible at the bottom of the CRT screen */
-  .finch-homeui__actions {
-    position: absolute;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    margin: 0;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    z-index: 5;
-  }
-
-  /* Make buttons bigger for thumbs */
-  .finch-screen__btn {
-    padding: 12px 10px;
-    font-size: 0.70rem;
-  }
-
-  /* Prevent the prompt from colliding with the fixed buttons */
-  .finch-homeui__prompt {
-    display: none;
-  }
-
-  /* Give the upper content a safe bottom padding so it never sits behind buttons */
-  .finch-homeui {
-    padding-bottom: 60px;
-  }
-
-  /* Clamp the title hard */
-  .finch-active__title {
-    -webkit-line-clamp: 2;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-}
-
-/* Make actions reliable inside the CRT viewport */
-.finch-homeui {
-  position: relative; /* anchor sticky/absolute children */
-}
-
-@media (max-width: 680px) {
-  /* Keep the important stuff visible */
-  .finch-active__excerpt { display: none; } /* excerpt disappears on mobile */
-  .finch-activity--secondary { display: none; } /* activity collapses on mobile */
-
-  /* Make the two actions always visible at the bottom of the CRT screen */
-  .finch-homeui__actions {
-    position: absolute;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    margin: 0;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    z-index: 5;
-  }
-
-  /* Make buttons bigger for thumbs */
-  .finch-screen__btn {
-    padding: 12px 10px;
-    font-size: 0.70rem;
-  }
-
-  /* Prevent the prompt from colliding with the fixed buttons */
-  .finch-homeui__prompt {
-    display: none;
-  }
-
-  /* Give the upper content a safe bottom padding so it never sits behind buttons */
-  .finch-homeui {
-    padding-bottom: 60px;
-  }
-
-  /* Clamp the title hard */
-  .finch-active__title {
-    -webkit-line-clamp: 2;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-}
-
-/* Desktop: pull CRT upward so top/bottom spacing is more balanced */
-.finch-home {
-  margin-top: -2.25rem;
-}
-
-@media (min-width: 980px) {
-  .finch-home { margin-top: -3.25rem; }
-}
-
-/* Don’t yank it up on small screens */
-@media (max-width: 680px) {
-  .finch-home { margin-top: 0; }
-}
-
-@media (max-width: 680px) {
-  .finch-home {
+@media (max-width: 680px){
+  /* make the CRT larger on phones (and center it) */
+  .finch-home{
     margin-left: -1.25rem;
     margin-right: -1.25rem;
     overflow-x: clip;
+    margin-top: 0; /* don’t pull up on mobile */
+    padding-top: 10px;
   }
-  body { overflow-x: hidden; }
+  body{ overflow-x: hidden; }
 
-  /* Big phones (iPhone Pro Max etc.) */
-  .finch-crtframe {
+  .finch-crtframe{
     max-width: none;
-    width: 128vw;
-    margin-left: calc(50% - 64vw);
-    filter: drop-shadow(0 18px 42px rgba(0,0,0,0.50));
+    width: 118vw;
+    margin-left: calc(50% - 59vw);
+    margin-right: 0;
+  }
+
+  /* adjust screen crop slightly for mobile */
+  .finch-crtframe{
+    --screen-x: 11.8%;
+    --screen-y: 12.2%;
+    --screen-w: 76.8%;
+    --screen-h: 56.5%;
+  }
+
+  /* Switch to mobile UI inside the screen */
+  .finch-homeui__desktop{ display:none; }
+  .finch-homeui__mobile{ display:block; height: 100%; }
+
+  .finch-screen__body{
+    padding: 10px 12px 10px;
+  }
+
+  .finch-mobilecard{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .finch-mobilecard__row{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: baseline;
+  }
+  .finch-mobilecard__row--meta{ margin-bottom: 10px; }
+  .finch-mobilecard__row--title{ margin-bottom: 10px; }
+  .finch-mobilecard__row--stats{ margin-top: 8px; }
+
+  .finch-mobilecard__mono{
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+    color: rgba(232,255,233,0.92);
+    font-size: 0.92rem;
+  }
+  .finch-mobilecard__dim{
+    color: rgba(232,255,233,0.65);
+    font-size: 0.88rem;
+    letter-spacing: 0.06em;
+  }
+  .finch-mobilecard__sep{
+    color: rgba(232,255,233,0.45);
+  }
+
+  .finch-mobilecard__title{
+    display: inline-block;
+    font-size: 1.05rem;
+    line-height: 1.2;
+    color: rgba(232,255,233,0.98);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(60,255,160,0.25);
+  }
+
+  /* make tap targets big and readable */
+  .finch-screen__btn{
+    min-height: 46px;
+    font-size: 0.78rem;
   }
 }
 
-/* Mid phones */
-@media (max-width: 430px) {
-  .finch-crtframe {
-    width: 124vw;
-    margin-left: calc(50% - 62vw);
-  }
-}
-
-/* Small phones */
-@media (max-width: 380px) {
-  .finch-crtframe {
-    width: 116vw;
-    margin-left: calc(50% - 58vw);
-  }
-}
-
-/* Make the screen UI layout behave like a bounded instrument panel */
-.finch-homeui {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-/* Ensure actions can always drop to the bottom */
-.finch-homeui__actions {
-  margin-top: auto;
-}
-
-@media (max-width: 680px) {
-  /* reduce “header eats space” problem */
-  .finch-screen__header--single {
-    padding: 6px 10px 4px;
-  }
-  .finch-screen__headline {
-    font-size: 0.68rem;
-    letter-spacing: 0.10em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* collapse content that causes clipping */
-  .finch-active__excerpt { display: none; }
-  .finch-activity--secondary { display: none; }
-  .finch-homeui__prompt { display: none; }
-
-  /* buttons become big, stacked, thumb-friendly */
-  .finch-homeui__actions {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .finch-screen__btn {
-    padding: 12px 12px;
-    font-size: 0.72rem;
-  }
-
-  /* keep title + meta readable and bounded */
-  .finch-active__meta { font-size: 0.72rem; }
-  .finch-active__title {
-    font-size: 1.0rem;
-    line-height: 1.15;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden;
-  }
-}
-
-/* Filled buttons (default) */
-.finch-screen__btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-
-  border-radius: 999px;
-  border: 1px solid rgba(80, 255, 180, 0.28);
-  background: rgba(80, 255, 180, 0.14);
-  color: rgba(232, 255, 233, 0.92);
-
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-weight: 600;
-
-  box-shadow:
-    0 0 0 1px rgba(0,0,0,0.35) inset,
-    0 0 24px rgba(80,255,180,0.08);
-  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
-}
-
-.finch-screen__btn:hover {
-  background: rgba(80, 255, 180, 0.18);
-  border-color: rgba(80, 255, 180, 0.38);
-  transform: translateY(-1px);
-}
-
-/* Ghost variant */
-.finch-screen__btn--ghost {
-  background: rgba(0,0,0,0.18);
-  border-color: rgba(232,255,233,0.22);
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.45) inset;
-}
-
-
-/* transmission lookup cursor prompt */
-.finch-homeui__cmd {
-  margin: 10px 0 0;
-  font-size: 0.78rem;
-  color: rgba(232,255,233,0.72);
-}
-
-.finch-cmdlink {
-  color: rgba(232,255,233,0.78);
-  text-decoration: none;
-  border-bottom: 1px dotted rgba(232,255,233,0.25);
-}
-
-.finch-cmdlink:hover {
-  color: rgba(232,255,233,0.92);
-  border-bottom-color: rgba(232,255,233,0.45);
-}
-
-/* Equalizer bars on homepage CRT */
-.finch-graph {
-  height: 18px;
-  border-radius: 999px;
-  border: 1px solid rgba(80,255,180,0.16);
-  background: rgba(0,0,0,0.22);
-  overflow: hidden;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.35) inset;
-}
-
-.finch-graph--eq::before {
-  content: "";
-  display: block;
-  height: 100%;
-  width: 140%;
-  background:
-    repeating-linear-gradient(
-      90deg,
-      rgba(80,255,180,0.0) 0px,
-      rgba(80,255,180,0.0) 6px,
-      rgba(80,255,180,0.22) 7px,
-      rgba(80,255,180,0.22) 8px
-    );
-  opacity: 0.85;
-  transform: translateX(-20%);
-  animation: finchEq 1.15s linear infinite;
-}
-
-@keyframes finchEq {
-  0% { transform: translateX(-20%); }
-  100% { transform: translateX(0%); }
+@media (max-width: 380px){
+  .finch-crtframe{ width: 122vw; margin-left: calc(50% - 61vw); }
 }
