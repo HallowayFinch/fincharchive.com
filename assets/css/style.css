@@ -3444,3 +3444,57 @@ html, body { overflow-x: hidden; }
     display: block !important;
   }
 }
+
+/* =========================================================
+   Finch CRT mobile fit + centering (HOTFIX)
+   Goal: keep the entire CRT frame visible and centered on <=980px.
+   ========================================================= */
+
+@media (max-width: 980px) {
+  /* prevent any tiny horizontal overflow from pushing the frame off-screen */
+  html, body {
+    overflow-x: hidden;
+  }
+
+  .finch-home {
+    overflow-x: hidden;
+  }
+
+  /* Force the CRT wrapper to behave like a centered, viewport-fitting block */
+  .finch-crtframe {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100vw;
+    margin: 0 auto;
+    padding: 0 10px; /* small gutter so bezel never clips */
+    position: relative;
+  }
+
+  /* The CRT image must NEVER exceed the viewport width */
+  .finch-crtframe__img {
+    display: block;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 0 auto !important;
+
+    /* kill any inherited transforms that can “anchor” it off-screen */
+    transform: none !important;
+  }
+
+  /*
+    If your screen overlay is positioned relative to the frame,
+    any transforms on ancestors can drift it. This stabilizes it.
+    (Does not change your desktop rules.)
+  */
+  .finch-crtframe__screen {
+    transform: none !important;
+  }
+
+  /* Make the single-line header behave on narrow widths */
+  .finch-screen__headline {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
