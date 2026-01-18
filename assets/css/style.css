@@ -3498,3 +3498,25 @@ html, body { overflow-x: hidden; }
     text-overflow: ellipsis;
   }
 }
+
+/* =========================================================
+   Log pager: normalize next/prev cards (link vs non-link)
+   ========================================================= */
+
+.finch-pager a,
+.finch-pager .is-disabled,
+.finch-pager div,
+.finch-pager span {
+  box-sizing: border-box;
+}
+
+.finch-pager a,
+.finch-pager .is-disabled {
+  display: block;
+  text-decoration: none;
+}
+
+.finch-pager a *,
+.finch-pager .is-disabled * {
+  text-decoration: none;
+}
