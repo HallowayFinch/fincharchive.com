@@ -2956,3 +2956,111 @@ html, body { overflow-x: hidden; }
     width: 99vw;
   }
 }
+
+/* ==========================================
+   MOBILE CRT FINAL OVERRIDE (desktop unchanged)
+   Paste at VERY BOTTOM of style.css
+   ========================================== */
+
+@media (max-width: 980px){
+
+  /* Full-bleed container (prevents any parent max-width from shrinking CRT) */
+  .finch-home{
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin-left: calc(50% - 50vw) !important;
+    margin-right: calc(50% - 50vw) !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Make the CRT physically larger on mobile */
+  .finch-home .finch-crtframe{
+    position: relative !important;
+    left: 50% !important;
+    margin: 0 !important;
+
+    width: calc(100vw - 14px) !important;
+    max-width: none !important;
+
+    transform: translateX(-50%) scale(1.28) !important;
+    transform-origin: top center !important;
+  }
+
+  /* Keep CRT image obedient */
+  .finch-home .finch-crtframe__img{
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Give the “glass” more usable area */
+  .finch-home .finch-crtframe{
+    --screen-x: 18.4% !important;
+    --screen-y: 10.8% !important;
+    --screen-w: 63.2% !important;
+    --screen-h: 72.4% !important;
+  }
+
+  /* Header: force single line + smaller so it doesn’t eat the screen */
+  .finch-home .finch-screen__header{
+    padding: 6px 10px 6px !important;
+  }
+  .finch-home .finch-screen__headline{
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.05 !important;
+  }
+  .finch-home .finch-screen__label,
+  .finch-home .finch-screen__meta,
+  .finch-home .finch-screen__cond,
+  .finch-home .finch-screen__clock{
+    font-size: 0.70rem !important;
+  }
+
+  /* IMPORTANT: eliminate the “tiny scroll window” feel */
+  .finch-home .finch-screen--home .finch-screen__body{
+    overflow: hidden !important; /* no internal scrolling needed with compact mobile UI */
+    padding: 10px !important;
+  }
+
+  /* Compact mobile UI spacing */
+  .finch-home .finch-homeui__mobile{
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    font-size: 0.92rem !important;
+    line-height: 1.15 !important;
+  }
+  .finch-home .finch-homeui__mobile p{
+    margin: 0 !important;
+  }
+  .finch-home .finch-homeui__mobile .finch-active__meta{
+    margin: 0 0 6px !important;
+  }
+  .finch-home .finch-homeui__mobile .finch-activity__line{
+    margin: 0 0 6px !important;
+    line-height: 1.12 !important;
+  }
+
+  /* Buttons: shorter */
+  .finch-home .finch-homeui__mobile .finch-homeui__actions{
+    gap: 6px !important;
+  }
+  .finch-home .finch-homeui__mobile .finch-screen__btn{
+    min-height: 40px !important;
+    padding: 8px 10px !important;
+    font-size: 0.74rem !important;
+    line-height: 1.05 !important;
+  }
+}
+
+@media (max-width: 420px){
+  .finch-home .finch-crtframe{
+    transform: translateX(-50%) scale(1.34) !important;
+    width: calc(100vw - 10px) !important;
+  }
+}
+
