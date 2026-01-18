@@ -61,21 +61,34 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
               </p>
             </section>
 
-            <!-- Two actions only (always visible) -->
+            <!-- Two primary actions (always visible) -->
             <nav class="finch-homeui__actions" aria-label="Primary actions">
               <a class="finch-screen__btn" href="{{ feat.url | relative_url }}">READ LATEST</a>
               <a class="finch-screen__btn finch-screen__btn--ghost" href="{{ '/logs/' | relative_url }}">READ ALL</a>
             </nav>
 
+            <!-- Command/link affordance: Transmission Lookup -->
+            <p class="finch-homeui__cmd">
+              <a href="{{ '/t/' | relative_url }}" class="finch-cmdlink">archive@finch:~$ lookup</a>
+              <span class="finch-screen__cursor" aria-hidden="true">▍</span>
+            </p>
+
           {%- else -%}
             <section class="finch-active" aria-label="Archive status">
-              <h1 class="finch-active__title"><a href="{{ '/logs/' | relative_url }}">No transmissions available</a></h1>
+              <h1 class="finch-active__title">
+                <a href="{{ '/logs/' | relative_url }}">No transmissions available</a>
+              </h1>
               <p class="finch-active__excerpt">The archive index is available.</p>
             </section>
 
             <nav class="finch-homeui__actions" aria-label="Primary actions">
               <a class="finch-screen__btn" href="{{ '/logs/' | relative_url }}">READ ALL</a>
             </nav>
+
+            <p class="finch-homeui__cmd">
+              <a href="{{ '/t/' | relative_url }}" class="finch-cmdlink">archive@finch:~$ lookup</a>
+              <span class="finch-screen__cursor" aria-hidden="true">▍</span>
+            </p>
           {%- endif -%}
 
           <!-- Activity (secondary flavor) -->
@@ -83,11 +96,11 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
             <p class="finch-activity__line"><span class="finch-activity__k">LOCK</span> time ............. <span class="finch-activity__ok">10:22</span></p>
             <p class="finch-activity__line"><span class="finch-activity__k">DRIFT</span> +0.22% .......... <span class="finch-activity__ok">STABLE</span></p>
 
-            <div class="finch-wave" aria-hidden="true">
-              <span class="finch-wave__bar"></span>
-            </div>
+            <!-- Swap wave for equalizer bar graph -->
+            <div class="finch-graph finch-graph--eq" aria-hidden="true"></div>
           </section>
 
+          <!-- Optional: keep the prompt (you can remove if you want) -->
           <p class="finch-homeui__prompt" aria-hidden="true">
             archive@finch:~$ <span class="finch-screen__cursor">▍</span>
           </p>
