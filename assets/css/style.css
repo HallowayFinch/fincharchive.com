@@ -2668,7 +2668,7 @@ html, body { overflow-x: hidden; }
     -webkit-mask-image: -webkit-radial-gradient(white, black);
 
     /* subtle right nudge so content sits better in the glass */
-    transform: translateX(2.6%);
+    transform: translateX(2.9%);
   }
 
   /* Tighten mobile content so it fits inside the glass comfortably */
