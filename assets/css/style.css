@@ -2630,7 +2630,7 @@ html, body { overflow-x: hidden; }
     width: 100vw;
     margin-left: calc(50% - 50vw);
     margin-right: calc(50% - 50vw);
-    padding: 28px 0 44px;
+    padding: 18px 0 26px;
   }
 
   /* CRT: occupy (slightly wider than) the viewport, centered */
@@ -2673,9 +2673,9 @@ html, body { overflow-x: hidden; }
 
   /* Tighten mobile content so it fits inside the glass comfortably */
   .finch-screen--home{
-    padding: 10px 10px 12px;
-    font-size: 0.90rem;
-    line-height: 1.35;
+    padding: 8px 9px 10px;
+    font-size: 0.88rem;
+    line-height: 1.32;
   }
 
   /* Header variants: show FINCHARCHIVE.COM on mobile, keep desktop header intact */
@@ -2706,18 +2706,18 @@ html, body { overflow-x: hidden; }
    .finch-homeui__mobile .finch-homeui__actions{
      display: grid;
      grid-template-columns: 1fr 1fr;
-     gap: 10px;
-     margin-top: 12px;
+     gap: 8px;
+     margin-top: 10px;
    }
    
    .finch-homeui__mobile .finch-screen__btn{
      width: auto;
-     min-height: 40px;
-     padding: 9px 10px;
-     font-size: 0.78rem;
+     min-height: 34px;
+     padding: 7px 8px;
+     font-size: 0.74rem;
      line-height: 1;
      white-space: nowrap;
-     letter-spacing: 0.14em;
+     letter-spacing: 0.12em;
    }
 
   /* Hide Transmission Lookup on the homepage (per latest decision) */
