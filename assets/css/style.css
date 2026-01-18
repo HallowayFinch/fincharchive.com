@@ -2617,3 +2617,17 @@ html, body { overflow-x: hidden; }
   .finch-home{ padding-left: 10px; padding-right: 10px; }
   .finch-scope__svg{ height: 54px; }
 }
+
+/* MOBILE CRT SIZE — FINAL OVERRIDE (make buttons visible) */
+@media (max-width: 980px){
+  .finch-crtframe{
+    /* near-full width, still a hair of breathing room */
+    width: calc(100vw - 12px) !important;
+    max-width: none !important;
+  }
+
+  /* stack action buttons on mobile so they can't disappear */
+  .finch-homeui__mobile .finch-homeui__actions{
+    grid-template-columns: 1fr !important;
+  }
+}
