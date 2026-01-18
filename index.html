@@ -3,10 +3,6 @@ layout: default
 full_width: true
 title: Finch Archive
 description: "Recovered notes from incomplete transmissions: the latest logs from the Finch Archive."
-hero_image: "/assets/og/home-console-1600x900.webp"
-hero_alt: "A dim, abandoned control corridor lit by a single fluorescent tube."
-hero_w: 1600
-hero_h: 900
 ---
 
 {%- assign EMPTY = '' | split: '' -%}
@@ -26,7 +22,7 @@ hero_h: 900
       height="1024"
       loading="eager"
       decoding="async"
-      alt="A vintage CRT monitor, used as a frame for the Finch Archive interface."
+      alt="A vintage CRT monitor framing the Finch Archive interface."
     />
 
     <div class="finch-crtframe__screen" role="region" aria-label="Archive interface">
@@ -45,47 +41,56 @@ hero_h: 900
         </header>
 
         <div class="finch-screen__body finch-homeui">
-          <!-- Activity (short) -->
-          <section class="finch-activity" aria-label="System activity">
-            <p class="finch-activity__line"><span class="finch-activity__k">LOCK</span> time ..................... <span class="finch-activity__ok">10:22</span></p>
-            <p class="finch-activity__line"><span class="finch-activity__k">DRIFT</span> +0.22% .................... <span class="finch-activity__ok">STABLE</span></p>
-            <p class="finch-activity__line"><span class="finch-activity__k">LINK</span> carrier .................. <span class="finch-activity__warn">PARTIAL</span></p>
+          {%- if feat -%}
+            <!-- Active transmission (priority) -->
+            <section class="finch-active" aria-label="Active transmission">
+              <p class="finch-active__meta">
+                <span class="finch-active__pill">ACTIVE</span>
+                <span class="finch-screen__sep" aria-hidden="true">·</span>
+                <span class="finch-active__id">{{ feat.log_id | default: 'LOG' }}</span>
+                <span class="finch-screen__sep" aria-hidden="true">·</span>
+                <span class="finch-active__date">{{ feat.date | date: "%Y-%m-%d" }}</span>
+              </p>
+
+              <h1 class="finch-active__title">
+                <a href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
+              </h1>
+
+              <p class="finch-active__excerpt">
+                {{ feat.content | strip_html | strip_newlines | truncate: 140 }}
+              </p>
+            </section>
+
+            <!-- Two actions only (always visible) -->
+            <nav class="finch-homeui__actions" aria-label="Primary actions">
+              <a class="finch-screen__btn" href="{{ feat.url | relative_url }}">READ LATEST</a>
+              <a class="finch-screen__btn finch-screen__btn--ghost" href="{{ '/logs/' | relative_url }}">READ ALL</a>
+            </nav>
+
+          {%- else -%}
+            <section class="finch-active" aria-label="Archive status">
+              <h1 class="finch-active__title"><a href="{{ '/logs/' | relative_url }}">No transmissions available</a></h1>
+              <p class="finch-active__excerpt">The archive index is available.</p>
+            </section>
+
+            <nav class="finch-homeui__actions" aria-label="Primary actions">
+              <a class="finch-screen__btn" href="{{ '/logs/' | relative_url }}">READ ALL</a>
+            </nav>
+          {%- endif -%}
+
+          <!-- Activity (secondary flavor) -->
+          <section class="finch-activity finch-activity--secondary" aria-label="System activity">
+            <p class="finch-activity__line"><span class="finch-activity__k">LOCK</span> time ............. <span class="finch-activity__ok">10:22</span></p>
+            <p class="finch-activity__line"><span class="finch-activity__k">DRIFT</span> +0.22% .......... <span class="finch-activity__ok">STABLE</span></p>
 
             <div class="finch-wave" aria-hidden="true">
               <span class="finch-wave__bar"></span>
             </div>
           </section>
 
-          <!-- Active transmission (compact) -->
-          {%- if feat -%}
-          <section class="finch-active" aria-label="Active transmission">
-            <p class="finch-active__meta">
-              <span class="finch-active__pill">ACTIVE</span>
-              <span class="finch-screen__sep" aria-hidden="true">·</span>
-              <span class="finch-active__id">{{ feat.log_id | default: 'LOG' }}</span>
-              <span class="finch-screen__sep" aria-hidden="true">·</span>
-              <span class="finch-active__date">{{ feat.date | date: "%Y-%m-%d" }}</span>
-            </p>
-
-            <h1 class="finch-active__title">
-              <a href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
-            </h1>
-
-            <p class="finch-active__excerpt">
-              {{ feat.content | strip_html | strip_newlines | truncate: 140 }}
-            </p>
-          </section>
-          {%- endif -%}
-
-          <!-- Two actions only -->
-          <nav class="finch-homeui__actions" aria-label="Primary actions">
-            {%- if feat -%}
-              <a class="finch-screen__btn" href="{{ feat.url | relative_url }}">READ LATEST</a>
-            {%- else -%}
-              <a class="finch-screen__btn" href="{{ '/logs/' | relative_url }}">READ LATEST</a>
-            {%- endif -%}
-            <a class="finch-screen__btn finch-screen__btn--ghost" href="{{ '/logs/' | relative_url }}">READ ALL</a>
-          </nav>
+          <p class="finch-homeui__prompt" aria-hidden="true">
+            archive@finch:~$ <span class="finch-screen__cursor">▍</span>
+          </p>
         </div>
       </div>
     </div>
