@@ -101,29 +101,43 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
           </div>
 
           <!-- =========================
-               MOBILE UI (<=980 shown)
-               ========================= -->
-          <div class="finch-homeui__mobile" aria-label="Mobile terminal UI">
-            <div class="finch-homeui__top">
-              <p class="finch-active__meta">
-                <span class="finch-active__pill">ACTIVE</span>
-                <span class="finch-screen__sep" aria-hidden="true">·</span>
-                <span class="finch-active__id">{{ feat.log_id | default: 'LOG' }}</span>
-                <span class="finch-screen__sep" aria-hidden="true">·</span>
-                <span class="finch-active__date">{{ feat.date | date: "%Y-%m-%d" }}</span>
-              </p>
-          
-              <p class="finch-activity__line" style="margin:0 0 8px;">
-                <span class="finch-activity__k">LATEST</span>
-                <a class="finch-homeui__promptlink" href="{{ feat.url | relative_url }}">{{ feat.title | truncate: 34 }}</a>
-              </p>
-          
-              <p class="finch-activity__line" style="margin:0;">
-                <span class="finch-activity__k">LOCK</span> 10:22
-                <span class="finch-screen__sep" aria-hidden="true">·</span>
-                <span class="finch-activity__k">DRIFT</span> STABLE
-              </p>
-            </div>
+           MOBILE UI (<=980 shown)
+           ========================= -->
+      <div class="finch-homeui__mobile" aria-label="Mobile terminal UI">
+        <div class="finch-homeui__top">
+          <p class="finch-active__meta">
+            <span class="finch-active__pill">ACTIVE</span>
+            <span class="finch-screen__sep" aria-hidden="true">·</span>
+            <span class="finch-active__id">{{ feat.log_id | default: 'LOG' }}</span>
+            <span class="finch-screen__sep" aria-hidden="true">·</span>
+            <span class="finch-active__date">{{ feat.date | date: "%Y-%m-%d" }}</span>
+          </p>
+      
+          <p class="finch-activity__line finch-activity__line--mobile-latest">
+            <span class="finch-activity__k">LATEST</span>
+            <a class="finch-homeui__promptlink" href="{{ feat.url | relative_url }}">
+              {{ feat.title | truncate: 32 }}
+            </a>
+          </p>
+      
+          <p class="finch-activity__line finch-activity__line--mobile-status">
+            <span class="finch-activity__k">LOCK</span>
+            <span class="finch-activity__ok">10:22</span>
+            <span class="finch-screen__sep" aria-hidden="true">·</span>
+            <span class="finch-activity__k">DRIFT</span>
+            <span class="finch-activity__ok">STABLE</span>
+          </p>
+        </div>
+
+  <nav class="finch-homeui__actions" aria-label="Primary actions">
+    <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">READ LATEST</a>
+    <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
+  </nav>
+
+  <nav class="finch-homeui__actions" aria-label="Secondary actions">
+    <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/t/' | relative_url }}">TRANSMISSION LOOKUP</a>
+  </nav>
+</div>
 
   <nav class="finch-homeui__actions" aria-label="Primary actions" style="margin-top:10px;">
     <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">READ LATEST</a>
