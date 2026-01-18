@@ -2283,24 +2283,24 @@ html {
 }
 
 /* ======================================
-   20. Homepage: Photoreal CRT frame (CRT UI) — FIXED
+   20. Homepage: Photoreal CRT frame (CRT UI) — REFRESH
    Goals:
    - Screen overlay stays correctly constrained (no drift)
    - No horizontal scroll on mobile
-   - CRT is readable on phones without huge zoom-crop
-   - Mobile has a dedicated compact UI (no overflowing content)
+   - CRT is readable on phones (fills most of viewport width)
+   - Mobile UI fits (buttons always visible; no screen scrolling)
    ====================================== */
 
-/* Prevent accidental horizontal scrolling caused by wide CRT experiments */
+/* Safety: prevent accidental horizontal scrolling */
 html, body { overflow-x: hidden; }
 
+/* Desktop spacing: pull CRT closer to nav */
 .finch-home{
-  /* pull the monitor up a bit closer to the header on desktop */
-  margin-top: clamp(-36px, -2.6vw, -14px);
+  margin-top: clamp(-56px, -3.6vw, -22px);
   padding: clamp(6px, 1.2vw, 12px) 0 20px;
-  overflow-x: clip;
 }
 
+/* Frame wrapper */
 .finch-crtframe{
   position: relative;
   width: min(1200px, 100%);
@@ -2320,7 +2320,7 @@ html, body { overflow-x: hidden; }
   width: 100%;
   height: auto;
   user-select: none;
-  pointer-events: none; /* critical: taps go to overlay UI */
+  pointer-events: none; /* taps go to overlay UI */
 }
 
 .finch-crtframe__screen{
@@ -2337,21 +2337,43 @@ html, body { overflow-x: hidden; }
   box-shadow: inset 0 0 0 1px rgba(126,255,176,.12), inset 0 0 24px rgba(0,0,0,.55);
 }
 
-/* Inside “terminal” */
+/* Inside screen */
 .finch-screen.finch-screen--home{
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
+/* Reclaim vertical room + prevent inherited “big” typography */
+.finch-screen--home .finch-screen__header{
+  padding: 10px 12px 8px;
+}
+
 .finch-screen--home .finch-screen__body{
   flex: 1;
   min-height: 0;
-  padding: clamp(10px, 1.2vw, 16px);
+  padding: 12px;
   overflow: hidden; /* no scrolling within screen */
 }
 
-/* Desktop vs mobile UI panes (index.html must include both wrappers) */
+/* Make everything inside feel like a terminal (avoid huge H1 inheritance) */
+.finch-screen--home h1,
+.finch-screen--home h2,
+.finch-screen--home h3,
+.finch-screen--home p,
+.finch-screen--home pre{
+  margin: 0;
+}
+
+.finch-screen--home h1,
+.finch-screen--home h2,
+.finch-screen--home h3{
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Desktop vs mobile panes (index.html must include both wrappers) */
 .finch-homeui__desktop{ display: block; height: 100%; }
 .finch-homeui__mobile{ display: none; height: 100%; }
 
@@ -2380,6 +2402,18 @@ html, body { overflow-x: hidden; }
   border-color: rgba(255,255,255,.30);
 }
 
+/* Prompt link */
+.finch-homeui__promptlink{
+  color: rgba(255,120,120,.85);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,120,120,.35);
+}
+.finch-homeui__promptlink:hover,
+.finch-homeui__promptlink:focus-visible{
+  color: rgba(255,170,170,.95);
+  border-bottom-color: rgba(255,170,170,.55);
+}
+
 /* Oscilloscope */
 .finch-scope{
   margin-top: 10px;
@@ -2392,7 +2426,7 @@ html, body { overflow-x: hidden; }
 .finch-scope__svg{
   display: block;
   width: 100%;
-  height: 72px;
+  height: 68px;
 }
 .finch-scope__grid{
   fill: none;
@@ -2422,127 +2456,76 @@ html, body { overflow-x: hidden; }
   100%{ transform: translateX(740px); }
 }
 
-/* Prompt link */
-.finch-homeui__promptlink{
-  color: rgba(255,120,120,.85);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(255,120,120,.35);
-}
-.finch-homeui__promptlink:hover,
-.finch-homeui__promptlink:focus-visible{
-  color: rgba(255,170,170,.95);
-  border-bottom-color: rgba(255,170,170,.55);
-}
-
 /* ======================================
-   Responsive: make CRT readable on phones
-   Strategy:
-   - Keep CRT within viewport (no 142vw/162vw zoom)
-   - Give small side padding so it doesn’t touch edges
-   - Use the dedicated “mobile UI” inside the screen
+   Mobile: MAKE CRT BIGGER (no sideways scroll)
+   Key idea: break out of any parent container width, then pad in.
    ====================================== */
 
 @media (max-width: 980px){
+
+  /* Stop pulling upward on mobile */
   .finch-home{
     margin-top: 0;
-    padding-top: 10px;
+    padding-top: 8px;
+
+    /* Break out to full viewport width even if the layout has a max-width wrapper */
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+
+    /* Add a little side padding so CRT doesn’t touch edges */
+    padding-left: 12px;
+    padding-right: 12px;
   }
 
-  /* Slight inset so the CRT doesn’t touch screen edges */
+  /* CRT fills available width (with the padding above) */
   .finch-crtframe{
-    width: calc(100vw - 24px);
-    max-width: 760px;
+    width: 100%;
+    max-width: 920px;
   }
 
-  /* swap to minimal mobile UI */
+  /* Switch to mobile UI */
   .finch-homeui__desktop{ display: none; }
   .finch-homeui__mobile{ display: block; }
 
-  /* tighten inner padding slightly */
-  .finch-screen--home .finch-screen__body{
-    padding: 12px;
-  }
-
-  .finch-scope__svg{ height: 60px; }
-}
-
-@media (max-width: 420px){
-  .finch-crtframe{
-    width: calc(100vw - 18px);
-  }
-  .finch-scope__svg{ height: 54px; }
-}
-
-/* Reduce dead space above the CRT on desktop */
-@media (min-width: 981px){
-  .finch-home{ padding-top: 0; }
-}
-
-/* ======================================
-   HOTFIX: spacing + mobile CRT scale (no horizontal scroll)
-   Paste at bottom of style.css
-   ====================================== */
-
-/* 1) Pull CRT upward a bit more on desktop */
-@media (min-width: 981px){
-  .finch-home{
-    margin-top: clamp(-56px, -3.6vw, -22px);
-    padding-top: 0;
-  }
-}
-
-/* 2) Mobile: make CRT larger while staying within viewport (no sideways scroll) */
-@media (max-width: 980px){
-  .finch-home{
-    padding-top: 6px;
-  }
-
-  /* Bigger CRT, still inset a little */
-  .finch-crtframe{
-    width: min(96vw, 860px);
-  }
-
-  /* Slightly larger screen crop on mobile */
-  .finch-crtframe{
-    --screen-x: 18.9%;
-    --screen-y: 12.4%;
-    --screen-w: 62.0%;
-    --screen-h: 66.2%;
-  }
-
-  /* Tighten the header inside the CRT screen to reclaim vertical room */
-  .finch-screen__header{
+  /* Tighten header + text so buttons fit */
+  .finch-screen--home .finch-screen__header{
     padding: 8px 10px 6px;
   }
-
   .finch-screen__label,
   .finch-screen__meta,
-  .finch-screen__cond{
-    font-size: 0.70rem;
-  }
-  .finch-screen__clock{
-    font-size: 0.78rem;
-  }
+  .finch-screen__cond{ font-size: 0.70rem; }
+  .finch-screen__clock{ font-size: 0.78rem; }
 
-  /* Tighten body padding so buttons fit */
   .finch-screen--home .finch-screen__body{
     padding: 10px;
   }
 
-  /* Ensure mobile action buttons are visible + tappable */
-  .finch-homeui__actions{
+  /* Ensure the mobile card uses the full height and “pushes” actions into view */
+  .finch-mobilecard{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .finch-homeui__actions--mobile{
+    margin-top: auto; /* keeps buttons visible without overflow */
     gap: 8px;
   }
+
   .finch-screen__btn{
     min-height: 46px;
     font-size: 0.78rem;
     padding: 10px 12px;
   }
+
+  .finch-scope__svg{ height: 58px; }
 }
 
-/* Extra small phones: go a touch larger */
+/* Extra-small phones: a hair more width */
 @media (max-width: 420px){
-  .finch-crtframe{
-    width: 97vw;
+  .finch-home{
+    padding-left: 10px;
+    padding-right: 10px;
   }
+  .finch-scope__svg{ height: 54px; }
 }
