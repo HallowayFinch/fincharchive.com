@@ -39,9 +39,18 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
             <span class="finch-screen__cond">INCOMPLETE</span>
           </div>
 
-          <!-- Mobile header -->
+          <!-- Mobile header (single-line status bar) -->
           <div class="finch-screen__headline finch-screen__headline--mobile">
-            FINCHARCHIVE.COM
+            <span class="finch-mobile-brand">FINCHARCHIVE.COM</span>
+
+            {%- if feat -%}
+              <span class="finch-mobile-pill" aria-label="Status: New transmission">
+                <span class="finch-active__pill finch-active__pill--mobilehead">
+                  <span class="finch-led" aria-hidden="true"></span>
+                  NEW
+                </span>
+              </span>
+            {%- endif -%}
           </div>
         </header>
 
@@ -108,27 +117,19 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
                MOBILE UI (<=980 shown)
                ========================= -->
           <div class="finch-homeui__mobile" aria-label="Mobile terminal UI">
-  <!-- Corner status (mobile only) -->
-  <div class="finch-mobile-status" aria-label="Latest transmission status">
-    <span class="finch-active__pill finch-active__pill--corner">
-      <span class="finch-led" aria-hidden="true"></span>
-      NEW
-    </span>
-  </div>
+            <div class="finch-homeui__top">
+              <p class="finch-activity__line finch-activity__line--mobile-latest">
+                <a class="finch-homeui__promptlink" href="{{ feat.url | relative_url }}">
+                  {{ feat.title | truncate: 52 }}
+                </a>
+              </p>
+            </div>
 
-    <div class="finch-homeui__top">
-      <p class="finch-activity__line finch-activity__line--mobile-latest">
-        <a class="finch-homeui__promptlink" href="{{ feat.url | relative_url }}">
-          {{ feat.title | truncate: 48 }}
-        </a>
-      </p>
-    </div>
-  
-    <nav class="finch-homeui__actions" aria-label="Primary actions">
-      <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">READ LATEST</a>
-      <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
-    </nav>
-  </div>
+            <nav class="finch-homeui__actions" aria-label="Primary actions">
+              <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">READ LATEST</a>
+              <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
+            </nav>
+          </div>
 
           {%- else -%}
 
