@@ -2722,3 +2722,119 @@ html, body { overflow-x: hidden; }
 .finch-pager__card .finch-pager__meta{
   margin-top: auto;
 }
+
+/* =========================================================
+   Logs pager + Prev/Next cards (restore card styling)
+   Add at END of assets/css/style.css
+   ========================================================= */
+
+.finch-pager{
+  margin: 28px 0 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 640px){
+  .finch-pager{ grid-template-columns: 1fr; }
+}
+
+.finch-pager__card{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 16px 14px;
+  border-radius: 16px;
+  text-decoration: none;
+
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,.35),
+    0 18px 60px rgba(0,0,0,.30);
+}
+
+.finch-pager__card:hover,
+.finch-pager__card:focus-visible{
+  border-color: rgba(255,255,255,.16);
+  background: rgba(255,255,255,.06);
+}
+
+.finch-pager__dir{
+  font-size: 0.70rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(232,255,233,.62);
+}
+
+.finch-pager__title{
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  line-height: 1.25;
+  color: rgba(232,255,233,.92);
+}
+
+.finch-pager__meta{
+  margin-top: auto;
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  color: rgba(232,255,233,.70);
+}
+
+.finch-pager__dot{ opacity: .55; }
+
+.finch-pager__card--empty{
+  border: 1px dashed rgba(255,255,255,.08);
+  background: rgba(255,255,255,.02);
+  box-shadow: none;
+}
+
+/* Logs index list helpers (safe even if existing styles also apply) */
+.finch-logs__header{ margin: 12px 0 18px; }
+.finch-logs__title{ margin: 0 0 6px; }
+.finch-logs__sub{ margin: 0; opacity: .75; }
+
+/* Logs pagination (NEWER / OLDER) */
+.finch-page-nav{
+  margin: 18px 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.finch-page-nav__status{
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  opacity: .78;
+}
+
+.finch-page-nav__btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: 14px;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.05);
+  color: rgba(232,255,233,.90);
+}
+
+.finch-page-nav__btn:hover,
+.finch-page-nav__btn:focus-visible{
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.18);
+}
+
+.finch-page-nav__btn--disabled{
+  opacity: .35;
+}
