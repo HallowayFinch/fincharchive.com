@@ -1,13 +1,62 @@
 ---
-layout: logs
+layout: default
 title: Logs
-description: "Deeper into archive history"
+description: "Recovered notes from incomplete transmissions."
 permalink: /logs/
-page_num: 1
-per_page: 6
-pagination:
-  enabled: true
-  collection: logs
-  per_page: 6
-  permalink: /logs/page/:num/
 ---
+
+{%- assign EMPTY = '' | split: '' -%}
+{%- assign items = paginator.posts | default: EMPTY -%}
+{%- if items == EMPTY or items.size == 0 -%}
+  {%- assign items = site.logs | sort: "date" | reverse | default: EMPTY -%}
+{%- endif -%}
+
+<header class="finch-logs__header">
+  <h1 class="finch-logs__title">Logs</h1>
+  <p class="finch-logs__sub">Recovered notes from incomplete transmissions.</p>
+</header>
+
+{%- if items and items.size > 0 -%}
+  <div class="finch-logs__list" role="list">
+    {%- for log in items -%}
+      <article class="finch-logcard" role="listitem">
+        {%- if log.hero_image -%}
+          <a class="finch-logcard__thumb" href="{{ log.url | relative_url }}">
+            <img src="{{ log.hero_image }}" alt="" loading="lazy" decoding="async">
+          </a>
+        {%- endif -%}
+
+        <div class="finch-logcard__body">
+          <h2 class="finch-logcard__title">
+            <a href="{{ log.url | relative_url }}">{{ log.title }}</a>
+          </h2>
+
+          <p class="finch-logcard__meta">
+            {%- if log.log_id -%}<span class="finch-pill">{{ log.log_id }}</span>{%- endif -%}
+            {%- if log.date -%}<span class="finch-logcard__date">{{ log.date | date: "%Y-%m-%d" }}</span>{%- endif -%}
+          </p>
+        </div>
+      </article>
+    {%- endfor -%}
+  </div>
+
+  {%- if paginator and paginator.total_pages and paginator.total_pages > 1 -%}
+    <nav class="finch-page-nav" aria-label="Logs pagination">
+      {%- if paginator.previous_page -%}
+        <a class="finch-page-nav__btn" href="{{ paginator.previous_page_path | relative_url }}">NEWER →</a>
+      {%- else -%}
+        <span class="finch-page-nav__btn finch-page-nav__btn--disabled">NEWER →</span>
+      {%- endif -%}
+
+      <span class="finch-page-nav__status">Page {{ paginator.page }} of {{ paginator.total_pages }}</span>
+
+      {%- if paginator.next_page -%}
+        <a class="finch-page-nav__btn" href="{{ paginator.next_page_path | relative_url }}">OLDER →</a>
+      {%- else -%}
+        <span class="finch-page-nav__btn finch-page-nav__btn--disabled">OLDER →</span>
+      {%- endif -%}
+    </nav>
+  {%- endif -%}
+{%- else -%}
+  <p class="finch-activity__line"><span class="finch-activity__k">STATUS</span> NO TRANSMISSIONS</p>
+{%- endif -%}
