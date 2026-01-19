@@ -38,19 +38,20 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
             <span class="finch-screen__sep" aria-hidden="true">·</span>
             <span class="finch-screen__cond">INCOMPLETE</span>
           </div>
-
-          <!-- Mobile header (single-line status bar) -->
+        
+          <!-- Mobile header -->
           <div class="finch-screen__headline finch-screen__headline--mobile">
-            <span class="finch-mobile-brand">FINCHARCHIVE.COM</span>
-
-            {%- if feat -%}
-              <span class="finch-mobile-pill" aria-label="Status: New transmission">
-                <span class="finch-active__pill finch-active__pill--mobilehead">
-                  <span class="finch-led" aria-hidden="true"></span>
-                  NEW
-                </span>
-              </span>
-            {%- endif -%}
+            <div class="finch-mobilebar">
+              <span class="finch-mobilebar__title">FINCHARCHIVE.COM</span>
+              <!-- This pill is styled/positioned on mobile via CSS -->
+              <span class="finch-active__pill finch-active__pill--mobile">NEW</span>
+            </div>
+        
+            <div class="finch-mobilesignal" aria-label="Signal strength">
+              <span class="finch-mobilesignal__k">SIGNAL</span>
+              <span class="finch-mobilesignal__bar" aria-hidden="true">▓▓▓▓▓░</span>
+              <span class="finch-mobilesignal__pct">82%</span>
+            </div>
           </div>
         </header>
 
@@ -124,8 +125,8 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
                 </a>
               </p>
             </div>
-
-            <nav class="finch-homeui__actions" aria-label="Primary actions">
+          
+            <nav class="finch-homeui__actions finch-homeui__actions--mobile" aria-label="Primary actions">
               <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">READ LATEST</a>
               <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
             </nav>
