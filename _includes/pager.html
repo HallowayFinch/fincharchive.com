@@ -1,35 +1,45 @@
-{%- comment -%}
-Simple older/newer pager.
-Params:
-  current – current page number (required)
-  total   – total pages (required)
-{%- endcomment -%}
-
-{%- assign current = include.current | plus: 0 -%}
-{%- assign total   = include.total   | plus: 0 -%}
+<!-- _includes/pager.html -->
+{%- assign current = include.current | default: 1 | plus: 0 -%}
+{%- assign total   = include.total   | default: 1 | plus: 0 -%}
 
 {%- if total > 1 -%}
-  <nav class="pager" aria-label="Pagination">
-    <div class="pager-inner">
-      {%- assign prev = current | minus: 1 -%}
-      {%- assign next = current | plus: 1  -%}
+  {%- assign prev_page = current | minus: 1 -%}
+  {%- assign next_page = current | plus: 1 -%}
 
-      {%- if prev >= 1 -%}
-        {%- if prev == 1 -%}
-          <a class="pager-link pager-prev" href="{{ '/logs/' | relative_url }}" rel="prev">← Newer Logs</a>
-        {%- else -%}
-          <a class="pager-link pager-prev" href="{{ '/logs/page/' | append: prev | append: '/' | relative_url }}" rel="prev">← Newer Logs</a>
-        {%- endif -%}
-      {%- else -%}
-        <span class="pager-link is-disabled" aria-disabled="true">← Newer Logs</span>
+  {%- capture _prev_url -%}
+    {%- if prev_page == 1 -%}
+      {{ '/logs/' | relative_url }}
+    {%- else -%}
+      {{ '/logs/page/' | append: prev_page | append: '/' | relative_url }}
+    {%- endif -%}
+  {%- endcapture -%}
+  {%- assign prev_url = _prev_url | strip -%}
+
+  {%- capture _next_url -%}
+    {{ '/logs/page/' | append: next_page | append: '/' | relative_url }}
+  {%- endcapture -%}
+  {%- assign next_url = _next_url | strip -%}
+
+  <nav class="finch-pager" aria-label="Logs pagination">
+    <div class="finch-pager__grid" role="list">
+      {%- if current > 1 -%}
+        <div class="finch-pager__card finch-pager__card--prev" role="listitem">
+          <a href="{{ prev_url }}" aria-label="Newer logs (page {{ prev_page }})">
+            <div class="finch-pager__dir">← NEWER</div>
+            <div class="finch-pager__title">Page {{ prev_page }}</div>
+            <div class="finch-pager__meta">Toward latest transmissions</div>
+          </a>
+        </div>
       {%- endif -%}
 
-      <span class="pager-status">Page {{ current }} of {{ total }}</span>
-
-      {%- if next <= total -%}
-        <a class="pager-link pager-next" href="{{ '/logs/page/' | append: next | append: '/' | relative_url }}" rel="next">Older Logs →</a>
-      {%- else -%}
-        <span class="pager-link is-disabled" aria-disabled="true">Older Logs →</span>
+      {%- if current < total -%}
+        <div class="finch-pager__card finch-pager__card--next" role="listitem">
+          <a href="{{ next_url }}" aria-label="Older logs (page {{ next_page }})">
+            <div class="finch-pager__dir">OLDER →</div>
+            <div class="finch-pager__title">Page {{ next_page }}</div>
+            <div class="finch-pager__meta">Deeper into archive history</div>
+          </a>
+        </div>
       {%- endif -%}
     </div>
   </nav>
