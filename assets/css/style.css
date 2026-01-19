@@ -2288,9 +2288,9 @@ html {
    - Screen overlay stays correctly constrained (no drift)
    - No horizontal scroll on mobile
    - CRT uses the viewport on mobile (not the container width)
-   - Mobile has a dedicated compact UI (buttons always visible)
+   - Mobile has a dedicated compact UI
    - Mobile header: line 1 = FINCHARCHIVE.COM + pill (top-right)
-                  line 2 = SIGNAL + breathing bar + %
+   - Mobile header: line 2 = SIGNAL + animated bar + %
    ====================================== */
 
 /* Prevent accidental horizontal scrolling */
@@ -2557,13 +2557,9 @@ html, body { overflow-x: hidden; }
     line-height: 1.30;
   }
 
-  /* =========
-     MOBILE HEADER (two lines)
-     ========= */
+  /* ========= MOBILE HEADER (two lines) ========= */
   .finch-screen__headline--desktop{ display: none; }
-  .finch-screen__headline--mobile{
-    display: block;            /* IMPORTANT: ensures SIGNAL goes to next line */
-  }
+  .finch-screen__headline--mobile{ display: block; } /* crucial: SIGNAL becomes line 2 */
 
   .finch-mobilebar{
     display: flex;
@@ -2581,7 +2577,7 @@ html, body { overflow-x: hidden; }
     letter-spacing: 0.06em;
   }
 
-  /* Make the pill compact + add a blinking LED dot (no extra HTML needed) */
+  /* Pill: compact, with a steady LED dot (NO blinking) */
   .finch-active__pill--mobile{
     padding: 3px 9px;
     font-size: 0.68rem;
@@ -2596,18 +2592,11 @@ html, body { overflow-x: hidden; }
     background: rgba(126,255,176,.92);
     box-shadow: 0 0 10px rgba(126,255,176,.35), 0 0 2px rgba(126,255,176,.55);
     margin-right: 8px;
-    animation: finchLedBlink 1.35s steps(1,end) infinite;
   }
 
-  @keyframes finchLedBlink{
-    0%, 78% { opacity: .15; }
-    79%, 86% { opacity: 1; }
-    87%, 100% { opacity: .25; }
-  }
-
-  /* SIGNAL line: CSS-drawn segmented bar (avoids ▓ glyph issues) */
+  /* SIGNAL line: segmented bar that fluctuates horizontally (no breathing glow) */
   .finch-mobilesignal{
-    --sig: 0.82; /* set "82%" as a normalized 0..1 value */
+    --sig: 0.82; /* base signal as 0..1 */
     display: flex;
     align-items: center;
     gap: 8px;
@@ -2618,12 +2607,11 @@ html, body { overflow-x: hidden; }
     white-space: nowrap;
   }
 
-  .finch-mobilesignal__k{
-    color: rgba(232,255,233,0.62);
-  }
+  .finch-mobilesignal__k{ color: rgba(232,255,233,0.62); }
 
-  /* We ignore the text content inside this span; we draw the bar with ::before/::after */
+  /* IMPORTANT: must be inline-block or width/height won't apply */
   .finch-mobilesignal__bar{
+    display: inline-block;
     position: relative;
     width: 54px;
     height: 10px;
@@ -2632,18 +2620,22 @@ html, body { overflow-x: hidden; }
     border: 1px solid rgba(126,255,176,.22);
     background: rgba(0,0,0,.25);
     box-shadow: inset 0 0 0 1px rgba(0,0,0,.35);
+
+    /* hide the fallback glyph text while keeping it in markup */
+    font-size: 0;
+    line-height: 0;
+    color: transparent;
   }
 
-  /* Fill + breathing */
+  /* Fill fluctuates a little around --sig (horizontal change) */
   .finch-mobilesignal__bar::before{
     content: "";
     position: absolute;
     inset: 0;
     transform-origin: left center;
-    transform: scaleX(var(--sig));
     background: rgba(126,255,176,.55);
     box-shadow: 0 0 10px rgba(126,255,176,.18);
-    animation: finchSignalBreathe 2.6s ease-in-out infinite;
+    animation: finchSignalFluctuate 2.8s ease-in-out infinite;
   }
 
   /* Segment dividers */
@@ -2651,43 +2643,35 @@ html, body { overflow-x: hidden; }
     content: "";
     position: absolute;
     inset: 0;
-    background:
-      repeating-linear-gradient(
-        to right,
-        rgba(0,0,0,0) 0,
-        rgba(0,0,0,0) 8px,
-        rgba(0,0,0,.55) 8px,
-        rgba(0,0,0,.55) 9px
-      );
+    background: repeating-linear-gradient(
+      to right,
+      rgba(0,0,0,0) 0,
+      rgba(0,0,0,0) 8px,
+      rgba(0,0,0,.55) 8px,
+      rgba(0,0,0,.55) 9px
+    );
     opacity: .55;
     pointer-events: none;
   }
 
-  @keyframes finchSignalBreathe{
-    0%, 100%{
-      opacity: .62;
-      filter: saturate(0.95);
-    }
-    50%{
-      opacity: 1;
-      filter: saturate(1.15);
-    }
+  /* Fluctuate around 82% by ~±6% (tweak if you want) */
+  @keyframes finchSignalFluctuate{
+    0%   { transform: scaleX(calc(var(--sig) - 0.06)); opacity: .85; }
+    22%  { transform: scaleX(calc(var(--sig) + 0.02)); opacity: 1; }
+    50%  { transform: scaleX(calc(var(--sig) + 0.06)); opacity: .95; }
+    78%  { transform: scaleX(calc(var(--sig) - 0.01)); opacity: 1; }
+    100% { transform: scaleX(calc(var(--sig) - 0.06)); opacity: .88; }
   }
 
-  .finch-mobilesignal__pct{
-    color: rgba(126,255,176,.92);
-  }
+  .finch-mobilesignal__pct{ color: rgba(126,255,176,.92); }
 
-  /* =========
-     MOBILE CONTENT SPACING
-     ========= */
-
+  /* ========= MOBILE CONTENT SPACING ========= */
   /* Add a touch more space between the log title link and the buttons */
   .finch-activity__line--mobile-latest{
-    margin: 12px 0 10px; /* top | bottom */
+    margin: 12px 0 12px; /* top | bottom */
   }
 
-  /* Mobile actions: keep two across, but tighter */
+  /* Mobile actions: two across, compact */
   .finch-homeui__actions--mobile{
     display: grid;
     grid-template-columns: 1fr 1fr;
