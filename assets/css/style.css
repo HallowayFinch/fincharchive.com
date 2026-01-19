@@ -1554,3 +1554,22 @@ html, body { overflow-x: hidden; }
   .finch-screen__headline--desktop{ display: block; }
   .finch-screen__headline--mobile{ display: none; }
 }
+
+/* =========================================================
+   Desktop CRT sizing override (homepage)
+   Paste at END of assets/css/style.css
+   ========================================================= */
+
+/* Let the homepage CRT break out of the site container on desktop */
+@media (min-width: 981px){
+  .finch-home{
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+  }
+
+  /* Increase CRT max width (was --crt-max: 1400px in the base rules) */
+  .finch-crtframe{
+    --crt-max: 1680px; /* try 1600–1800 */
+  }
+}
