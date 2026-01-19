@@ -1,46 +1,47 @@
+<!-- _layouts/log.html -->
 ---
 layout: default
 ---
 
 <article class="finch-log" aria-label="Recovered log">
-  <header class="finch-log__header">
+  <header class="finch-log__head">
     <h1 class="finch-log__title">{{ page.title }}</h1>
 
     <p class="finch-log__meta">
       {%- if page.log_id -%}
         <span class="finch-log__id">{{ page.log_id }}</span>
-        <span class="finch-log__dot" aria-hidden="true">•</span>
+        <span class="finch-log__dot" aria-hidden="true">·</span>
       {%- endif -%}
 
       <time datetime="{{ page.date | date_to_xmlschema }}">
-        {{ page.date | date: "%A, %B %-d, %Y" }}
+        {{ page.date | date: "%Y-%m-%d" }}
       </time>
 
-      <span class="finch-log__dot" aria-hidden="true">•</span>
-      <span class="finch-log__time">{{ page.date | date: "%-I:%M %p %Z" }}</span>
+      <span class="finch-log__dot" aria-hidden="true">·</span>
+
+      <span class="finch-log__time">
+        {{ page.date | date: "%-I:%M %p %Z" }}
+      </span>
 
       {%- if page.source_url -%}
-        <span class="finch-log__dot" aria-hidden="true">•</span>
-        <a class="finch-log__source" href="{{ page.source_url }}" target="_blank" rel="noopener">
-          Source
-        </a>
+        <span class="finch-log__dot" aria-hidden="true">·</span>
+        <a class="finch-log__source" href="{{ page.source_url }}" target="_blank" rel="noopener">Source</a>
       {%- endif -%}
     </p>
+
+    {%- if page.hero_image -%}
+      <figure class="finch-log__hero">
+        <img
+          src="{{ page.hero_image }}"
+          alt="{{ page.title }}"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+    {%- endif -%}
   </header>
 
-  {%- if page.hero_image -%}
-    <figure class="finch-log__hero">
-      <img
-        class="finch-log__heroimg"
-        src="{{ page.hero_image }}"
-        alt=""
-        loading="lazy"
-        decoding="async"
-      />
-    </figure>
-  {%- endif -%}
-
-  <div class="finch-log__content">
+  <div class="finch-log__body">
     {{ content }}
   </div>
 
