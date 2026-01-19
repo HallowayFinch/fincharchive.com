@@ -2727,6 +2727,58 @@ html, body { overflow-x: hidden; }
   }
 }
 
+  /* ---------------------------------------------------
+     Mobile: move pill to top-right of the CRT glass
+     + tiny blinking LED for motion (mobile only)
+     --------------------------------------------------- */
+
+  /* Create a positioning context inside the mobile UI */
+  .finch-homeui__mobile{
+    position: relative;
+  }
+
+  /* Corner pill container */
+  .finch-mobile-status{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 5;
+    pointer-events: none; /* don’t block taps */
+  }
+
+  /* Corner pill styling */
+  .finch-active__pill--corner{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 10px;
+    font-size: 0.70rem;
+    letter-spacing: 0.14em;
+  }
+
+  /* Make room so the title/link doesn't collide with the corner pill */
+  .finch-homeui__mobile .finch-homeui__top{
+    padding-top: 22px;
+  }
+
+  /* Tiny LED blink */
+  .finch-led{
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(126,255,176,.92);
+    box-shadow:
+      0 0 10px rgba(126,255,176,.35),
+      0 0 2px rgba(126,255,176,.55);
+    animation: finchLedBlink 1.35s steps(1,end) infinite;
+  }
+
+  @keyframes finchLedBlink{
+    0%, 78% { opacity: .15; }
+    79%, 86% { opacity: 1; }
+    87%, 100% { opacity: .25; }
+  }
+
 /* Desktop: ensure desktop header shows as before */
 @media (min-width: 981px) {
   .finch-screen__headline--desktop { display: block; }
