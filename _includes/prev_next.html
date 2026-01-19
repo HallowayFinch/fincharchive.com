@@ -1,32 +1,25 @@
-{%- comment -%} _includes/prev_next.html {%- endcomment -%}
-
+<!-- _includes/prev_next.html -->
 {%- assign prev = page.previous -%}
 {%- assign next = page.next -%}
 
 {%- if prev or next -%}
-<nav class="prev_next" aria-label="Previous and next log navigation">
-  <div class="nav-cards">
-    {%- if prev -%}
-      <a class="tile" href="{{ prev.url | relative_url }}">
-        <small>Previous</small>
-        <div class="title">{{ prev.title }}</div>
-        <div class="meta">
-          {%- if prev.log_id -%}<span class="badge">{{ prev.log_id }}</span>{%- endif -%}
-          <span>{{ prev.date | date: "%Y-%m-%d" }}</span>
-        </div>
-      </a>
-    {%- endif -%}
+<nav class="finch-pager" aria-label="Previous and next logs">
+  {%- if prev -%}
+    <a class="finch-pager__card finch-pager__card--prev" href="{{ prev.url | relative_url }}">
+      <span class="finch-pager__dir">Previous</span>
+      <span class="finch-pager__title">{{ prev.title }}</span>
+      <span class="finch-pager__pill">{{ prev.log_id | default: "LOG" }}</span>
+      <span class="finch-pager__date">{{ prev.date | date: "%Y-%m-%d" }}</span>
+    </a>
+  {%- endif -%}
 
-    {%- if next -%}
-      <a class="tile" href="{{ next.url | relative_url }}">
-        <small>Next</small>
-        <div class="title">{{ next.title }}</div>
-        <div class="meta">
-          {%- if next.log_id -%}<span class="badge">{{ next.log_id }}</span>{%- endif -%}
-          <span>{{ next.date | date: "%Y-%m-%d" }}</span>
-        </div>
-      </a>
-    {%- endif -%}
-  </div>
+  {%- if next -%}
+    <a class="finch-pager__card finch-pager__card--next" href="{{ next.url | relative_url }}">
+      <span class="finch-pager__dir">Next</span>
+      <span class="finch-pager__title">{{ next.title }}</span>
+      <span class="finch-pager__pill">{{ next.log_id | default: "LOG" }}</span>
+      <span class="finch-pager__date">{{ next.date | date: "%Y-%m-%d" }}</span>
+    </a>
+  {%- endif -%}
 </nav>
 {%- endif -%}
