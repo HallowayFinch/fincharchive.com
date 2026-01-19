@@ -5,16 +5,104 @@ layout: null
 <!doctype html>
 <html lang="en">
   <head>
-    {%- include head.html -%}
+    {%- comment -%}
+    Core <head> includes:
+    - head.html → meta, title, canonical, etc.
+    - social-meta.html → OpenGraph/Twitter cards
+    {%- endcomment -%}
+    {% include head.html %}
+    {% include social-meta.html %}
+
+    {%- comment -%}
+    CSS
+    - Preload the stylesheet first (hint to browser)
+    - Then include the actual stylesheet with a simple cache-busting query
+    {%- endcomment -%}
+    <link
+      rel="preload"
+      href="{{ '/assets/css/style.css' | relative_url }}"
+      as="style"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ '/assets/css/style.css' | relative_url }}?v={{ site.time | date: '%s' }}"
+    />
+
+    {%- comment -%}
+    Font preconnects (kept minimal)
+    {%- endcomment -%}
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   </head>
 
   <body>
-    {%- include header.html -%}
+    {%- comment -%}
+    Inline SVG symbol sprite
+    - Shared icons only; individual <use> references handle labelling
+    - Marked aria-hidden + focusable="false" so they don't appear in a11y tree
+    {%- endcomment -%}
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      style="position:absolute;width:0;height:0;overflow:hidden"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <symbol id="icon-external" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42 9.3-9.29H14V3z"/>
+        <path fill="currentColor" d="M5 5h7v2H7v10h10v-5h2v7H5z"/>
+      </symbol>
+      <symbol id="icon-share" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M18 8a3 3 0 1 0-2.83-4A3 3 0 0 0 18 8Zm0 8a3 3 0 1 0 3 3a3 3 0 0 0-3-3ZM6 10a3 3 0 1 0-3-3a3 3 0 0 0 3 3Zm2.1-2.4 7.3 3.65m-7.3 1.5 7.3 3.65"
+              stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+    </svg>
 
-    <main id="main-content">
+    {%- comment -%}
+    Skip link
+    - Target is #main (the primary content landmark below)
+    {%- endcomment -%}
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    {% include header.html %}
+
+    {%- comment -%}
+    Primary content landmark
+    - Child layouts should NOT introduce another <main>.
+    - Instead, they should wrap content in <section> / <div> inside this.
+    - .container is applied here by default for consistent width.
+    {%- endcomment -%}
+    <main id="main" class="container" role="main">
       {{ content }}
     </main>
 
-    {%- include footer.html -%}
+    {% include footer.html %}
+
+    {%- comment -%}
+    Theme toggle logic
+    - Reads/writes localStorage key: "fa-theme"
+    - Applies data-theme="dark"/"light" on <html> (root)
+    - Keeps ARIA pressed state in sync for the toggle button
+    {%- endcomment -%}
+    <script>
+      (function () {
+        const key = 'fa-theme';
+        const root = document.documentElement;
+        const btn = document.getElementById('theme-toggle');
+        if (!btn) return;
+
+        const saved = localStorage.getItem(key);
+        const initial = (saved === 'light' || saved === 'dark') ? saved : 'dark';
+
+        root.dataset.theme = initial;
+        btn.setAttribute('aria-pressed', String(initial === 'dark'));
+
+        btn.addEventListener('click', () => {
+          const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+          root.dataset.theme = next;
+          localStorage.setItem(key, next);
+          btn.setAttribute('aria-pressed', String(next === 'dark'));
+        });
+      })();
+    </script>
   </body>
 </html>

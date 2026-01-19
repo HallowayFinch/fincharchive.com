@@ -1,54 +1,59 @@
-{%- assign EMPTY = '' | split: '' -%}
-{%- assign logs = site.logs | sort: "date" | reverse | default: EMPTY -%}
-{%- assign current_url = page.url -%}
+<!-- _includes/prev_next.html -->
+{%- comment -%}
+Prev/Next navigation for single entries in a collection.
+Now ensures equal card sizing for “None” placeholders.
+{%- endcomment -%}
 
-{%- assign idx = nil -%}
-{%- for d in logs -%}
-  {%- if d.url == current_url -%}
-    {%- assign idx = forloop.index0 -%}
+{%- assign coll = site[page.collection] | sort: "date" -%}
+{%- assign current_index = nil -%}
+{%- for doc in coll -%}
+  {%- if doc.id == page.id -%}
+    {%- assign current_index = forloop.index0 -%}
+    {%- break -%}
   {%- endif -%}
 {%- endfor -%}
 
-{%- if idx != nil -%}
-  {%- assign prev_i = idx | plus: 1 -%} {# older #}
-  {%- assign next_i = idx | minus: 1 -%} {# newer #}
-
-  {%- assign prev_doc = nil -%}
-  {%- assign next_doc = nil -%}
-
-  {%- if prev_i >= 0 and prev_i < logs.size -%}
-    {%- assign prev_doc = logs[prev_i] -%}
+{%- if current_index != nil -%}
+  {%- assign prev_i = current_index | minus: 1 -%}
+  {%- assign next_i = current_index | plus: 1 -%}
+  {%- if prev_i >= 0 -%}
+    {%- assign prev_doc = coll[prev_i] -%}
+  {%- endif -%}
+  {%- if next_i < coll.size -%}
+    {%- assign next_doc = coll[next_i] -%}
   {%- endif -%}
 
-  {%- if next_i >= 0 and next_i < logs.size -%}
-    {%- assign next_doc = logs[next_i] -%}
-  {%- endif -%}
+  <nav class="pager" aria-label="Post navigation">
+    <div class="nav-cards nav-cards--pager" role="list">
+      <!-- Previous -->
+      <div class="pager-item" role="listitem">
+        {%- if prev_doc -%}
+          <a class="pager-link pager-prev" href="{{ prev_doc.url | relative_url }}">
+            <small class="pager-kicker" aria-hidden="true">← Previous</small>
+            <span class="pager-title">{{ prev_doc.title }}</span>
+          </a>
+        {%- else -%}
+          <span class="pager-link pager-prev is-disabled" aria-disabled="true">
+            <small class="pager-kicker">← Previous</small>
+            <span class="pager-title">None</span>
+          </span>
+        {%- endif -%}
+      </div>
 
-  <nav class="finch-pager finch-pager--log" aria-label="Previous and next logs">
-    {%- if prev_doc -%}
-      <a class="finch-pager__card finch-pager__card--prev" href="{{ prev_doc.url | relative_url }}">
-        <span class="finch-pager__dir">Previous</span>
-        <span class="finch-pager__title">{{ prev_doc.title }}</span>
-        <span class="finch-pager__meta">
-          {%- if prev_doc.log_id -%}<span class="finch-pill">{{ prev_doc.log_id }}</span>{%- endif -%}
-          {%- if prev_doc.date -%}<span class="finch-pager__date">{{ prev_doc.date | date: "%Y-%m-%d" }}</span>{%- endif -%}
-        </span>
-      </a>
-    {%- else -%}
-      <div class="finch-pager__card finch-pager__card--empty" aria-hidden="true"></div>
-    {%- endif -%}
-
-    {%- if next_doc -%}
-      <a class="finch-pager__card finch-pager__card--next" href="{{ next_doc.url | relative_url }}">
-        <span class="finch-pager__dir">Next</span>
-        <span class="finch-pager__title">{{ next_doc.title }}</span>
-        <span class="finch-pager__meta">
-          {%- if next_doc.log_id -%}<span class="finch-pill">{{ next_doc.log_id }}</span>{%- endif -%}
-          {%- if next_doc.date -%}<span class="finch-pager__date">{{ next_doc.date | date: "%Y-%m-%d" }}</span>{%- endif -%}
-        </span>
-      </a>
-    {%- else -%}
-      <div class="finch-pager__card finch-pager__card--empty" aria-hidden="true"></div>
-    {%- endif -%}
+      <!-- Next -->
+      <div class="pager-item" role="listitem">
+        {%- if next_doc -%}
+          <a class="pager-link pager-next" href="{{ next_doc.url | relative_url }}">
+            <small class="pager-kicker" aria-hidden="true">Next →</small>
+            <span class="pager-title">{{ next_doc.title }}</span>
+          </a>
+        {%- else -%}
+          <span class="pager-link pager-next is-disabled" aria-disabled="true">
+            <small class="pager-kicker">Next →</small>
+            <span class="pager-title">None</span>
+          </span>
+        {%- endif -%}
+      </div>
+    </div>
   </nav>
 {%- endif -%}
