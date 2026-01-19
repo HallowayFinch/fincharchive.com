@@ -2283,14 +2283,13 @@ html {
 }
 
 /* ======================================
-   20. Homepage: Photoreal CRT frame (CRT UI) — CLEAN + MERGED (vNext)
+   20. Homepage: Photoreal CRT frame (CRT UI) — CLEAN + MERGED
    Goals:
    - Screen overlay stays correctly constrained (no drift)
    - No horizontal scroll on mobile
    - CRT uses the viewport on mobile (not the container width)
    - Mobile has a dedicated compact UI (buttons always visible)
-   - Mobile: header pill on same line as FINCHARCHIVE.COM
-   - Mobile: SIGNAL bar “breathes” + tiny LED blink
+   - Mobile header supports: Brand + NEW pill + SIGNAL bar (breathing)
    ====================================== */
 
 /* Prevent accidental horizontal scrolling */
@@ -2406,6 +2405,16 @@ html, body { overflow-x: hidden; }
   text-transform: uppercase;
 }
 
+/* Default LED (desktop/general) – safe if reused elsewhere */
+.finch-led{
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+  background: rgba(160, 210, 255, 0.95);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.55) inset, 0 0 12px rgba(160,210,255,0.35);
+}
+
 .finch-active__title{
   margin: 0 0 8px;
   font-size: clamp(1.0rem, 1.8vw, 1.28rem);
@@ -2497,9 +2506,11 @@ html, body { overflow-x: hidden; }
   border-bottom-color: rgba(255,170,170,.55);
 }
 
-/* ==========================================================
-   MOBILE CRT LAYOUT — single source of truth (mobile only)
-   ========================================================== */
+
+/* =====================================================================
+   MOBILE CRT LAYOUT — single source of truth
+   (Restored so you can search for this block again.)
+   ===================================================================== */
 @media (max-width: 980px){
   /* overall vertical spacing (mobile only) */
   .finch-home{
@@ -2507,12 +2518,12 @@ html, body { overflow-x: hidden; }
     margin-left: calc(50% - 50vw);
     margin-right: calc(50% - 50vw);
     margin-top: 0;
-    padding: 12px 0 18px;
+    padding: 10px 0 18px;
   }
 
   /* CRT: slightly wider than viewport, truly centered */
   .finch-crtframe{
-    width: 120vw;               /* you like this size */
+    width: 120vw;
     max-width: none;
     box-sizing: border-box;
 
@@ -2520,16 +2531,12 @@ html, body { overflow-x: hidden; }
     left: 50%;
     transform: translateX(-50%);
     margin: 0;
-
-    /* tweak if we need a tiny alignment change later */
-    --mobile-screen-nudge: 15%;
   }
 
   .finch-crtframe__img{
     width: 100%;
     height: auto;
     display: block;
-    max-width: none;
   }
 
   /* Screen region: align to CRT glass */
@@ -2544,6 +2551,7 @@ html, body { overflow-x: hidden; }
     -webkit-mask-image: -webkit-radial-gradient(white, black);
 
     /* nudge right to sit inside the glass */
+    --mobile-screen-nudge: 15%;
     transform: translateX(var(--mobile-screen-nudge));
   }
 
@@ -2551,113 +2559,121 @@ html, body { overflow-x: hidden; }
   .finch-homeui__desktop{ display: none; }
   .finch-homeui__mobile{ display: block; }
 
-  /* tighten mobile typography / padding */
+  /* tighten mobile content */
   .finch-screen--home{
     padding: 8px 9px 10px;
     font-size: 0.86rem;
     line-height: 1.30;
   }
 
-  /* Mobile header: brand left, pill right (same line) */
+  /* Header variants: show mobile header, hide desktop header */
+  .finch-screen__headline--desktop{ display: none; }
   .finch-screen__headline--mobile{
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-
     white-space: nowrap;
     overflow: hidden;
   }
-  .finch-screen__headline--desktop{ display: none; }
 
+  /* If your HTML uses these wrappers, this will layout perfectly:
+     <span class="finch-mobile-brand">FINCHARCHIVE.COM</span>
+     <span class="finch-mobile-right"> ... </span>
+  */
   .finch-mobile-brand{
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     letter-spacing: 0.06em;
   }
-
-  .finch-mobile-pill{
+  .finch-mobile-right{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
     flex: 0 0 auto;
   }
 
-  /* make the pill slightly more compact for header */
+  /* Pill in header (more compact) */
   .finch-active__pill--mobilehead{
-    gap: 8px;
     padding: 3px 9px;
     font-size: 0.68rem;
     letter-spacing: 0.14em;
   }
 
-  /* tiny LED blink (mobile only) */
-  .finch-led{
+  /* Mobile LED: green + BLINK (overrides the default blue LED above) */
+  .finch-active__pill--mobilehead .finch-led{
     width: 6px;
     height: 6px;
-    border-radius: 999px;
     background: rgba(126,255,176,.92);
     box-shadow: 0 0 10px rgba(126,255,176,.35), 0 0 2px rgba(126,255,176,.55);
     animation: finchLedBlink 1.35s steps(1,end) infinite;
   }
-
   @keyframes finchLedBlink{
-    0%, 78% { opacity: .15; }
-    79%, 86% { opacity: 1; }
+    0%, 76% { opacity: .18; }
+    77%, 86% { opacity: 1; }
     87%, 100% { opacity: .25; }
   }
 
-  /* SIGNAL bar (mobile only) — “breathing” */
+  /* SIGNAL bar (mobile only) */
   .finch-signal{
-    margin: 6px 0 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    color: rgba(232,255,233,0.72);
-  }
-  .finch-signal__label{
-    color: rgba(232,255,233,0.62);
-  }
-  .finch-signal__bar{
     display: inline-flex;
     align-items: center;
-    padding: 2px 8px;
-    border-radius: 999px;
-    border: 1px solid rgba(126,255,176,.22);
-    background: rgba(0,0,0,.22);
-    color: rgba(126,255,176,.92);
-
-    animation: finchSignalBreathe 2.6s ease-in-out infinite;
-    box-shadow: 0 0 0 rgba(126,255,176,0);
+    gap: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    color: rgba(232,255,233,0.78);
   }
+
+  .finch-signal__bar{
+    width: 64px;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.10);
+    border: 1px solid rgba(255,255,255,.16);
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
+  }
+
+  .finch-signal__fill{
+    display: block;
+    height: 100%;
+    width: var(--signal, 82%);
+    border-radius: 999px;
+    background: rgba(126,255,176,.55);
+    box-shadow: 0 0 10px rgba(126,255,176,.20);
+    animation: finchSignalBreathe 2.8s ease-in-out infinite;
+    transform-origin: left center;
+  }
+
   .finch-signal__pct{
+    font-variant-numeric: tabular-nums;
     color: rgba(126,255,176,.92);
   }
 
   @keyframes finchSignalBreathe{
-    0%, 100%{
-      opacity: 0.72;
-      box-shadow: 0 0 0 rgba(126,255,176,0);
-    }
-    50%{
-      opacity: 1;
-      box-shadow: 0 0 16px rgba(126,255,176,0.18);
-    }
+    0%, 100% { opacity: .55; filter: brightness(0.95); }
+    50% { opacity: 1; filter: brightness(1.15); }
   }
 
-  /* Mobile UI spacing:
-     - a touch more space between title and buttons
-     - buttons slightly smaller/tighter
-  */
+  /* Mobile UI spacing */
   .finch-homeui__mobile .finch-homeui__top{
-    margin-bottom: 10px; /* increased slightly */
+    margin-bottom: 6px;
   }
 
+  /* Add space between title link and buttons (mobile only) */
+  .finch-homeui__mobile .finch-activity__line--mobile-latest{
+    margin-top: 10px;
+    margin-bottom: 12px; /* <-- this is the “touch more space” */
+  }
+
+  /* Mobile buttons: smaller + tighter */
   .finch-homeui__mobile .finch-homeui__actions{
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 6px;
-    margin-top: 0;
+    margin-top: 0; /* spacing is handled above now */
   }
 
   .finch-homeui__mobile .finch-screen__btn{
