@@ -39,20 +39,17 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
             <span class="finch-screen__cond">INCOMPLETE</span>
           </div>
 
-          <!-- Mobile header -->
+          <!-- Mobile header (two lines) -->
           <div class="finch-screen__headline finch-screen__headline--mobile">
             <div class="finch-mobilebar">
               <span class="finch-mobilebar__title">FINCHARCHIVE.COM</span>
-              <!-- Pill + LED are styled on mobile via CSS -->
               <span class="finch-active__pill finch-active__pill--mobile">NEW</span>
             </div>
 
-            <!-- Signal strength (structured so CSS can animate/breathe the bar) -->
             <div class="finch-mobilesignal" aria-label="Signal strength">
               <span class="finch-mobilesignal__k">SIGNAL</span>
-              <span class="finch-mobilesignal__bar" aria-hidden="true">
-                <span class="finch-mobilesignal__fill"></span>
-              </span>
+              <!-- Text kept for fallback, CSS draws the bar -->
+              <span class="finch-mobilesignal__bar" aria-hidden="true">▓▓▓▓▓░</span>
               <span class="finch-mobilesignal__pct">82%</span>
             </div>
           </div>
