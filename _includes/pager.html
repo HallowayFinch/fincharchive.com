@@ -1,37 +1,23 @@
+<!-- _includes/pager.html -->
 {%- if paginator and paginator.total_pages and paginator.total_pages > 1 -%}
-<nav class="finch-pager" aria-label="Logs pagination">
-  <div class="finch-pager__grid">
-    <div class="finch-pager__card finch-pager__card--prev">
-      {%- if paginator.previous_page -%}
-        <a href="{{ paginator.previous_page_path | relative_url }}">
-          <span class="finch-pager__label">Newer</span>
-          <span class="finch-pager__title">Page {{ paginator.previous_page }}</span>
-          <span class="finch-pager__meta">of {{ paginator.total_pages }}</span>
-        </a>
-      {%- else -%}
-        <div class="finch-pager__disabled" aria-disabled="true">
-          <span class="finch-pager__label">Newer</span>
-          <span class="finch-pager__title">Beginning</span>
-          <span class="finch-pager__meta">of {{ paginator.total_pages }}</span>
-        </div>
-      {%- endif -%}
-    </div>
+  {%- assign prev_path = paginator.previous_page_path | default: paginator.previous_page_path -%}
+  {%- assign next_path = paginator.next_page_path | default: paginator.next_page_path -%}
 
-    <div class="finch-pager__card finch-pager__card--next">
-      {%- if paginator.next_page -%}
-        <a href="{{ paginator.next_page_path | relative_url }}">
-          <span class="finch-pager__label">Older</span>
-          <span class="finch-pager__title">Page {{ paginator.next_page }}</span>
-          <span class="finch-pager__meta">of {{ paginator.total_pages }}</span>
-        </a>
-      {%- else -%}
-        <div class="finch-pager__disabled" aria-disabled="true">
-          <span class="finch-pager__label">Older</span>
-          <span class="finch-pager__title">End</span>
-          <span class="finch-pager__meta">of {{ paginator.total_pages }}</span>
-        </div>
-      {%- endif -%}
-    </div>
-  </div>
-</nav>
+  <nav class="finch-page-nav" aria-label="Logs pagination">
+    {%- if prev_path -%}
+      <a class="finch-page-nav__btn finch-page-nav__btn--newer" href="{{ prev_path | relative_url }}">NEWER →</a>
+    {%- else -%}
+      <span class="finch-page-nav__btn finch-page-nav__btn--disabled" aria-disabled="true">NEWER →</span>
+    {%- endif -%}
+
+    <span class="finch-page-nav__status" aria-label="Page">
+      Page {{ paginator.page }} of {{ paginator.total_pages }}
+    </span>
+
+    {%- if next_path -%}
+      <a class="finch-page-nav__btn finch-page-nav__btn--older" href="{{ next_path | relative_url }}">OLDER →</a>
+    {%- else -%}
+      <span class="finch-page-nav__btn finch-page-nav__btn--disabled" aria-disabled="true">OLDER →</span>
+    {%- endif -%}
+  </nav>
 {%- endif -%}
