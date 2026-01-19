@@ -1,49 +1,97 @@
 ---
 layout: default
-title: Logs
-description: "Deeper into archive history."
 ---
 
-<section class="finch-logs" aria-label="Archive logs">
-  <header class="finch-logs__header">
-    <h1 class="finch-logs__title">Logs</h1>
-    <p class="finch-logs__lede">Deeper into archive history.</p>
-  </header>
+{%- assign EMPTY = '' | split: '' -%}
+{%- assign all_logs = site.logs | sort: "date" | reverse | default: EMPTY -%}
 
-  <div class="finch-loggrid" role="list">
-    {%- for post in paginator.posts -%}
-      <article class="finch-logcard" role="listitem">
-        <a class="finch-logcard__link" href="{{ post.url | relative_url }}">
-          {%- if post.hero_image -%}
+{%- assign per_page = page.per_page | default: 12 -%}
+{%- assign page_num = page.page_num | default: 1 -%}
+
+{%- assign offset = page_num | minus: 1 | times: per_page -%}
+{%- assign page_logs = all_logs | slice: offset, per_page -%}
+
+{%- assign total = all_logs | size | default: 0 -%}
+{%- assign total_pages = total | divided_by: per_page -%}
+{%- assign remainder = total | modulo: per_page -%}
+{%- if remainder > 0 -%}{%- assign total_pages = total_pages | plus: 1 -%}{%- endif -%}
+
+{%- assign newer_num = page_num | minus: 1 -%}
+{%- assign older_num = page_num | plus: 1 -%}
+
+<header class="page-header">
+  <h1 class="page-title">{{ page.title | default: "Logs" }}</h1>
+  {%- if page.description -%}
+    <p class="page-lead">{{ page.description }}</p>
+  {%- endif -%}
+</header>
+
+{%- if page_logs and page_logs.size > 0 -%}
+  <ul class="log-list" aria-label="Archive logs">
+    {%- for log in page_logs -%}
+      <li class="log-card">
+        <a class="log-link" href="{{ log.url | relative_url }}">
+          {%- if log.hero_image -%}
             <img
-              class="finch-logcard__img"
-              src="{{ post.hero_image }}"
+              class="log-thumb"
+              src="{{ log.hero_image }}"
               alt=""
               loading="lazy"
               decoding="async"
             />
           {%- endif -%}
 
-          <div class="finch-logcard__body">
-            <div class="finch-logcard__topline">
-              <h2 class="finch-logcard__title">{{ post.title }}</h2>
-              {%- if post.log_id -%}
-                <span class="finch-logcard__id">{{ post.log_id }}</span>
-              {%- endif -%}
-            </div>
+          <div class="log-meta">
+            <div class="log-title">{{ log.title }}</div>
 
-            <p class="finch-logcard__meta">
-              <time datetime="{{ post.date | date_to_xmlschema }}">
-                {{ post.date | date: "%A, %B %-d, %Y" }}
+            <div class="log-sub">
+              {%- if log.log_id -%}
+                <span class="log-id">{{ log.log_id }}</span>
+                <span aria-hidden="true">•</span>
+              {%- endif -%}
+
+              <time datetime="{{ log.date | date_to_xmlschema }}">
+                {{ log.date | date: "%A, %B %-d, %Y %I:%M %p %Z" }}
               </time>
-              <span class="finch-logcard__dot" aria-hidden="true">•</span>
-              <span class="finch-logcard__time">{{ post.date | date: "%-I:%M %p %Z" }}</span>
-            </p>
+            </div>
           </div>
         </a>
-      </article>
+      </li>
     {%- endfor -%}
-  </div>
+  </ul>
+{%- else -%}
+  <p class="page-lead">No transmissions found.</p>
+{%- endif -%}
 
-  {%- include pager.html -%}
-</section>
+<nav class="nav-cards" aria-label="Logs pagination">
+  {%- if newer_num >= 1 -%}
+    {%- if newer_num == 1 -%}
+      <a class="pager-link" href="{{ '/logs/' | relative_url }}">
+        <small>NEWER</small>
+        Page 1
+      </a>
+    {%- else -%}
+      <a class="pager-link" href="{{ '/logs/page' | append: newer_num | append: '/' | relative_url }}">
+        <small>NEWER</small>
+        Page {{ newer_num }}
+      </a>
+    {%- endif -%}
+  {%- else -%}
+    <div class="pager-link is-disabled" aria-disabled="true">
+      <small>NEWER</small>
+      —
+    </div>
+  {%- endif -%}
+
+  {%- if older_num <= total_pages -%}
+    <a class="pager-link" href="{{ '/logs/page' | append: older_num | append: '/' | relative_url }}">
+      <small>OLDER</small>
+      Page {{ older_num }}
+    </a>
+  {%- else -%}
+    <div class="pager-link is-disabled" aria-disabled="true">
+      <small>OLDER</small>
+      —
+    </div>
+  {%- endif -%}
+</nav>
