@@ -1,201 +1,489 @@
 ---
 layout: default
+full_width: true
 title: Finch Archive
 description: "Recovered notes from incomplete transmissions: the latest logs from the Finch Archive."
-hero_image: "/assets/og/home-console-1600x900.webp"
-hero_alt: "A dim, abandoned control corridor lit by a single fluorescent tube."
-hero_w: 1600
-hero_h: 900
 ---
 
 {%- assign EMPTY = '' | split: '' -%}
 {%- assign logs  = site.logs | sort: "date" | reverse | default: EMPTY -%}
 {%- assign feat  = logs | first -%}
-{%- assign rest  = logs | slice: 1, 9 | default: EMPTY -%}
 
-<section class="finch-console" aria-label="Finch Archive control panel">
-  <!-- STATUS RAIL -->
-  <header class="finch-rail" role="banner">
-    <div class="finch-rail__left">
-      <span class="finch-label">FINCH ARCHIVE</span>
-      <span class="finch-sep" aria-hidden="true">//</span>
-      <span class="finch-mono">NODE: FA-01</span>
-    </div>
+<style>
+/* =========================================================
+   HOME ONLY: CRT hero (self-contained)
+   - Scoped so it cannot break other pages
+   - Mobile header: title + pill row, SIGNAL on next line
+   - Signal % fluctuates (no JS)
+   ========================================================= */
+.finch-home{
+  margin-top: clamp(-56px, -3.6vw, -22px);
+  padding: clamp(6px, 1.2vw, 12px) 0 20px;
+  overflow-x: clip;
+}
+.finch-crtframe{
+  position: relative;
+  width: min(1200px, 100%);
+  margin: 0 auto;
+  filter: drop-shadow(0 18px 70px rgba(0,0,0,.65));
+  overflow: visible;
 
-    <div class="finch-rail__center" aria-label="System clock">
-      <span class="finch-mono finch-clock">10:22</span>
-      <span class="finch-sep" aria-hidden="true">·</span>
-      <span class="finch-mono finch-muted">CONDITION: INCOMPLETE</span>
-    </div>
+  /* Screen bbox (measured from 1536×1024 CRT frame) */
+  --screen-x: 20.57%;
+  --screen-y: 12.70%;
+  --screen-w: 59.38%;
+  --screen-h: 65.53%;
+}
+.finch-crtframe__img{
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  pointer-events: none;
+}
+.finch-crtframe__screen{
+  position: absolute;
+  left: var(--screen-x);
+  top: var(--screen-y);
+  width: var(--screen-w);
+  height: var(--screen-h);
+  overflow: hidden;
+  border-radius: 10px;
 
-    <div class="finch-rail__right" aria-label="Link status">
-      <span class="finch-led finch-led--pulse" aria-hidden="true"></span>
-      <span class="finch-mono">LINK: ACTIVE</span>
-    </div>
-  </header>
+  background: radial-gradient(120% 120% at 50% 38%, rgba(0,0,0,.15), rgba(0,0,0,.62));
+  box-shadow:
+    inset 0 0 0 1px rgba(126,255,176,.12),
+    inset 0 0 24px rgba(0,0,0,.55);
+}
 
-  <!-- CHASSIS / BAYS -->
-  <div class="finch-chassis">
-    <!-- LEFT BAY -->
-    <aside class="finch-bay finch-bay--left" aria-label="Left bay">
-      <section class="finch-module" aria-label="Navigation module">
-        <header class="finch-plate">
-          <span class="finch-plate__title">MODULE: NAV</span>
-          <span class="finch-plate__status finch-ok">OK</span>
+/* terminal surface */
+.finch-screen.finch-screen--home{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.finch-screen--home h1,
+.finch-screen--home h2,
+.finch-screen--home h3,
+.finch-screen--home .finch-active__title{
+  font-family: var(--mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+}
+.finch-screen--home .finch-screen__body{
+  flex: 1;
+  min-height: 0;
+  padding: clamp(10px, 1.2vw, 16px);
+  overflow: hidden;
+}
+
+/* panes */
+.finch-homeui__desktop{ display: block; height: 100%; }
+.finch-homeui__mobile{ display: none; height: 100%; }
+
+/* ascii */
+.finch-ascii{
+  margin: 0 0 10px;
+  padding: 0;
+  font-size: 0.72rem;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  color: rgba(126,255,176,.85);
+  text-shadow: 0 0 10px rgba(126,255,176,.12);
+  white-space: pre;
+}
+
+/* active block */
+.finch-active__meta{
+  margin: 0 0 8px;
+  font-size: 0.84rem;
+  letter-spacing: 0.06em;
+  color: rgba(232,255,233,0.82);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.finch-active__pill{
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(126,255,176,.32);
+  background: rgba(0,0,0,.25);
+  color: rgba(232,255,233,0.92);
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+.finch-active__title{
+  margin: 0 0 8px;
+  font-size: clamp(1.0rem, 1.8vw, 1.28rem);
+  letter-spacing: 0.02em;
+}
+.finch-active__title a{
+  color: rgba(232,255,233,0.98);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(126,255,176,.25);
+}
+.finch-active__excerpt{
+  margin: 0 0 10px;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: rgba(232,255,233,0.82);
+  max-width: 60ch;
+}
+
+/* activity lines */
+.finch-activity__line{
+  margin: 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  color: rgba(232,255,233,0.78);
+}
+.finch-activity__k{ color: rgba(232,255,233,0.62); }
+.finch-activity__ok{ color: rgba(126,255,176,.95); }
+
+/* buttons */
+.finch-homeui__actions{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+.finch-screen__btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.74rem;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(255,255,255,.06);
+}
+.finch-screen__btn--fill{
+  background: rgba(126,255,176,.18);
+  border-color: rgba(126,255,176,.55);
+  color: #eafff2;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.35);
+}
+.finch-screen__btn--fill2{
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.18);
+  color: #f0f0f0;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.35);
+}
+
+/* =========================
+   MOBILE (home only)
+   ========================= */
+@media (max-width: 980px){
+  html, body{ overflow-x: hidden; }
+
+  .finch-home{
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    margin-top: 0;
+    padding: 10px 0 18px;
+  }
+
+  /* full-feel CRT, centered */
+  .finch-crtframe{
+    width: 120vw;
+    max-width: none;
+    box-sizing: border-box;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+  }
+
+  /* screen align + subtle right nudge */
+  .finch-crtframe__screen{
+    inset: 18% 12% 36% 12%;
+    border-radius: 18px;
+    overflow: hidden;
+    background: rgba(0,0,0,.55);
+    box-shadow: inset 0 0 0 1px rgba(126,255,176,.16);
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+
+    --mobile-screen-nudge: 15%;
+    transform: translateX(var(--mobile-screen-nudge));
+  }
+
+  /* panes */
+  .finch-homeui__desktop{ display: none; }
+  .finch-homeui__mobile{ display: block; }
+
+  /* compact typography */
+  .finch-screen--home{
+    padding: 8px 9px 10px;
+    font-size: 0.86rem;
+    line-height: 1.30;
+  }
+  .finch-screen--home .finch-screen__body{
+    padding: 10px 10px 10px;
+  }
+
+  /* MOBILE HEADER:
+     row 1 = title left / pill right
+     row 2 = SIGNAL line (so it never gets cut off) */
+  .finch-screen__headline--desktop{ display: none; }
+  .finch-screen__headline--mobile{ display: block; }
+
+  .finch-mobilebar{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .finch-mobilebar__title{
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.06em;
+  }
+
+  .finch-active__pill--mobile{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 10px;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+  }
+
+  /* steady blink LED next to NEW */
+  .finch-led{
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(126,255,176,.92);
+    box-shadow: 0 0 10px rgba(126,255,176,.35), 0 0 2px rgba(126,255,176,.55);
+    animation: finchLedBlink 1.35s steps(1,end) infinite;
+  }
+  @keyframes finchLedBlink{
+    0%, 78% { opacity: .15; }
+    79%, 86% { opacity: 1; }
+    87%, 100% { opacity: .25; }
+  }
+
+  .finch-mobilesignal{
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    letter-spacing: 0.10em;
+    font-size: 0.70rem;
+    color: rgba(232,255,233,.72);
+    white-space: nowrap;
+  }
+  .finch-mobilesignal__bar{
+    color: rgba(126,255,176,.85);
+    text-shadow: 0 0 12px rgba(126,255,176,.15);
+  }
+
+  /* % fluctuation (no JS): crossfade 3 fixed values */
+  .finch-mobilesignal__pct{
+    position: relative;
+    width: 3.2ch;
+    text-align: right;
+    display: inline-block;
+  }
+  .finch-mobilesignal__pct span{
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    animation: finchPctCycle 3.6s steps(1,end) infinite;
+  }
+  .finch-mobilesignal__pct span:nth-child(1){ animation-delay: 0s; }
+  .finch-mobilesignal__pct span:nth-child(2){ animation-delay: 1.2s; }
+  .finch-mobilesignal__pct span:nth-child(3){ animation-delay: 2.4s; }
+  @keyframes finchPctCycle{
+    0%{ opacity: 1; }
+    32%{ opacity: 1; }
+    33%{ opacity: 0; }
+    100%{ opacity: 0; }
+  }
+
+  /* title link spacing above buttons */
+  .finch-homeui__mobile .finch-homeui__top{
+    margin-bottom: 10px; /* <-- requested: more space before buttons */
+  }
+
+  /* tighter buttons (mobile) */
+  .finch-homeui__mobile .finch-homeui__actions{
+    gap: 6px;
+    margin-top: 0;
+  }
+  .finch-homeui__mobile .finch-screen__btn{
+    min-height: 32px;
+    padding: 6px 8px;
+    font-size: 0.70rem;
+    line-height: 1;
+    letter-spacing: 0.12em;
+    border-radius: 12px;
+  }
+}
+@media (min-width: 981px){
+  .finch-screen__headline--desktop{ display: block; }
+  .finch-screen__headline--mobile{ display: none; }
+}
+
+/* mobile link */
+.finch-homeui__promptlink{
+  color: rgba(255,120,120,.85);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,120,120,.35);
+}
+.finch-homeui__promptlink:hover,
+.finch-homeui__promptlink:focus-visible{
+  color: rgba(255,170,170,.95);
+  border-bottom-color: rgba(255,170,170,.55);
+}
+</style>
+
+<section class="finch-home" aria-label="Finch Archive homepage">
+  <div class="finch-crtframe" aria-label="CRT frame">
+    <img
+      class="finch-crtframe__img"
+      src="{{ '/assets/img/crt/finch-crt-frame-1200.webp' | relative_url }}"
+      srcset="{{ '/assets/img/crt/finch-crt-frame-900.webp' | relative_url }} 900w,
+              {{ '/assets/img/crt/finch-crt-frame-1200.webp' | relative_url }} 1200w,
+              {{ '/assets/img/crt/finch-crt-frame-1536.webp' | relative_url }} 1536w"
+      sizes="(max-width: 980px) 94vw, 1200px"
+      width="1536"
+      height="1024"
+      loading="eager"
+      decoding="async"
+      alt="A vintage CRT monitor framing the Finch Archive interface."
+    />
+
+    <div class="finch-crtframe__screen" role="region" aria-label="Archive terminal">
+      <div class="finch-screen finch-screen--home">
+        <header class="finch-screen__header finch-screen__header--single" aria-label="System header">
+          <!-- Desktop header -->
+          <div class="finch-screen__headline finch-screen__headline--desktop">
+            <span class="finch-screen__label">FINCH ARCHIVE</span>
+            <span class="finch-screen__sep" aria-hidden="true">//</span>
+            <span class="finch-screen__meta">NODE: FINCH-01</span>
+            <span class="finch-screen__sep" aria-hidden="true">·</span>
+            <span class="finch-screen__clock">10:22</span>
+            <span class="finch-screen__sep" aria-hidden="true">·</span>
+            <span class="finch-screen__cond">INCOMPLETE</span>
+          </div>
+
+          <!-- Mobile header -->
+          <div class="finch-screen__headline finch-screen__headline--mobile">
+            <div class="finch-mobilebar">
+              <span class="finch-mobilebar__title">FINCHARCHIVE.COM</span>
+              <span class="finch-active__pill finch-active__pill--mobile">
+                <span class="finch-led" aria-hidden="true"></span>
+                NEW
+              </span>
+            </div>
+
+            <div class="finch-mobilesignal" aria-label="Signal strength">
+              <span class="finch-mobilesignal__k">SIGNAL</span>
+              <span class="finch-mobilesignal__bar" aria-hidden="true">▓▓▓▓▓░</span>
+              <span class="finch-mobilesignal__pct" aria-label="Signal percent">
+                <span aria-hidden="true">79%</span>
+                <span aria-hidden="true">82%</span>
+                <span aria-hidden="true">85%</span>
+              </span>
+            </div>
+          </div>
         </header>
-        <div class="finch-body">
-          <nav class="finch-nav" aria-label="Console navigation">
-            <a class="finch-key" href="{{ '/' | relative_url }}">F1: LATEST</a>
-            <a class="finch-key" href="{{ '/logs/' | relative_url }}">F2: INDEX</a>
-            <a class="finch-key" href="{{ '/feeds/' | relative_url }}">F3: FEEDS</a>
-            <a class="finch-key" href="{{ '/about/' | relative_url }}">F4: ABOUT</a>
-          </nav>
-        </div>
-      </section>
 
-      <section class="finch-module" aria-label="Telemetry module">
-        <header class="finch-plate">
-          <span class="finch-plate__title">MODULE: TELEMETRY</span>
-          <span class="finch-plate__status finch-warn">LIVE</span>
-        </header>
-        <div class="finch-body">
-          <dl class="finch-kv" role="list">
-            <div class="finch-kv__row" role="listitem">
-              <dt>LOGS</dt>
-              <dd>{{ logs | size }}</dd>
-            </div>
-            <div class="finch-kv__row" role="listitem">
-              <dt>NODE</dt>
-              <dd>FA-01</dd>
-            </div>
-            {%- if feat and feat.date -%}
-            <div class="finch-kv__row" role="listitem">
-              <dt>LAST INGEST</dt>
-              <dd>{{ feat.date | date: "%Y-%m-%d" }}</dd>
-            </div>
-            {%- endif -%}
-            <div class="finch-kv__row" role="listitem">
-              <dt>DRIFT</dt>
-              <dd><span class="finch-mono">+0.22%</span></dd>
-            </div>
-          </dl>
-
-          <p class="finch-note">
-            <span class="finch-led finch-led--dim" aria-hidden="true"></span>
-            <span class="finch-mono finch-muted">Operator presence not confirmed.</span>
-          </p>
-        </div>
-      </section>
-    </aside>
-
-    <!-- CENTER BAY -->
-    <main class="finch-bay finch-bay--center" aria-label="Center bay">
-      <!-- FEATURED / CRT -->
-      <section class="finch-module" aria-label="Active transmission">
-        <header class="finch-plate finch-plate--crt">
-          <span class="finch-plate__title">
-            <span class="finch-led finch-led--pulse" aria-hidden="true"></span>
-            ACTIVE TRANSMISSION
-          </span>
-          <span class="finch-plate__status finch-warn">UNSTABLE</span>
-        </header>
-
-        <div class="finch-crt" role="region" aria-label="CRT viewport">
+        <div class="finch-screen__body">
           {%- if feat -%}
-            <p class="finch-crt__meta">
-              <span class="finch-tag">{{ feat.log_id | default: "LOG" }}</span>
-              <span class="finch-sep" aria-hidden="true">·</span>
-              <span class="finch-mono">{{ feat.date | date: "%Y-%m-%d" }}</span>
-            </p>
 
-            <h2 class="finch-crt__title">
-              <a class="finch-link" href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
-            </h2>
+          <!-- DESKTOP UI -->
+          <div class="finch-homeui__desktop" aria-label="Desktop terminal UI">
+            <div class="finch-homeui__top">
+              <pre class="finch-ascii" aria-hidden="true">
+  _____ _            _        _             _     _
+ |  ___(_)_ __   ___| |__    / \   _ __ ___| |__ (_)_   _____   ___ ___  _ __ ___
+ | |_  | | '_ \ / __| '_ \  / _ \ | '__/ __| '_ \| \ \ / / _ \ / __/ _ \| '_ ` _ \
+ |  _| | | | | | (__| | | |/ ___ \| | | (__| | | | |\ V /  __/| (_| (_) | | | | | |
+ |_|   |_|_| |_|\___|_| |_/_/   \_\_|  \___|_| |_|_| \_/ \___(_)___\___/|_| |_| |_|
+              </pre>
 
-            <div class="finch-crt__text">
-              {{ feat.content | strip_html | strip_newlines | truncate: 520 }}
+              <p class="finch-active__meta">
+                <span class="finch-active__pill">ACTIVE</span>
+                <span class="finch-screen__sep" aria-hidden="true">·</span>
+                <span class="finch-active__id">{{ feat.log_id | default: 'LOG' }}</span>
+                <span class="finch-screen__sep" aria-hidden="true">·</span>
+                <span class="finch-active__date">{{ feat.date | date: "%Y-%m-%d" }}</span>
+              </p>
+
+              <h1 class="finch-active__title">
+                <a href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
+              </h1>
+
+              <p class="finch-active__excerpt">
+                {{ feat.content | strip_html | strip_newlines | truncate: 150 }}
+              </p>
+
+              <section class="finch-activity finch-activity--secondary" aria-label="System activity">
+                <p class="finch-activity__line"><span class="finch-activity__k">LOCK</span> time ............. <span class="finch-activity__ok">10:22</span></p>
+                <p class="finch-activity__line"><span class="finch-activity__k">DRIFT</span> +0.22% .......... <span class="finch-activity__ok">STABLE</span></p>
+              </section>
             </div>
 
-            <p class="finch-crt__prompt" aria-hidden="true">
-              archive@finch:~$ open record <span class="finch-cursor">▍</span>
-            </p>
-
-            <div class="finch-crt__actions" aria-label="Transmission actions">
-              <a class="finch-btn" href="{{ feat.url | relative_url }}">OPEN RECORD</a>
-              <a class="finch-btn finch-btn--ghost" href="{{ '/logs/' | relative_url }}">VIEW INDEX</a>
+            <div class="finch-homeui__bottom">
+              <nav class="finch-homeui__actions" aria-label="Primary actions">
+                <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">READ LATEST</a>
+                <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
+              </nav>
             </div>
+          </div>
+
+          <!-- MOBILE UI -->
+          <div class="finch-homeui__mobile" aria-label="Mobile terminal UI">
+            <div class="finch-homeui__top">
+              <p class="finch-activity__line finch-activity__line--mobile-latest">
+                <a class="finch-homeui__promptlink" href="{{ feat.url | relative_url }}">
+                  {{ feat.title | truncate: 52 }}
+                </a>
+              </p>
+            </div>
+
+            <nav class="finch-homeui__actions finch-homeui__actions--mobile" aria-label="Primary actions">
+              <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">READ LATEST</a>
+              <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
+            </nav>
+          </div>
+
           {%- else -%}
-            <p class="finch-crt__text">No transmissions available.</p>
+
+          <div class="finch-homeui__desktop" aria-label="Desktop terminal UI">
+            <pre class="finch-ascii" aria-hidden="true">FINCHARCHIVE.COM</pre>
+            <p class="finch-activity__line"><span class="finch-activity__k">STATUS</span> NO TRANSMISSIONS</p>
+            <nav class="finch-homeui__actions" aria-label="Primary actions" style="margin-top:10px;">
+              <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
+            </nav>
+          </div>
+
+          <div class="finch-homeui__mobile" aria-label="Mobile terminal UI">
+            <pre class="finch-ascii" aria-hidden="true">FINCHARCHIVE.COM</pre>
+            <p class="finch-activity__line"><span class="finch-activity__k">STATUS</span> NO TRANSMISSIONS</p>
+            <nav class="finch-homeui__actions" aria-label="Primary actions" style="margin-top:10px;">
+              <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
+            </nav>
+          </div>
+
           {%- endif -%}
         </div>
-      </section>
-
-      <!-- RECENT LIST -->
-      <section class="finch-module" aria-label="Recent transmissions">
-        <header class="finch-plate">
-          <span class="finch-plate__title">MODULE: RECENT TRANSMISSIONS</span>
-          <span class="finch-plate__status finch-ok">OK</span>
-        </header>
-        <div class="finch-body">
-          <ul class="finch-list" role="list">
-            {%- for item in rest -%}
-              <li class="finch-list__row">
-                <span class="finch-list__id">{{ item.log_id | default: "—" }}</span>
-                <a class="finch-list__title" href="{{ item.url | relative_url }}">{{ item.title }}</a>
-                <span class="finch-list__date">{{ item.date | date: "%Y-%m-%d" }}</span>
-              </li>
-            {%- endfor -%}
-          </ul>
-
-          <div class="finch-row">
-            <a class="finch-btn finch-btn--ghost" href="{{ '/logs/' | relative_url }}">BROWSE FULL CATALOG</a>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <!-- RIGHT BAY -->
-    <aside class="finch-bay finch-bay--right" aria-label="Right bay">
-      <section class="finch-module" aria-label="System notices">
-        <header class="finch-plate">
-          <span class="finch-plate__title">MODULE: SYSTEM NOTICES</span>
-          <span class="finch-plate__status finch-warn">WATCH</span>
-        </header>
-        <div class="finch-body">
-          <ul class="finch-bullets" role="list">
-            <li><span class="finch-led finch-led--dim" aria-hidden="true"></span> Ingest pipeline: nominal</li>
-            <li><span class="finch-led finch-led--dim" aria-hidden="true"></span> Time lock: 10:22 persists</li>
-            <li><span class="finch-led finch-led--dim" aria-hidden="true"></span> Interference: low, non-zero</li>
-            <li><span class="finch-led finch-led--dim" aria-hidden="true"></span> Operator logs: incomplete</li>
-          </ul>
-        </div>
-      </section>
-
-      <section class="finch-module" aria-label="Feeds module">
-        <header class="finch-plate">
-          <span class="finch-plate__title">MODULE: FEEDS</span>
-          <span class="finch-plate__status finch-ok">OK</span>
-        </header>
-        <div class="finch-body">
-          <div class="finch-stack">
-            <a class="finch-key" href="{{ '/feeds/' | relative_url }}">OPEN FEEDS HUB</a>
-            <a class="finch-key" href="{{ '/logs/' | relative_url }}">OPEN INDEX</a>
-            <a class="finch-key" href="{{ '/about/' | relative_url }}">SYSTEM NOTES</a>
-          </div>
-
-          <p class="finch-note">
-            <span class="finch-mono finch-muted">Feeds recommended for continuous receipt.</span>
-          </p>
-        </div>
-      </section>
-    </aside>
+      </div>
+    </div>
   </div>
-
-  <!-- SOFT KEYS -->
-  <nav class="finch-softkeys" aria-label="Soft keys">
-    <a class="finch-softkey" href="{{ feat.url | relative_url }}">F1 OPEN LATEST</a>
-    <a class="finch-softkey" href="{{ '/logs/' | relative_url }}">F2 BROWSE INDEX</a>
-    <a class="finch-softkey" href="{{ '/feeds/' | relative_url }}">F3 FEEDS</a>
-    <a class="finch-softkey" href="{{ '/about/' | relative_url }}">F4 ABOUT</a>
-  </nav>
 </section>
