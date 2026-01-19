@@ -2,50 +2,36 @@
 layout: default
 ---
 
-{%- comment -%} _layouts/logs.html {%- endcomment -%}
-{%- assign items = nil -%}
-{%- if paginator and paginator.posts -%}
-  {%- assign items = paginator.posts -%}
-{%- elsif paginator and paginator.docs -%}
-  {%- assign items = paginator.docs -%}
-{%- elsif paginator and paginator.documents -%}
-  {%- assign items = paginator.documents -%}
-{%- else -%}
-  {%- assign items = site.logs | sort: "date" | reverse -%}
-{%- endif -%}
+{%- assign EMPTY = '' | split: '' -%}
+{%- assign items = paginator.docs | default: paginator.posts | default: site.logs | default: EMPTY -%}
 
-<header class="log-archive-head">
-  <h1 class="log-archive-title">{{ page.title | default: "Logs" }}</h1>
-  {%- if page.description -%}
-    <p class="log-archive-sub">{{ page.description }}</p>
-  {%- endif -%}
-</header>
+<section class="finch-logs" aria-label="Logs index">
+  <header class="finch-logs__header">
+    <h1 class="finch-logs__title">{{ page.title | default: "Logs" }}</h1>
+    <p class="finch-logs__sub">{{ page.description | default: "Deeper into archive history" }}</p>
+  </header>
 
-<ul class="log-list" aria-label="Archive logs">
-  {%- for log in items -%}
-    <li class="log-card">
-      <a class="log-link" href="{{ log.url | relative_url }}">
+  <div class="finch-loggrid">
+    {%- for log in items -%}
+      <article class="finch-logcard">
         {%- if log.hero_image -%}
-          <img
-            class="log-thumb"
-            src="{{ log.hero_image }}"
-            alt="{{ log.title | escape }}"
-            loading="lazy"
-            decoding="async"
-          />
+          <a class="finch-logcard__thumb" href="{{ log.url | relative_url }}" aria-label="{{ log.title }}">
+            <img src="{{ log.hero_image }}" alt="" loading="lazy" decoding="async" />
+          </a>
         {%- endif -%}
 
-        <div class="log-meta">
-          <div class="log-title">{{ log.title }}</div>
-          <div class="log-sub">
-            {%- if log.log_id -%}<span class="log-id">{{ log.log_id }}</span>{%- endif -%}
-            <span>•</span>
-            <span>{{ log.date | date: "%A, %B %-d, %Y %I:%M %p %Z" }}</span>
-          </div>
-        </div>
-      </a>
-    </li>
-  {%- endfor -%}
-</ul>
+        <h2 class="finch-logcard__title">
+          <a href="{{ log.url | relative_url }}">{{ log.title }}</a>
+        </h2>
 
-{%- include pager.html -%}
+        <p class="finch-logcard__meta">
+          <span class="finch-logcard__id">{{ log.log_id | default: "LOG" }}</span>
+          <span class="finch-logcard__dot" aria-hidden="true">·</span>
+          <time datetime="{{ log.date | date_to_xmlschema }}">{{ log.date | date: "%A, %B %-d, %Y %-I:%M %p %Z" }}</time>
+        </p>
+      </article>
+    {%- endfor -%}
+  </div>
+
+  {%- include pager.html -%}
+</section>
