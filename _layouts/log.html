@@ -2,145 +2,47 @@
 layout: default
 ---
 
-<section
-  class="container log-detail"
-  aria-labelledby="log-title"
->
-  {%- comment -%}
-  Optional hero figure (Substack cover)
-  - Uses responsive sizes and eager loading for primary log image.
-  {%- endcomment -%}
-  {%- if page.hero_image -%}
-    {%- assign _hero_src = page.hero_image | relative_url -%}
-    {%- assign _hero_alt = page.hero_alt | default: page.title -%}
-    {%- assign _hero_w   = page.hero_w | default: 1600 -%}
-    {%- assign _hero_h   = page.hero_h | default: 900 -%}
+<article class="finch-log" aria-label="Recovered log">
+  <header class="finch-log__header">
+    <h1 class="finch-log__title">{{ page.title }}</h1>
 
-    <figure class="log-figure">
-      {% include img.html
-        src=_hero_src
-        alt=_hero_alt
-        w=_hero_w
-        h=_hero_h
-        class="log-hero"
-        sizes="(min-width:980px) 1100px, 100vw"
-        loading="eager"
-        fetch="high"
-      %}
-    </figure>
-  {%- endif -%}
-
-  {%- comment -%}
-  Log header
-  - H1 with stable ID; default layout’s <main id="main"> is the primary landmark.
-  - Meta line shows log_id (if present) plus date and share links.
-  {%- endcomment -%}
-  <header class="log-header">
-    <h1 id="log-title" class="log-title">{{ page.title }}</h1>
-
-    <div class="meta">
+    <p class="finch-log__meta">
       {%- if page.log_id -%}
-        <span class="log-id">{{ page.log_id }}</span>
-        <span aria-hidden="true">•</span>
+        <span class="finch-log__id">{{ page.log_id }}</span>
+        <span class="finch-log__dot" aria-hidden="true">•</span>
       {%- endif -%}
 
       <time datetime="{{ page.date | date_to_xmlschema }}">
-        {% include date-local.html dt=page.date %}
+        {{ page.date | date: "%A, %B %-d, %Y" }}
       </time>
 
-      {% include share.html %}
-    </div>
+      <span class="finch-log__dot" aria-hidden="true">•</span>
+      <span class="finch-log__time">{{ page.date | date: "%-I:%M %p %Z" }}</span>
+
+      {%- if page.source_url -%}
+        <span class="finch-log__dot" aria-hidden="true">•</span>
+        <a class="finch-log__source" href="{{ page.source_url }}" target="_blank" rel="noopener">
+          Source
+        </a>
+      {%- endif -%}
+    </p>
   </header>
 
-  {%- comment -%}
-  Primary log body
-  - Markdown content from the log file.
-  {%- endcomment -%}
-  <article class="log-content">
-    {{ content }}
-  </article>
-
-  {%- comment -%}
-  Artifact rendering
-
-  Strategy:
-  1. If front matter defines `artifacts:` explicitly, honor that list exactly.
-     Each item is expected to be an object like:
-       - path: "/artifacts/1022a/example.wav"
-         label: "Session audio"
-  2. Otherwise, auto-discover static files under:
-       /artifacts/<slug>/  (or /artifacts/<artifacts_folder>/ if overridden)
-     and render those as buttons.
-  3. Internal plumbing files (SHA256SUMS.txt, metadata.json) are
-     intentionally hidden from the UI.
-  {%- endcomment -%}
-
-  {%- if page.artifacts and page.artifacts.size > 0 -%}
-    <section class="log-artifacts" aria-label="Related artifacts">
-      <h2>Artifacts</h2>
-      <ul class="artifact-list">
-        {%- for a in page.artifacts -%}
-          <li>
-            <a class="btn" href="{{ a.path | relative_url }}">
-              {{ a.label | default: "Artifact" }}
-            </a>
-          </li>
-        {%- endfor -%}
-      </ul>
-    </section>
-  {%- else -%}
-    {%- assign artifacts_slug = page.artifacts_folder | default: page.slug -%}
-
-    {%- if artifacts_slug -%}
-      {%- assign artifacts_prefix = '/artifacts/' | append: artifacts_slug | append: '/' -%}
-      {%- assign artifacts_files = site.static_files
-          | where_exp: "f", "f.path contains artifacts_prefix" -%}
-
-      {%- comment -%}
-      Only treat these extensions as visible artifacts.
-      (Everything else is assumed to be internal or non-user-facing.)
-      {%- endcomment -%}
-      {%- assign allowed_exts = ".wav,.flac,.mp3,.m4a,.aiff,.mp4,.mov,.png,.jpg,.jpeg,.gif,.webp,.tif,.tiff,.pdf,.txt,.csv" | split: "," -%}
-
-      {%- assign artifacts_clean = "" | split: "" -%}
-
-      {%- for f in artifacts_files -%}
-        {%- assign ext  = f.extname | downcase -%}
-        {%- assign name = f.name | downcase -%}
-        {%- assign base = f.name | split: "." | first | downcase -%}
-
-        {%- if allowed_exts contains ext -%}
-          {%- unless base == "sha256sums"
-            or base == "metadata"
-            or name == "sha256sums.txt"
-            or name == "metadata.json"
-          -%}
-            {%- assign artifacts_clean = artifacts_clean | push: f -%}
-          {%- endunless -%}
-        {%- endif -%}
-      {%- endfor -%}
-
-      {%- if artifacts_clean.size > 0 -%}
-        <section class="log-artifacts" aria-label="Related artifacts">
-          <h2>Artifacts</h2>
-          <ul class="artifact-list">
-            {%- for f in artifacts_clean -%}
-              {%- assign base_raw = f.name | split: "." | first -%}
-              {%- assign label = base_raw
-                  | replace: "-", " "
-                  | replace: "_", " "
-                  | capitalize -%}
-              <li>
-                <a class="btn" href="{{ f.path | relative_url }}">
-                  {{ label }}
-                </a>
-              </li>
-            {%- endfor -%}
-          </ul>
-        </section>
-      {%- endif -%}
-    {%- endif -%}
+  {%- if page.hero_image -%}
+    <figure class="finch-log__hero">
+      <img
+        class="finch-log__heroimg"
+        src="{{ page.hero_image }}"
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+    </figure>
   {%- endif -%}
 
-  {% include prev_next.html %}
-</section>
+  <div class="finch-log__content">
+    {{ content }}
+  </div>
+
+  {%- include prev_next.html -%}
+</article>
