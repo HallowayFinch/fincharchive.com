@@ -1653,8 +1653,8 @@ html, body { overflow-x: hidden; }
 }
 
 .finch-terminal__top{
-  margin-bottom: clamp(14px, 2vw, 18px);
-  padding-bottom: clamp(10px, 1.5vw, 14px);
+  margin-bottom: clamp(10px, 1.6vw, 14px);
+  padding-bottom: clamp(8px, 1.2vw, 12px);
   border-bottom: 1px solid rgba(255,255,255,.10);
 }
 
@@ -1755,7 +1755,7 @@ html, body { overflow-x: hidden; }
 }
 
 .finch-terminal__excerpt{
-  margin: 0 0 18px;
+  margin: 0 0 14px;
   max-width: 70ch;
   color: rgba(230,230,230,.78);
   font-family: var(--sans);
@@ -1788,6 +1788,53 @@ html, body { overflow-x: hidden; }
 .finch-cmd:hover{
   border-color: rgba(255,255,255,.22);
   background: rgba(0,0,0,.34);
+}
+
+/* Text-link command (secondary) */
+.finch-cmd--link{
+  padding: 9px 4px;
+  border-color: transparent;
+  background: transparent;
+  color: rgba(230,230,230,.72);
+}
+
+.finch-cmd--link:hover{
+  border-color: transparent;
+  background: transparent;
+  color: rgba(230,230,230,.92);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.finch-terminal__links{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: clamp(14px, 2vw, 18px);
+  padding-top: clamp(10px, 1.4vw, 14px);
+  border-top: 1px solid rgba(255,255,255,.10);
+  font-size: 12.5px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: rgba(230,230,230,.72);
+}
+
+.finch-terminal__links a{
+  color: rgba(230,230,230,.84);
+  text-decoration: none;
+}
+
+.finch-terminal__links a:hover{
+  color: rgba(230,230,230,.96);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.finch-terminal__links span{
+  color: rgba(230,230,230,.42);
 }
 
 .finch-cmd--primary{

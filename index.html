@@ -18,26 +18,18 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
             <p class="finch-terminal__line">
               <span class="finch-terminal__label">FINCH ARCHIVE</span>
               <span class="finch-terminal__sep" aria-hidden="true">//</span>
-              <span class="finch-terminal__meta">NODE: FINCH-01</span>
-              <span class="finch-terminal__sep" aria-hidden="true">·</span>
               <span class="finch-terminal__clock">10:22</span>
-              <span class="finch-terminal__sep" aria-hidden="true">·</span>
+              <span class="finch-terminal__sep" aria-hidden="true">//</span>
               <span class="finch-terminal__cond">INCOMPLETE</span>
-            </p>
-
-            <p class="finch-terminal__sub">
-              <span class="finch-terminal__k">SESSION</span> restored ........ <span class="finch-terminal__ok">ACTIVE</span>
-              <span class="finch-terminal__sep" aria-hidden="true">·</span>
-              <span class="finch-terminal__k">OPERATOR</span> ............. <span class="finch-terminal__warn">FINCH (mismatch)</span>
             </p>
           </header>
 
           <div class="finch-terminal__body">
             <p class="finch-terminal__active">
-              <span class="finch-pill finch-pill--active">ACTIVE</span>
-              <span class="finch-terminal__sep" aria-hidden="true">·</span>
+              <span class="finch-terminal__k">ACTIVE</span>
+              <span class="finch-terminal__sep" aria-hidden="true">•</span>
               <span class="finch-terminal__id">{{ feat.log_id | default: 'LOG' }}</span>
-              <span class="finch-terminal__sep" aria-hidden="true">·</span>
+              <span class="finch-terminal__sep" aria-hidden="true">•</span>
               <span class="finch-terminal__date">{{ feat.date | date: "%Y-%m-%d" }}</span>
             </p>
 
@@ -46,31 +38,25 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
             </h1>
 
             <p class="finch-terminal__excerpt">
-              {{ feat.content | strip_html | strip_newlines | truncate: 220 }}
+              {{ feat.content | strip_html | strip_newlines | truncate: 190 }}
             </p>
 
-            <div class="finch-terminal__actions" aria-label="Primary action">
+            <div class="finch-terminal__actions" aria-label="Primary actions">
               <a class="finch-cmd finch-cmd--primary" href="{{ feat.url | relative_url }}">OPEN TRANSMISSION →</a>
-              <a class="finch-cmd" href="{{ '/logs/' | relative_url }}">OPEN INDEX</a>
+              <a class="finch-cmd finch-cmd--link" href="{{ '/logs/' | relative_url }}">ALL LOGS</a>
             </div>
           </div>
 
-          <nav class="finch-terminal__cmdrow" aria-label="Archive commands">
-            <a class="finch-cmd" href="{{ '/logs/' | relative_url }}">LOG INDEX</a>
-            <a class="finch-cmd" href="{{ '/artifacts/' | relative_url }}">ARTIFACTS</a>
-            <a class="finch-cmd" href="{{ '/field-notes/' | relative_url }}">FIELD NOTES</a>
-            <a class="finch-cmd" href="{{ '/feeds/' | relative_url }}">FEEDS</a>
-            <a class="finch-cmd" href="{{ '/about/' | relative_url }}">ABOUT</a>
+          <nav class="finch-terminal__links" aria-label="Archive links">
+            <a href="{{ '/logs/' | relative_url }}">All logs</a>
+            <span aria-hidden="true">•</span>
+            <a href="{{ '/artifacts/' | relative_url }}">Artifacts</a>
+            <span aria-hidden="true">•</span>
+            <a href="{{ '/field-notes/' | relative_url }}">Field notes</a>
+            <span aria-hidden="true">•</span>
+            <a href="{{ '/about/' | relative_url }}">About</a>
           </nav>
-
-          <footer class="finch-terminal__foot" aria-label="System footer">
-            <p class="finch-terminal__footline">
-              <span class="finch-terminal__k">LOCK</span> time ............. <span class="finch-terminal__ok">10:22</span>
-              <span class="finch-terminal__sep" aria-hidden="true">·</span>
-              <span class="finch-terminal__k">DRIFT</span> +0.22% .......... <span class="finch-terminal__ok">STABLE</span>
-            </p>
-          </footer>
-        </div>
+</div>
       </div>
     </div>
   </div>
