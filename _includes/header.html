@@ -52,6 +52,7 @@
     </div>
 
     <!-- Row 2: primary nav (full width on mobile) -->
+    {% unless page.url == '/' %}
     <nav class="primary-nav" aria-label="Primary">
       {% assign here = page.url | relative_url %}
 
@@ -79,5 +80,6 @@
         About
       </a>
     </nav>
+    {% endunless %}
   </div>
 </header>

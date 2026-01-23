@@ -9,148 +9,67 @@ description: "Recovered notes from incomplete transmissions: the latest logs fro
 {%- assign logs  = site.logs | sort: "date" | reverse | default: EMPTY -%}
 {%- assign feat  = logs | first -%}
 
-<section class="finch-home" aria-label="Finch Archive homepage">
-  <div class="finch-crtframe" aria-label="CRT frame">
-    <img
-      class="finch-crtframe__img"
-      src="{{ '/assets/img/crt/finch-crt-frame-1200.webp' | relative_url }}"
-      srcset="{{ '/assets/img/crt/finch-crt-frame-900.webp' | relative_url }} 900w,
-              {{ '/assets/img/crt/finch-crt-frame-1200.webp' | relative_url }} 1200w,
-              {{ '/assets/img/crt/finch-crt-frame-1536.webp' | relative_url }} 1536w"
-      sizes="(max-width: 980px) 94vw, 1400px"
-      width="1536"
-      height="1024"
-      loading="eager"
-      decoding="async"
-      alt="A vintage CRT monitor framing the Finch Archive interface."
-    />
+<section class="finch-home finch-home--minimal" aria-label="Finch Archive homepage">
+  <div class="finch-monitor" role="region" aria-label="Recovered terminal interface">
+    <div class="finch-monitor__bezel">
+      <div class="finch-monitor__screen">
+        <div class="finch-terminal">
+          <header class="finch-terminal__top" aria-label="System header">
+            <p class="finch-terminal__line">
+              <span class="finch-terminal__label">FINCH ARCHIVE</span>
+              <span class="finch-terminal__sep" aria-hidden="true">//</span>
+              <span class="finch-terminal__meta">NODE: FINCH-01</span>
+              <span class="finch-terminal__sep" aria-hidden="true">·</span>
+              <span class="finch-terminal__clock">10:22</span>
+              <span class="finch-terminal__sep" aria-hidden="true">·</span>
+              <span class="finch-terminal__cond">INCOMPLETE</span>
+            </p>
 
-    <div class="finch-crtframe__screen" role="region" aria-label="Archive terminal">
-      <div class="finch-screen finch-screen--home">
-        <header class="finch-screen__header finch-screen__header--single" aria-label="System header">
+            <p class="finch-terminal__sub">
+              <span class="finch-terminal__k">SESSION</span> restored ........ <span class="finch-terminal__ok">ACTIVE</span>
+              <span class="finch-terminal__sep" aria-hidden="true">·</span>
+              <span class="finch-terminal__k">OPERATOR</span> ............. <span class="finch-terminal__warn">FINCH (mismatch)</span>
+            </p>
+          </header>
 
-          <!-- Desktop header -->
-          <div class="finch-screen__headline finch-screen__headline--desktop">
-            <span class="finch-screen__label">FINCH ARCHIVE</span>
-            <span class="finch-screen__sep" aria-hidden="true">//</span>
-            <span class="finch-screen__meta">NODE: FINCH-01</span>
-            <span class="finch-screen__sep" aria-hidden="true">·</span>
-            <span class="finch-screen__clock">10:22</span>
-            <span class="finch-screen__sep" aria-hidden="true">·</span>
-            <span class="finch-screen__cond">INCOMPLETE</span>
-          </div>
+          <div class="finch-terminal__body">
+            <p class="finch-terminal__active">
+              <span class="finch-pill finch-pill--active">ACTIVE</span>
+              <span class="finch-terminal__sep" aria-hidden="true">·</span>
+              <span class="finch-terminal__id">{{ feat.log_id | default: 'LOG' }}</span>
+              <span class="finch-terminal__sep" aria-hidden="true">·</span>
+              <span class="finch-terminal__date">{{ feat.date | date: "%Y-%m-%d" }}</span>
+            </p>
 
-          <!-- Mobile header -->
-          <div class="finch-screen__headline finch-screen__headline--mobile">
-            <div class="finch-mobilebar">
-              <span class="finch-mobilebar__title">FINCHARCHIVE.COM</span>
-              <span class="finch-active__pill finch-active__pill--mobile">
-                <span class="finch-led" aria-hidden="true"></span>
-                NEW
-              </span>
-            </div>
+            <h1 class="finch-terminal__title">
+              <a href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
+            </h1>
 
-            <div class="finch-mobilesignal" aria-label="Signal strength">
-              <span class="finch-mobilesignal__k">SIGNAL</span>
+            <p class="finch-terminal__excerpt">
+              {{ feat.content | strip_html | strip_newlines | truncate: 220 }}
+            </p>
 
-              <span class="finch-mobilesignal__bar" aria-hidden="true">
-                <span class="finch-mobilesignal__barv finch-mobilesignal__barv--a">▓▓▓▓▓░</span>
-                <span class="finch-mobilesignal__barv finch-mobilesignal__barv--b">▓▓▓▓░░</span>
-                <span class="finch-mobilesignal__barv finch-mobilesignal__barv--c">▓▓▓▓▓▓</span>
-              </span>
-
-              <span class="finch-mobilesignal__pct" aria-label="Signal percent">
-                <span class="finch-mobilesignal__pctv finch-mobilesignal__pctv--a">79%</span>
-                <span class="finch-mobilesignal__pctv finch-mobilesignal__pctv--b">82%</span>
-                <span class="finch-mobilesignal__pctv finch-mobilesignal__pctv--c">85%</span>
-              </span>
-            </div>
-          </div>
-        </header>
-
-        <div class="finch-screen__body">
-          {%- if feat -%}
-
-          <!-- =========================
-               DESKTOP UI
-               ========================= -->
-          <div class="finch-homeui__desktop" aria-label="Desktop terminal UI">
-            <div class="finch-homeui__top">
-              <pre class="finch-ascii" aria-hidden="true">
-  _____ _            _        _             _     _
- |  ___(_)_ __   ___| |__    / \   _ __ ___| |__ (_)_   _____   ___ ___  _ __ ___
- | |_  | | '_ \ / __| '_ \  / _ \ | '__/ __| '_ \| \ \ / / _ \ / __/ _ \| '_ ` _ \
- |  _| | | | | | (__| | | |/ ___ \| | | (__| | | | |\ V /  __/| (_| (_) | | | | | |
- |_|   |_|_| |_|\___|_| |_/_/   \_\_|  \___|_| |_|_| \_/ \___(_)___\___/|_| |_| |_|
-              </pre>
-
-              <p class="finch-active__meta">
-                <span class="finch-active__pill">ACTIVE</span>
-                <span class="finch-screen__sep" aria-hidden="true">·</span>
-                <span class="finch-active__id">{{ feat.log_id | default: 'LOG' }}</span>
-                <span class="finch-screen__sep" aria-hidden="true">·</span>
-                <span class="finch-active__date">{{ feat.date | date: "%Y-%m-%d" }}</span>
-              </p>
-
-              <h1 class="finch-active__title">
-                <a href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
-              </h1>
-
-              <p class="finch-active__excerpt">
-                {{ feat.content | strip_html | strip_newlines | truncate: 150 }}
-              </p>
-
-              <section class="finch-activity finch-activity--secondary" aria-label="System activity">
-                <p class="finch-activity__line"><span class="finch-activity__k">LOCK</span> time ............. <span class="finch-activity__ok">10:22</span></p>
-                <p class="finch-activity__line"><span class="finch-activity__k">DRIFT</span> +0.22% .......... <span class="finch-activity__ok">STABLE</span></p>
-              </section>
-            </div>
-
-            <div class="finch-homeui__bottom">
-              <nav class="finch-homeui__actions" aria-label="Primary actions">
-                <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">READ LATEST</a>
-                <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
-              </nav>
+            <div class="finch-terminal__actions" aria-label="Primary action">
+              <a class="finch-cmd finch-cmd--primary" href="{{ feat.url | relative_url }}">OPEN TRANSMISSION →</a>
+              <a class="finch-cmd" href="{{ '/logs/' | relative_url }}">OPEN INDEX</a>
             </div>
           </div>
 
-          <!-- =========================
-               MOBILE UI
-               ========================= -->
-          <div class="finch-homeui__mobile" aria-label="Mobile terminal UI">
-            <div class="finch-homeui__top">
-              <p class="finch-activity__line finch-activity__line--mobile-latest">
-                <a class="finch-homeui__promptlink" href="{{ feat.url | relative_url }}">
-                  {{ feat.title | truncate: 52 }}
-                </a>
-              </p>
-            </div>
+          <nav class="finch-terminal__cmdrow" aria-label="Archive commands">
+            <a class="finch-cmd" href="{{ '/logs/' | relative_url }}">LOG INDEX</a>
+            <a class="finch-cmd" href="{{ '/artifacts/' | relative_url }}">ARTIFACTS</a>
+            <a class="finch-cmd" href="{{ '/field-notes/' | relative_url }}">FIELD NOTES</a>
+            <a class="finch-cmd" href="{{ '/feeds/' | relative_url }}">FEEDS</a>
+            <a class="finch-cmd" href="{{ '/about/' | relative_url }}">ABOUT</a>
+          </nav>
 
-            <nav class="finch-homeui__actions finch-homeui__actions--mobile" aria-label="Primary actions">
-              <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">READ LATEST</a>
-              <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
-            </nav>
-          </div>
-
-          {%- else -%}
-
-          <div class="finch-homeui__desktop" aria-label="Desktop terminal UI">
-            <pre class="finch-ascii" aria-hidden="true">FINCHARCHIVE.COM</pre>
-            <p class="finch-activity__line"><span class="finch-activity__k">STATUS</span> NO TRANSMISSIONS</p>
-            <nav class="finch-homeui__actions" aria-label="Primary actions" style="margin-top:10px;">
-              <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
-            </nav>
-          </div>
-
-          <div class="finch-homeui__mobile" aria-label="Mobile terminal UI">
-            <pre class="finch-ascii" aria-hidden="true">FINCHARCHIVE.COM</pre>
-            <p class="finch-activity__line"><span class="finch-activity__k">STATUS</span> NO TRANSMISSIONS</p>
-            <nav class="finch-homeui__actions" aria-label="Primary actions" style="margin-top:10px;">
-              <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">READ ALL</a>
-            </nav>
-          </div>
-
-          {%- endif -%}
+          <footer class="finch-terminal__foot" aria-label="System footer">
+            <p class="finch-terminal__footline">
+              <span class="finch-terminal__k">LOCK</span> time ............. <span class="finch-terminal__ok">10:22</span>
+              <span class="finch-terminal__sep" aria-hidden="true">·</span>
+              <span class="finch-terminal__k">DRIFT</span> +0.22% .......... <span class="finch-terminal__ok">STABLE</span>
+            </p>
+          </footer>
         </div>
       </div>
     </div>
