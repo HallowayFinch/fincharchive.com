@@ -1,25 +1,25 @@
 {
-  "updated_utc": "2026-01-23T18:50:38Z",
+  "updated_utc": "2026-01-23T19:32:01Z",
   "endpoints": [
     {
       "name": "ALL (RSS)",
       "url": "https://fincharchive.com/feed/",
-      "status": 526
+      "status": 200
     },
     {
       "name": "ALL (JSON)",
       "url": "https://fincharchive.com/feed.json",
-      "status": 526
+      "status": 200
     },
     {
       "name": "Logs (RSS)",
       "url": "https://fincharchive.com/logs/feed.xml",
-      "status": 526
+      "status": 200
     },
     {
       "name": "Field Notes (RSS)",
       "url": "https://fincharchive.com/field-notes/feed.xml",
-      "status": 526
+      "status": 200
     },
     {
       "name": "Substack Field Notes",
