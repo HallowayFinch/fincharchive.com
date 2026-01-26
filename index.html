@@ -15,7 +15,7 @@ hero_h: 900
 <div class="finch-home finch-home--minimal">
   <div class="finch-crtframe">
     <img
-      class="finch-crtframe__frame"
+      class="finch-crtframe__img"
       src="{{ '/assets/img/crt/finch-crt-frame-1200.webp' | relative_url }}"
       srcset="
         {{ '/assets/img/crt/finch-crt-frame-900.webp' | relative_url }} 900w,
@@ -30,7 +30,8 @@ hero_h: 900
       aria-hidden="true"
     />
 
-    <div class="finch-screen finch-screen--home">
+        <div class="finch-crtframe__screen">
+<div class="finch-screen finch-screen--home">
       {%- if feat -%}
         <div class="finch-homeui">
           <!-- Desktop UI -->
@@ -108,5 +109,6 @@ hero_h: 900
         </div>
       {%- endif -%}
     </div>
+    </div><!-- /.finch-crtframe__screen -->
   </div>
 </div>
