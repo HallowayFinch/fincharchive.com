@@ -1,63 +1,112 @@
 ---
 layout: default
-full_width: true
 title: Finch Archive
 description: "Recovered notes from incomplete transmissions: the latest logs from the Finch Archive."
+hero_image: "/assets/og/home-console-1600x900.webp"
+hero_alt: "A dim, abandoned control corridor lit by a single fluorescent tube."
+hero_w: 1600
+hero_h: 900
 ---
 
 {%- assign EMPTY = '' | split: '' -%}
 {%- assign logs  = site.logs | sort: "date" | reverse | default: EMPTY -%}
 {%- assign feat  = logs | first -%}
 
-<section class="finch-home finch-home--minimal" aria-label="Finch Archive homepage">
-  <div class="finch-monitor" role="region" aria-label="Recovered terminal interface">
-    <div class="finch-monitor__bezel">
-      <div class="finch-monitor__screen">
-        <div class="finch-terminal">
-          <header class="finch-terminal__top" aria-label="System header">
-            <p class="finch-terminal__line">
-              <span class="finch-terminal__label">FINCH ARCHIVE</span>
-              <span class="finch-terminal__sep" aria-hidden="true">//</span>
-              <span class="finch-terminal__clock">10:22</span>
-              <span class="finch-terminal__sep" aria-hidden="true">//</span>
-              <span class="finch-terminal__cond">INCOMPLETE</span>
-            </p>
-          </header>
+<div class="finch-home finch-home--minimal">
+  <div class="finch-crtframe">
+    <img
+      class="finch-crtframe__frame"
+      src="{{ '/assets/img/crt/finch-crt-frame-1200.webp' | relative_url }}"
+      srcset="
+        {{ '/assets/img/crt/finch-crt-frame-900.webp' | relative_url }} 900w,
+        {{ '/assets/img/crt/finch-crt-frame-1200.webp' | relative_url }} 1200w,
+        {{ '/assets/img/crt/finch-crt-frame-1536.webp' | relative_url }} 1536w
+      "
+      sizes="(max-width: 980px) 92vw, (max-width: 1400px) 980px, 980px"
+      alt=""
+      loading="eager"
+      decoding="async"
+      fetchpriority="high"
+      aria-hidden="true"
+    />
 
-          <div class="finch-terminal__body">
-            <p class="finch-terminal__active">
-              <span class="finch-terminal__k">ACTIVE</span>
-              <span class="finch-terminal__sep" aria-hidden="true">•</span>
-              <span class="finch-terminal__id">{{ feat.log_id | default: 'LOG' }}</span>
-              <span class="finch-terminal__sep" aria-hidden="true">•</span>
-              <span class="finch-terminal__date">{{ feat.date | date: "%Y-%m-%d" }}</span>
-            </p>
+    <div class="finch-screen finch-screen--home">
+      {%- if feat -%}
+        <div class="finch-homeui">
+          <!-- Desktop UI -->
+          <div class="finch-homeui__desktop">
+            <div class="finch-homeui__kicker">FINCH ARCHIVE // 10:22 // INCOMPLETE</div>
+            <div class="finch-homeui__rule" aria-hidden="true"></div>
 
-            <h1 class="finch-terminal__title">
-              <a href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
-            </h1>
-
-            <p class="finch-terminal__excerpt">
-              {{ feat.content | strip_html | strip_newlines | truncate: 190 }}
-            </p>
-
-            <div class="finch-terminal__actions" aria-label="Primary actions">
-              <a class="finch-cmd finch-cmd--primary" href="{{ feat.url | relative_url }}">OPEN TRANSMISSION →</a>
-              <a class="finch-cmd finch-cmd--link" href="{{ '/logs/' | relative_url }}">ALL LOGS</a>
+            <div class="finch-homeui__meta">
+              ACTIVE • {{ feat.log_id | default: '1022Q' }} • {{ feat.date | date: "%Y-%m-%d" }}
             </div>
+
+            <h1 class="finch-homeui__title">{{ feat.title }}</h1>
+
+            <p class="finch-homeui__excerpt">
+              {{ feat.content | strip_html | strip_newlines | truncate: 240 }}
+            </p>
+
+            <div class="finch-homeui__actions">
+              <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">OPEN TRANSMISSION →</a>
+              <a class="finch-screen__btn" href="{{ '/logs/' | relative_url }}">ALL LOGS</a>
+            </div>
+
+            <div class="finch-homeui__rule finch-homeui__rule--thin" aria-hidden="true"></div>
+
+            <nav class="finch-homeui__nav" aria-label="Archive sections">
+              <a href="{{ '/logs/' | relative_url }}">All logs</a>
+              <span aria-hidden="true"> • </span>
+              <a href="{{ '/artifacts/' | relative_url }}">Artifacts</a>
+              <span aria-hidden="true"> • </span>
+              <a href="{{ '/field-notes/' | relative_url }}">Field notes</a>
+              <span aria-hidden="true"> • </span>
+              <a href="{{ '/about/' | relative_url }}">About</a>
+            </nav>
           </div>
 
-          <nav class="finch-terminal__links" aria-label="Archive links">
-            <a href="{{ '/logs/' | relative_url }}">All logs</a>
-            <span aria-hidden="true">•</span>
-            <a href="{{ '/artifacts/' | relative_url }}">Artifacts</a>
-            <span aria-hidden="true">•</span>
-            <a href="{{ '/field-notes/' | relative_url }}">Field notes</a>
-            <span aria-hidden="true">•</span>
-            <a href="{{ '/about/' | relative_url }}">About</a>
-          </nav>
-</div>
-      </div>
+          <!-- Mobile UI -->
+          <div class="finch-homeui__mobile">
+            <div class="finch-homeui__kicker">FINCH ARCHIVE // 10:22 // INCOMPLETE</div>
+
+            <div class="finch-homeui__meta">
+              ACTIVE • {{ feat.log_id | default: '1022Q' }} • {{ feat.date | date: "%Y-%m-%d" }}
+            </div>
+
+            <h1 class="finch-homeui__title">{{ feat.title }}</h1>
+
+            <p class="finch-homeui__excerpt">
+              {{ feat.content | strip_html | strip_newlines | truncate: 160 }}
+            </p>
+
+            <div class="finch-homeui__actions">
+              <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">OPEN →</a>
+              <a class="finch-screen__btn" href="{{ '/logs/' | relative_url }}">ALL LOGS</a>
+            </div>
+
+            <nav class="finch-homeui__nav" aria-label="Archive sections">
+              <a href="{{ '/artifacts/' | relative_url }}">Artifacts</a>
+              <span aria-hidden="true"> • </span>
+              <a href="{{ '/field-notes/' | relative_url }}">Field notes</a>
+              <span aria-hidden="true"> • </span>
+              <a href="{{ '/about/' | relative_url }}">About</a>
+            </nav>
+          </div>
+        </div>
+      {%- else -%}
+        <div class="finch-homeui">
+          <div class="finch-homeui__desktop">
+            <div class="finch-homeui__kicker">FINCH ARCHIVE // 10:22 // INCOMPLETE</div>
+            <div class="finch-homeui__rule" aria-hidden="true"></div>
+            <h1 class="finch-homeui__title">No transmissions recovered.</h1>
+            <p class="finch-homeui__excerpt">The Archive index is empty.</p>
+            <div class="finch-homeui__actions">
+              <a class="finch-screen__btn" href="{{ '/about/' | relative_url }}">About</a>
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
     </div>
   </div>
-</section>
+</div>
