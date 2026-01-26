@@ -346,7 +346,7 @@ header.site {
 }
 .theme-toggle:hover {
   opacity: 1;
-  transform: translateY(-0.5px);
+  transform: translateY(-1px);
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(122, 58, 58, .16);
 }
@@ -1267,62 +1267,6 @@ html, body { overflow-x: hidden; }
   height: 100%;
   display: flex;
   flex-direction: column;
-  position: relative;
-  overflow: hidden;
-}
-
-
-/* Home CRT polish: subtle glass + scanlines + rare interference */
-.finch-screen.finch-screen--home > *{
-  position: relative;
-  z-index: 1;
-}
-
-.finch-screen.finch-screen--home::before{
-  content:"";
-  position:absolute;
-  inset:-18%;
-  pointer-events:none;
-  background:
-    radial-gradient(60% 45% at 28% 20%,
-      rgba(255,255,255,.08),
-      rgba(255,255,255,0) 60%),
-    radial-gradient(55% 40% at 72% 28%,
-      rgba(255,255,255,.04),
-      rgba(255,255,255,0) 55%);
-  transform: rotate(-6deg);
-  opacity: .55;
-  mix-blend-mode: screen;
-  z-index: 2;
-}
-
-.finch-screen.finch-screen--home::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  background:
-    repeating-linear-gradient(
-      to bottom,
-      rgba(255,255,255,.028),
-      rgba(255,255,255,.028) 1px,
-      rgba(0,0,0,0) 3px,
-      rgba(0,0,0,0) 6px
-    ),
-    radial-gradient(circle at 50% 45%,
-      rgba(255,255,255,.02),
-      rgba(0,0,0,0) 55%);
-  opacity: .32;
-  z-index: 3;
-  animation: finchInterference 12s infinite;
-}
-
-@keyframes finchInterference{
-  0%, 92%, 100%{ filter:none; opacity:.32; transform:none; }
-  93%{ opacity:.38; }
-  94%{ opacity:.26; transform: translateY(-0.5px); }
-  95%{ opacity:.36; }
-  96%{ opacity:.30; transform: translateY(0.4px); }
 }
 
 /* keep terminal typography mono */
@@ -1392,11 +1336,7 @@ html, body { overflow-x: hidden; }
   color: rgba(232,255,233,0.98);
   text-decoration: none;
   border-bottom: 1px solid rgba(126,255,176,.25);
-  text-shadow:
-    0.6px 0 rgba(122, 58, 58, .35),
-    -0.6px 0 rgba(120, 130, 190, .18);
 }
-
 
 .finch-active__excerpt{
   margin: 0 0 10px;
@@ -1404,10 +1344,6 @@ html, body { overflow-x: hidden; }
   line-height: 1.45;
   color: rgba(232,255,233,0.82);
   max-width: 60ch;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 /* Buttons */
@@ -1636,4 +1572,322 @@ html, body { overflow-x: hidden; }
   .finch-crtframe{
     --crt-max: 1680px; /* try 1600–1800 */
   }
+}
+
+
+/* ======================================
+   Minimal CRT homepage (single-window)
+   ====================================== */
+
+.finch-home--minimal{
+  margin-top: 0;
+  padding: clamp(22px, 3vw, 40px) 0 clamp(34px, 4.4vw, 64px);
+}
+
+.finch-monitor{
+  width: min(1200px, 92vw);
+  margin: 0 auto;
+}
+
+.finch-monitor__bezel{
+  position: relative;
+  border-radius: 26px;
+  padding: clamp(14px, 2.2vw, 22px);
+  background:
+    radial-gradient(120% 140% at 20% 10%, rgba(255,255,255,.06), rgba(255,255,255,0) 55%),
+    linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow:
+    0 18px 70px rgba(0,0,0,.70),
+    inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+.finch-monitor__screen{
+  position: relative;
+  border-radius: 18px;
+  padding: clamp(18px, 2.4vw, 28px);
+  overflow: hidden;
+  background:
+    radial-gradient(140% 120% at 50% 32%, rgba(0,0,0,.18), rgba(0,0,0,.74) 70%),
+    linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0));
+  border: 1px solid rgba(255,255,255,.10);
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,.55),
+    inset 0 -18px 50px rgba(0,0,0,.55);
+}
+
+/* Subtle CRT glass effects (static, low-key) */
+.finch-monitor__screen::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .14;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,.08) 0px,
+      rgba(255,255,255,.08) 1px,
+      rgba(255,255,255,0) 2px,
+      rgba(255,255,255,0) 5px
+    );
+  mix-blend-mode: overlay;
+  animation: finch-interference 12s infinite;
+}
+
+.finch-monitor__screen::after{
+  content: "";
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+  opacity: .12;
+  transform: rotate(-10deg);
+  background: radial-gradient(closest-side at 35% 20%, rgba(255,255,255,.14), rgba(255,255,255,0) 60%);
+  animation: finch-reflect 18s infinite;
+}
+
+/* Terminal typography */
+.finch-terminal{
+  position: relative;
+  z-index: 1;
+  color: var(--fg);
+  font-family: var(--mono);
+}
+
+.finch-terminal__top{
+  margin-bottom: clamp(10px, 1.6vw, 14px);
+  padding-bottom: clamp(8px, 1.2vw, 12px);
+  border-bottom: 1px solid rgba(255,255,255,.10);
+}
+
+.finch-terminal__line{
+  margin: 0 0 8px;
+  font-size: 13px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: rgba(230,230,230,.92);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.finch-terminal__sub{
+  margin: 0;
+  font-size: 12.5px;
+  color: rgba(230,230,230,.72);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  line-height: 1.35;
+}
+
+.finch-terminal__k{
+  color: rgba(230,230,230,.70);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: 12px;
+}
+
+.finch-terminal__ok{
+  color: rgba(230,230,230,.92);
+}
+
+.finch-terminal__warn{
+  color: var(--accent);
+}
+
+@supports (color: color-mix(in srgb, #000 50%, #fff)){
+  .finch-terminal__warn{ color: color-mix(in srgb, var(--accent) 72%, var(--fg)); }
+}
+
+.finch-terminal__body{
+  padding: clamp(10px, 1.4vw, 16px) 0;
+}
+
+.finch-terminal__active{
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  color: rgba(230,230,230,.76);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.finch-pill{
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(0,0,0,.25);
+  font-size: 11.5px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.finch-pill--active{
+  border-color: rgba(122,58,58,.55);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.55) inset;
+}
+
+@supports (color: color-mix(in srgb, #000 50%, #fff)){
+  .finch-pill--active{ border-color: color-mix(in srgb, var(--accent) 55%, rgba(255,255,255,.10)); }
+}
+
+.finch-terminal__title{
+  margin: 0 0 10px;
+  font-family: var(--mono);
+  font-size: clamp(22px, 2.6vw, 34px);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+
+  text-shadow:
+    0.6px 0 rgba(122, 58, 58, .32),
+    -0.6px 0 rgba(120, 140, 200, .14);
+}
+
+.finch-terminal__title a{
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.finch-terminal__title a:hover{
+  color: var(--fg);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.finch-terminal__excerpt{
+  margin: 0 0 14px;
+  max-width: 70ch;
+  color: rgba(230,230,230,.78);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.finch-terminal__actions{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.finch-cmd{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.20);
+  color: rgba(230,230,230,.88);
+  text-decoration: none;
+  font-size: 13px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.finch-cmd:hover{
+  border-color: rgba(255,255,255,.22);
+  background: rgba(0,0,0,.34);
+}
+
+/* Text-link command (secondary) */
+.finch-cmd--link{
+  padding: 9px 4px;
+  border-color: transparent;
+  background: transparent;
+  color: rgba(230,230,230,.72);
+}
+
+.finch-cmd--link:hover{
+  border-color: transparent;
+  background: transparent;
+  color: rgba(230,230,230,.92);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.finch-terminal__links{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: clamp(14px, 2vw, 18px);
+  padding-top: clamp(10px, 1.4vw, 14px);
+  border-top: 1px solid rgba(255,255,255,.10);
+  font-size: 12.5px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: rgba(230,230,230,.72);
+}
+
+.finch-terminal__links a{
+  color: rgba(230,230,230,.84);
+  text-decoration: none;
+}
+
+.finch-terminal__links a:hover{
+  color: rgba(230,230,230,.96);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.finch-terminal__links span{
+  color: rgba(230,230,230,.42);
+}
+
+.finch-cmd--primary{
+  border-color: rgba(122,58,58,.55);
+  background: rgba(122,58,58,.22);
+}
+
+@supports (color: color-mix(in srgb, #000 50%, #fff)){
+  .finch-cmd--primary{
+    border-color: color-mix(in srgb, var(--accent) 55%, rgba(255,255,255,.14));
+    background: color-mix(in srgb, rgba(0,0,0,.25) 70%, var(--accent));
+  }
+  .finch-terminal__title a:hover{ color: color-mix(in srgb, var(--fg) 86%, var(--accent)); }
+}
+
+.finch-terminal__cmdrow{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: clamp(10px, 1.5vw, 14px);
+  border-top: 1px solid rgba(255,255,255,.10);
+  margin-top: clamp(12px, 1.8vw, 18px);
+}
+
+.finch-terminal__foot{
+  margin-top: clamp(16px, 2.4vw, 22px);
+  padding-top: clamp(12px, 1.6vw, 16px);
+  border-top: 1px dashed rgba(255,255,255,.14);
+}
+
+.finch-terminal__footline{
+  margin: 0;
+  font-size: 12.5px;
+  color: rgba(230,230,230,.70);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Keep the monitor big on desktop, but comfortable on small screens */
+@media (max-width: 520px){
+  .finch-monitor{ width: min(98vw, 1200px); }
+  .finch-terminal__excerpt{ font-size: 15px; }
+  .finch-cmd{ width: 100%; justify-content: center; }
 }
