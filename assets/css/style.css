@@ -327,8 +327,8 @@ header.site {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 6px;
   border: 1px solid var(--badge-border);
   background: var(--badge-bg);
@@ -362,8 +362,8 @@ header.site {
 /* Icon variants inside the toggle */
 .theme-toggle .icon {
   display: none;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   fill: currentColor;
   transition:
     transform var(--dur-med) var(--ease),
@@ -1224,19 +1224,18 @@ html, body { overflow-x: hidden; }
 
 /* CRT wrapper */
 .finch-crtframe{
-  --crt-max: 1280px; /* <-- increase/decrease this to taste */
-  --crt-screen-nudge-y: 0.8%;
+  --crt-max: 1400px; /* <-- increase/decrease this to taste */
   position: relative;
   width: min(var(--crt-max), 100%);
   margin: 0 auto;
   filter: drop-shadow(0 18px 70px rgba(0,0,0,.65));
   overflow: visible;
 
-  /* Screen bbox (measured from 1536×1024 CRT frame) */
-  --screen-x: 20.57%;
-  --screen-y: 12.70%;
-  --screen-w: 59.38%;
-  --screen-h: 65.53%;
+  /* Screen bbox (percent of CRT frame image) */
+  --screen-x: 16.5%;
+  --screen-y: 14.8%;
+  --screen-w: 67%;
+  --screen-h: 52%;
 }
 
 .finch-crtframe__img{
@@ -1249,30 +1248,94 @@ html, body { overflow-x: hidden; }
 
 /* Screen overlay window */
 .finch-crtframe__screen{
-  position: absolute;
-  left: var(--screen-x);
-  top: var(--screen-y);
-  width: var(--screen-w);
-  height: var(--screen-h);
+  position: absolute !important;
+  top: var(--screen-y, 14.8%);
+  left: var(--screen-x, 16.5%);
+  width: var(--screen-w, 67%);
+  height: var(--screen-h, 52%);
+  border-radius: 18px;
   overflow: hidden;
-  border-radius: 10px;
 
-  background: radial-gradient(120% 120% at 50% 38%, rgba(0,0,0,.15), rgba(0,0,0,.62));
+  /* Screen surface */
+  background:
+    radial-gradient(120% 100% at 50% 35%, rgba(255,255,255,0.10), rgba(0,0,0,0.90) 62%, rgba(0,0,0,0.98) 100%),
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.75));
   box-shadow:
-    inset 0 0 0 1px rgba(126,255,176,.12),
-    inset 0 0 24px rgba(0,0,0,.55);
-  transform: translateY(var(--crt-screen-nudge-y));
+    inset 0 0 0 1px rgba(255,255,255,0.06),
+    inset 0 0 40px rgba(0,0,0,0.55);
+  filter: contrast(1.05) saturate(1.05);
+  -webkit-font-smoothing: antialiased;
 }
-.finch-crtframe__img{z-index:0}
-.finch-crtframe__screen::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;background:
-  radial-gradient(120% 90% at 50% 40%, rgba(255,255,255,.08), rgba(0,0,0,.78) 62%, rgba(0,0,0,.92) 100%),
-  repeating-linear-gradient(to bottom, rgba(255,255,255,.06) 0px, rgba(255,255,255,.06) 1px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 4px);
-opacity:.38;mix-blend-mode:overlay}
-.finch-crtframe__screen::after{content:"";position:absolute;inset:-2px;pointer-events:none;z-index:1;background:
-  radial-gradient(60% 55% at 50% 25%, rgba(122,58,58,.22), rgba(0,0,0,0) 58%),
-  linear-gradient(to bottom, rgba(255,255,255,.04), rgba(0,0,0,0) 35%, rgba(0,0,0,.18));
-opacity:.55;mix-blend-mode:screen;filter:blur(.25px)}
-.finch-crtframe__screen > *{position:relative;z-index:2}
+
+/* Homepage CRT effects (pure CSS) */
+.finch-home .finch-crtframe__screen::before,
+.finch-home .finch-crtframe__screen::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.finch-home .finch-crtframe__screen::before{
+  /* scanlines + subtle RGB bleed */
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.06) 0px,
+      rgba(255,255,255,0.06) 1px,
+      rgba(0,0,0,0.00) 2px,
+      rgba(0,0,0,0.00) 4px
+    ),
+    linear-gradient(90deg,
+      rgba(255,0,64,0.05),
+      rgba(0,0,0,0.00) 22%,
+      rgba(0,0,0,0.00) 78%,
+      rgba(0,255,255,0.05)
+    ),
+    radial-gradient(120% 100% at 50% 50%, rgba(0,0,0,0.00) 55%, rgba(0,0,0,0.35) 100%);
+  mix-blend-mode: overlay;
+  opacity: 0.22;
+}
+
+.finch-home .finch-crtframe__screen::after{
+  /* noise + faint rolling band */
+  background:
+    linear-gradient(180deg,
+      rgba(0,0,0,0.00) 0%,
+      rgba(255,255,255,0.05) 45%,
+      rgba(0,0,0,0.00) 60%,
+      rgba(0,0,0,0.00) 100%
+    ),
+    repeating-radial-gradient(circle at 20% 10%,
+      rgba(255,255,255,0.03) 0px,
+      rgba(255,255,255,0.00) 1px,
+      rgba(0,0,0,0.00) 3px
+    );
+  opacity: 0.12;
+  transform: translateZ(0);
+  animation: finch-crt-flicker 6.5s infinite;
+}
+
+@keyframes finch-crt-flicker{
+  0%{ opacity: .10; transform: translateY(0); }
+  8%{ opacity: .16; }
+  9%{ opacity: .08; }
+  42%{ opacity: .14; transform: translateY(0); }
+  55%{ opacity: .10; transform: translateY(6%); }
+  56%{ opacity: .12; }
+  80%{ opacity: .10; transform: translateY(0); }
+  100%{ opacity: .12; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .finch-home .finch-crtframe__screen::after{ animation: none; }
+}
+
+.finch-home .finch-screen--home{
+  text-shadow:
+    0.6px 0 0 rgba(255, 0, 64, 0.12),
+    -0.6px 0 0 rgba(0, 255, 255, 0.10);
+}
 
 
 /* Terminal surface */
@@ -1299,11 +1362,6 @@ opacity:.55;mix-blend-mode:screen;filter:blur(.25px)}
 
 /* Desktop vs mobile UI panes */
 .finch-homeui__desktop{ display: block; height: 100%; }
-
-.finch-homeui__below{margin:1.15rem auto 0;display:flex;gap:.65rem;align-items:center;justify-content:center;flex-wrap:wrap;font-size:.95rem;letter-spacing:.02em;color:rgba(255,255,255,.62);text-transform:lowercase}
-.finch-homeui__below a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(122,58,58,.35)}
-.finch-homeui__below a:hover{color:rgba(255,255,255,.86);border-bottom-color:rgba(122,58,58,.65)}
-.finch-homeui__below span{opacity:.55}
 .finch-homeui__mobile{ display: none; height: 100%; }
 
 /* ASCII banner */
@@ -1364,97 +1422,6 @@ opacity:.55;mix-blend-mode:screen;filter:blur(.25px)}
   max-width: 60ch;
 }
 
-/* Alias styles for the current homepage CRT markup (finch-screen__*) */
-.finch-screen__shell{
-  position: relative;
-  z-index: 3;
-  padding: 4.25rem 4.5rem 3.75rem;
-  max-width: 62ch;
-  color: #eaeaea;
-}
-
-.finch-screen__meta{
-  margin: 0 0 18px;
-  color: rgba(234,234,234,.78);
-  font-size: 13px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  text-shadow: 0 0 10px rgba(126,255,176,.08);
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.finch-screen__pill{
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(126,255,176,.18);
-  background: rgba(0,0,0,.25);
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
-  color: rgba(234,234,234,.86);
-}
-
-.finch-screen__title{
-  margin: 0 0 10px;
-  font-size: clamp(2.2rem, 4.2vw, 3.45rem);
-  line-height: 1.03;
-  letter-spacing: .02em;
-  text-shadow: 0 0 18px rgba(126,255,176,.06);
-}
-
-.finch-screen__title a{ color: inherit; text-decoration: none; }
-.finch-screen__title a:hover{ text-decoration: underline; text-underline-offset: 3px; }
-
-.finch-screen__excerpt{
-  margin: 0 0 22px;
-  color: rgba(234,234,234,.84);
-  font-size: 15px;
-  line-height: 1.65;
-  text-shadow: 0 0 10px rgba(0,0,0,.35);
-}
-.finch-screen__excerpt--clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
-
-
-.finch-screen__actions{
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  margin: 2px 0 18px;
-}
-
-.finch-screen__nav{
-  position: relative;
-  padding-top: 10px;
-  font-size: 14px;
-  color: rgba(234,234,234,.68);
-  letter-spacing: .03em;
-}
-.finch-screen__nav::before{
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(126,255,176,.10), rgba(255,120,120,.06), rgba(126,255,176,.06));
-  opacity: .55;
-}
-.finch-screen__nav a{ color: inherit; text-decoration: none; }
-.finch-screen__nav a:hover{ text-decoration: underline; text-underline-offset: 3px; }
-
-/* Responsive polish */
-@media (max-width: 720px){
-  .finch-screen__shell{ padding: 2.4rem 1.6rem 2.2rem; max-width: 100%; }
-  .finch-screen__title{ font-size: clamp(1.8rem, 6vw, 2.4rem); }
-  .finch-screen__actions{ flex-direction: column; align-items: stretch; }
-  .finch-screen__actions .button{ width: 100%; justify-content: center; }
-}
-
-
 /* Buttons */
 .finch-homeui__actions{
   display: grid;
@@ -1513,70 +1480,114 @@ opacity:.55;mix-blend-mode:screen;filter:blur(.25px)}
     padding: 10px 0 18px;
   }
 
-    /* Mobile: center the CRT and keep the "glass" readable */
   .finch-crtframe{
-    width: min(96vw, 720px);
-    max-width: var(--crt-max, 720px);
+    width: min(920px, 96vw);
+    max-width: 96vw;
     box-sizing: border-box;
     position: relative;
-    left: 0;
+    left: auto;
     transform: none;
     margin: 0 auto;
-
-    /* tighten the screen bounds slightly so text never kisses the bezel */
-    --screen-x: 0.14;
-    --screen-y: 0.205;
-    --screen-w: 0.72;
-    --screen-h: 0.535;
   }
 
-  /* remove the old inset/translate hack on small screens */
-  .finch-crtframe__screen{
-    transform: none;
-    border-radius: 18px;
+  /* switch panes */
+  .finch-homeui__desktop{ display: none; }
+  .finch-homeui__mobile{ display: block; }
+
+  /* Mobile header line 1 */
+  .finch-screen__headline--mobile{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .finch-screen__headline--desktop{ display: none; }
+
+  .finch-mobilebar{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    white-space: nowrap;
     overflow: hidden;
-    background: rgba(0,0,0,.55);
   }
 
-  /* Mobile UI typography inside the CRT */
-  .finch-homeui__mobile{
-    padding: 0.95rem 0.95rem 1.0rem;
+  .finch-mobilebar__title{
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.06em;
   }
 
-  .finch-homeui__mobile .finch-screen__kicker{
-    font-size: 0.85rem;
-    opacity: 0.9;
+  /* NEW pill stays top-right */
+  .finch-active__pill--mobile{
+    flex: 0 0 auto;
+    padding: 3px 9px;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
   }
 
-  .finch-homeui__mobile .finch-screen__pill{
-    font-size: 0.90rem;
+  /* steady LED (no blink) */
+  .finch-led{
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(126,255,176,.92);
+    box-shadow: 0 0 10px rgba(126,255,176,.35), 0 0 2px rgba(126,255,176,.55);
   }
 
-  .finch-homeui__mobile .finch-screen__headline{
-    font-size: clamp(1.95rem, 9.8vw, 2.55rem);
-    line-height: 1.04;
-    letter-spacing: 0.02em;
+  /* Signal line 2 */
+  .finch-mobilesignal{
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--mono);
+    letter-spacing: 0.12em;
+    font-size: 0.72rem;
+    color: rgba(232,255,233,.78);
+    white-space: nowrap;
   }
 
-  .finch-homeui__mobile .finch-homeui__top{
-    margin-bottom: 12px;
+  .finch-mobilesignal__k{ opacity: .75; }
+
+  /* overlay swap (bar + pct) */
+  .finch-mobilesignal__bar,
+  .finch-mobilesignal__pct{
+    position: relative;
+    display: inline-block;
+    min-width: 6ch;
   }
 
-  .finch-homeui__mobile .finch-homeui__below{
-    font-size: 0.92rem;
-    line-height: 1.25;
-    white-space: normal;
+  .finch-mobilesignal__barv,
+  .finch-mobilesignal__pctv{
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: translateY(0);
+    animation: finchSignalSwap 3.6s infinite steps(1,end);
   }
 
-  .finch-homeui__mobile .finch-homeui__below a{
-    padding: 6px 4px;
+  .finch-mobilesignal__barv--a,
+  .finch-mobilesignal__pctv--a{ animation-delay: 0s; opacity: 1; }
+
+  .finch-mobilesignal__barv--b,
+  .finch-mobilesignal__pctv--b{ animation-delay: 1.2s; }
+
+  .finch-mobilesignal__barv--c,
+  .finch-mobilesignal__pctv--c{ animation-delay: 2.4s; }
+
+  @keyframes finchSignalSwap{
+    0%{ opacity: 1; }
+    28%{ opacity: 1; }
+    33%{ opacity: 0; }
+    100%{ opacity: 0; }
   }
 
   /* Mobile content + spacing */
   .finch-screen--home{
-    padding: 12px 12px 12px;
-    font-size: 0.90rem;
-    line-height: 1.34;
+    padding: 8px 9px 10px;
+    font-size: 0.86rem;
+    line-height: 1.30;
   }
 
   /* add a touch more space between title link and buttons */
@@ -1599,19 +1610,6 @@ opacity:.55;mix-blend-mode:screen;filter:blur(.25px)}
     white-space: nowrap;
     letter-spacing: 0.12em;
     border-radius: 12px;
-  }
-
-}
-
-@media (max-width: 520px){
-  .finch-homeui__mobile .finch-homeui__actions{
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .finch-homeui__mobile .finch-screen__btn{
-    font-size: 0.74rem;
-    min-height: 36px;
   }
 }
 
@@ -1636,6 +1634,6 @@ opacity:.55;mix-blend-mode:screen;filter:blur(.25px)}
 
   /* Increase CRT max width (was --crt-max: 1400px in the base rules) */
   .finch-crtframe{
-    --crt-max: 1280px; /* try 1600–1800 */
+    --crt-max: 1680px; /* try 1600–1800 */
   }
 }
