@@ -1231,11 +1231,11 @@ html, body { overflow-x: hidden; }
   filter: drop-shadow(0 18px 70px rgba(0,0,0,.65));
   overflow: visible;
 
-  /* Screen bbox (percent of CRT frame image) */
-  --screen-x: 16.5%;
-  --screen-y: 14.8%;
-  --screen-w: 67%;
-  --screen-h: 52%;
+  /* Screen inset (percent of CRT frame image) */
+  --screen-inset-x: 6.8%;
+  --screen-inset-y: 10%;
+  /* Bottom inset is larger because the CRT's lower bezel + controls take up more vertical space. */
+  --screen-inset-b: 28%;
 }
 
 .finch-crtframe__img{
@@ -1249,10 +1249,11 @@ html, body { overflow-x: hidden; }
 /* Screen overlay window */
 .finch-crtframe__screen{
   position: absolute !important;
-  top: var(--screen-y, 14.8%);
-  left: var(--screen-x, 16.5%);
-  width: var(--screen-w, 67%);
-  height: var(--screen-h, 52%);
+  z-index: 2;
+  top: var(--screen-inset-y);
+  left: var(--screen-inset-x);
+  right: var(--screen-inset-x);
+  bottom: var(--screen-inset-b);
   border-radius: 18px;
   overflow: hidden;
 
@@ -1488,11 +1489,16 @@ html, body { overflow-x: hidden; }
     left: auto;
     transform: none;
     margin: 0 auto;
+
+    /* Re-tune screen insets for smaller viewport */
+    --screen-inset-x: 8%;
+    --screen-inset-y: 13%;
+    --screen-inset-b: 30%;
   }
 
   /* switch panes */
-  .finch-homeui__desktop{ display: none; }
-  .finch-homeui__mobile{ display: block; }
+  .finch-homeui__desktop{ display: none !important; }
+  .finch-homeui__mobile{ display: block !important; }
 
   /* Mobile header line 1 */
   .finch-screen__headline--mobile{
