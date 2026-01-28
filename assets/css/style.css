@@ -327,8 +327,8 @@ header.site {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 6px;
   border: 1px solid var(--badge-border);
   background: var(--badge-bg);
@@ -362,8 +362,8 @@ header.site {
 /* Icon variants inside the toggle */
 .theme-toggle .icon {
   display: none;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   fill: currentColor;
   transition:
     transform var(--dur-med) var(--ease),
@@ -1224,19 +1224,19 @@ html, body { overflow-x: hidden; }
 
 /* CRT wrapper */
 .finch-crtframe{
-  /* Default monitor size (desktop) */
-  --crt-max: 1040px;
+  --crt-max: 1280px; /* <-- increase/decrease this to taste */
+  --crt-screen-nudge-y: 0.8%;
   position: relative;
   width: min(var(--crt-max), 100%);
   margin: 0 auto;
   filter: drop-shadow(0 18px 70px rgba(0,0,0,.65));
   overflow: visible;
 
-  /* Screen bbox (percent of CRT frame image) */
-  --screen-x: 16.5;
-  --screen-y: 14.8;
-  --screen-w: 67.0;
-  --screen-h: 52.0;
+  /* Screen bbox (measured from 1536×1024 CRT frame) */
+  --screen-x: 20.57%;
+  --screen-y: 12.70%;
+  --screen-w: 59.38%;
+  --screen-h: 65.53%;
 }
 
 .finch-crtframe__img{
@@ -1249,98 +1249,30 @@ html, body { overflow-x: hidden; }
 
 /* Screen overlay window */
 .finch-crtframe__screen{
-  position: absolute !important;
-  top: calc(var(--screen-y) * 1%);
-  left: calc(var(--screen-x) * 1%);
-  width: calc(var(--screen-w) * 1%);
-  height: calc(var(--screen-h) * 1%);
-  border-radius: 18px;
-  overflow: hidden;
-
-  /* Pull content inward so it sits safely within the glass bezel */
-  box-sizing: border-box;
-  padding: clamp(18px, 2.2vw, 40px) clamp(20px, 2.8vw, 56px) clamp(20px, 2.6vw, 46px);
-
-  /* Screen surface */
-  background:
-    radial-gradient(120% 100% at 50% 35%, rgba(255,255,255,0.10), rgba(0,0,0,0.90) 62%, rgba(0,0,0,0.98) 100%),
-    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.75));
-  box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,0.06),
-    inset 0 0 40px rgba(0,0,0,0.55);
-  filter: contrast(1.05) saturate(1.05);
-  -webkit-font-smoothing: antialiased;
-}
-
-/* Homepage CRT effects (pure CSS) */
-.finch-home .finch-crtframe__screen::before,
-.finch-home .finch-crtframe__screen::after{
-  content: "";
   position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
+  left: var(--screen-x);
+  top: var(--screen-y);
+  width: var(--screen-w);
+  height: var(--screen-h);
+  overflow: hidden;
+  border-radius: 10px;
 
-.finch-home .finch-crtframe__screen::before{
-  /* scanlines + subtle RGB bleed */
-  background:
-    repeating-linear-gradient(
-      to bottom,
-      rgba(255,255,255,0.06) 0px,
-      rgba(255,255,255,0.06) 1px,
-      rgba(0,0,0,0.00) 2px,
-      rgba(0,0,0,0.00) 4px
-    ),
-    linear-gradient(90deg,
-      rgba(255,0,64,0.05),
-      rgba(0,0,0,0.00) 22%,
-      rgba(0,0,0,0.00) 78%,
-      rgba(0,255,255,0.05)
-    ),
-    radial-gradient(120% 100% at 50% 50%, rgba(0,0,0,0.00) 55%, rgba(0,0,0,0.35) 100%);
-  mix-blend-mode: overlay;
-  opacity: 0.22;
+  background: radial-gradient(120% 120% at 50% 38%, rgba(0,0,0,.15), rgba(0,0,0,.62));
+  box-shadow:
+    inset 0 0 0 1px rgba(126,255,176,.12),
+    inset 0 0 24px rgba(0,0,0,.55);
+  transform: translateY(var(--crt-screen-nudge-y));
 }
-
-.finch-home .finch-crtframe__screen::after{
-  /* noise + faint rolling band */
-  background:
-    linear-gradient(180deg,
-      rgba(0,0,0,0.00) 0%,
-      rgba(255,255,255,0.05) 45%,
-      rgba(0,0,0,0.00) 60%,
-      rgba(0,0,0,0.00) 100%
-    ),
-    repeating-radial-gradient(circle at 20% 10%,
-      rgba(255,255,255,0.03) 0px,
-      rgba(255,255,255,0.00) 1px,
-      rgba(0,0,0,0.00) 3px
-    );
-  opacity: 0.12;
-  transform: translateZ(0);
-  animation: finch-crt-flicker 6.5s infinite;
-}
-
-@keyframes finch-crt-flicker{
-  0%{ opacity: .10; transform: translateY(0); }
-  8%{ opacity: .16; }
-  9%{ opacity: .08; }
-  42%{ opacity: .14; transform: translateY(0); }
-  55%{ opacity: .10; transform: translateY(6%); }
-  56%{ opacity: .12; }
-  80%{ opacity: .10; transform: translateY(0); }
-  100%{ opacity: .12; }
-}
-
-@media (prefers-reduced-motion: reduce){
-  .finch-home .finch-crtframe__screen::after{ animation: none; }
-}
-
-.finch-home .finch-screen--home{
-  text-shadow:
-    0.6px 0 0 rgba(255, 0, 64, 0.12),
-    -0.6px 0 0 rgba(0, 255, 255, 0.10);
-}
+.finch-crtframe__img{z-index:0}
+.finch-crtframe__screen::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;background:
+  radial-gradient(120% 90% at 50% 40%, rgba(255,255,255,.08), rgba(0,0,0,.78) 62%, rgba(0,0,0,.92) 100%),
+  repeating-linear-gradient(to bottom, rgba(255,255,255,.06) 0px, rgba(255,255,255,.06) 1px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 4px);
+opacity:.38;mix-blend-mode:overlay}
+.finch-crtframe__screen::after{content:"";position:absolute;inset:-2px;pointer-events:none;z-index:1;background:
+  radial-gradient(60% 55% at 50% 25%, rgba(122,58,58,.22), rgba(0,0,0,0) 58%),
+  linear-gradient(to bottom, rgba(255,255,255,.04), rgba(0,0,0,0) 35%, rgba(0,0,0,.18));
+opacity:.55;mix-blend-mode:screen;filter:blur(.25px)}
+.finch-crtframe__screen > *{position:relative;z-index:2}
 
 
 /* Terminal surface */
@@ -1367,6 +1299,11 @@ html, body { overflow-x: hidden; }
 
 /* Desktop vs mobile UI panes */
 .finch-homeui__desktop{ display: block; height: 100%; }
+
+.finch-homeui__below{margin:1.15rem auto 0;display:flex;gap:.65rem;align-items:center;justify-content:center;flex-wrap:wrap;font-size:.95rem;letter-spacing:.02em;color:rgba(255,255,255,.62);text-transform:lowercase}
+.finch-homeui__below a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(122,58,58,.35)}
+.finch-homeui__below a:hover{color:rgba(255,255,255,.86);border-bottom-color:rgba(122,58,58,.65)}
+.finch-homeui__below span{opacity:.55}
 .finch-homeui__mobile{ display: none; height: 100%; }
 
 /* ASCII banner */
@@ -1427,6 +1364,97 @@ html, body { overflow-x: hidden; }
   max-width: 60ch;
 }
 
+/* Alias styles for the current homepage CRT markup (finch-screen__*) */
+.finch-screen__shell{
+  position: relative;
+  z-index: 3;
+  padding: 4.25rem 4.5rem 3.75rem;
+  max-width: 62ch;
+  color: #eaeaea;
+}
+
+.finch-screen__meta{
+  margin: 0 0 18px;
+  color: rgba(234,234,234,.78);
+  font-size: 13px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(126,255,176,.08);
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.finch-screen__pill{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(126,255,176,.18);
+  background: rgba(0,0,0,.25);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
+  color: rgba(234,234,234,.86);
+}
+
+.finch-screen__title{
+  margin: 0 0 10px;
+  font-size: clamp(2.2rem, 4.2vw, 3.45rem);
+  line-height: 1.03;
+  letter-spacing: .02em;
+  text-shadow: 0 0 18px rgba(126,255,176,.06);
+}
+
+.finch-screen__title a{ color: inherit; text-decoration: none; }
+.finch-screen__title a:hover{ text-decoration: underline; text-underline-offset: 3px; }
+
+.finch-screen__excerpt{
+  margin: 0 0 22px;
+  color: rgba(234,234,234,.84);
+  font-size: 15px;
+  line-height: 1.65;
+  text-shadow: 0 0 10px rgba(0,0,0,.35);
+}
+.finch-screen__excerpt--clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
+
+
+.finch-screen__actions{
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin: 2px 0 18px;
+}
+
+.finch-screen__nav{
+  position: relative;
+  padding-top: 10px;
+  font-size: 14px;
+  color: rgba(234,234,234,.68);
+  letter-spacing: .03em;
+}
+.finch-screen__nav::before{
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(126,255,176,.10), rgba(255,120,120,.06), rgba(126,255,176,.06));
+  opacity: .55;
+}
+.finch-screen__nav a{ color: inherit; text-decoration: none; }
+.finch-screen__nav a:hover{ text-decoration: underline; text-underline-offset: 3px; }
+
+/* Responsive polish */
+@media (max-width: 720px){
+  .finch-screen__shell{ padding: 2.4rem 1.6rem 2.2rem; max-width: 100%; }
+  .finch-screen__title{ font-size: clamp(1.8rem, 6vw, 2.4rem); }
+  .finch-screen__actions{ flex-direction: column; align-items: stretch; }
+  .finch-screen__actions .button{ width: 100%; justify-content: center; }
+}
+
+
 /* Buttons */
 .finch-homeui__actions{
   display: grid;
@@ -1486,13 +1514,25 @@ html, body { overflow-x: hidden; }
   }
 
   .finch-crtframe{
-    width: min(920px, 96vw);
-    max-width: 96vw;
+    width: 120vw;
+    max-width: none;
     box-sizing: border-box;
     position: relative;
-    left: auto;
-    transform: none;
-    margin: 0 auto;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+  }
+
+  .finch-crtframe__screen{
+    inset: 18% 12% 36% 12%;
+    border-radius: 18px;
+    overflow: hidden;
+    background: rgba(0,0,0,.55);
+    box-shadow: inset 0 0 0 1px rgba(126,255,176,.16);
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+
+    --mobile-screen-nudge: 15%;
+    transform: translateX(var(--mobile-screen-nudge));
   }
 
   /* switch panes */
@@ -1622,4 +1662,23 @@ html, body { overflow-x: hidden; }
 @media (min-width: 981px){
   .finch-screen__headline--desktop{ display: block; }
   .finch-screen__headline--mobile{ display: none; }
+}
+
+/* =========================================================
+   Desktop CRT sizing override (homepage)
+   Paste at END of assets/css/style.css
+   ========================================================= */
+
+/* Let the homepage CRT break out of the site container on desktop */
+@media (min-width: 981px){
+  .finch-home{
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+  }
+
+  /* Increase CRT max width (was --crt-max: 1400px in the base rules) */
+  .finch-crtframe{
+    --crt-max: 1280px; /* try 1600–1800 */
+  }
 }

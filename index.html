@@ -36,64 +36,55 @@ hero_h: 900
         <div class="finch-homeui">
           <!-- Desktop UI -->
           <div class="finch-homeui__desktop">
-            <div class="finch-homeui__kicker">FINCH ARCHIVE // 10:22 // INCOMPLETE</div>
-            <div class="finch-homeui__rule" aria-hidden="true"></div>
-
-            <div class="finch-homeui__meta">
-              ACTIVE • {{ feat.log_id | default: '1022Q' }} • {{ feat.date | date: "%Y-%m-%d" }}
+          <div class="finch-screen__shell finch-screen__shell--home">
+            <div class="finch-screen__meta">
+              <span class="finch-screen__kicker">FINCH ARCHIVE // 10:22 // INCOMPLETE</span>
             </div>
 
-            <h1 class="finch-homeui__title">{{ feat.title }}</h1>
+            <div class="finch-screen__meta finch-screen__meta--tight">
+              <span class="finch-screen__pill">ACTIVE • {{ feat.log_id }} • {{ feat.date | date: "%Y-%m-%d" }}</span>
+            </div>
 
-            <p class="finch-homeui__excerpt">
-              {{ feat.content | strip_html | strip_newlines | truncate: 240 }}
+            <h1 class="finch-screen__title">
+              <a href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
+            </h1>
+
+            <p class="finch-screen__excerpt finch-screen__excerpt--clamp">
+              {{ feat.content | strip_html | normalize_whitespace | truncate: 140 }}
             </p>
 
-            <div class="finch-homeui__actions">
+            <div class="finch-screen__actions">
               <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">OPEN TRANSMISSION →</a>
-              <a class="finch-screen__btn" href="{{ '/logs/' | relative_url }}">ALL LOGS</a>
+              <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">ALL LOGS</a>
             </div>
-
-            <div class="finch-homeui__rule finch-homeui__rule--thin" aria-hidden="true"></div>
-
-            <nav class="finch-homeui__nav" aria-label="Archive sections">
-              <a href="{{ '/logs/' | relative_url }}">All logs</a>
-              <span aria-hidden="true"> • </span>
-              <a href="{{ '/artifacts/' | relative_url }}">Artifacts</a>
-              <span aria-hidden="true"> • </span>
-              <a href="{{ '/field-notes/' | relative_url }}">Field notes</a>
-              <span aria-hidden="true"> • </span>
-              <a href="{{ '/about/' | relative_url }}">About</a>
-            </nav>
           </div>
+        </div>
 
           <!-- Mobile UI -->
           <div class="finch-homeui__mobile">
-            <div class="finch-homeui__kicker">FINCH ARCHIVE // 10:22 // INCOMPLETE</div>
-
-            <div class="finch-homeui__meta">
-              ACTIVE • {{ feat.log_id | default: '1022Q' }} • {{ feat.date | date: "%Y-%m-%d" }}
+          <div class="finch-screen__shell finch-screen__shell--home">
+            <div class="finch-screen__meta">
+              <span class="finch-screen__kicker">FINCH ARCHIVE // 10:22</span>
             </div>
 
-            <h1 class="finch-homeui__title">{{ feat.title }}</h1>
+            <div class="finch-screen__meta finch-screen__meta--tight">
+              <span class="finch-screen__pill">ACTIVE • {{ feat.log_id }} • {{ feat.date | date: "%Y-%m-%d" }}</span>
+            </div>
 
-            <p class="finch-homeui__excerpt">
-              {{ feat.content | strip_html | strip_newlines | truncate: 160 }}
+            <h1 class="finch-screen__title">
+              <a href="{{ feat.url | relative_url }}">{{ feat.title }}</a>
+            </h1>
+
+            <p class="finch-screen__excerpt finch-screen__excerpt--clamp">
+              {{ feat.content | strip_html | normalize_whitespace | truncate: 120 }}
             </p>
 
-            <div class="finch-homeui__actions">
+            <div class="finch-screen__actions">
               <a class="finch-screen__btn finch-screen__btn--fill" href="{{ feat.url | relative_url }}">OPEN →</a>
-              <a class="finch-screen__btn" href="{{ '/logs/' | relative_url }}">ALL LOGS</a>
+              <a class="finch-screen__btn finch-screen__btn--fill2" href="{{ '/logs/' | relative_url }}">LOGS</a>
             </div>
-
-            <nav class="finch-homeui__nav" aria-label="Archive sections">
-              <a href="{{ '/artifacts/' | relative_url }}">Artifacts</a>
-              <span aria-hidden="true"> • </span>
-              <a href="{{ '/field-notes/' | relative_url }}">Field notes</a>
-              <span aria-hidden="true"> • </span>
-              <a href="{{ '/about/' | relative_url }}">About</a>
-            </nav>
           </div>
+        </div>
         </div>
       {%- else -%}
         <div class="finch-homeui">
@@ -110,5 +101,16 @@ hero_h: 900
       {%- endif -%}
     </div>
     </div><!-- /.finch-crtframe__screen -->
+
+  <div class="finch-homeui__below" aria-label="Archive sections">
+    <a href="{{ '/logs/' | relative_url }}">All logs</a>
+    <span aria-hidden="true">•</span>
+    <a href="{{ '/artifacts/' | relative_url }}">Artifacts</a>
+    <span aria-hidden="true">•</span>
+    <a href="{{ '/field-notes/' | relative_url }}">Field notes</a>
+    <span aria-hidden="true">•</span>
+    <a href="{{ '/about/' | relative_url }}">About</a>
+  </div>
+
   </div>
 </div>
