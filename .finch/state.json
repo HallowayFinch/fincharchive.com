@@ -1,5 +1,5 @@
 {
-  "next_seq": 20,
+  "next_seq": 21,
   "guid_to_slug": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "the-voice-in-the-static",
     "https://hallowayfinch.substack.com/p/the-orchard-transmission": "the-orchard-transmission",
@@ -19,7 +19,8 @@
     "/p/the-hidden-room-blueprint": "the-hidden-room-blueprint",
     "/p/the-third-flicker": "the-third-flicker",
     "/p/the-thing-in-the-safety-lights": "the-thing-in-the-safety-lights",
-    "/p/the-wrong-finch": "the-wrong-finch"
+    "/p/the-wrong-finch": "the-wrong-finch",
+    "/p/the-new-pair-of-glasses": "the-new-pair-of-glasses"
   },
   "guid_to_log_id": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "1022A",
@@ -40,7 +41,8 @@
     "/p/the-hidden-room-blueprint": "1022P",
     "/p/the-third-flicker": "1022Q",
     "/p/the-thing-in-the-safety-lights": "1022R",
-    "/p/the-wrong-finch": "1022S"
+    "/p/the-wrong-finch": "1022S",
+    "/p/the-new-pair-of-glasses": "1022T"
   },
   "seen_guids": [
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static",
@@ -61,6 +63,7 @@
     "/p/the-hidden-room-blueprint",
     "/p/the-third-flicker",
     "/p/the-thing-in-the-safety-lights",
-    "/p/the-wrong-finch"
+    "/p/the-wrong-finch",
+    "/p/the-new-pair-of-glasses"
   ]
 }
