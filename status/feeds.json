@@ -1,5 +1,5 @@
 {
-  "updated_utc": "2026-02-24T15:11:35Z",
+  "updated_utc": "2026-02-24T16:11:20Z",
   "endpoints": [
     {
       "name": "ALL (RSS)",
@@ -19,7 +19,7 @@
     {
       "name": "Field Notes (RSS)",
       "url": "https://fincharchive.com/field-notes/feed.xml",
-      "status": 0
+      "status": 200
     },
     {
       "name": "Substack Field Notes",
