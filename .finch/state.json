@@ -1,5 +1,5 @@
 {
-  "next_seq": 22,
+  "next_seq": 23,
   "guid_to_slug": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "the-voice-in-the-static",
     "https://hallowayfinch.substack.com/p/the-orchard-transmission": "the-orchard-transmission",
@@ -21,7 +21,8 @@
     "/p/the-thing-in-the-safety-lights": "the-thing-in-the-safety-lights",
     "/p/the-wrong-finch": "the-wrong-finch",
     "/p/the-new-pair-of-glasses": "the-new-pair-of-glasses",
-    "/p/the-tape-left-at-my-door": "the-tape-left-at-my-door"
+    "/p/the-tape-left-at-my-door": "the-tape-left-at-my-door",
+    "/p/the-forgotten-case": "the-forgotten-case"
   },
   "guid_to_log_id": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "1022A",
@@ -44,7 +45,8 @@
     "/p/the-thing-in-the-safety-lights": "1022R",
     "/p/the-wrong-finch": "1022S",
     "/p/the-new-pair-of-glasses": "1022T",
-    "/p/the-tape-left-at-my-door": "1022U"
+    "/p/the-tape-left-at-my-door": "1022U",
+    "/p/the-forgotten-case": "1022V"
   },
   "seen_guids": [
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static",
@@ -67,6 +69,7 @@
     "/p/the-thing-in-the-safety-lights",
     "/p/the-wrong-finch",
     "/p/the-new-pair-of-glasses",
-    "/p/the-tape-left-at-my-door"
+    "/p/the-tape-left-at-my-door",
+    "/p/the-forgotten-case"
   ]
 }
