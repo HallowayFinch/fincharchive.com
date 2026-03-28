@@ -1,5 +1,5 @@
 {
-  "next_seq": 26,
+  "next_seq": 27,
   "guid_to_slug": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "the-voice-in-the-static",
     "https://hallowayfinch.substack.com/p/the-orchard-transmission": "the-orchard-transmission",
@@ -25,7 +25,8 @@
     "/p/the-forgotten-case": "the-forgotten-case",
     "/p/the-case-already-solved": "the-case-already-solved",
     "/p/the-memorable-interview": "the-memorable-interview",
-    "/p/the-prior-statement": "the-prior-statement"
+    "/p/the-prior-statement": "the-prior-statement",
+    "/p/the-window-latch": "the-window-latch"
   },
   "guid_to_log_id": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "1022A",
@@ -52,7 +53,8 @@
     "/p/the-forgotten-case": "1022V",
     "/p/the-case-already-solved": "1022W",
     "/p/the-memorable-interview": "1022X",
-    "/p/the-prior-statement": "1022Y"
+    "/p/the-prior-statement": "1022Y",
+    "/p/the-window-latch": "1022Z"
   },
   "seen_guids": [
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static",
@@ -79,6 +81,7 @@
     "/p/the-forgotten-case",
     "/p/the-case-already-solved",
     "/p/the-memorable-interview",
-    "/p/the-prior-statement"
+    "/p/the-prior-statement",
+    "/p/the-window-latch"
   ]
 }
