@@ -1,5 +1,5 @@
 {
-  "next_seq": 31,
+  "next_seq": 32,
   "guid_to_slug": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "the-voice-in-the-static",
     "https://hallowayfinch.substack.com/p/the-orchard-transmission": "the-orchard-transmission",
@@ -30,7 +30,8 @@
     "/p/the-purged-record": "the-purged-record",
     "/p/the-observation-room": "the-observation-room",
     "/p/the-illness-hypothesis": "the-illness-hypothesis",
-    "/p/the-version-that-breaks": "the-version-that-breaks"
+    "/p/the-version-that-breaks": "the-version-that-breaks",
+    "/p/the-assignment-error": "the-assignment-error"
   },
   "guid_to_log_id": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "1022A",
@@ -62,7 +63,8 @@
     "/p/the-purged-record": "1022AA",
     "/p/the-observation-room": "1022AB",
     "/p/the-illness-hypothesis": "1022AC",
-    "/p/the-version-that-breaks": "1022AD"
+    "/p/the-version-that-breaks": "1022AD",
+    "/p/the-assignment-error": "1022AE"
   },
   "seen_guids": [
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static",
@@ -94,6 +96,7 @@
     "/p/the-purged-record",
     "/p/the-observation-room",
     "/p/the-illness-hypothesis",
-    "/p/the-version-that-breaks"
+    "/p/the-version-that-breaks",
+    "/p/the-assignment-error"
   ]
 }
