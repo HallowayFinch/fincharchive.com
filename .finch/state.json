@@ -1,5 +1,5 @@
 {
-  "next_seq": 32,
+  "next_seq": 33,
   "guid_to_slug": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "the-voice-in-the-static",
     "https://hallowayfinch.substack.com/p/the-orchard-transmission": "the-orchard-transmission",
@@ -31,7 +31,8 @@
     "/p/the-observation-room": "the-observation-room",
     "/p/the-illness-hypothesis": "the-illness-hypothesis",
     "/p/the-version-that-breaks": "the-version-that-breaks",
-    "/p/the-assignment-error": "the-assignment-error"
+    "/p/the-assignment-error": "the-assignment-error",
+    "/p/the-returning-memory": "the-returning-memory"
   },
   "guid_to_log_id": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "1022A",
@@ -64,7 +65,8 @@
     "/p/the-observation-room": "1022AB",
     "/p/the-illness-hypothesis": "1022AC",
     "/p/the-version-that-breaks": "1022AD",
-    "/p/the-assignment-error": "1022AE"
+    "/p/the-assignment-error": "1022AE",
+    "/p/the-returning-memory": "1022AF"
   },
   "seen_guids": [
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static",
@@ -97,6 +99,7 @@
     "/p/the-observation-room",
     "/p/the-illness-hypothesis",
     "/p/the-version-that-breaks",
-    "/p/the-assignment-error"
+    "/p/the-assignment-error",
+    "/p/the-returning-memory"
   ]
 }
