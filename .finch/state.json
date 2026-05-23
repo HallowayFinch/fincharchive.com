@@ -1,5 +1,5 @@
 {
-  "next_seq": 34,
+  "next_seq": 35,
   "guid_to_slug": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "the-voice-in-the-static",
     "https://hallowayfinch.substack.com/p/the-orchard-transmission": "the-orchard-transmission",
@@ -33,7 +33,8 @@
     "/p/the-version-that-breaks": "the-version-that-breaks",
     "/p/the-assignment-error": "the-assignment-error",
     "/p/the-returning-memory": "the-returning-memory",
-    "/p/the-interviewer": "the-interviewer"
+    "/p/the-interviewer": "the-interviewer",
+    "/p/the-repeater": "the-repeater"
   },
   "guid_to_log_id": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "1022A",
@@ -68,7 +69,8 @@
     "/p/the-version-that-breaks": "1022AD",
     "/p/the-assignment-error": "1022AE",
     "/p/the-returning-memory": "1022AF",
-    "/p/the-interviewer": "1022AG"
+    "/p/the-interviewer": "1022AG",
+    "/p/the-repeater": "1022AH"
   },
   "seen_guids": [
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static",
@@ -103,6 +105,7 @@
     "/p/the-version-that-breaks",
     "/p/the-assignment-error",
     "/p/the-returning-memory",
-    "/p/the-interviewer"
+    "/p/the-interviewer",
+    "/p/the-repeater"
   ]
 }
