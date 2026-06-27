@@ -1,26 +1,3 @@
-# OS cruft
-.DS_Store
-Thumbs.db
-
-# Jekyll build caches
-_site/
-.jekyll-cache/
-.sass-cache/
-.jekyll-metadata
-
-# Python local env & caches (for scripts/)
-__pycache__/
-*.pyc
-.venv/
-.env
-.python-version
-.pytest_cache/
-
-# Editor & tooling
-.vscode/
-.idea/
-*.swp
-
-# Logs & temp
-*.log
-*.tmp
+node_modules/
+dist/
+.astro/
