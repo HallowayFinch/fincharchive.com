@@ -1,0 +1,25 @@
+---
+import { getLogs } from '../../lib/archive';
+
+const logs = await getLogs();
+---
+
+<html lang="en">
+  <head>
+    <title>Logs · Finch Archive</title>
+  </head>
+  <body>
+    <main>
+      <h1>Logs</h1>
+      <ol>
+        {logs.map((log) => (
+          <li>
+            <a href={log.permalink}>{log.title}</a>
+            <br />
+            <time datetime={log.date}>{log.date}</time>
+          </li>
+        ))}
+      </ol>
+    </main>
+  </body>
+</html>
