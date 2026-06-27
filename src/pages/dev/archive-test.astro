@@ -1,0 +1,25 @@
+---
+import fs from 'node:fs/promises';
+import { marked } from 'marked';
+
+const file = await fs.readFile('_logs/postmortem-1022.md', 'utf-8');
+const [, frontmatter, body] = file.split('---');
+
+const title = frontmatter.match(/title:\s*"([^"]+)"/)?.[1] ?? 'Untitled Record';
+const date = frontmatter.match(/date:\s*"([^"]+)"/)?.[1] ?? '';
+const html = marked.parse(body.trim());
+---
+
+<html lang="en">
+  <head>
+    <title>{title} · Finch Archive</title>
+  </head>
+  <body>
+    <main>
+      <p>Archive renderer test</p>
+      <h1>{title}</h1>
+      <p>{date}</p>
+      <article set:html={html} />
+    </main>
+  </body>
+</html>
