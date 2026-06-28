@@ -79,3 +79,47 @@ blockquote {
   padding-left: 1rem;
   color: var(--muted);
 }
+
+body:has(.terminal) {
+  background:
+    radial-gradient(circle at center, rgba(50, 90, 60, 0.08), transparent 45%),
+    #020402;
+}
+
+.terminal {
+  max-width: 46rem;
+  margin: 4vh auto;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  color: #74ff8a;
+  background:
+    linear-gradient(rgba(255,255,255,0.025) 50%, rgba(0,0,0,0.08) 50%),
+    radial-gradient(circle at center, rgba(116,255,138,0.08), rgba(0,0,0,0.82) 72%);
+  background-size: 100% 4px, cover;
+  border: 1px solid rgba(116,255,138,0.28);
+  border-radius: 1.4rem;
+  box-shadow:
+    0 0 2rem rgba(116,255,138,0.12),
+    inset 0 0 4rem rgba(116,255,138,0.08);
+  text-shadow: 0 0 0.45rem rgba(116,255,138,0.55);
+}
+
+.terminal h1 {
+  font-family: var(--mono);
+  font-size: clamp(1.6rem, 5vw, 3rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.terminal pre {
+  border-left-color: rgba(116,255,138,0.35);
+}
+
+.terminal-link::after {
+  content: "█";
+  margin-left: 0.6rem;
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
