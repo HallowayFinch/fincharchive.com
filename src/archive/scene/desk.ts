@@ -1,9 +1,9 @@
-import { room01 } from './room01';
+import { archiveOffice } from '../locations/archive-office/location';
 
 export const deskScene = {
   id: 'scene-0001',
-  room: room01,
-  name: room01.publicName,
+  room: archiveOffice,
+  name: archiveOffice.publicName,
   objects: [
     {
       id: 'case-files',

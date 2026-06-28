@@ -1,6 +1,6 @@
-export const room01 = {
-  id: 'room-01',
-  internalName: 'Room 01',
+export const archiveOffice = {
+  id: 'archive-office',
+  internalName: 'Archive Office',
   publicName: 'The Archive',
   time: '22:22',
   camera: {
@@ -15,8 +15,8 @@ export const room01 = {
     overhead: false,
   },
   assets: {
-    background: '/assets/room01/background.webp',
-    objectsPath: '/assets/room01/objects/',
+    background: '/assets/archive-office/background.webp',
+    objectsPath: '/assets/archive-office/objects/',
   },
   environment: [
     'dark walnut desk',
