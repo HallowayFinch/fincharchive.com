@@ -1,5 +1,6 @@
 ---
 import { marked } from 'marked';
+import ArchiveLayout from '../../layouts/ArchiveLayout.astro';
 import { getLog, getLogSlugs } from '../../lib/archive';
 
 export async function getStaticPaths() {
@@ -15,16 +16,11 @@ const log = await getLog(slug!);
 const html = marked.parse(log.body);
 ---
 
-<html lang="en">
-  <head>
-    <title>{log.title} · Finch Archive</title>
-  </head>
-  <body>
-    <main>
-      <p><a href="/logs/">Logs</a></p>
-      <h1>{log.title}</h1>
-      <time datetime={log.date}>{log.date}</time>
-      <article set:html={html} />
-    </main>
-  </body>
-</html>
+<ArchiveLayout title={`${log.title} · Finch Archive`}>
+  <main>
+    <p><a href="/logs/">Logs</a></p>
+    <h1>{log.title}</h1>
+    <time datetime={log.date}>{log.date}</time>
+    <article set:html={html} />
+  </main>
+</ArchiveLayout>
