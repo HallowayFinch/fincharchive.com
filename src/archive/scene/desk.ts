@@ -1,6 +1,9 @@
+import { room01 } from './room01';
+
 export const deskScene = {
   id: 'scene-0001',
-  name: 'Initial Public Access Desk',
+  room: room01,
+  name: room01.publicName,
   objects: [
     {
       id: 'case-files',
