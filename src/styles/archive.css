@@ -124,18 +124,18 @@ body:has(.terminal) {
   50% { opacity: 0; }
 }
 
-.archive-desk-page {
+.archive-location-page {
   max-width: none;
   min-height: 100vh;
   padding: 2rem;
 }
 
-.desk-scene {
+.location-scene {
   width: min(92vw, 1200px);
   margin: 0 auto;
 }
 
-.desk-surface {
+.location-scene__surface {
   position: relative;
   aspect-ratio: 16 / 9;
   overflow: hidden;
@@ -147,7 +147,7 @@ body:has(.terminal) {
   box-shadow: 0 2rem 6rem rgba(0,0,0,0.65);
 }
 
-.desk-surface::before {
+.location-scene__surface::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -158,31 +158,121 @@ body:has(.terminal) {
   pointer-events: none;
 }
 
-.desk-object {
+.location-scene__object {
   position: absolute;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding: 0.65rem;
   border: 1px solid rgba(232, 226, 216, 0.18);
-  background: rgba(0,0,0,0.28);
+  background:
+    var(--object-image) center / contain no-repeat,
+    linear-gradient(135deg, rgba(42, 32, 23, 0.76), rgba(8, 8, 7, 0.72)),
+    repeating-linear-gradient(90deg, rgba(232, 226, 216, 0.05), rgba(232, 226, 216, 0.05) 1px, transparent 1px, transparent 14px);
   color: var(--text);
   text-decoration: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,0.32),
+    0 0.8rem 1.8rem rgba(0,0,0,0.22);
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
 }
 
-.desk-object span {
-  background: rgba(0,0,0,0.68);
-  padding: 0.35rem 0.55rem;
-  font-size: 0.78rem;
+.location-scene__object-plate,
+.location-scene__hover-label {
+  background: rgba(5, 5, 5, 0.76);
+  border: 1px solid rgba(232, 226, 216, 0.18);
+  color: var(--text);
+  font-size: 0.68rem;
+  line-height: 1.35;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
 }
 
-.desk-object:hover,
-.desk-object:focus-visible {
+.location-scene__object-plate {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.38rem 0.48rem;
+}
+
+.location-scene__object-id {
+  color: var(--muted);
+}
+
+.location-scene__hover-label {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 0.5rem);
+  display: grid;
+  gap: 0.14rem;
+  min-width: max-content;
+  max-width: min(16rem, 72vw);
+  padding: 0.52rem 0.62rem;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(0.25rem);
+  transition: opacity 160ms ease, transform 160ms ease;
+  z-index: 2;
+}
+
+.location-scene__hover-label span:last-child {
+  color: var(--muted);
+}
+
+.location-scene__object:hover,
+.location-scene__object:focus-visible {
   transform: translateY(-3px);
   border-color: rgba(232, 226, 216, 0.55);
-  background: rgba(155, 75, 69, 0.18);
-  box-shadow: 0 0 1.8rem rgba(232, 226, 216, 0.12);
+  box-shadow:
+    inset 0 0 0 1px rgba(232, 226, 216, 0.1),
+    0 0 1.8rem rgba(232, 226, 216, 0.12);
+}
+
+.location-scene__object:focus-visible {
+  outline: 2px solid rgba(232, 226, 216, 0.72);
+  outline-offset: 3px;
+}
+
+.location-scene__object:hover .location-scene__hover-label,
+.location-scene__object:focus-visible .location-scene__hover-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.location-scene__object-name {
+  max-width: 16ch;
+}
+
+.location-scene__object--recorder .location-scene__object-name {
+  max-width: 24ch;
+}
+
+.location-scene__object--photographs .location-scene__hover-label {
+  left: auto;
+  right: 0;
+}
+
+.location-scene__object--case-files {
+  transform: rotate(-1deg);
+}
+
+.location-scene__object--field-notes {
+  transform: rotate(1deg);
+}
+
+.location-scene__object--photographs {
+  transform: rotate(-2deg);
+}
+
+.location-scene__object--case-files:hover,
+.location-scene__object--case-files:focus-visible,
+.location-scene__object--field-notes:hover,
+.location-scene__object--field-notes:focus-visible,
+.location-scene__object--photographs:hover,
+.location-scene__object--photographs:focus-visible {
+  transform: translateY(-3px) rotate(0deg);
+}
+
+.location-scene__object span {
+  text-transform: uppercase;
 }
 
 .return-link {
@@ -190,13 +280,6 @@ body:has(.terminal) {
   margin: 1rem auto 0;
   text-align: right;
   color: var(--muted);
-}
-
-.desk-object {
-  background-image: var(--object-image);
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
 }
 
 .archive-room {

@@ -1,29 +1,54 @@
 ---
-import { deskScene } from '../archive/locations/archive-office/desk';
+import { archiveOfficeDesk } from '../archive/locations';
+import type { LocationSceneData } from '../archive/models/scene';
+
+type Props = {
+  scene?: LocationSceneData;
+};
+
+const { scene = archiveOfficeDesk } = Astro.props;
 ---
 
-<section class="desk-scene" aria-label={deskScene.name}>
+<section class="location-scene" aria-label={scene.name}>
   <div
-    class="desk-surface"
+    class="location-scene__surface"
     style={`background-image:
       radial-gradient(circle at 34% 26%, rgba(214, 154, 83, 0.24), transparent 30%),
       linear-gradient(135deg, #24170f, #090706 70%),
-      url(${deskScene.location.assets.background});`}
+      url(${scene.location.assets.background});`}
   >
-    {deskScene.materials.map((object) => (
-      <a
-        class={`desk-object desk-object--${object.id}`}
-        href={object.href}
-        style={`
-          left:${object.x}%;
-          top:${object.y}%;
-          width:${object.width}%;
-          height:${object.height}%;
-          --object-image: url(${object.image});
-        `}
-      >
-        <span>{object.label}</span>
-      </a>
-    ))}
+    {scene.materials.map((object) => {
+      const objectName = object.name ?? object.label;
+      const objectStatus = object.status ?? 'INDEXED';
+      const objectImage = object.image ? `url(${object.image})` : 'none';
+      const accessibleLabel = [objectName, object.assetId, `Status: ${objectStatus}`]
+        .filter(Boolean)
+        .join('. ');
+
+      return (
+        <a
+          class={`location-scene__object location-scene__object--${object.id}`}
+          href={object.href}
+          aria-label={accessibleLabel}
+          style={`
+            left:${object.x}%;
+            top:${object.y}%;
+            width:${object.width}%;
+            height:${object.height}%;
+            --object-image: ${objectImage};
+          `}
+        >
+          <span class="location-scene__object-plate">
+            <span class="location-scene__object-name">{objectName}</span>
+            {object.assetId && <span class="location-scene__object-id">{object.assetId}</span>}
+          </span>
+          <span class="location-scene__hover-label" aria-hidden="true">
+            <span>{objectName}</span>
+            {object.assetId && <span>{object.assetId}</span>}
+            <span>STATUS: {objectStatus}</span>
+          </span>
+        </a>
+      );
+    })}
   </div>
 </section>
