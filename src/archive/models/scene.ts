@@ -12,6 +12,16 @@ export type SceneObject = {
   height: number;
 };
 
+export type PresenceSystem = {
+  id: string;
+  kind: 'rain' | 'dust' | 'lamp-instability';
+  intensity?: 'low' | 'medium';
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 export type LocationSceneData = {
   id: string;
   name: string;
@@ -19,6 +29,7 @@ export type LocationSceneData = {
     assets: {
       background: string;
     };
+    presence?: PresenceSystem[];
   };
   materials: SceneObject[];
   ambient?: SceneObject[];

@@ -1,6 +1,7 @@
 ---
 import { archiveOfficeDesk } from '../archive/locations';
 import type { LocationSceneData } from '../archive/models/scene';
+import PresenceLayer from './PresenceLayer.astro';
 
 type Props = {
   scene?: LocationSceneData;
@@ -17,6 +18,8 @@ const { scene = archiveOfficeDesk } = Astro.props;
       radial-gradient(circle at 34% 26%, rgba(214, 154, 83, 0.24), transparent 30%),
       linear-gradient(135deg, #24170f, #090706 70%);`}
   >
+    <PresenceLayer systems={scene.location.presence} />
+
     {scene.ambient?.map((object) => {
       const objectImage = object.image ? `url(${object.image})` : 'none';
 
