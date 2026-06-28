@@ -1,0 +1,21 @@
+---
+import ArchiveLayout from '../../layouts/ArchiveLayout.astro';
+import { getFieldNotes } from '../../archive';
+
+const notes = await getFieldNotes();
+---
+
+<ArchiveLayout title="Field Notes · Finch Archive">
+  <main>
+    <h1>Field Notes</h1>
+    <ol>
+      {notes.map((note) => (
+        <li>
+          <a href={note.permalink}>{note.title}</a>
+          <br />
+          <time datetime={note.date}>{note.date}</time>
+        </li>
+      ))}
+    </ol>
+  </main>
+</ArchiveLayout>

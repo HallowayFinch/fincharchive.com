@@ -1,0 +1,26 @@
+---
+import { marked } from 'marked';
+import ArchiveLayout from '../../layouts/ArchiveLayout.astro';
+import { getFieldNote, getFieldNoteSlugs } from '../../archive';
+
+export async function getStaticPaths() {
+  const slugs = await getFieldNoteSlugs();
+
+  return slugs.map((slug) => ({
+    params: { slug },
+  }));
+}
+
+const { slug } = Astro.params;
+const note = await getFieldNote(slug!);
+const html = marked.parse(note.body);
+---
+
+<ArchiveLayout title={`${note.title} · Finch Archive`}>
+  <main>
+    <p><a href="/field-notes/">Field Notes</a></p>
+    <h1>{note.title}</h1>
+    <time datetime={note.date}>{note.date}</time>
+    <article set:html={html} />
+  </main>
+</ArchiveLayout>
