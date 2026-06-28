@@ -1,3 +1,5 @@
+import { archiveOfficeAssets } from '../../assets/archive-office';
+
 export const archiveOffice = {
   id: 'archive-office',
   internalName: 'Archive Office',
@@ -15,7 +17,7 @@ export const archiveOffice = {
     overhead: false,
   },
   assets: {
-    background: '/assets/archive-office/background.webp',
+    background: archiveOfficeAssets.background.path,
     objectsPath: '/assets/archive-office/objects/',
   },
   environment: [
