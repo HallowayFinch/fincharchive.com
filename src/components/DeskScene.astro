@@ -3,7 +3,13 @@ import { deskScene } from '../archive/scene/desk';
 ---
 
 <section class="desk-scene" aria-label={deskScene.name}>
-  <div class="desk-surface">
+  <div
+    class="desk-surface"
+    style={`background-image:
+      radial-gradient(circle at 34% 26%, rgba(214, 154, 83, 0.24), transparent 30%),
+      linear-gradient(135deg, #24170f, #090706 70%),
+      url(${deskScene.room.assets.background});`}
+  >
     {deskScene.objects.map((object) => (
       <a
         class={`desk-object desk-object--${object.id}`}
@@ -13,6 +19,7 @@ import { deskScene } from '../archive/scene/desk';
           top:${object.y}%;
           width:${object.width}%;
           height:${object.height}%;
+          --object-image: url(${object.image});
         `}
       >
         <span>{object.label}</span>

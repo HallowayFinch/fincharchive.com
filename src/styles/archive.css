@@ -191,3 +191,10 @@ body:has(.terminal) {
   text-align: right;
   color: var(--muted);
 }
+
+.desk-object {
+  background-image: var(--object-image);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
