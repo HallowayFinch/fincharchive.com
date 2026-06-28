@@ -4,7 +4,7 @@ export type SceneObject = {
   assetId?: string;
   name?: string;
   status?: string;
-  href: string;
+  href?: string;
   image?: string;
   x: number;
   y: number;
@@ -21,4 +21,5 @@ export type LocationSceneData = {
     };
   };
   materials: SceneObject[];
+  ambient?: SceneObject[];
 };
