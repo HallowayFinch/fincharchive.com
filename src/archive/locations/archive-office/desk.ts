@@ -1,5 +1,5 @@
-import { archiveOffice } from '../locations/archive-office/location';
-import { archiveMaterials } from '../materials';
+import { archiveOffice } from './location';
+import { archiveMaterials } from '../../materials';
 
 export const deskScene = {
   id: 'scene-0001',
