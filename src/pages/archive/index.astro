@@ -1,13 +1,11 @@
 ---
 import ArchiveLayout from '../../layouts/ArchiveLayout.astro';
+import DeskScene from '../../components/DeskScene.astro';
 ---
 
 <ArchiveLayout hideHeader={true} title="Archive · Finch Archive">
-  <main>
-    <h1>Archive</h1>
-    <p>The desk interface has not been reconstructed yet.</p>
-    <p><a href="/logs/">Case files</a></p>
-    <p><a href="/field-notes/">Field notes</a></p>
-    <p><a href="/timeline/">Timeline</a></p>
+  <main class="archive-desk-page">
+    <DeskScene />
+    <p class="return-link"><a href="/">Return to terminal</a></p>
   </main>
 </ArchiveLayout>

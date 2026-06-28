@@ -123,3 +123,71 @@ body:has(.terminal) {
 @keyframes blink {
   50% { opacity: 0; }
 }
+
+.archive-desk-page {
+  max-width: none;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.desk-scene {
+  width: min(92vw, 1200px);
+  margin: 0 auto;
+}
+
+.desk-surface {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  background:
+    radial-gradient(circle at 34% 26%, rgba(214, 154, 83, 0.24), transparent 30%),
+    linear-gradient(135deg, #24170f, #090706 70%);
+  box-shadow: 0 2rem 6rem rgba(0,0,0,0.65);
+}
+
+.desk-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.025), transparent 18%, rgba(255,255,255,0.018) 42%, transparent 67%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.025), rgba(255,255,255,0.025) 1px, transparent 1px, transparent 9px);
+  opacity: 0.42;
+  pointer-events: none;
+}
+
+.desk-object {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(232, 226, 216, 0.18);
+  background: rgba(0,0,0,0.28);
+  color: var(--text);
+  text-decoration: none;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.desk-object span {
+  background: rgba(0,0,0,0.68);
+  padding: 0.35rem 0.55rem;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.desk-object:hover,
+.desk-object:focus-visible {
+  transform: translateY(-3px);
+  border-color: rgba(232, 226, 216, 0.55);
+  background: rgba(155, 75, 69, 0.18);
+  box-shadow: 0 0 1.8rem rgba(232, 226, 216, 0.12);
+}
+
+.return-link {
+  width: min(92vw, 1200px);
+  margin: 1rem auto 0;
+  text-align: right;
+  color: var(--muted);
+}

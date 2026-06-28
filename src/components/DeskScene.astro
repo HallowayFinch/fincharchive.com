@@ -1,0 +1,22 @@
+---
+import { deskScene } from '../archive/scene/desk';
+---
+
+<section class="desk-scene" aria-label={deskScene.name}>
+  <div class="desk-surface">
+    {deskScene.objects.map((object) => (
+      <a
+        class={`desk-object desk-object--${object.id}`}
+        href={object.href}
+        style={`
+          left:${object.x}%;
+          top:${object.y}%;
+          width:${object.width}%;
+          height:${object.height}%;
+        `}
+      >
+        <span>{object.label}</span>
+      </a>
+    ))}
+  </div>
+</section>
