@@ -8,9 +8,9 @@ import { deskScene } from '../archive/scene/desk';
     style={`background-image:
       radial-gradient(circle at 34% 26%, rgba(214, 154, 83, 0.24), transparent 30%),
       linear-gradient(135deg, #24170f, #090706 70%),
-      url(${deskScene.room.assets.background});`}
+      url(${deskScene.location.assets.background});`}
   >
-    {deskScene.objects.map((object) => (
+    {deskScene.materials.map((object) => (
       <a
         class={`desk-object desk-object--${object.id}`}
         href={object.href}
