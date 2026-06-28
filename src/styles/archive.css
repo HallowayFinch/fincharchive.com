@@ -131,7 +131,7 @@ body:has(.terminal) {
 }
 
 .location-scene {
-  width: min(92vw, 1200px);
+  width: min(100vw, 1200px);
   margin: 0 auto;
 }
 
@@ -146,8 +146,55 @@ body:has(.terminal) {
     linear-gradient(135deg, #24170f, #090706 70%);
   background-position: center, center, center;
   background-repeat: no-repeat;
-  background-size: auto, auto, cover;
+  background-size: cover, auto, auto;
   box-shadow: 0 2rem 6rem rgba(0,0,0,0.65);
+}
+
+body:has(.archive-room) {
+  overflow: hidden;
+  background: #020202;
+}
+
+body:has(.archive-room) .archive-room {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  max-width: none;
+  height: 100vh;
+  height: 100svh;
+  min-height: 100vh;
+  min-height: 100svh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #020202;
+}
+
+.archive-room .location-scene {
+  width: max(100vw, calc(100svh * 1.5));
+  height: max(100svh, calc(100vw / 1.5));
+  max-width: none;
+  flex: 0 0 auto;
+}
+
+.archive-room .location-scene__surface {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+@supports (height: 100dvh) {
+  body:has(.archive-room) .archive-room {
+    height: 100dvh;
+    min-height: 100dvh;
+  }
+
+  .archive-room .location-scene {
+    width: max(100vw, calc(100dvh * 1.5));
+    height: max(100dvh, calc(100vw / 1.5));
+  }
 }
 
 .location-scene__surface::before {
@@ -174,12 +221,11 @@ body:has(.terminal) {
   align-items: flex-end;
   justify-content: flex-start;
   padding: 0.65rem;
-  border: 1px solid rgba(232, 226, 216, 0.08);
+  border: 1px solid rgba(232, 226, 216, 0);
   background: var(--object-image) center / contain no-repeat;
   color: var(--text);
   text-decoration: none;
-  box-shadow:
-    0 0.8rem 1.8rem rgba(0,0,0,0.22);
+  box-shadow: none;
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
   z-index: 2;
 }
@@ -198,6 +244,10 @@ body:has(.terminal) {
   display: grid;
   gap: 0.1rem;
   padding: 0.38rem 0.48rem;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(0.2rem);
+  transition: opacity 160ms ease, transform 160ms ease;
 }
 
 .location-scene__object-id {
@@ -227,7 +277,7 @@ body:has(.terminal) {
 .location-scene__object:hover,
 .location-scene__object:focus-visible {
   transform: translateY(-3px);
-  border-color: rgba(232, 226, 216, 0.55);
+  border-color: rgba(232, 226, 216, 0.18);
   box-shadow:
     inset 0 0 0 1px rgba(232, 226, 216, 0.1),
     0 0 1.8rem rgba(232, 226, 216, 0.12);
@@ -236,6 +286,7 @@ body:has(.terminal) {
 .location-scene__object:focus-visible {
   outline: 2px solid rgba(232, 226, 216, 0.72);
   outline-offset: 3px;
+  border-color: rgba(232, 226, 216, 0.45);
 }
 
 .location-scene__object:hover .location-scene__hover-label,
