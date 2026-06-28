@@ -1,17 +1,31 @@
 ---
+import ArchiveLayout from '../layouts/ArchiveLayout.astro';
+import { getLogs, getFieldNotes } from '../archive';
 
+const logs = await getLogs();
+const fieldNotes = await getFieldNotes();
+const syncTime = new Date().toISOString();
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<ArchiveLayout title="Finch Archive">
+  <main>
+    <p>FINCH ARCHIVE</p>
+    <h1>Public Access Terminal</h1>
+
+    <pre>{`Repository Status
+────────────────────────────
+Archive synchronized.
+
+${logs.length} Archive Logs
+${fieldNotes.length} Field Note${fieldNotes.length === 1 ? '' : 's'}
+Timeline Index Available
+
+Last synchronization:
+${syncTime}
+
+Access Level:
+PUBLIC`}</pre>
+
+    <p><a href="/archive/">Enter Archive →</a></p>
+  </main>
+</ArchiveLayout>
