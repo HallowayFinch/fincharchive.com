@@ -1,0 +1,25 @@
+---
+import type { PresenceSystem } from '../archive/models/scene';
+
+type Props = {
+  systems?: PresenceSystem[];
+};
+
+const { systems = [] } = Astro.props;
+---
+
+{systems.length > 0 && (
+  <div class="presence-layer" aria-hidden="true">
+    {systems.map((system) => (
+      <span
+        class={`presence-layer__system presence-layer__system--${system.kind} presence-layer__system--${system.intensity ?? 'low'}`}
+        style={`
+          left:${system.x}%;
+          top:${system.y}%;
+          width:${system.width}%;
+          height:${system.height}%;
+        `}
+      />
+    ))}
+  </div>
+)}
