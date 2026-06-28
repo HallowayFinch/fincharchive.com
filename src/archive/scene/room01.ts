@@ -14,6 +14,10 @@ export const room01 = {
     secondary: 'cool moonlight from left window',
     overhead: false,
   },
+  assets: {
+    background: '/assets/room01/background.webp',
+    objectsPath: '/assets/room01/objects/',
+  },
   environment: [
     'dark walnut desk',
     'desk lamp',
