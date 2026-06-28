@@ -13,14 +13,33 @@ const { scene = archiveOfficeDesk } = Astro.props;
   <div
     class="location-scene__surface"
     style={`background-image:
+      url(${scene.location.assets.background}),
       radial-gradient(circle at 34% 26%, rgba(214, 154, 83, 0.24), transparent 30%),
-      linear-gradient(135deg, #24170f, #090706 70%),
-      url(${scene.location.assets.background});`}
+      linear-gradient(135deg, #24170f, #090706 70%);`}
   >
+    {scene.ambient?.map((object) => {
+      const objectImage = object.image ? `url(${object.image})` : 'none';
+
+      return (
+        <span
+          class={`location-scene__ambient location-scene__ambient--${object.id}`}
+          aria-hidden="true"
+          style={`
+            left:${object.x}%;
+            top:${object.y}%;
+            width:${object.width}%;
+            height:${object.height}%;
+            --object-image: ${objectImage};
+          `}
+        />
+      );
+    })}
+
     {scene.materials.map((object) => {
       const objectName = object.name ?? object.label;
       const objectStatus = object.status ?? 'INDEXED';
       const objectImage = object.image ? `url(${object.image})` : 'none';
+      const objectHref = object.href ?? '#';
       const accessibleLabel = [objectName, object.assetId, `Status: ${objectStatus}`]
         .filter(Boolean)
         .join('. ');
@@ -28,7 +47,7 @@ const { scene = archiveOfficeDesk } = Astro.props;
       return (
         <a
           class={`location-scene__object location-scene__object--${object.id}`}
-          href={object.href}
+          href={objectHref}
           aria-label={accessibleLabel}
           style={`
             left:${object.x}%;
