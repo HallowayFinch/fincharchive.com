@@ -222,8 +222,11 @@ body:has(.archive-room) .archive-room {
 }
 
 .presence-layer__system--rain {
+  --presence-rain-line: rgba(154, 191, 219, 0.28);
+  --presence-rain-opacity: 0.36;
+
   overflow: hidden;
-  opacity: 0.28;
+  opacity: var(--presence-rain-opacity);
   mix-blend-mode: screen;
 }
 
@@ -236,23 +239,28 @@ body:has(.archive-room) .archive-room {
     repeating-linear-gradient(
       104deg,
       transparent 0 12px,
-      rgba(146, 181, 208, 0.2) 12px 13px,
+      var(--presence-rain-line) 12px 13px,
       transparent 13px 24px
     );
-  filter: blur(0.45px);
+  filter: blur(0.35px);
   transform: translate3d(0, -18%, 0);
-  animation: archive-rain 8s linear infinite;
+  animation: archive-rain 9s linear infinite;
 }
 
 .presence-layer__system--rain::after {
-  opacity: 0.42;
+  opacity: 0.5;
   background-size: 140% 140%;
-  animation-duration: 12s;
+  animation-duration: 14s;
   animation-delay: -3s;
 }
 
 .presence-layer__system--dust {
-  opacity: 0.18;
+  --presence-dust-bright: rgba(235, 211, 164, 0.25);
+  --presence-dust-mid: rgba(235, 211, 164, 0.2);
+  --presence-dust-soft: rgba(235, 211, 164, 0.16);
+  --presence-dust-opacity: 0.21;
+
+  opacity: var(--presence-dust-opacity);
   mix-blend-mode: screen;
 }
 
@@ -262,10 +270,10 @@ body:has(.archive-room) .archive-room {
   position: absolute;
   inset: -12%;
   background-image:
-    radial-gradient(circle at 12% 22%, rgba(235, 211, 164, 0.22) 0 1px, transparent 1.4px),
-    radial-gradient(circle at 48% 64%, rgba(235, 211, 164, 0.18) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 78% 34%, rgba(235, 211, 164, 0.16) 0 1px, transparent 1.4px);
-  background-size: 11rem 8rem, 15rem 11rem, 13rem 10rem;
+    radial-gradient(circle at 12% 22%, var(--presence-dust-bright) 0 1px, transparent 1.45px),
+    radial-gradient(circle at 48% 64%, var(--presence-dust-mid) 0 1px, transparent 1.55px),
+    radial-gradient(circle at 78% 34%, var(--presence-dust-soft) 0 1px, transparent 1.45px);
+  background-size: 10rem 7.5rem, 14rem 10rem, 12rem 9rem;
   filter: blur(0.2px);
   transform: translate3d(-1%, 1%, 0);
   animation: archive-dust 34s ease-in-out infinite alternate;
@@ -278,12 +286,12 @@ body:has(.archive-room) .archive-room {
 }
 
 .presence-layer__system--lamp-instability {
-  opacity: 0.13;
+  opacity: 0.1;
   background:
-    radial-gradient(ellipse at 72% 18%, rgba(255, 199, 116, 0.42), transparent 28%),
-    radial-gradient(ellipse at 48% 58%, rgba(205, 142, 72, 0.2), transparent 55%);
+    radial-gradient(ellipse at 72% 18%, rgba(255, 199, 116, 0.34), transparent 28%),
+    radial-gradient(ellipse at 48% 58%, rgba(205, 142, 72, 0.16), transparent 55%);
   mix-blend-mode: screen;
-  animation: archive-lamp 18s ease-in-out infinite;
+  animation: archive-lamp 28s ease-in-out infinite;
 }
 
 @keyframes archive-rain {
@@ -300,19 +308,19 @@ body:has(.archive-room) .archive-room {
 
 @keyframes archive-lamp {
   0%, 100% {
-    opacity: 0.1;
+    opacity: 0.08;
   }
 
   42% {
-    opacity: 0.14;
+    opacity: 0.11;
   }
 
   58% {
-    opacity: 0.12;
+    opacity: 0.09;
   }
 
   76% {
-    opacity: 0.15;
+    opacity: 0.115;
   }
 }
 
