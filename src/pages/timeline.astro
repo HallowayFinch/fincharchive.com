@@ -1,0 +1,21 @@
+---
+import ArchiveLayout from '../layouts/ArchiveLayout.astro';
+import { getTimeline } from '../archive/services/timeline';
+
+const records = await getTimeline();
+---
+
+<ArchiveLayout title="Timeline · Finch Archive">
+  <main>
+    <h1>Timeline</h1>
+    <ol>
+      {records.map((record) => (
+        <li>
+          <a href={record.permalink}>{record.title}</a>
+          <br />
+          <small>{record.type} · <time datetime={record.date}>{record.date}</time></small>
+        </li>
+      ))}
+    </ol>
+  </main>
+</ArchiveLayout>
