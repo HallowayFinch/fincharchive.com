@@ -1,6 +1,6 @@
 ---
 import '../styles/archive.css';
-const { title = 'Finch Archive' } = Astro.props;
+const { title = 'Finch Archive', hideHeader = false } = Astro.props;
 ---
 
 <html lang="en">
@@ -10,14 +10,16 @@ const { title = 'Finch Archive' } = Astro.props;
     <title>{title}</title>
   </head>
   <body>
-    <header>
-      <a href="/">Finch Archive</a>
-      <nav>
-        <a href="/logs/">Logs</a>
-        <a href="/field-notes/">Field Notes</a>
-        <a href="/timeline/">Timeline</a>
-      </nav>
-    </header>
+{!hideHeader && (
+      <header>
+        <a href="/">Finch Archive</a>
+        <nav>
+          <a href="/logs/">Logs</a>
+          <a href="/field-notes/">Field Notes</a>
+          <a href="/timeline/">Timeline</a>
+        </nav>
+      </header>
+    )}
 
     <slot />
   </body>
