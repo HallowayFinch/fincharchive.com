@@ -1,7 +1,7 @@
 ---
 import { marked } from 'marked';
 import ArchiveLayout from '../../layouts/ArchiveLayout.astro';
-import { getLog, getLogSlugs } from '../../lib/archive';
+import { getLog, getLogSlugs } from '../../archive';
 
 export async function getStaticPaths() {
   const slugs = await getLogSlugs();
