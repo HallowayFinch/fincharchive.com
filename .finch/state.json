@@ -1,5 +1,5 @@
 {
-  "next_seq": 40,
+  "next_seq": 41,
   "guid_to_slug": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "the-voice-in-the-static",
     "https://hallowayfinch.substack.com/p/the-orchard-transmission": "the-orchard-transmission",
@@ -39,7 +39,8 @@
     "/p/the-definitive-event": "the-definitive-event",
     "/p/the-deviation": "the-deviation",
     "/p/the-predecessor": "the-predecessor",
-    "/p/the-collapse": "the-collapse"
+    "/p/the-collapse": "the-collapse",
+    "/p/the-floor-that-didnt-exist": "the-floor-that-didnt-exist"
   },
   "guid_to_log_id": {
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static": "1022A",
@@ -80,7 +81,8 @@
     "/p/the-definitive-event": "1022AJ",
     "/p/the-deviation": "1022AK",
     "/p/the-predecessor": "1022AL",
-    "/p/the-collapse": "1022AM"
+    "/p/the-collapse": "1022AM",
+    "/p/the-floor-that-didnt-exist": "1022AN"
   },
   "seen_guids": [
     "https://hallowayfinch.substack.com/p/the-voice-in-the-static",
@@ -121,6 +123,7 @@
     "/p/the-definitive-event",
     "/p/the-deviation",
     "/p/the-predecessor",
-    "/p/the-collapse"
+    "/p/the-collapse",
+    "/p/the-floor-that-didnt-exist"
   ]
 }
