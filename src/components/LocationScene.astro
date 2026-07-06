@@ -60,6 +60,7 @@ const { scene = archiveOfficeDesk } = Astro.props;
             --object-image: ${objectImage};
           `}
         >
+          <span class="location-scene__object-art" aria-hidden="true" />
           <span class="location-scene__object-plate">
             <span class="location-scene__object-name">{objectName}</span>
             {object.assetId && <span class="location-scene__object-id">{object.assetId}</span>}
