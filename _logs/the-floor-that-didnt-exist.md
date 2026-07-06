@@ -6,7 +6,7 @@ date: "2026-07-04T02:22:45+00:00"
 source_url: "https://www.hallowayfinch.com/p/the-floor-that-didnt-exist"
 guid: "/p/the-floor-that-didnt-exist"
 permalink: "/logs/the-floor-that-didnt-exist/"
-hero_image: "https://substack-post-media.s3.amazonaws.com/public/images/f46eef39-42cb-4184-a46c-1cb59464d490_1200x675.png"
+hero_image: "https://substack-post-media.s3.amazonaws.com/public/images/63db877f-8075-44e8-a590-3fdd503603c9_1200x675.png"
 ---
 I arrived at the North Harrow County Courthouse at 7:40 a.m. following a request from the facilities supervisor, who described the matter as a “mapping error.”
 
