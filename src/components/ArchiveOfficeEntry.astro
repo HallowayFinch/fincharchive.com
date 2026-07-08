@@ -1,0 +1,43 @@
+---
+import { archiveOfficeDesk } from '../archive/locations';
+import LocationScene from './LocationScene.astro';
+
+type Props = {
+  showIntro?: boolean;
+};
+
+const { showIntro = false } = Astro.props;
+
+const navigation = archiveOfficeDesk.materials.map((object) => {
+  const labelById: Record<string, string> = {
+    'case-files': 'Case Files',
+    'field-notes': 'Field Notes',
+    recorder: 'Tape Index',
+    photographs: 'Timeline',
+  };
+
+  return {
+    href: object.href,
+    label: labelById[object.id] ?? object.label,
+  };
+}).filter((item) => item.href);
+---
+
+<div class={`archive-entry${showIntro ? ' archive-entry--home' : ''}`}>
+  <div class="archive-entry__scene">
+    <LocationScene scene={archiveOfficeDesk} />
+  </div>
+
+  {showIntro && (
+    <div class="archive-entry__intro" aria-labelledby="archive-entry-title">
+      <p>FINCH ARCHIVE</p>
+      <h1 id="archive-entry-title">Recovered investigations, field notes, and unresolved records.</h1>
+    </div>
+  )}
+
+  <nav class="archive-entry__nav" aria-label="Archive records">
+    {navigation.map((item) => (
+      <a href={item.href}>{item.label}</a>
+    ))}
+  </nav>
+</div>

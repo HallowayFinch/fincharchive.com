@@ -18,10 +18,10 @@ export const archiveOfficeAssets = {
     },
     {
       id: 'AO-102',
-      name: 'MAGNETIC AUDIO RECORDER',
+      name: 'FIELD RECORDER',
       path: '/assets/archive-office/interactive/ao-102-recorder.webp',
-      productionStage: 'HF-0.4 final-approved transparent runtime layer with tightened canvas',
-      cleanup: 'Runtime QA should confirm desk grounding and spacing from the coffee mug.',
+      productionStage: 'HF-0.5A final-approved personal field recorder runtime layer',
+      cleanup: 'Runtime QA should confirm smaller personal recorder scale, desk grounding, and spacing from the mug and keys.',
       status: 'OPERATIONAL',
       target: '/t/',
     },
