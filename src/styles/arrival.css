@@ -1,0 +1,75 @@
+/*
+ * HF-0.5 Phase 1 — Arrival
+ * Homepage-specific restraint pass.
+ *
+ * The Archive Office is the homepage. The room should introduce itself;
+ * visible navigation and explanatory copy should not compete with the scene.
+ */
+
+body:has(.archive-room--arrival) {
+  background: #020202;
+}
+
+.archive-room--arrival {
+  isolation: isolate;
+}
+
+/* Defensive cleanup for prior homepage experiments. These selectors are intentionally
+   narrow to the arrival page and harmless if the classes are not present. */
+.archive-room--arrival .archive-home__intro,
+.archive-room--arrival .archive-home__copy,
+.archive-room--arrival .archive-home__nav,
+.archive-room--arrival .archive-entry,
+.archive-room--arrival .archive-entry__copy,
+.archive-room--arrival .archive-entry__nav,
+.archive-room--arrival .archive-mobile-nav,
+.archive-room--arrival .archive-quick-nav,
+.archive-room--arrival .home-nav,
+.archive-room--arrival .arrival-copy,
+.archive-room--arrival .arrival-nav {
+  display: none !important;
+}
+
+/* On the homepage, discovery should happen through the room itself. */
+.archive-room--arrival .location-scene__object-plate {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  /* Mobile should feel like the visitor is closer to the desk, not like the
+     desktop composition was squeezed into a phone. */
+  body:has(.archive-room--arrival) {
+    overflow: hidden;
+  }
+
+  .archive-room--arrival {
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+    overflow: hidden !important;
+  }
+
+  .archive-room--arrival .location-scene {
+    flex: 0 0 auto;
+    transform: translateX(-2%);
+    transform-origin: top left;
+  }
+
+  /* Mobile arrival focuses on the case folder. Other routes still retain the
+     full interactive desk. */
+  .archive-room--arrival .location-scene__object:not(.location-scene__object--case-files),
+  .archive-room--arrival .location-scene__ambient:not(.location-scene__ambient--desk-lamp) {
+    display: none !important;
+  }
+
+  .archive-room--arrival .location-scene__object--case-files {
+    min-width: 9rem;
+    min-height: 7rem;
+  }
+
+  .archive-room--arrival .location-scene__hover-label {
+    left: 0;
+    right: auto;
+    bottom: calc(100% + 0.35rem);
+    max-width: calc(100vw - 2rem);
+  }
+}

@@ -1,31 +1,11 @@
 ---
 import ArchiveLayout from '../layouts/ArchiveLayout.astro';
-import { getLogs, getFieldNotes } from '../archive';
-
-const logs = await getLogs();
-const fieldNotes = await getFieldNotes();
-const syncTime = new Date().toISOString();
+import LocationScene from '../components/LocationScene.astro';
+import '../styles/arrival.css';
 ---
 
 <ArchiveLayout hideHeader={true} title="Finch Archive">
-  <main>
-    <p>FINCH ARCHIVE</p>
-    <h1>Public Access Terminal</h1>
-
-    <pre>{`Repository Status
-────────────────────────────
-Archive synchronized.
-
-${logs.length} Archive Logs
-${fieldNotes.length} Field Note${fieldNotes.length === 1 ? '' : 's'}
-Timeline Index Available
-
-Last synchronization:
-${syncTime}
-
-Access Level:
-PUBLIC`}</pre>
-
-    <p><a href="/archive/">Enter Archive →</a></p>
+  <main class="archive-room archive-room--arrival" aria-label="Finch Archive">
+    <LocationScene />
   </main>
 </ArchiveLayout>
